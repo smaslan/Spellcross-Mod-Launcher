@@ -1,0 +1,164 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "winres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// Èeština (Èeská republika) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_CSY)
+LANGUAGE LANG_CZECH, SUBLANG_DEFAULT
+#pragma code_page(1250)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""winres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+WXWINDOWMENU MENU
+BEGIN
+    POPUP "&Window"
+    BEGIN
+        MENUITEM "&Cascade",                    4002
+        MENUITEM "Tile &Horizontally",          4001
+        MENUITEM "Tile &Vertically",            4005
+        MENUITEM "",                            65535
+        MENUITEM "&Arrange Icons",              4003
+        MENUITEM "&Next",                       4004
+    END
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+WXCURSOR_HAND           CURSOR                  "wx/msw/hand.cur"
+
+WXCURSOR_BULLSEYE       CURSOR                  "wx/msw/bullseye.cur"
+
+WXCURSOR_PENCIL         CURSOR                  "wx/msw/pencil.cur"
+
+WXCURSOR_MAGNIFIER      CURSOR                  "wx/msw/magnif1.cur"
+
+WXCURSOR_ROLLER         CURSOR                  "wx/msw/roller.cur"
+
+WXCURSOR_PBRUSH         CURSOR                  "wx/msw/pbrush.cur"
+
+WXCURSOR_PLEFT          CURSOR                  "wx/msw/pntleft.cur"
+
+WXCURSOR_PRIGHT         CURSOR                  "wx/msw/pntright.cur"
+
+WXCURSOR_BLANK          CURSOR                  "wx/msw/blank.cur"
+
+WXCURSOR_CROSS          CURSOR                  "wx/msw/cross.cur"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON1               ICON                    "ico/icon.ico"
+
+WXICON_AAA              ICON                    "wx/msw/std.ico"
+
+WXICON_SMALL_CLOSED_FOLDER ICON                    "wx/msw/folder1.ico"
+
+WXICON_SMALL_OPEN_FOLDER ICON                    "wx/msw/folder2.ico"
+
+WXICON_SMALL_FILE       ICON                    "wx/msw/file1.ico"
+
+WXICON_SMALL_COMPUTER   ICON                    "wx/msw/computer.ico"
+
+WXICON_SMALL_DRIVE      ICON                    "wx/msw/drive.ico"
+
+WXICON_SMALL_CDROM      ICON                    "wx/msw/cdrom.ico"
+
+WXICON_SMALL_FLOPPY     ICON                    "wx/msw/floppy.ico"
+
+WXICON_SMALL_REMOVEABLE ICON                    "wx/msw/removble.ico"
+
+IDI_ICON2               ICON                    "ico/icon.ico"
+
+IDI_INFO               ICON                    "ico/info.ico"
+IDI_SPELCROS               ICON                    "ico/SPELCROS.ICO"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Bitmap
+//
+
+CSQUERY                 BITMAP                  "wx/msw/csquery.bmp"
+
+WXBITMAP_STD_COLOURS    BITMAP                  "wx/msw/colours.bmp"
+
+IDI_MULTI               BITMAP                  "ico/multi.bmp"
+IDI_FOLDER              BITMAP                  "ico/folder.bmp"
+IDI_FOLDER_OPEN         BITMAP                  "ico/folder_open.bmp"
+IDI_SINGLE              BITMAP                  "ico/single.bmp"
+IDI_SPR_A               BITMAP                  "ico/spr_a.bmp"
+IDI_SPR_OBJ             BITMAP                  "ico/spr_obj.bmp"
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// PNG
+//
+
+IDB_PNG1                PNG                     "ico/multi.png"
+
+#endif    // Èeština (Èeská republika) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+
