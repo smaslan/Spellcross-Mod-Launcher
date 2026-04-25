@@ -561,6 +561,12 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnModInfo,this,wxID_MM_MOD_INFO);
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormMain::OnModInfo,this,wxID_BTN_MOD_INFO);
+
+	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSaveWD,this,wxID_MM_SAVE_WD_ORG);
+	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSaveWD,this,wxID_MM_RESTORE_WD_ORG);
+	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSaveWD,this,wxID_MM_SAVE_WD_MOD);
+	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSaveWD,this,wxID_MM_RESTORE_WD_MOD);
+	
 	
 	Bind(wxEVT_THREAD,&FormMain::OnBuildModEvent,this,wxID_PROC_THREAD);
 
@@ -694,6 +700,102 @@ void FormMain::OnModInfo(wxCommandEvent& event)
 		// failed
 		wxMessageDialog dial(this,string_format("Cannot open mod info HTML file:\n%ls:\n\nThe file is either not found or it is blocked by system setup (security setup). Try to open it manually from mod folder.",path.wstring().c_str()),_("Opening help..."),wxICON_ERROR);
 		dial.ShowModal();
+	}
+}
+
+// on backup save WORKDIR
+void FormMain::OnBackupSaveWD(wxCommandEvent& event)
+{
+	bool is_save = event.GetId() == wxID_MM_SAVE_WD_ORG || event.GetId() == wxID_MM_SAVE_WD_MOD;
+	bool is_mod = event.GetId() == wxID_MM_SAVE_WD_MOD || event.GetId() == wxID_MM_RESTORE_WD_MOD;
+
+	std::filesystem::path save_dir;
+	if(is_mod)
+	{
+		auto mod_path = GetPathChoiceLastPath(chModPath);
+		save_dir = std::filesystem::path(mod_path).parent_path() / "save";
+	}
+	else
+	{
+		auto spell_dir = GetPathChoiceLastPath(chSpellPath);
+		if(spell_dir.empty())
+			return;	
+		save_dir = std::filesystem::path(spell_dir) / "SAVE";
+	}
+
+	auto src_path = save_dir / "WORKDIR";
+	auto dest_path = save_dir / "WORKDIR_backup";
+	if(!is_save)
+		std::swap(src_path, dest_path);
+
+	std::vector<std::string> names;
+	fs_list_dir(dest_path, "*", true, true, &names);
+		
+	std::string info = "";
+	if(is_save)
+		info += "Making backup of Spellcross temporary save game WORKDIR.\n\n";
+	else
+		info += "Restoring backup of Spellcross temporary save game WORKDIR.\n\n";
+
+	if(!std::filesystem::exists(save_dir) || !std::filesystem::exists(src_path))
+	{
+		info += string_format("Source savegame directory:\n  %ls\ndoes not exist! ",save_dir.wstring().c_str());
+		info += string_format("You may have wrong paths set? Or maybe no save was made yet?",save_dir.wstring().c_str());
+		wxMessageDialog dial(this,info,"Backup of savegame ...",wxICON_ERROR);
+		dial.ShowModal();
+		return;
+	}
+
+	if(names.empty())
+	{
+		if(is_save)
+			info += string_format("Current WORKDIR save game:\n  %ls\nwith its content will be copied to backup location:\n  %ls.",src_path.wstring().c_str(),dest_path.wstring().c_str());
+		else
+			info += string_format("Backup WORKDIR save game/:\n  %ls\nwith its content will be restored to location:\n  %ls.",src_path.wstring().c_str(),dest_path.wstring().c_str());
+	}
+	else
+	{
+		if(is_save)
+			info += string_format("Existing backup of WORKDIR save game:\n  %ls\nwith its content:\n",dest_path.wstring().c_str());
+		else
+			info += string_format("Existing WORKDIR save game:\n  %ls\nwith its content:\n",dest_path.wstring().c_str());
+		for(auto &item: names)
+			info += string_format("  %s\n",item.c_str());
+		if(is_save)
+			info += string_format("will be removed and replaced by current save game WORKDIR:\n  %ls.",src_path.wstring().c_str());
+		else
+			info += string_format("will be removed and replaced by backup of WORKDIR save game:\n  %ls.",src_path.wstring().c_str());
+	}
+
+	wxMessageDialog dial(this,info,"Backup of savegame ...", wxYES_NO | wxICON_QUESTION);
+	if(dial.ShowModal() != wxID_YES)
+		return;
+
+	// try remove old save
+	if(std::filesystem::exists(dest_path))
+	{
+		if(fs_remove(dest_path, true))
+		{
+			// failed
+			wxMessageDialog dial(this,string_format("Cannot remove old save directory:\n  %ls\nPossibly sharing violation. Maybe you are currently viewing the save folder?",dest_path.wstring().c_str()),"Backup of savegame ...",wxICON_ERROR);
+			dial.ShowModal();
+			return;
+		}
+	}
+
+	// make or restore backup
+	if(fs_copy(src_path, dest_path, std::filesystem::copy_options::recursive))
+	{
+		// failed
+		wxMessageDialog dial(this,string_format("Cannot copy save directory:\n  %ls\nto its new location:\n  %ls\nPossibly sharing violation. Maybe you are currently viewing the save folder?",src_path.wstring().c_str(),dest_path.wstring().c_str()),"Backup of savegame ...",wxICON_ERROR);
+		dial.ShowModal();
+		return;
+	}
+
+	// ok
+	{
+		wxMessageDialog dial(this,string_format("Done!",src_path.wstring().c_str(),dest_path.wstring().c_str()),"Backup of savegame ...",wxICON_INFORMATION);
+		dial.ShowModal();	
 	}
 }
 

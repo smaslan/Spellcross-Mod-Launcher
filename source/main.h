@@ -121,6 +121,7 @@ private:
 	void OnRunGame(wxCommandEvent& event);
 	void OnRunGameSetup(wxCommandEvent& event);
 	void OnModInfo(wxCommandEvent& event);
+	void OnBackupSaveWD(wxCommandEvent& event);
 
 	//void ConsoleStringCallback(std::string info);
 	

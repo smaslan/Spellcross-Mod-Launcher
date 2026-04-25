@@ -29,6 +29,8 @@ std::string get_timestr_iso();
 
 bool fs_rename(std::filesystem::path source,std::filesystem::path dest);
 bool fs_copy(std::filesystem::path source,std::filesystem::path dest,std::filesystem::copy_options options=std::filesystem::copy_options::none);
+bool fs_remove(std::filesystem::path path,bool all=false);
+int fs_list_dir(std::filesystem::path dir,std::string wild,bool files,bool folders,std::vector<std::string>* names=NULL,std::vector<std::filesystem::path>* paths=NULL);
 
 bool iswild(std::string wild);
 bool iswild(const char* wild);

@@ -466,6 +466,64 @@ bool fs_copy(std::filesystem::path source,std::filesystem::path dest,std::filesy
     return(err || err_except);
 }
 
+// remove file or folder (optional all=true: with subfolders)
+bool fs_remove(std::filesystem::path path, bool all)
+{
+    std::error_code err;
+    bool err_except = false;
+    try {
+        if(all)
+            std::filesystem::remove_all(path,err);
+        else
+            std::filesystem::remove(path,err);
+    }
+    catch(const std::runtime_error& error) {
+        err_except = true;
+    }
+    return(err || err_except);
+}
+
+// list items 
+int fs_list_dir(std::filesystem::path dir, std::string wild, bool files, bool folders, std::vector<std::string> *names, std::vector<std::filesystem::path> *paths)
+{    
+    int count = 0;
+    if(names)
+        names->clear();
+    if(paths)
+        paths->clear();
+    if(!std::filesystem::exists(dir))
+        return(0);
+    for(const auto& entry: std::filesystem::directory_iterator(dir))
+    {
+        auto item = entry.path();
+        if(!entry.is_directory() || !folders)
+            continue;
+        auto name = item.filename().string();        
+        if(!wildcmp(wild.c_str(),name.c_str()))
+            continue;
+        if(names)
+            names->push_back(name);
+        if(paths)
+            paths->push_back(dir / name);
+        count++;
+    }
+    for(const auto& entry: std::filesystem::directory_iterator(dir))
+    {
+        auto item = entry.path();
+        if(entry.is_directory() || !files)
+            continue;
+        auto name = item.filename().string();
+        if(!wildcmp(wild.c_str(),name.c_str()))
+            continue;
+        if(names)
+            names->push_back(name);
+        if(paths)
+            paths->push_back(dir / name);
+        count++;
+    }
+    return(count);
+}
+
 
 
 // count bits in varible
