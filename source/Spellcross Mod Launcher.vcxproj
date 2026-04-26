@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClCompile Include="forms\form_about.cpp" />
     <ClCompile Include="forms\form_edit.cpp" />
+    <ClCompile Include="forms\form_save_backup.cpp" />
     <ClCompile Include="fsu_archive.cpp" />
     <ClCompile Include="fs_archive.cpp" />
     <ClCompile Include="LZ_spell.cpp" />
@@ -165,6 +166,7 @@
   <ItemGroup>
     <ClInclude Include="forms\form_about.h" />
     <ClInclude Include="forms\form_edit.h" />
+    <ClInclude Include="forms\form_save_backup.h" />
     <ClInclude Include="fsu_archive.h" />
     <ClInclude Include="fs_archive.h" />
     <ClInclude Include="resource.h" />

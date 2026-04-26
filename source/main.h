@@ -123,6 +123,7 @@ private:
 	void OnRunGame(wxCommandEvent& event);
 	void OnRunGameSetup(wxCommandEvent& event);
 	void OnModInfo(wxCommandEvent& event);
+	void OnBackupSave(wxCommandEvent& event);
 	void OnBackupSaveWD(wxCommandEvent& event);
 
 	
@@ -149,9 +150,12 @@ private:
 	
 
 	FormEdit *form_edit;
+	FormSaveBack *form_save_back;
 
 protected:
-	int wxID_FORM_EDIT = 5999;
+	
+	int wxID_FORM_SAVE_BACK = 5998;
+	int wxID_FORM_EDIT = 5999;	
 
 	enum
 	{
@@ -169,16 +173,16 @@ protected:
 		wxID_MM_MOD_BUILD,
 		wxID_MM_MOD_BUILD_SWAP,
 		wxID_MM_MOD_RESTORE,
-		wxID_MM_EDIT_MOD_DEF,
 		wxID_MM_MOD_CLEAN,
+		wxID_MM_EDIT_MOD_DEF,
 		wxID_MM_SAVE_WD_ORG,
 		wxID_MM_RESTORE_WD_ORG,
 		wxID_MM_SAVE_ORIG,
-		wxID_RESTORE_SAVE_ORIG,
+		wxID_MM_RESTORE_SAVE_ORIG,
 		wxID_MM_SAVE_WD_MOD,
 		wxID_MM_RESTORE_WD_MOD,
 		wxID_MM_SAVE_MOD,
-		wxID_RESTORE_SAVE_MOD,
+		wxID_MM_RESTORE_SAVE_MOD,
 		wxID_MM_BUILD_LAUNCH,
 		wxID_MM_RUN_ORIG,
 		wxID_MM_RUN_MOD,

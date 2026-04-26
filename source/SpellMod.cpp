@@ -1126,6 +1126,28 @@ int SpellMod::MakeSaveIni(std::filesystem::path save_dir, std::string descriptio
     return(save_ini.SaveFile(save_ini_path.wstring().c_str()));
 }
 
+// read save.ini in save folder
+int SpellMod::GetSaveIni(std::filesystem::path save_dir,SaveInfo& info)
+{    
+    info.description = "";
+    info.time = "";
+
+    auto save_ini_path = save_dir / "save.ini";
+    if(save_ini_path.empty())
+        return(1);
+    CSimpleIniA save_ini;
+    save_ini.LoadFile(save_ini_path.wstring().c_str());
+
+    auto desc = save_ini.GetValue("SAVE","description");
+    if(desc)
+        info.description = desc;
+
+    auto date = save_ini.GetValue("SAVE","date");
+    if(date)
+        info.time = date;
+
+    return(0);
+}
 
 
 

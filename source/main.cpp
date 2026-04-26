@@ -32,6 +32,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")*/
 
 #include "forms/form_about.h"
 #include "forms/form_edit.h"
+#include "forms/form_save_backup.h"
 
 #include "main.h"
 #include "other.h"
@@ -197,7 +198,7 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	msmSaveOrig->Append(mmSaveOrig);
 
 	wxMenuItem* mmRestoreSaveOrig;
-	mmRestoreSaveOrig = new wxMenuItem(msmSaveOrig,wxID_RESTORE_SAVE_ORIG,wxString(_("Restore SAVEGAME")),wxEmptyString,wxITEM_NORMAL);
+	mmRestoreSaveOrig = new wxMenuItem(msmSaveOrig,wxID_MM_RESTORE_SAVE_ORIG,wxString(_("Restore SAVEGAME")),wxEmptyString,wxITEM_NORMAL);
 	msmSaveOrig->Append(mmRestoreSaveOrig);
 
 	m_menu7->Append(msmSaveOrigItem);
@@ -219,7 +220,7 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	msmSaveMod->Append(mmSaveMod);
 
 	wxMenuItem* mmRestoreSaveMod;
-	mmRestoreSaveMod = new wxMenuItem(msmSaveMod,wxID_RESTORE_SAVE_MOD,wxString(_("Restore SAVEGAME")),wxEmptyString,wxITEM_NORMAL);
+	mmRestoreSaveMod = new wxMenuItem(msmSaveMod,wxID_MM_RESTORE_SAVE_MOD,wxString(_("Restore SAVEGAME")),wxEmptyString,wxITEM_NORMAL);
 	msmSaveMod->Append(mmRestoreSaveMod);
 
 	m_menu7->Append(msmSaveModItem);
@@ -648,6 +649,11 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSaveWD,this,wxID_MM_SAVE_WD_MOD);
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSaveWD,this,wxID_MM_RESTORE_WD_MOD);
 
+	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSave,this,wxID_MM_SAVE_ORIG);
+	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSave,this,wxID_MM_SAVE_MOD);
+	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSave,this,wxID_MM_RESTORE_SAVE_ORIG);
+	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSave,this,wxID_MM_RESTORE_SAVE_MOD);
+
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormMain::OnSelectSpellPath,this,wxID_BTN_SPELL_PATH);
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormMain::OnSelectSpellPath,this,wxID_BTN_SPELLCD_PATH);
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnSelectSpellPath,this,wxID_MM_SPELL_PATH);
@@ -791,6 +797,29 @@ void FormMain::OnModInfo(wxCommandEvent& event)
 		wxMessageDialog dial(this,string_format("Cannot open mod info HTML file:\n%ls:\n\nThe file is either not found or it is blocked by system setup (security setup). Try to open it manually from mod folder.",path.wstring().c_str()),_("Opening help..."),wxICON_ERROR);
 		dial.ShowModal();
 	}
+}
+
+// on save/backup
+void FormMain::OnBackupSave(wxCommandEvent& event)
+{
+	if(FindWindowById(wxID_FORM_SAVE_BACK))
+		return;	
+
+	auto mod_path = GetPathChoiceLastPath(chModPath);
+	auto spell_path = GetPathChoiceLastPath(chSpellPath);
+	if(spell_path.empty())
+		return;
+
+	form_save_back = new FormSaveBack(this,wxID_FORM_SAVE_BACK);
+	if(!form_save_back)
+		return;
+		
+	auto id = event.GetId();
+	form_save_back->SetSpellPath(spell_path);
+	form_save_back->SetBackup(id == wxID_MM_SAVE_ORIG || id == wxID_MM_SAVE_MOD);
+	form_save_back->SetMod(id == wxID_MM_SAVE_MOD || id == wxID_MM_RESTORE_SAVE_MOD);
+	form_save_back->SetModPath(mod_path);
+	form_save_back->Show();
 }
 
 // on backup save WORKDIR
@@ -1068,11 +1097,11 @@ void FormMain::SetControlsState(bool busy)
 		wxID_MM_SAVE_WD_ORG,
 		wxID_MM_RESTORE_WD_ORG,
 		wxID_MM_SAVE_ORIG,
-		wxID_RESTORE_SAVE_ORIG,
+		wxID_MM_RESTORE_SAVE_ORIG,
 		wxID_MM_SAVE_WD_MOD,
 		wxID_MM_RESTORE_WD_MOD,
 		wxID_MM_SAVE_MOD,
-		wxID_RESTORE_SAVE_MOD,
+		wxID_MM_RESTORE_SAVE_MOD,
 		wxID_MM_BUILD_LAUNCH,
 		wxID_MM_RUN_ORIG,
 		wxID_MM_RUN_MOD,

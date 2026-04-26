@@ -106,6 +106,13 @@ public:
     int SwapMod(Config& config, bool allow_restore = true);
     int CleanupMod(Config& config);
 
+    class SaveInfo {
+    public:
+        std::string description;
+        std::string time;
+    };
+    static int GetSaveIni(std::filesystem::path save_dir,SaveInfo& info);
+    static int MakeSaveIni(std::filesystem::path save_dir,std::string description);
 private:
     std::vector<SpellModPath> m_paths;
     std::vector<SpellArchive*> m_sources;
@@ -125,7 +132,7 @@ private:
     SpellArchive *GetArchive(SpellModPath &path);
     SpellArchive *LoadArchive(SpellModPath &path,SpellArchive::Type arch_type=SpellArchive::Type::AUTO);
 
-    int MakeSaveIni(std::filesystem::path save_dir,std::string description);
+    
 
 };
 

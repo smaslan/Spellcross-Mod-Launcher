@@ -2,7 +2,6 @@
 #include "SpellLaunch.h"
 #include <string>
 #include "other.h"
-#include "SpellLaunch.h"
 
 const std::string SpellLaunch::box_exec_name = "box_exec.bat";
 const std::string SpellLaunch::box_setup_name = "box_set.bat";

@@ -51,6 +51,9 @@
     <ClCompile Include="forms\form_edit.cpp">
       <Filter>Zdrojové soubory\forms</Filter>
     </ClCompile>
+    <ClCompile Include="forms\form_save_backup.cpp">
+      <Filter>Zdrojové soubory\forms</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -87,6 +90,9 @@
       <Filter>Hlavičkové soubory</Filter>
     </ClInclude>
     <ClInclude Include="forms\form_edit.h">
+      <Filter>Hlavičkové soubory\forms</Filter>
+    </ClInclude>
+    <ClInclude Include="forms\form_save_backup.h">
       <Filter>Hlavičkové soubory\forms</Filter>
     </ClInclude>
   </ItemGroup>
