@@ -10,6 +10,7 @@
 
 #include "form_edit.h"
 #include "../other.h"
+#include "../wx_other.h"
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -72,9 +73,12 @@ FormEdit::FormEdit(wxWindow* parent,wxWindowID id,const wxString& title,const wx
 	this->Centre(wxBOTH);
 
 	// === AUTO GENERATED END ===
-
 	m_modified = false;
 	m_path = "";
+
+	mmOpen->SetBitmaps(LoadSVGiconsBundle("IDR_OPEN"));
+	mmSave->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
+	mmExit->SetBitmaps(LoadSVGiconsBundle("IDR_EXIT"));
 
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormEdit::OnCloseClick,this,wxID_MM_EXIT);
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormEdit::OnCloseClick,this,wxID_BTN_EXIT);

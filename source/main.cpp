@@ -5,17 +5,22 @@
 // 
 // This code is part of Spellcross Mod Launcher project.
 // (c) 2026, Stanislav Maslan, s.maslan@seznam.cz
-// url: 
+// url: https://github.com/smaslan/Spellcross-Mod-Launcher
 // Distributed under MIT license, https://opensource.org/licenses/MIT.
 //=============================================================================
 // 
 // For compilers that support precompilation, includes "wx/wx.h".
+//#define wxUSE_DPI_AWARE_MANIFEST 2
 //#define wxMSVC_VERSION_ABI_COMPAT
 #include <wx/wxprec.h>
 //#include <wx/msw/wx.rc>
 #ifndef WX_PRECOMP
 #include <wx/wx.h>
 #endif
+
+/*#pragma comment(linker,"\"/manifestdependency:type='win32' \
+name='Microsoft.Windows.Common-Controls' version='6.0.0.0' \
+processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")*/
 
 #include <wx/timer.h>
 #include <wx/filedlg.h>
@@ -174,49 +179,49 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	mMenu->Append(mmMod,_("Mod"));
 
 	m_menu7 = new wxMenu();
-	m_menu1 = new wxMenu();
-	wxMenuItem* m_menu1Item = new wxMenuItem(m_menu7,wxID_ANY,_("Original game saves"),wxEmptyString,wxITEM_NORMAL,m_menu1);
+	msmSaveOrig = new wxMenu();
+	wxMenuItem* msmSaveOrigItem = new wxMenuItem(m_menu7,wxID_ANY,_("Original game saves"),wxEmptyString,wxITEM_NORMAL,msmSaveOrig);
 	wxMenuItem* mmSaveWDorg;
-	mmSaveWDorg = new wxMenuItem(m_menu1,wxID_MM_SAVE_WD_ORG,wxString(_("Backup WORKDIR")),wxEmptyString,wxITEM_NORMAL);
-	m_menu1->Append(mmSaveWDorg);
+	mmSaveWDorg = new wxMenuItem(msmSaveOrig,wxID_MM_SAVE_WD_ORG,wxString(_("Backup WORKDIR")),wxEmptyString,wxITEM_NORMAL);
+	msmSaveOrig->Append(mmSaveWDorg);
 
 	wxMenuItem* mmRestoreWDorg;
-	mmRestoreWDorg = new wxMenuItem(m_menu1,wxID_MM_RESTORE_WD_ORG,wxString(_("Restore WORKDIR")),wxEmptyString,wxITEM_NORMAL);
-	m_menu1->Append(mmRestoreWDorg);
+	mmRestoreWDorg = new wxMenuItem(msmSaveOrig,wxID_MM_RESTORE_WD_ORG,wxString(_("Restore WORKDIR")),wxEmptyString,wxITEM_NORMAL);
+	msmSaveOrig->Append(mmRestoreWDorg);
 
-	m_menu1->AppendSeparator();
+	msmSaveOrig->AppendSeparator();
 
 	wxMenuItem* mmSaveOrig;
-	mmSaveOrig = new wxMenuItem(m_menu1,wxID_MM_SAVE_ORIG,wxString(_("Backup SAVEGAME")),wxEmptyString,wxITEM_NORMAL);
-	m_menu1->Append(mmSaveOrig);
+	mmSaveOrig = new wxMenuItem(msmSaveOrig,wxID_MM_SAVE_ORIG,wxString(_("Backup SAVEGAME")),wxEmptyString,wxITEM_NORMAL);
+	msmSaveOrig->Append(mmSaveOrig);
 
 	wxMenuItem* mmRestoreSaveOrig;
-	mmRestoreSaveOrig = new wxMenuItem(m_menu1,wxID_RESTORE_SAVE_ORIG,wxString(_("Restore SAVEGAME")),wxEmptyString,wxITEM_NORMAL);
-	m_menu1->Append(mmRestoreSaveOrig);
+	mmRestoreSaveOrig = new wxMenuItem(msmSaveOrig,wxID_RESTORE_SAVE_ORIG,wxString(_("Restore SAVEGAME")),wxEmptyString,wxITEM_NORMAL);
+	msmSaveOrig->Append(mmRestoreSaveOrig);
 
-	m_menu7->Append(m_menu1Item);
+	m_menu7->Append(msmSaveOrigItem);
 
-	m_menu11 = new wxMenu();
-	wxMenuItem* m_menu11Item = new wxMenuItem(m_menu7,wxID_ANY,_("Mod save games"),wxEmptyString,wxITEM_NORMAL,m_menu11);
+	msmSaveMod = new wxMenu();
+	wxMenuItem* msmSaveModItem = new wxMenuItem(m_menu7,wxID_ANY,_("Mod save games"),wxEmptyString,wxITEM_NORMAL,msmSaveMod);
 	wxMenuItem* mmSaveWDmod;
-	mmSaveWDmod = new wxMenuItem(m_menu11,wxID_MM_SAVE_WD_MOD,wxString(_("Backup WORKDIR")),wxEmptyString,wxITEM_NORMAL);
-	m_menu11->Append(mmSaveWDmod);
+	mmSaveWDmod = new wxMenuItem(msmSaveMod,wxID_MM_SAVE_WD_MOD,wxString(_("Backup WORKDIR")),wxEmptyString,wxITEM_NORMAL);
+	msmSaveMod->Append(mmSaveWDmod);
 
 	wxMenuItem* mmRestoreWDmod;
-	mmRestoreWDmod = new wxMenuItem(m_menu11,wxID_MM_RESTORE_WD_MOD,wxString(_("Restore WORKDIR")),wxEmptyString,wxITEM_NORMAL);
-	m_menu11->Append(mmRestoreWDmod);
+	mmRestoreWDmod = new wxMenuItem(msmSaveMod,wxID_MM_RESTORE_WD_MOD,wxString(_("Restore WORKDIR")),wxEmptyString,wxITEM_NORMAL);
+	msmSaveMod->Append(mmRestoreWDmod);
 
-	m_menu11->AppendSeparator();
+	msmSaveMod->AppendSeparator();
 
 	wxMenuItem* mmSaveMod;
-	mmSaveMod = new wxMenuItem(m_menu11,wxID_MM_SAVE_MOD,wxString(_("Backup SAVEGAME")),wxEmptyString,wxITEM_NORMAL);
-	m_menu11->Append(mmSaveMod);
+	mmSaveMod = new wxMenuItem(msmSaveMod,wxID_MM_SAVE_MOD,wxString(_("Backup SAVEGAME")),wxEmptyString,wxITEM_NORMAL);
+	msmSaveMod->Append(mmSaveMod);
 
 	wxMenuItem* mmRestoreSaveMod;
-	mmRestoreSaveMod = new wxMenuItem(m_menu11,wxID_RESTORE_SAVE_MOD,wxString(_("Restore SAVEGAME")),wxEmptyString,wxITEM_NORMAL);
-	m_menu11->Append(mmRestoreSaveMod);
+	mmRestoreSaveMod = new wxMenuItem(msmSaveMod,wxID_RESTORE_SAVE_MOD,wxString(_("Restore SAVEGAME")),wxEmptyString,wxITEM_NORMAL);
+	msmSaveMod->Append(mmRestoreSaveMod);
 
-	m_menu7->Append(m_menu11Item);
+	m_menu7->Append(msmSaveModItem);
 
 	mMenu->Append(m_menu7,_("Savegame"));
 
@@ -264,10 +269,19 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	m_staticText115->Wrap(-1);
 	bSizer17->Add(m_staticText115,0,wxTOP|wxRIGHT|wxLEFT,5);
 
+	wxBoxSizer* bSizer211;
+	bSizer211 = new wxBoxSizer(wxHORIZONTAL);
+
 	wxArrayString chSpellPathChoices;
 	chSpellPath = new wxChoice(this,wxID_CH_SPELL_PATH,wxDefaultPosition,wxDefaultSize,chSpellPathChoices,0);
 	chSpellPath->SetSelection(0);
-	bSizer17->Add(chSpellPath,0,wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT,5);
+	bSizer211->Add(chSpellPath,1,wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT,5);
+
+	btnSpellPath = new wxBitmapButton(this,wxID_BTN_SPELL_PATH,wxNullBitmap,wxDefaultPosition,wxDefaultSize,wxBU_AUTODRAW|wxBORDER_NONE);
+	bSizer211->Add(btnSpellPath,0,wxRIGHT,5);
+
+
+	bSizer17->Add(bSizer211,1,wxEXPAND,5);
 
 
 	bSizer16->Add(bSizer17,1,wxEXPAND,5);
@@ -301,10 +315,19 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	m_staticText116->Wrap(-1);
 	bSizer116->Add(m_staticText116,0,wxRIGHT|wxLEFT,5);
 
+	wxBoxSizer* bSizer221;
+	bSizer221 = new wxBoxSizer(wxHORIZONTAL);
+
 	wxArrayString chSpellCdPathChoices;
 	chSpellCdPath = new wxChoice(this,wxID_CH_SPELLCD_PATH,wxDefaultPosition,wxDefaultSize,chSpellCdPathChoices,0);
 	chSpellCdPath->SetSelection(0);
-	bSizer116->Add(chSpellCdPath,0,wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND,5);
+	bSizer221->Add(chSpellCdPath,1,wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT,5);
+
+	btnSpellcdPath = new wxBitmapButton(this,wxID_BTN_SPELLCD_PATH,wxNullBitmap,wxDefaultPosition,wxDefaultSize,wxBU_AUTODRAW|wxBORDER_NONE);
+	bSizer221->Add(btnSpellcdPath,0,wxRIGHT,5);
+
+
+	bSizer116->Add(bSizer221,1,wxEXPAND,5);
 
 
 	bSizer115->Add(bSizer116,1,wxEXPAND,5);
@@ -341,10 +364,19 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	m_staticText118->Wrap(-1);
 	bSizer119->Add(m_staticText118,0,wxRIGHT|wxLEFT,5);
 
+	wxBoxSizer* bSizer23;
+	bSizer23 = new wxBoxSizer(wxHORIZONTAL);
+
 	wxArrayString chDOSboxPathChoices;
 	chDOSboxPath = new wxChoice(this,wxID_CH_DOSBOX_PATH,wxDefaultPosition,wxDefaultSize,chDOSboxPathChoices,0);
 	chDOSboxPath->SetSelection(0);
-	bSizer119->Add(chDOSboxPath,0,wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT,5);
+	bSizer23->Add(chDOSboxPath,1,wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT,5);
+
+	btnDOSboxPath = new wxBitmapButton(this,wxID_BTN_DB_PATH,wxNullBitmap,wxDefaultPosition,wxDefaultSize,wxBU_AUTODRAW|wxBORDER_NONE);
+	bSizer23->Add(btnDOSboxPath,0,wxRIGHT,5);
+
+
+	bSizer119->Add(bSizer23,1,wxEXPAND,5);
 
 
 	bSizer118->Add(bSizer119,1,wxEXPAND,5);
@@ -397,10 +429,19 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	m_staticText119->Wrap(-1);
 	bSizer22->Add(m_staticText119,0,wxRIGHT|wxLEFT,5);
 
+	wxBoxSizer* bSizer24;
+	bSizer24 = new wxBoxSizer(wxHORIZONTAL);
+
 	wxArrayString chModPathChoices;
 	chModPath = new wxChoice(this,wxID_CH_MOD_PATH,wxDefaultPosition,wxDefaultSize,chModPathChoices,0);
 	chModPath->SetSelection(0);
-	bSizer22->Add(chModPath,1,wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND,5);
+	bSizer24->Add(chModPath,1,wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT,5);
+
+	btnModPath = new wxBitmapButton(this,wxID_BTN_MOD_PATH,wxNullBitmap,wxDefaultPosition,wxDefaultSize,wxBU_AUTODRAW|wxBORDER_NONE);
+	bSizer24->Add(btnModPath,0,wxRIGHT,5);
+
+
+	bSizer22->Add(bSizer24,1,wxEXPAND,5);
 
 
 	bSizer121->Add(bSizer22,1,wxEXPAND,5);
@@ -453,29 +494,8 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 
 	bSizer123->Add(bSizer125,0,wxEXPAND,5);
 
-	wxBoxSizer* bSizer126;
-	bSizer126 = new wxBoxSizer(wxVERTICAL);
 
-	btnRestore = new wxButton(this,wxID_BTN_RESTORE,_("Restore\nOriginal"),wxDefaultPosition,wxSize(130,50),0);
-	bSizer126->Add(btnRestore,0,wxALL,5);
-
-	btnCleanupMod = new wxButton(this,wxID_BTN_CLEANUP,_("Cleanup\nMod"),wxDefaultPosition,wxSize(130,50),0);
-	bSizer126->Add(btnCleanupMod,0,wxALL,5);
-
-
-	bSizer123->Add(bSizer126,0,wxEXPAND,5);
-
-	wxBoxSizer* bSizer1261;
-	bSizer1261 = new wxBoxSizer(wxVERTICAL);
-
-	btnBuild = new wxButton(this,wxID_BTN_BUILD,_("Build Mod\nfiles"),wxDefaultPosition,wxSize(130,50),0);
-	bSizer1261->Add(btnBuild,0,wxALL,5);
-
-	btnBuildSwap = new wxButton(this,wxID_BTN_BUILD_SWAP,_("Build && Swap\nMod files"),wxDefaultPosition,wxSize(130,50),0);
-	bSizer1261->Add(btnBuildSwap,0,wxALL,5);
-
-
-	bSizer123->Add(bSizer1261,0,wxEXPAND,5);
+	bSizer123->Add(0,0,1,wxEXPAND,5);
 
 	btnRunMod = new wxButton(this,wxID_BTN_RUN_MOD,_("Run Mod"),wxDefaultPosition,wxSize(130,50),0);
 	bSizer123->Add(btnRunMod,0,wxALL|wxEXPAND,5);
@@ -500,6 +520,53 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 		btnRunOrig->SetBitmap(ico);
 	btnRunOrig->SetBitmapPosition(wxDirection::wxBOTTOM);
 	btnRunOrig->SetBitmapMargins(0,10);
+	
+	btnSpellPath->SetBitmap(LoadSVGiconsBundle("IDR_OPEN3"));
+	btnSpellPath->SetBitmapHover(LoadSVGiconsBundle("IDR_OPEN2").GetBitmap(wxSize(16,16)));	
+	btnSpellcdPath->SetBitmap(LoadSVGiconsBundle("IDR_OPEN3"));
+	btnSpellcdPath->SetBitmapHover(LoadSVGiconsBundle("IDR_OPEN2").GetBitmap(wxSize(16,16)));
+	btnDOSboxPath->SetBitmap(LoadSVGiconsBundle("IDR_OPEN3"));
+	btnDOSboxPath->SetBitmapHover(LoadSVGiconsBundle("IDR_OPEN2").GetBitmap(wxSize(16,16)));
+	btnModPath->SetBitmap(LoadSVGiconsBundle("IDR_OPEN3"));
+	btnModPath->SetBitmapHover(LoadSVGiconsBundle("IDR_OPEN2").GetBitmap(wxSize(16,16)));
+
+	mmExit->SetBitmaps(LoadSVGiconsBundle("IDR_EXIT"));
+	
+	msmSaveOrigItem->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
+	msmSaveModItem->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
+	mmSaveWDorg->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
+	mmSaveWDmod->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
+	mmSaveOrig->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
+	mmSaveMod->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
+	mmRestoreWDorg->SetBitmaps(LoadSVGiconsBundle("IDR_RELOAD"));
+	mmRestoreWDmod->SetBitmaps(LoadSVGiconsBundle("IDR_RELOAD"));
+	mmRestoreSaveOrig->SetBitmaps(LoadSVGiconsBundle("IDR_RELOAD"));
+	mmRestoreSaveMod->SetBitmaps(LoadSVGiconsBundle("IDR_RELOAD"));
+
+	mmModPath->SetBitmaps(LoadSVGiconsBundle("IDR_OPEN"));
+	mmSpellPath->SetBitmaps(LoadSVGiconsBundle("IDR_OPEN"));
+	mmSpellcdPath->SetBitmaps(LoadSVGiconsBundle("IDR_OPEN"));
+	mmDosboxPath->SetBitmaps(LoadSVGiconsBundle("IDR_OPEN"));
+
+	mmEditDOSboxCfg->SetBitmaps(LoadSVGiconsBundle("IDR_EDIT"));
+	mmEditModDEF->SetBitmaps(LoadSVGiconsBundle("IDR_EDIT"));
+	mmEditSpellCfg->SetBitmaps(LoadSVGiconsBundle("IDR_EDIT"));
+
+	mmBuildLaunch->SetBitmaps(LoadSVGiconsBundle("IDR_BUILD"));
+	mmModBuild->SetBitmaps(LoadSVGiconsBundle("IDR_BUILD"));
+	mmModBuildSwap->SetBitmaps(LoadSVGiconsBundle("IDR_BUILD"));
+	mmModRestore->SetBitmaps(LoadSVGiconsBundle("IDR_RELOAD"));
+	mmModCleanup->SetBitmaps(LoadSVGiconsBundle("IDR_CLOSE"));
+
+	mmRunSetupBat->SetBitmaps(LoadSVGiconsBundle("IDR_SETUP"));
+	mmRunOrig->SetBitmaps(LoadSVGiconsBundle("IDR_START"));
+	mmRunMod->SetBitmaps(LoadSVGiconsBundle("IDR_START"));
+
+	mmModInfo->SetBitmaps(LoadSVGiconsBundle("IDR_INFO"));
+	mmAbout->SetBitmaps(LoadSVGiconsBundle("IDR_INFO"));
+	mmHelp->SetBitmaps(LoadSVGiconsBundle("IDR_INFO"));
+
+
 
     FillChoicePaths(chSpellPath, m_ini, "PATH", "spellcross_dir");
     FillChoicePaths(chSpellCdPath,m_ini,"PATH","spellcross_cd_dir");
@@ -549,10 +616,6 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBuildLaunchFiles,this,wxID_MM_BUILD_LAUNCH);
 
-	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormMain::OnBuildMod,this,wxID_BTN_BUILD);
-	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormMain::OnBuildMod,this,wxID_BTN_BUILD_SWAP);
-	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormMain::OnBuildMod,this,wxID_BTN_RESTORE);
-
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormMain::OnRunGame,this,wxID_BTN_RUN_ORIG);
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormMain::OnRunGame,this,wxID_BTN_RUN_MOD);	
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnRunGame,this,wxID_MM_RUN_ORIG);
@@ -566,6 +629,11 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSaveWD,this,wxID_MM_RESTORE_WD_ORG);
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSaveWD,this,wxID_MM_SAVE_WD_MOD);
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSaveWD,this,wxID_MM_RESTORE_WD_MOD);
+
+	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormMain::OnSelectSpellPath,this,wxID_BTN_SPELL_PATH);
+	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormMain::OnSelectSpellPath,this,wxID_BTN_SPELLCD_PATH);
+	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormMain::OnSelectDOSboxPath,this,wxID_BTN_DB_PATH);
+	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormMain::OnSelectModPath,this,wxID_BTN_MOD_PATH);
 	
 	
 	Bind(wxEVT_THREAD,&FormMain::OnBuildModEvent,this,wxID_PROC_THREAD);
@@ -585,7 +653,7 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 		if(dial.ShowModal() == wxID_YES)
 		{
 			wxCommandEvent evt;
-			evt.SetId(wxID_BTN_RESTORE);
+			evt.SetId(wxID_MM_MOD_RESTORE);
 			FormMain::OnBuildMod(evt);
 		}
 	}		
@@ -954,43 +1022,53 @@ void FormMain::StartProcTh(ProcTh::Params &params,ProcTh::ActionsList actions)
 void FormMain::SetControlsState(bool busy)
 {
 	std::vector<int> list = {
-		wxID_CH_SPELL_PATH,
-		wxID_CH_SPELL_EXE,
-		wxID_CH_SPELLCD_PATH,
-		wxID_CH_CD_LETTER,
-		wxID_CH_DOSBOX_PATH,
-		wxID_CB_NO_AUTOEXEC,
-		wxID_CB_FULLSCREEN,
-		wxID_CH_RUN_MODE,
-		wxID_CH_MOD_PATH,
-		wxID_CB_ALLOW_CD_MOD,
-		wxID_CB_MOD_SAVES,		
-		wxID_BTN_RUN_ORIG,
-		wxID_BTN_MOD_INFO,
-		wxID_BTN_RESTORE,
-		wxID_BTN_CLEANUP,
-		wxID_BTN_BUILD,
-		wxID_BTN_BUILD_SWAP,
-		wxID_BTN_RUN_MOD,
 		wxID_MM_MOD_PATH,
 		wxID_MM_SPELL_PATH,
 		wxID_MM_SPELLCD_PATH,
 		wxID_MM_DOSBOX_PATH,
-		//wxID_MM_EXIT,
-		wxID_MM_EDIT_MOD_DEF,
+		wxID_MM_EXIT,
 		wxID_MM_EDIT_SPELLCFG,
-		wxID_MM_RUN_SETUPBAT,
 		wxID_MM_EDIT_DOSBOX_CFG,
+		wxID_MM_RUN_SETUPBAT,
 		wxID_MM_MOD_INFO,
 		wxID_MM_MOD_BUILD,
 		wxID_MM_MOD_BUILD_SWAP,
 		wxID_MM_MOD_RESTORE,
+		wxID_MM_EDIT_MOD_DEF,
 		wxID_MM_MOD_CLEAN,
+		wxID_MM_SAVE_WD_ORG,
+		wxID_MM_RESTORE_WD_ORG,
+		wxID_MM_SAVE_ORIG,
+		wxID_RESTORE_SAVE_ORIG,
+		wxID_MM_SAVE_WD_MOD,
+		wxID_MM_RESTORE_WD_MOD,
+		wxID_MM_SAVE_MOD,
+		wxID_RESTORE_SAVE_MOD,
 		wxID_MM_BUILD_LAUNCH,
 		wxID_MM_RUN_ORIG,
 		wxID_MM_RUN_MOD,
 		//wxID_MM_HELP,
 		//wxID_MM_ABOUT,
+		wxID_SBAR,
+		wxID_CH_SPELL_PATH,
+		wxID_BTN_SPELL_PATH,
+		wxID_CH_SPELL_EXE,
+		wxID_CH_SPELLCD_PATH,
+		wxID_BTN_SPELLCD_PATH,
+		wxID_CH_CD_LETTER,
+		wxID_CH_DOSBOX_PATH,
+		wxID_BTN_DB_PATH,
+		wxID_CB_NO_AUTOEXEC,
+		wxID_CB_FULLSCREEN,
+		wxID_CH_RUN_MODE,
+		wxID_CH_MOD_PATH,
+		wxID_BTN_MOD_PATH,
+		wxID_CB_ALLOW_CD_MOD,
+		wxID_CB_MOD_SAVES,
+		wxID_TEXT_OUTPUT,
+		wxID_BTN_RUN_ORIG,
+		wxID_BTN_MOD_INFO,
+		wxID_BTN_RUN_MOD,
 	};
 
 	for(auto &id: list)
@@ -1033,14 +1111,14 @@ void FormMain::OnBuildMod(wxCommandEvent& event)
 	// what to do?
 	ProcTh::ActionsList actions;	
 	auto evt_id = event.GetId();
-	if(evt_id == wxID_BTN_BUILD || evt_id == wxID_MM_MOD_BUILD)
+	if(evt_id == wxID_MM_MOD_BUILD)
 		actions.push_back(ProcTh::Action::BUILD);
-	else if(evt_id == wxID_BTN_BUILD_SWAP || evt_id == wxID_MM_MOD_BUILD_SWAP)
+	else if(evt_id == wxID_MM_MOD_BUILD_SWAP)
 	{
 		actions.push_back(ProcTh::Action::BUILD);
 		actions.push_back(ProcTh::Action::SWAP);
 	}
-	else if(evt_id == wxID_BTN_RESTORE || evt_id == wxID_MM_MOD_RESTORE)
+	else if(evt_id == wxID_MM_MOD_RESTORE)
 		actions.push_back(ProcTh::Action::RESTORE);
 	else
 		return;
@@ -1170,14 +1248,15 @@ void FormMain::FillChoicePaths(wxChoice* choice,CSimpleIniA *ini, std::string se
         if(path && strlen(path))
             choice->Append(path);
     }
-    choice->Append(str_choice_browse);
+	choice->Append(str_choice_no_select);
+	choice->Append(str_choice_browse);
     choice->Thaw();
 
     auto path = ini->GetValue(section.c_str(), key.c_str());
-    if(path)
+    if(path && strlen(path))
         choice->Select(0);
     else
-        choice->SetStringSelection(str_choice_browse);
+        choice->SetStringSelection(str_choice_no_select);
 
     ChoiceCheckPaths(choice);
 }
@@ -1190,9 +1269,11 @@ void FormMain::SaveChoicePaths(wxChoice* choice,CSimpleIniA* ini,std::string sec
 
     // make list of unique paths
     std::vector<std::wstring> list;
+	if(choice->GetStringSelection() == str_choice_no_select)
+		list.push_back(L"");
     for(auto& item: choice->GetStrings())
     {
-        if(item == str_choice_browse)
+        if(item == str_choice_browse || item == str_choice_no_select)
             continue;
         list.push_back(item.ToStdWstring());
     }
@@ -1243,16 +1324,16 @@ void FormMain::ListSpellExecutables(std::filesystem::path spell_dir, wxChoice* c
 void FormMain::ChoiceCheckPaths(wxChoice *choice)
 {
     auto path = choice->GetStringSelection().ToStdWstring();
-    if(path == str_choice_browse)
+    if(path == str_choice_browse || path == str_choice_no_select)
         choice->Select(-1);
 
     // make list of unique paths
     std::vector<std::wstring> list;
     for(auto &item: choice->GetStrings())
     {
-        if(item == str_choice_browse)
+        if(item == str_choice_browse || item == str_choice_no_select)
             continue;
-        if(!std::filesystem::exists(path))
+        if(!std::filesystem::exists(std::filesystem::path(item.ToStdWstring())))
             continue;
         if(std::find(list.begin(), list.end(), item) != list.end())
             continue;
@@ -1264,9 +1345,12 @@ void FormMain::ChoiceCheckPaths(wxChoice *choice)
     choice->Clear();
     for(auto &item: list)
         choice->Append(item);
-    choice->Append(str_choice_browse);
+	choice->Append(str_choice_no_select);
+	choice->Append(str_choice_browse);
     choice->Thaw();
-    if(choice->SetStringSelection(path))
+    if(path == str_choice_no_select)
+		choice->SetStringSelection(str_choice_no_select);
+	else if(choice->SetStringSelection(path))
     {
         // make sure selected path is first
         choice->Delete(choice->GetSelection());
@@ -1274,13 +1358,13 @@ void FormMain::ChoiceCheckPaths(wxChoice *choice)
         choice->Select(0);
     }
     else
-        choice->SetStringSelection(str_choice_browse);
+		choice->SetStringSelection(str_choice_no_select);
 }
 
 // get first valid path of choice path selector or deftaul if none found
 std::wstring FormMain::GetPathChoiceLastPath(wxChoice *choice, std::wstring default_path)
 {
-	if(!choice || choice->GetCount() < 2)
+	if(!choice || choice->GetCount() < 3)
 		return(default_path);
 	return(choice->GetString(0).ToStdWstring());
 }
@@ -1290,11 +1374,15 @@ void FormMain::OnSelectSpellPath(wxCommandEvent& event)
 {    
     auto id = event.GetId();
     auto choice = (wxChoice*)FindItem(id);
-    if(choice->GetStringSelection() == str_choice_browse)
+	if(id == wxID_BTN_SPELL_PATH)
+		choice = chSpellPath;
+	if(id == wxID_BTN_SPELLCD_PATH)
+		choice = chSpellCdPath;
+    if(choice->GetStringSelection() == str_choice_browse || id == wxID_BTN_SPELLCD_PATH || id == wxID_BTN_SPELL_PATH)
     {
         // browse new path
 		auto def_path = GetPathChoiceLastPath(choice);
-        auto title = (id == wxID_CH_SPELLCD_PATH)?"Select Spellcross CD folder":"Select Spellcross installation folder";
+        auto title = (id == wxID_CH_SPELLCD_PATH || id == wxID_BTN_SPELLCD_PATH)?"Select Spellcross CD folder":"Select Spellcross installation folder";
         wxDirDialog saveDirDialog(this,title,def_path,wxDD_DIR_MUST_EXIST);
         if(saveDirDialog.ShowModal() == wxID_CANCEL)
             return;        
@@ -1313,8 +1401,8 @@ void FormMain::OnSelectSpellPath(wxCommandEvent& event)
 void FormMain::OnSelectDOSboxPath(wxCommandEvent& event)
 {
     auto id = event.GetId();
-    auto choice = (wxChoice*)FindItem(id);
-    if(choice->GetStringSelection() == str_choice_browse)
+    auto choice = chDOSboxPath;
+    if(choice->GetStringSelection() == str_choice_browse || id == wxID_BTN_DB_PATH)
     {
         // browse new path
 		auto def_path = GetPathChoiceLastPath(choice);
@@ -1335,8 +1423,8 @@ void FormMain::OnSelectDOSboxPath(wxCommandEvent& event)
 void FormMain::OnSelectModPath(wxCommandEvent& event)
 {
     auto id = event.GetId();
-    auto choice = (wxChoice*)FindItem(id);
-    if(choice->GetStringSelection() == str_choice_browse)
+    auto choice = chModPath;
+    if(choice->GetStringSelection() == str_choice_browse || id == wxID_BTN_MOD_PATH)
     {
         // browse new path
 		auto def_path = GetPathChoiceLastPath(choice);

@@ -1,4 +1,13 @@
-// Spellcross MOD class
+//=============================================================================
+// Spellcross Mod Launcher
+// ----------------------------------------------------------------------------
+// Builder of game archives.
+// 
+// This code is part of Spellcross Mod Launcher project.
+// (c) 2026, Stanislav Maslan, s.maslan@seznam.cz
+// url: https://github.com/smaslan/Spellcross-Mod-Launcher
+// Distributed under MIT license, https://opensource.org/licenses/MIT.
+//=============================================================================
 #include "SpellMod.h"
 
 #include <regex>
@@ -584,8 +593,8 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
     PrintConsole("done.\n");
 
     // parse archive section(s)
-    //std::vector<std::string> archive_names = {"COMMON.FS", "T11.FS", "PUST.FS", "DEVAST.FS", "TEXTS.FS", "SAMPLES.FS", "MUSIC.FS", "RESEARCH.FS", "INFO.FS", "MOVIE.FS", "UNITS.FSU"};
-    std::vector<std::string> archive_names ={"UNITS.FSU"};
+    std::vector<std::string> archive_names = {"COMMON.FS", "T11.FS", "PUST.FS", "DEVAST.FS", "TEXTS.FS", "SAMPLES.FS", "MUSIC.FS", "RESEARCH.FS", "INFO.FS", "MOVIE.FS", "UNITS.FSU"};
+    //std::vector<std::string> archive_names ={"UNITS.FSU"};
     for(auto &arch_name: archive_names)
     {
         auto arch_path = make_dir / arch_name;

@@ -33,6 +33,9 @@ class FormAbout : public wxDialog
 {
 	private:
 
+		void OnClose(wxCommandEvent& event);
+		void OnURL(wxTextUrlEvent& event);
+
 	protected:
 		enum
 		{
@@ -67,7 +70,7 @@ class FormAbout : public wxDialog
 
 		FormAbout( wxWindow* parent, wxWindowID id = wxID_FORM_ABOUT, const wxString& title = wxT("About Spellcross Mod Launcher"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 600,350 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
 		~FormAbout();
-		void OnClose(wxCommandEvent& event);
+		
 
 };
 

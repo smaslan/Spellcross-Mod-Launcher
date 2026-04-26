@@ -90,3 +90,4 @@ public:
 };
 
 std::wstring GetExecutableDir();
+wxBitmapBundle LoadSVGiconsBundle(const char* resrouce_name);

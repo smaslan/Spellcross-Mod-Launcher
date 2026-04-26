@@ -6,6 +6,9 @@
 ///////////////////////////////////////////////////////////////////////////
 
 #include "form_about.h"
+#include "../other.h"
+
+#include <wx\msgdlg.h>
 #include <chrono>
 #include <iomanip>
 #include <sstream>
@@ -88,7 +91,7 @@ FormAbout::FormAbout( wxWindow* parent, wxWindowID id, const wxString& title, co
 
 	bSizer76->Add( txtEmail, 0, wxBOTTOM|wxEXPAND|wxTOP, 5 );
 
-	txtURL = new wxTextCtrl( this, wxID_TXT_URL, wxT("https://github.com/smaslan/spellcross-map-edit"), wxDefaultPosition, wxDefaultSize, wxTE_AUTO_URL|wxTE_RICH|wxBORDER_NONE );
+	txtURL = new wxTextCtrl( this, wxID_TXT_URL, wxT("https://github.com/smaslan/Spellcross-Mod-Launcher"), wxDefaultPosition, wxDefaultSize, wxTE_AUTO_URL|wxTE_RICH|wxBORDER_NONE );
 	txtURL->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 	txtURL->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_BTNFACE ) );
 
@@ -131,7 +134,9 @@ FormAbout::FormAbout( wxWindow* parent, wxWindowID id, const wxString& title, co
 
 
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormAbout::OnClose,this,wxID_BTN_OK);
+	Bind(wxEVT_TEXT_URL,&FormAbout::OnURL,this,wxID_TXT_URL);
 
+	
 	// assign button shortcuts
 	std::vector<wxAcceleratorEntry> entries;
 	entries.emplace_back(wxACCEL_NORMAL,WXK_RETURN,wxID_BTN_OK);
@@ -157,4 +162,20 @@ FormAbout::~FormAbout()
 void FormAbout::OnClose(wxCommandEvent& event)
 {
 	EndModal(wxID_OK);
+}
+
+// on URL click
+void FormAbout::OnURL(wxTextUrlEvent& event)
+{
+	auto mouse = event.GetMouseEvent();
+	if(!mouse.LeftDown())
+		return;
+	auto url = txtURL->GetValue();
+	auto hinst = ShellExecute(NULL,L"open",url.c_str(),NULL,NULL,SW_SHOWNORMAL);
+	if((int)hinst <= 32)
+	{
+		// failed
+		wxMessageDialog dial(this,string_format("Cannot open URL:\n%ls:\n\nOperation might be blocked by system setup (security). ",url.c_str()),_("Opening project URL ..."),wxICON_ERROR);
+		dial.ShowModal();
+	}
 }

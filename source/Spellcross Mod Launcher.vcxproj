@@ -178,6 +178,43 @@
   <ItemGroup>
     <ResourceCompile Include="resources.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="ico\save.svg" />
+    <None Include="wx\msw\blank.cur" />
+    <None Include="wx\msw\bullseye.cur" />
+    <None Include="wx\msw\cross.cur" />
+    <None Include="wx\msw\hand.cur" />
+    <None Include="wx\msw\magnif1.cur" />
+    <None Include="wx\msw\pbrush.cur" />
+    <None Include="wx\msw\pencil.cur" />
+    <None Include="wx\msw\pntleft.cur" />
+    <None Include="wx\msw\pntright.cur" />
+    <None Include="wx\msw\roller.cur" />
+    <None Include="wx\msw\svg1.bin" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="ico\folder.bmp" />
+    <Image Include="ico\folder_open.bmp" />
+    <Image Include="ico\icon.ico" />
+    <Image Include="ico\info.ico" />
+    <Image Include="ico\multi.bmp" />
+    <Image Include="ico\multi.png" />
+    <Image Include="ico\single.bmp" />
+    <Image Include="ico\SPELCROS.ICO" />
+    <Image Include="ico\spr_a.bmp" />
+    <Image Include="ico\spr_obj.bmp" />
+    <Image Include="wx\msw\cdrom.ico" />
+    <Image Include="wx\msw\colours.bmp" />
+    <Image Include="wx\msw\computer.ico" />
+    <Image Include="wx\msw\csquery.bmp" />
+    <Image Include="wx\msw\drive.ico" />
+    <Image Include="wx\msw\file1.ico" />
+    <Image Include="wx\msw\floppy.ico" />
+    <Image Include="wx\msw\folder1.ico" />
+    <Image Include="wx\msw\folder2.ico" />
+    <Image Include="wx\msw\removble.ico" />
+    <Image Include="wx\msw\std.ico" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

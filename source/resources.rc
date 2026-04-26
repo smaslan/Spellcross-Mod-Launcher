@@ -119,8 +119,8 @@ WXICON_SMALL_REMOVEABLE ICON                    "wx/msw/removble.ico"
 
 IDI_ICON2               ICON                    "ico/icon.ico"
 
-IDI_INFO               ICON                    "ico/info.ico"
-IDI_SPELCROS               ICON                    "ico/SPELCROS.ICO"
+IDI_SPELCROS            ICON                    "ico/SPELCROS.ICO"
+IDI_SPELL_MOD           ICON                    "ico/spell_mod.ICO"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -132,12 +132,24 @@ CSQUERY                 BITMAP                  "wx/msw/csquery.bmp"
 
 WXBITMAP_STD_COLOURS    BITMAP                  "wx/msw/colours.bmp"
 
-IDI_MULTI               BITMAP                  "ico/multi.bmp"
-IDI_FOLDER              BITMAP                  "ico/folder.bmp"
-IDI_FOLDER_OPEN         BITMAP                  "ico/folder_open.bmp"
-IDI_SINGLE              BITMAP                  "ico/single.bmp"
-IDI_SPR_A               BITMAP                  "ico/spr_a.bmp"
-IDI_SPR_OBJ             BITMAP                  "ico/spr_obj.bmp"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// SVG
+//
+
+IDR_SAVE                RCDATA                     "ico/save.svg"
+IDR_RELOAD                RCDATA                     "ico/reload.svg"
+IDR_OPEN                RCDATA                     "ico/open.svg"
+IDR_OPEN2                RCDATA                     "ico/open2.svg"
+IDR_OPEN3                RCDATA                     "ico/open3.svg"
+IDR_INFO                RCDATA                     "ico/info.svg"
+IDR_EDIT                RCDATA                     "ico/edit.svg"
+IDR_BUILD                RCDATA                     "ico/build.svg"
+IDR_EXIT                RCDATA                     "ico/exit.svg"
+IDR_CLOSE                RCDATA                     "ico/close.svg"
+IDR_START                RCDATA                     "ico/start.svg"
+IDR_SETUP                RCDATA                     "ico/setup.svg"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -145,7 +157,7 @@ IDI_SPR_OBJ             BITMAP                  "ico/spr_obj.bmp"
 // PNG
 //
 
-IDB_PNG1                PNG                     "ico/multi.png"
+//IDB_PNG1                PNG                     "ico/multi.png"
 
 #endif    // Èeština (Èeská republika) resources
 /////////////////////////////////////////////////////////////////////////////

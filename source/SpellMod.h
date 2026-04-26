@@ -1,3 +1,13 @@
+//=============================================================================
+// Spellcross Mod Launcher
+// ----------------------------------------------------------------------------
+// Builder of game archives.
+// 
+// This code is part of Spellcross Mod Launcher project.
+// (c) 2026, Stanislav Maslan, s.maslan@seznam.cz
+// url: https://github.com/smaslan/Spellcross-Mod-Launcher
+// Distributed under MIT license, https://opensource.org/licenses/MIT.
+//=============================================================================
 #pragma once
 
 #include <filesystem>

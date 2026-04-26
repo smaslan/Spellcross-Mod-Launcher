@@ -5,7 +5,7 @@
 // 
 // This code is part of Spellcross Mod Launcher project.
 // (c) 2026, Stanislav Maslan, s.maslan@seznam.cz
-// url: 
+// url: https://github.com/smaslan/Spellcross-Mod-Launcher
 // Distributed under MIT license, https://opensource.org/licenses/MIT.
 //=============================================================================
 
@@ -142,6 +142,7 @@ private:
 
 	const std::string str_choice_browse=">>> Browse <<<";
 	const std::string str_choice_none=">>> None found <<<";
+	const std::string str_choice_no_select=">>> Empty path <<<";
 	const std::string str_mod_state_ini_none="mod_state.ini";
 	
 
@@ -183,23 +184,23 @@ protected:
 		wxID_MM_ABOUT,
 		wxID_SBAR,
 		wxID_CH_SPELL_PATH,
+		wxID_BTN_SPELL_PATH,
 		wxID_CH_SPELL_EXE,
 		wxID_CH_SPELLCD_PATH,
+		wxID_BTN_SPELLCD_PATH,
 		wxID_CH_CD_LETTER,
 		wxID_CH_DOSBOX_PATH,
+		wxID_BTN_DB_PATH,
 		wxID_CB_NO_AUTOEXEC,
 		wxID_CB_FULLSCREEN,
 		wxID_CH_RUN_MODE,
 		wxID_CH_MOD_PATH,
+		wxID_BTN_MOD_PATH,
 		wxID_CB_ALLOW_CD_MOD,
 		wxID_CB_MOD_SAVES,
 		wxID_TEXT_OUTPUT,
 		wxID_BTN_RUN_ORIG,
 		wxID_BTN_MOD_INFO,
-		wxID_BTN_RESTORE,
-		wxID_BTN_CLEANUP,
-		wxID_BTN_BUILD,
-		wxID_BTN_BUILD_SWAP,
 		wxID_BTN_RUN_MOD,
 	};
 
@@ -208,22 +209,25 @@ protected:
 	wxMenu* mmSetup;
 	wxMenu* mmMod;
 	wxMenu* m_menu7;
-	wxMenu* m_menu1;
-	wxMenu* m_menu11;
+	wxMenu* msmSaveOrig;
+	wxMenu* msmSaveMod;
 	wxMenu* mmRun;
 	wxMenu* mmHelpMenu;
 	wxStatusBar* sbar;
 	wxStaticText* m_staticText115;
 	wxChoice* chSpellPath;
+	wxBitmapButton* btnSpellPath;
 	wxStaticText* m_staticText1151;
 	wxChoice* chSpellExec;
 	wxStaticText* m_staticText116;
 	wxChoice* chSpellCdPath;
+	wxBitmapButton* btnSpellcdPath;
 	wxStaticText* m_staticText117;
 	wxChoice* chVirtCD;
 	wxStaticLine* m_staticline42;
 	wxStaticText* m_staticText118;
 	wxChoice* chDOSboxPath;
+	wxBitmapButton* btnDOSboxPath;
 	wxCheckBox* cbNoAutoexec;
 	wxCheckBox* cbFullscreen;
 	wxStaticLine* m_staticline4;
@@ -232,6 +236,7 @@ protected:
 	wxStaticLine* m_staticline43;
 	wxStaticText* m_staticText119;
 	wxChoice* chModPath;
+	wxBitmapButton* btnModPath;
 	wxCheckBox* cbAllowCDmod;
 	wxCheckBox* cbModSaves;
 	wxStaticLine* m_staticline44;
@@ -239,10 +244,6 @@ protected:
 	wxTextCtrl* textOutput;
 	wxButton* btnRunOrig;
 	wxButton* btnModInfo;
-	wxButton* btnRestore;
-	wxButton* btnCleanupMod;
-	wxButton* btnBuild;
-	wxButton* btnBuildSwap;
 	wxButton* btnRunMod;
 
 public:

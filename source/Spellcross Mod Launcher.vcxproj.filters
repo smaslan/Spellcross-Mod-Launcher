@@ -95,4 +95,105 @@
       <Filter>Soubory zdrojů</Filter>
     </ResourceCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="wx\msw\svg1.bin">
+      <Filter>Soubory zdrojů</Filter>
+    </None>
+    <None Include="wx\msw\hand.cur">
+      <Filter>Soubory zdrojů</Filter>
+    </None>
+    <None Include="wx\msw\bullseye.cur">
+      <Filter>Soubory zdrojů</Filter>
+    </None>
+    <None Include="wx\msw\pencil.cur">
+      <Filter>Soubory zdrojů</Filter>
+    </None>
+    <None Include="wx\msw\magnif1.cur">
+      <Filter>Soubory zdrojů</Filter>
+    </None>
+    <None Include="wx\msw\roller.cur">
+      <Filter>Soubory zdrojů</Filter>
+    </None>
+    <None Include="wx\msw\pbrush.cur">
+      <Filter>Soubory zdrojů</Filter>
+    </None>
+    <None Include="wx\msw\pntleft.cur">
+      <Filter>Soubory zdrojů</Filter>
+    </None>
+    <None Include="wx\msw\pntright.cur">
+      <Filter>Soubory zdrojů</Filter>
+    </None>
+    <None Include="wx\msw\blank.cur">
+      <Filter>Soubory zdrojů</Filter>
+    </None>
+    <None Include="wx\msw\cross.cur">
+      <Filter>Soubory zdrojů</Filter>
+    </None>
+    <None Include="ico\save.svg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="ico\icon.ico">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="wx\msw\std.ico">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="wx\msw\folder1.ico">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="wx\msw\folder2.ico">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="wx\msw\file1.ico">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="wx\msw\computer.ico">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="wx\msw\drive.ico">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="wx\msw\cdrom.ico">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="wx\msw\floppy.ico">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="wx\msw\removble.ico">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="ico\info.ico">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="ico\SPELCROS.ICO">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="wx\msw\csquery.bmp">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="wx\msw\colours.bmp">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="ico\multi.bmp">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="ico\folder.bmp">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="ico\folder_open.bmp">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="ico\single.bmp">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="ico\spr_a.bmp">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="ico\spr_obj.bmp">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+    <Image Include="ico\multi.png">
+      <Filter>Soubory zdrojů</Filter>
+    </Image>
+  </ItemGroup>
 </Project>
