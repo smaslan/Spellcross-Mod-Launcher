@@ -104,6 +104,7 @@ public:
     int CheckRestoreMod(Config& config,bool& something_to_restore);
     int RestoreMod(Config& config);
     int SwapMod(Config& config, bool allow_restore = true);
+    int CleanupMod(Config& config);
 
 private:
     std::vector<SpellModPath> m_paths;

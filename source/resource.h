@@ -2,7 +2,7 @@
 // Microsoft Visual C++ vygeneroval soubor zahrnutí.
 // Použito resources.rc
 //
-#define wxUSE_NO_MANIFEST               1
+#define wxUSE_NO_MANIFEST               0
 #define IDI_ICON1                       101
 #define SUBVERSION_MASK                 0x000000FF
 #define _WIN32_IE_IE20                  0x0200

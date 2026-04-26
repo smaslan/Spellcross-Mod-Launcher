@@ -50,7 +50,12 @@ END
 // Menu
 //
 
-WXWINDOWMENU MENU
+#define wxUSE_NO_MANIFEST 0
+#define wxUSE_RC_MANIFEST 1
+#define wxUSE_DPI_AWARE_MANIFEST 2
+#include <wx/msw/wx.rc>
+
+/*WXWINDOWMENU MENU
 BEGIN
     POPUP "&Window"
     BEGIN
@@ -61,7 +66,7 @@ BEGIN
         MENUITEM "&Arrange Icons",              4003
         MENUITEM "&Next",                       4004
     END
-END
+END*/
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -69,25 +74,16 @@ END
 // Cursor
 //
 
-WXCURSOR_HAND           CURSOR                  "wx/msw/hand.cur"
-
+/*WXCURSOR_HAND           CURSOR                  "wx/msw/hand.cur"
 WXCURSOR_BULLSEYE       CURSOR                  "wx/msw/bullseye.cur"
-
 WXCURSOR_PENCIL         CURSOR                  "wx/msw/pencil.cur"
-
 WXCURSOR_MAGNIFIER      CURSOR                  "wx/msw/magnif1.cur"
-
 WXCURSOR_ROLLER         CURSOR                  "wx/msw/roller.cur"
-
 WXCURSOR_PBRUSH         CURSOR                  "wx/msw/pbrush.cur"
-
 WXCURSOR_PLEFT          CURSOR                  "wx/msw/pntleft.cur"
-
 WXCURSOR_PRIGHT         CURSOR                  "wx/msw/pntright.cur"
-
 WXCURSOR_BLANK          CURSOR                  "wx/msw/blank.cur"
-
-WXCURSOR_CROSS          CURSOR                  "wx/msw/cross.cur"
+WXCURSOR_CROSS          CURSOR                  "wx/msw/cross.cur"*/
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -99,7 +95,7 @@ WXCURSOR_CROSS          CURSOR                  "wx/msw/cross.cur"
 // remains consistent on all systems.
 IDI_ICON1               ICON                    "ico/icon.ico"
 
-WXICON_AAA              ICON                    "wx/msw/std.ico"
+/*WXICON_AAA              ICON                    "wx/msw/std.ico"
 
 WXICON_SMALL_CLOSED_FOLDER ICON                    "wx/msw/folder1.ico"
 
@@ -115,12 +111,13 @@ WXICON_SMALL_CDROM      ICON                    "wx/msw/cdrom.ico"
 
 WXICON_SMALL_FLOPPY     ICON                    "wx/msw/floppy.ico"
 
-WXICON_SMALL_REMOVEABLE ICON                    "wx/msw/removble.ico"
+WXICON_SMALL_REMOVEABLE ICON                    "wx/msw/removble.ico"*/
 
 IDI_ICON2               ICON                    "ico/icon.ico"
 
 IDI_SPELCROS            ICON                    "ico/SPELCROS.ICO"
 IDI_SPELL_MOD           ICON                    "ico/spell_mod.ICO"
+IDI_ABOUT           ICON                    "ico/about2.ICO"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -128,9 +125,9 @@ IDI_SPELL_MOD           ICON                    "ico/spell_mod.ICO"
 // Bitmap
 //
 
-CSQUERY                 BITMAP                  "wx/msw/csquery.bmp"
+//CSQUERY                 BITMAP                  "wx/msw/csquery.bmp"
 
-WXBITMAP_STD_COLOURS    BITMAP                  "wx/msw/colours.bmp"
+//WXBITMAP_STD_COLOURS    BITMAP                  "wx/msw/colours.bmp"
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -158,6 +155,10 @@ IDR_SETUP                RCDATA                     "ico/setup.svg"
 //
 
 //IDB_PNG1                PNG                     "ico/multi.png"
+
+
+//CREATEPROCESS_MANIFEST_RESOURCE_ID RT_MANIFEST "Spellcross Mod Launcher.exe.manifest"
+
 
 #endif    // Èeština (Èeská republika) resources
 /////////////////////////////////////////////////////////////////////////////

@@ -9,6 +9,7 @@
 
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
+#include <wx/intl.h>
 #include <wx/string.h>
 #include <wx/stattext.h>
 #include <wx/gdicmn.h>
@@ -18,11 +19,13 @@
 #include <wx/statline.h>
 #include <wx/textctrl.h>
 #include <wx/sizer.h>
-#include <wx/button.h>
 #include <wx/bitmap.h>
 #include <wx/image.h>
 #include <wx/icon.h>
+#include <wx/statbmp.h>
+#include <wx/button.h>
 #include <wx/dialog.h>
+
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -39,12 +42,13 @@ class FormAbout : public wxDialog
 	protected:
 		enum
 		{
-			wxID_FORM_ABOUT = 5999,
+			wxID_FORM_ABOUT = 6000,
 			wxID_TXT_VER,
 			wxID_TXT_NAME,
 			wxID_TXT_EMAIL,
 			wxID_TXT_URL,
 			wxID_TXT_LICENSE,
+			wxID_IMG,
 			wxID_TXT_DESC,
 			wxID_BTN_OK,
 		};
@@ -61,6 +65,7 @@ class FormAbout : public wxDialog
 		wxTextCtrl* txtEmail;
 		wxTextCtrl* txtURL;
 		wxTextCtrl* txtLicense;
+		wxStaticBitmap* imgLogo;
 		wxStaticLine* m_staticline30;
 		wxTextCtrl* txtDesc;
 		wxStaticLine* m_staticline31;

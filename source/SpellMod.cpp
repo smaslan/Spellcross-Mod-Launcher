@@ -1093,6 +1093,28 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
     return(0);
 }
 
+// cleanup mod state file
+int SpellMod::CleanupMod(Config& config)
+{
+    PrintConsole("Cleaun up mod state file ... ");
+    
+    CSimpleIniA ini;
+    ini.SetUnicode(true);
+    if(ini.LoadFile(config.state_ini_path.wstring().c_str()) != SI_OK)
+    {
+        PrintConsole("done (no state file found)!\n");
+        return(0); // nothing to restore
+    }
+
+    ini.Reset();
+    ini.SaveFile(config.state_ini_path.wstring().c_str());
+
+    PrintConsole("done!\n");
+        
+    return(0);
+}
+
+
 // write save.ini to given folder
 int SpellMod::MakeSaveIni(std::filesystem::path save_dir, std::string description)
 {

@@ -50,18 +50,19 @@ FormEdit::FormEdit(wxWindow* parent,wxWindowID id,const wxString& title,const wx
 	wxBoxSizer* bSizer20;
 	bSizer20 = new wxBoxSizer(wxHORIZONTAL);
 
+	bSizer20->SetMinSize(wxSize(-1,50));
 
 	bSizer20->Add(0,0,1,wxEXPAND,5);
 
 	btnSave = new wxButton(this,wxID_BTN_SAVE,_("Save"),wxDefaultPosition,wxDefaultSize,0);
-	btnSave->SetMinSize(wxSize(-1,30));
+	btnSave->SetMinSize(wxSize(100,-1));
 
-	bSizer20->Add(btnSave,0,wxALL,5);
+	bSizer20->Add(btnSave,0,wxALL|wxEXPAND,5);
 
 	btnExit = new wxButton(this,wxID_BTN_EXIT,_("Exit"),wxDefaultPosition,wxDefaultSize,0);
-	btnExit->SetMinSize(wxSize(-1,30));
+	btnExit->SetMinSize(wxSize(100,-1));
 
-	bSizer20->Add(btnExit,0,wxALL,5);
+	bSizer20->Add(btnExit,0,wxALL|wxEXPAND,5);
 
 
 	bSizer19->Add(bSizer20,0,wxEXPAND,5);
@@ -73,12 +74,30 @@ FormEdit::FormEdit(wxWindow* parent,wxWindowID id,const wxString& title,const wx
 	this->Centre(wxBOTH);
 
 	// === AUTO GENERATED END ===
+	RescaleWindowDPI(this);
+
 	m_modified = false;
 	m_path = "";
+	
+
+	// set icon
+	wxIcon appIcon;
+	appIcon.LoadFile("IDI_ICON2",wxBITMAP_TYPE_ICO_RESOURCE);
+	if(appIcon.IsOk())
+		SetIcon(appIcon);
 
 	mmOpen->SetBitmaps(LoadSVGiconsBundle("IDR_OPEN"));
 	mmSave->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
 	mmExit->SetBitmaps(LoadSVGiconsBundle("IDR_EXIT"));
+
+	auto op_sz = FromDIP(wxSize(16,16));
+	btnSave->SetBitmap(LoadSVGiconsBundle("IDR_SAVE").GetBitmap(op_sz), wxLEFT);
+	btnSave->SetBitmapMargins(10,0);
+	btnExit->SetBitmap(LoadSVGiconsBundle("IDR_EXIT").GetBitmap(op_sz), wxLEFT);
+	btnExit->SetBitmapMargins(10,0);
+	
+		
+		
 
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormEdit::OnCloseClick,this,wxID_MM_EXIT);
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormEdit::OnCloseClick,this,wxID_BTN_EXIT);

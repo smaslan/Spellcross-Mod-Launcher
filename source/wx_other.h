@@ -2,6 +2,7 @@
 
 #include <wx/listctrl.h>
 #include <wx/treectrl.h>
+#include <wx/dialog.h>
 
 class wxListCtrlVirtual : public wxListCtrl {
 private:
@@ -91,3 +92,5 @@ public:
 
 std::wstring GetExecutableDir();
 wxBitmapBundle LoadSVGiconsBundle(const char* resrouce_name);
+
+int RescaleWindowDPI(wxWindow *win);

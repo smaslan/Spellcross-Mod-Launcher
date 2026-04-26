@@ -67,6 +67,7 @@ public:
 		BUILD,
 		RESTORE,
 		SWAP,
+		CLEANUP,
 		RUN,
 		SETUP
 	};
@@ -115,6 +116,7 @@ private:
 	void OnSelectSpellPath(wxCommandEvent& event);
 	void OnSelectDOSboxPath(wxCommandEvent& event);
 	void OnSelectModPath(wxCommandEvent& event);
+	void OnCleanupMod(wxCommandEvent& event);
 	void OnBuildMod(wxCommandEvent& event);
 	void OnBuildModEvent(wxThreadEvent& event);
 	void OnBuildLaunchFiles(wxCommandEvent& event);
@@ -123,7 +125,7 @@ private:
 	void OnModInfo(wxCommandEvent& event);
 	void OnBackupSaveWD(wxCommandEvent& event);
 
-	//void ConsoleStringCallback(std::string info);
+	
 	
 	void EditFile(std::filesystem::path path);
 	void SetControlsState(bool busy);
