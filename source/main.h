@@ -178,11 +178,9 @@ protected:
 		wxID_MM_SAVE_WD_ORG,
 		wxID_MM_RESTORE_WD_ORG,
 		wxID_MM_SAVE_ORIG,
-		wxID_MM_RESTORE_SAVE_ORIG,
 		wxID_MM_SAVE_WD_MOD,
 		wxID_MM_RESTORE_WD_MOD,
 		wxID_MM_SAVE_MOD,
-		wxID_MM_RESTORE_SAVE_MOD,
 		wxID_MM_BUILD_LAUNCH,
 		wxID_MM_RUN_ORIG,
 		wxID_MM_RUN_MOD,
@@ -206,7 +204,11 @@ protected:
 		wxID_CB_MOD_SAVES,
 		wxID_TEXT_OUTPUT,
 		wxID_BTN_RUN_ORIG,
+		wxID_BTN_SAVE_WD_ORIG,
+		wxID_BTN_RESTORE_WD_ORIG,
 		wxID_BTN_MOD_INFO,
+		wxID_BTN_SAVE_WD_MOD,
+		wxID_BTN_RESTORE_WD_MOD,
 		wxID_BTN_RUN_MOD,
 	};
 
@@ -214,7 +216,7 @@ protected:
 	wxMenu* mmFile;
 	wxMenu* mmSetup;
 	wxMenu* mmMod;
-	wxMenu* m_menu7;
+	wxMenu* mmSave;
 	wxMenu* msmSaveOrig;
 	wxMenu* msmSaveMod;
 	wxMenu* mmRun;
@@ -249,8 +251,13 @@ protected:
 	wxStaticText* m_staticText120;
 	wxTextCtrl* textOutput;
 	wxButton* btnRunOrig;
+	wxButton* btnSaveWDorig;
+	wxButton* btnRestoreWDorig;
 	wxButton* btnModInfo;
+	wxButton* btnSaveWDmod;
+	wxButton* btnRestoreWDmod;
 	wxButton* btnRunMod;
+
 
 public:
 	

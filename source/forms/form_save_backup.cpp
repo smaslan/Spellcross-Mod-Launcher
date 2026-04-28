@@ -12,6 +12,7 @@
 #include "../other.h"
 #include "../wx_other.h"
 #include "../SpellMod.h"
+#include "../SpellSaves.h"
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -93,19 +94,6 @@ FormSaveBack::FormSaveBack(wxWindow* parent,wxWindowID id,const wxString& title,
 
 	bSizer19->Add(bSizer371,0,wxEXPAND,5);
 
-	wxBoxSizer* bSizer42;
-	bSizer42 = new wxBoxSizer(wxVERTICAL);
-
-	lblSource = new wxStaticText(this,wxID_LBL_SRC,_("Source path:"),wxDefaultPosition,wxDefaultSize,0);
-	lblSource->Wrap(-1);
-	bSizer42->Add(lblSource,0,wxRIGHT|wxLEFT,5);
-
-	txtSource = new wxTextCtrl(this,wxID_TXT_SRC,wxEmptyString,wxDefaultPosition,wxDefaultSize,wxTE_READONLY);
-	bSizer42->Add(txtSource,0,wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND,5);
-
-
-	bSizer19->Add(bSizer42,0,wxEXPAND,5);
-
 	wxBoxSizer* bSizer421;
 	bSizer421 = new wxBoxSizer(wxVERTICAL);
 
@@ -119,13 +107,66 @@ FormSaveBack::FormSaveBack(wxWindow* parent,wxWindowID id,const wxString& title,
 
 	bSizer19->Add(bSizer421,0,wxEXPAND,5);
 
+	wxBoxSizer* bSizer42;
+	bSizer42 = new wxBoxSizer(wxVERTICAL);
+
+	lblSource = new wxStaticText(this,wxID_LBL_SRC,_("Source path:"),wxDefaultPosition,wxDefaultSize,0);
+	lblSource->Wrap(-1);
+	bSizer42->Add(lblSource,0,wxRIGHT|wxLEFT,5);
+
+	txtSource = new wxTextCtrl(this,wxID_TXT_SRC,wxEmptyString,wxDefaultPosition,wxDefaultSize,wxTE_READONLY);
+	bSizer42->Add(txtSource,0,wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND,5);
+
+
+	bSizer19->Add(bSizer42,0,wxEXPAND,5);
+
+	wxBoxSizer* bSizer40;
+	bSizer40 = new wxBoxSizer(wxHORIZONTAL);
+
+	wxBoxSizer* bSizer39;
+	bSizer39 = new wxBoxSizer(wxVERTICAL);
+
+	lblGameSaves = new wxStaticText(this,wxID_LBL_GAME_SAVES,_("Game Source saves:"),wxDefaultPosition,wxDefaultSize,0);
+	lblGameSaves->Wrap(-1);
+	bSizer39->Add(lblGameSaves,0,wxRIGHT|wxLEFT,5);
+
+	lbGameSaves = new wxListBox(this,wxID_LB_GAME_SAVES,wxDefaultPosition,wxDefaultSize,0,NULL,wxLB_ALWAYS_SB);
+	lbGameSaves->SetFont(wxFont(9,wxFONTFAMILY_MODERN,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxT("Courier New")));
+
+	bSizer39->Add(lbGameSaves,1,wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND,5);
+
+
+	bSizer40->Add(bSizer39,1,wxEXPAND,5);
+
+	wxBoxSizer* bSizer391;
+	bSizer391 = new wxBoxSizer(wxVERTICAL);
+
+	lblBackupSaves = new wxStaticText(this,wxID_LBL_BACKUP_SAVES,_("Backup saves (right click popup menu):"),wxDefaultPosition,wxDefaultSize,0);
+	lblBackupSaves->Wrap(-1);
+	bSizer391->Add(lblBackupSaves,0,wxRIGHT|wxLEFT,5);
+
+	wxArrayString lbBackupSavesChoices;
+	lbBackupSaves = new wxCheckListBox(this,wxID_LB_BACKUP_SAVES,wxDefaultPosition,wxDefaultSize,lbBackupSavesChoices,wxLB_ALWAYS_SB);
+	lbBackupSaves->SetFont(wxFont(9,wxFONTFAMILY_MODERN,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxT("Courier New")));
+
+	bSizer391->Add(lbBackupSaves,1,wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT,5);
+
+
+	bSizer40->Add(bSizer391,1,wxEXPAND,5);
+
+
+	bSizer19->Add(bSizer40,1,wxEXPAND,5);
+
+	m_staticline10 = new wxStaticLine(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,wxLI_HORIZONTAL);
+	bSizer19->Add(m_staticline10,0,wxEXPAND|wxRIGHT|wxLEFT,5);
+
 	wxBoxSizer* bSizer46;
 	bSizer46 = new wxBoxSizer(wxHORIZONTAL);
 
 	wxBoxSizer* bSizer47;
 	bSizer47 = new wxBoxSizer(wxVERTICAL);
 
-	m_staticText22 = new wxStaticText(this,wxID_ANY,_("Existing save sets:"),wxDefaultPosition,wxDefaultSize,0);
+	m_staticText22 = new wxStaticText(this,wxID_ANY,_("Existing backup save sets:"),wxDefaultPosition,wxDefaultSize,0);
 	m_staticText22->Wrap(-1);
 	bSizer47->Add(m_staticText22,0,wxRIGHT|wxLEFT,5);
 
@@ -236,6 +277,10 @@ FormSaveBack::FormSaveBack(wxWindow* parent,wxWindowID id,const wxString& title,
 	Bind(wxEVT_COMMAND_LISTBOX_SELECTED,&FormSaveBack::OnChangeBackup,this,wxID_LB_LIST);
 	Bind(wxEVT_COMMAND_TEXT_UPDATED,&FormSaveBack::OnChangeBackupName,this,wxID_TXT_NAME);
 
+	lbBackupSaves->Connect(wxEVT_RIGHT_DOWN,wxMouseEventHandler(FormSaveBack::OnSavesPupupOpen),NULL,this);
+	
+	//Bind(wxEVT_LEFT_DOWN,&FormSaveBack::OnSavesPupupOpen,this,wxID_LB_BACKUP_SAVES);
+
 	Bind(wxEVT_CLOSE_WINDOW,&FormSaveBack::OnClose,this,wxID_ANY);
 	
 
@@ -324,6 +369,8 @@ void FormSaveBack::OnChangeSet(wxCommandEvent& event)
 // change backup selection
 void FormSaveBack::OnChangeBackup(wxCommandEvent& event)
 {	
+	lbBackupSaves->Clear();
+
 	txtName->SetValue(lbList->GetStringSelection());
 	
 	auto backup_name = txtName->GetValue().ToStdWstring();
@@ -336,6 +383,65 @@ void FormSaveBack::OnChangeBackup(wxCommandEvent& event)
 	
 	txtDescription->SetValue(info.description);
 	txtDate->SetValue(info.time);
+	
+	// scan available saves
+	SpellSave::Saves saves;
+	if(SpellSave::LoadSaves(backup_path,saves))
+		return;
+	lbBackupSaves->Freeze();
+	for(auto& save: saves)
+	{
+		auto name = string_format(": %s",save.name.c_str());
+		auto date = string_format(" (%s)",save.date.c_str());
+		if(save.is_empty)
+		{
+			name = ": <empty>";
+			date = "";
+		}
+		lbBackupSaves->Append(string_format("%-8s%s%s",save.dir_name.c_str(),date.c_str(),name.c_str()),new SavesData(save.is_empty));
+		lbBackupSaves->Check(&save - saves.data(),!save.is_empty);
+	}
+	lbBackupSaves->Thaw();
+
+}
+
+// show popup menu on backup saves list
+void FormSaveBack::OnSavesPupupOpen(wxMouseEvent &event)
+{
+	wxMenu menu;
+	menu.Append(SavesPopup::ALL, "Select all");
+	menu.Append(SavesPopup::NONE,"Deselect all");	
+	menu.Append(SavesPopup::VALID,"Select non-empty");
+	menu.Connect(wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler(FormSaveBack::OnSavesPupup),NULL,this);
+	PopupMenu(&menu);
+}
+// process popup action
+void FormSaveBack::OnSavesPupup(wxCommandEvent& event)
+{
+	auto menu_id = event.GetId();
+	auto menu = (wxMenu*)event.GetEventObject();
+	if(!menu)
+		return;
+	if(menu_id == SavesPopup::ALL)
+	{
+		for(int k = 0; k < lbBackupSaves->GetCount(); k++)
+			lbBackupSaves->Check(k, true);
+	}
+	else if(menu_id == SavesPopup::NONE)
+	{
+		for(int k = 0; k < lbBackupSaves->GetCount(); k++)
+			lbBackupSaves->Check(k,false);
+	}
+	else if(menu_id == SavesPopup::VALID)
+	{
+		for(int k = 0; k < lbBackupSaves->GetCount(); k++)
+		{
+			auto par = (SavesData*)lbBackupSaves->GetClientObject(k);
+			if(!par)
+				continue;
+			lbBackupSaves->Check(k,!par->m_empty);
+		}
+	}
 }
 
 // change backup name
@@ -373,6 +479,8 @@ void FormSaveBack::OnOK(wxCommandEvent& event)
 
 	if(is_backup)
 	{
+		// --- backup operation:
+		
 		// make root backups dir if not there yet
 		auto backup_dir = backup_path.parent_path();
 		std::filesystem::create_directories(backup_dir);
@@ -409,9 +517,85 @@ void FormSaveBack::OnOK(wxCommandEvent& event)
 		auto desc = txtDescription->GetValue();
 		SpellMod::MakeSaveIni(backup_path, desc.ToStdString());
 		
-		//  refresh list
-		OnUpdateList(backup_name);
 	}
+	else
+	{
+		// --- restore operation:
+		
+		// scan available saves at target path, filter selected
+		SpellSave::Saves saves;
+		SpellSave::Saves saves_list;
+		auto err = SpellSave::LoadSaves(backup_path,saves);
+		for(auto &save: saves)
+		{
+			int id = &save - saves.data();
+			if(id >= lbBackupSaves->GetCount())
+				break;
+			if(!lbBackupSaves->IsChecked(id))
+				continue;
+			saves_list.push_back(save);
+		}
+		if(!saves_list.size())
+		{
+			wxMessageDialog dial(this,string_format("No backup saves selected!"),"Restore savegame ...",wxICON_EXCLAMATION);
+			dial.ShowModal();
+			return;
+		}
+		
+		// show operation note		
+		std::string info;
+		std::string list;
+		for(auto& save: saves_list)
+		{
+			auto path = save_path / save.dir_name;
+			if(std::filesystem::exists(path))
+				list += string_format("  %s\n",save.dir_name.c_str());
+		}
+		if(!list.empty())
+		{
+			info += string_format("Following game saves:\n%s",list.c_str());
+			info += string_format("at path:\n");
+			info += string_format("  %ls\n",save_path.wstring().c_str());
+			info += string_format("will be removed.\n\n");
+		}		
+		info += string_format("Following backup saves:\n");
+		for(auto& save: saves_list)
+			info += string_format("  %s: %s\n",save.dir_name.c_str(), save.name.c_str());		
+		info += string_format("from backup \"%s\" from path:\n",backup_name.c_str());
+		info += string_format("  %ls\n",backup_path.wstring().c_str());
+		info += string_format("will be copied to game SAVE path:\n");
+		info += string_format("  %ls\n\n",save_path.wstring().c_str());
+		info += string_format("Proceed with operation?");
+		wxMessageDialog dial(this,info,_("Restore savegame ..."),wxYES_NO | wxNO_DEFAULT | wxICON_EXCLAMATION);
+		if(dial.ShowModal() != wxID_YES)
+			return;
+
+		// restore save(s):
+		for(auto &save: saves_list)
+		{
+			auto dest_path = save_path / save.dir_name;
+			auto src_path = backup_path / save.dir_name;
+
+			// try remove
+			if(std::filesystem::exists(dest_path) && fs_remove(dest_path, true))
+			{
+				wxMessageDialog dial(this,string_format("Cannot remove save game:\n  %ls\nPossibly sharing violation. Maybe you are currently viewing the save folder?",dest_path.wstring().c_str()),"Restore savegame ...",wxICON_ERROR);
+				dial.ShowModal();
+				return;
+			}
+
+			// try copy backup to game save
+			if(fs_copy(src_path,dest_path,std::filesystem::copy_options::recursive))
+			{
+				wxMessageDialog dial(this,string_format("Cannot copy save game:\n  %ls\nto destination:\n  %ls\n\nPossibly sharing violation. Maybe you are currently viewing the save folder?",src_path.wstring().c_str(),dest_path.wstring().c_str()),"Restore savegame ...",wxICON_ERROR);
+				dial.ShowModal();
+				return;
+			}
+		}
+	}
+
+	//  refresh list
+	OnUpdateList(backup_name);
 }
 
 // on remove backup
@@ -525,6 +709,28 @@ void FormSaveBack::OnUpdateList(std::string backup_to_select)
 	else
 		lblDest->SetLabel("Destination SAVE path to which restore selected backup:");
 	txtDest->SetValue(save_dir.wstring());
+	if(is_backup)
+		lblGameSaves->SetLabel("Source SAVE games:");
+	else
+		lblGameSaves->SetLabel("Destination SAVE games:");
+
+	// scan available saves at target path
+	SpellSave::Saves saves;
+	auto err = SpellSave::LoadSaves(save_dir,saves);
+	lbGameSaves->Freeze();
+	lbGameSaves->Clear();
+	for(auto& save: saves)
+	{
+		auto name = string_format(": %s",save.name.c_str());
+		auto date = string_format(" (%s)",save.date.c_str());
+		if(save.is_empty)
+		{
+			name = ": <empty>";
+			date = "";
+		}
+		lbGameSaves->Append(string_format("%-8s%s%s",save.dir_name.c_str(),date.c_str(),name.c_str()));
+	}
+	lbGameSaves->Thaw();
 
 	// backup path info
 	if(is_backup)

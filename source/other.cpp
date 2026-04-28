@@ -394,9 +394,30 @@ std::string trim_whites(std::string str)
 // get ISO8601 time/date string
 std::string get_timestr_iso()
 {
-    std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-    return(std::format("{0:%F}T{0:%T%z}.",now));
+    auto time = std::chrono::system_clock::now();
+    std::time_t tt = to_time_t(time);
+    std::tm* gmt = std::gmtime(&tt);
+    std::stringstream buffer;
+    buffer << std::put_time(gmt,"%Y-%m-%dT%H:%M:%S%z");
+    return(buffer.str());
+    
+    // ###note: this causes memory leaks! (bad MSVC implementation)
+    /*std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
+    return(std::format("{0:%F}T{0:%T%z}.",now));*/
 }
+
+// get local time string
+std::string get_local_time_str()
+{
+    auto time = std::chrono::system_clock::now();
+    std::time_t tt = std::chrono::system_clock::to_time_t(std::chrono::time_point_cast<std::chrono::system_clock::duration>(time));
+    std::tm* gmt = std::localtime(&tt);
+    std::stringstream buffer;
+    buffer << std::put_time(gmt,"%Y-%m-%d %H:%M:%S");
+    return(buffer.str());
+}
+
+
 
 
 // save string to a file (save as binary - no alteration of line breaks)

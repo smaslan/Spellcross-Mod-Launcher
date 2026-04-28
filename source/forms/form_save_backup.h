@@ -23,10 +23,11 @@
 #include <wx/stattext.h>
 #include <wx/choice.h>
 #include <wx/sizer.h>
+#include <wx/textctrl.h>
 #include <wx/bmpbuttn.h>
 #include <wx/button.h>
-#include <wx/textctrl.h>
 #include <wx/listbox.h>
+#include <wx/checklst.h>
 #include <wx/statline.h>
 #include <wx/frame.h>
 
@@ -48,6 +49,8 @@ private:
 	void OnChangeSet(wxCommandEvent& event);
 	void OnChangeBackup(wxCommandEvent& event);
 	void OnChangeBackupName(wxCommandEvent& event);
+	void OnSavesPupupOpen(wxMouseEvent& event);
+	void OnSavesPupup(wxCommandEvent& event);
 	
 	void OnUpdateList(std::string backup_to_select="");
 
@@ -62,6 +65,18 @@ private:
 
 	std::wstring str_backup_subdir = L"save_backups";
 
+	enum SavesPopup : int{
+		ALL,
+		NONE,
+		VALID
+	};
+
+	class SavesData: public wxClientData {
+	public:
+		SavesData(int empty) : m_empty(empty) {}
+		int m_empty;
+	};
+
 
 protected:
 	enum
@@ -73,10 +88,14 @@ protected:
 		wxID_CH_OPER,
 		wxID_TXT_MOD_PATH,
 		wxID_BTN_MOD_PATH,
-		wxID_LBL_SRC,
-		wxID_TXT_SRC,
 		wxID_LBL_DEST,
 		wxID_TXT_DEST,
+		wxID_LBL_SRC,
+		wxID_TXT_SRC,
+		wxID_LBL_GAME_SAVES,
+		wxID_LB_GAME_SAVES,
+		wxID_LBL_BACKUP_SAVES,
+		wxID_LB_BACKUP_SAVES,
 		wxID_LB_LIST,
 		wxID_TXT_NAME,
 		wxID_TXT_DATE,
@@ -97,10 +116,15 @@ protected:
 	wxStaticText* m_staticText151;
 	wxTextCtrl* txtModPath;
 	wxBitmapButton* btnModPath;
-	wxStaticText* lblSource;
-	wxTextCtrl* txtSource;
 	wxStaticText* lblDest;
 	wxTextCtrl* txtDest;
+	wxStaticText* lblSource;
+	wxTextCtrl* txtSource;
+	wxStaticText* lblGameSaves;
+	wxListBox* lbGameSaves;
+	wxStaticText* lblBackupSaves;
+	wxCheckListBox* lbBackupSaves;
+	wxStaticLine* m_staticline10;
 	wxStaticText* m_staticText22;
 	wxListBox* lbList;
 	wxStaticLine* m_staticline8;
@@ -117,7 +141,7 @@ protected:
 
 public:
 
-	FormSaveBack(wxWindow* parent,wxWindowID id = wxID_FORM_SAVE_BACK,const wxString& title = _("Save Game Backup"),const wxPoint& pos = wxDefaultPosition,const wxSize& size = wxSize(873,539),long style = wxDEFAULT_FRAME_STYLE|wxSTAY_ON_TOP|wxTAB_TRAVERSAL);
+	FormSaveBack(wxWindow* parent,wxWindowID id = wxID_FORM_SAVE_BACK,const wxString& title = _("Save Game Backup Manager"),const wxPoint& pos = wxDefaultPosition,const wxSize& size = wxSize(900,750),long style = wxDEFAULT_FRAME_STYLE|wxFRAME_FLOAT_ON_PARENT|wxTAB_TRAVERSAL);
 	~FormSaveBack();
 	
 	void SetSpellPath(std::filesystem::path path);

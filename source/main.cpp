@@ -180,9 +180,9 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 
 	mMenu->Append(mmMod,_("Mod"));
 
-	m_menu7 = new wxMenu();
+	mmSave = new wxMenu();
 	msmSaveOrig = new wxMenu();
-	wxMenuItem* msmSaveOrigItem = new wxMenuItem(m_menu7,wxID_ANY,_("Original game saves"),wxEmptyString,wxITEM_NORMAL,msmSaveOrig);
+	wxMenuItem* msmSaveOrigItem = new wxMenuItem(mmSave,wxID_ANY,_("Original game saves"),wxEmptyString,wxITEM_NORMAL,msmSaveOrig);
 	wxMenuItem* mmSaveWDorg;
 	mmSaveWDorg = new wxMenuItem(msmSaveOrig,wxID_MM_SAVE_WD_ORG,wxString(_("Backup WORKDIR")),wxEmptyString,wxITEM_NORMAL);
 	msmSaveOrig->Append(mmSaveWDorg);
@@ -194,17 +194,13 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	msmSaveOrig->AppendSeparator();
 
 	wxMenuItem* mmSaveOrig;
-	mmSaveOrig = new wxMenuItem(msmSaveOrig,wxID_MM_SAVE_ORIG,wxString(_("Backup SAVEGAME")),wxEmptyString,wxITEM_NORMAL);
+	mmSaveOrig = new wxMenuItem(msmSaveOrig,wxID_MM_SAVE_ORIG,wxString(_("Manage SAVEs")),wxEmptyString,wxITEM_NORMAL);
 	msmSaveOrig->Append(mmSaveOrig);
 
-	wxMenuItem* mmRestoreSaveOrig;
-	mmRestoreSaveOrig = new wxMenuItem(msmSaveOrig,wxID_MM_RESTORE_SAVE_ORIG,wxString(_("Restore SAVEGAME")),wxEmptyString,wxITEM_NORMAL);
-	msmSaveOrig->Append(mmRestoreSaveOrig);
-
-	m_menu7->Append(msmSaveOrigItem);
+	mmSave->Append(msmSaveOrigItem);
 
 	msmSaveMod = new wxMenu();
-	wxMenuItem* msmSaveModItem = new wxMenuItem(m_menu7,wxID_ANY,_("Mod save games"),wxEmptyString,wxITEM_NORMAL,msmSaveMod);
+	wxMenuItem* msmSaveModItem = new wxMenuItem(mmSave,wxID_ANY,_("Mod save games"),wxEmptyString,wxITEM_NORMAL,msmSaveMod);
 	wxMenuItem* mmSaveWDmod;
 	mmSaveWDmod = new wxMenuItem(msmSaveMod,wxID_MM_SAVE_WD_MOD,wxString(_("Backup WORKDIR")),wxEmptyString,wxITEM_NORMAL);
 	msmSaveMod->Append(mmSaveWDmod);
@@ -216,16 +212,12 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	msmSaveMod->AppendSeparator();
 
 	wxMenuItem* mmSaveMod;
-	mmSaveMod = new wxMenuItem(msmSaveMod,wxID_MM_SAVE_MOD,wxString(_("Backup SAVEGAME")),wxEmptyString,wxITEM_NORMAL);
+	mmSaveMod = new wxMenuItem(msmSaveMod,wxID_MM_SAVE_MOD,wxString(_("Manage SAVEs")),wxEmptyString,wxITEM_NORMAL);
 	msmSaveMod->Append(mmSaveMod);
 
-	wxMenuItem* mmRestoreSaveMod;
-	mmRestoreSaveMod = new wxMenuItem(msmSaveMod,wxID_MM_RESTORE_SAVE_MOD,wxString(_("Restore SAVEGAME")),wxEmptyString,wxITEM_NORMAL);
-	msmSaveMod->Append(mmRestoreSaveMod);
+	mmSave->Append(msmSaveModItem);
 
-	m_menu7->Append(msmSaveModItem);
-
-	mMenu->Append(m_menu7,_("Savegame"));
+	mMenu->Append(mmSave,_("Savegame"));
 
 	mmRun = new wxMenu();
 	wxMenuItem* mmBuildLaunch;
@@ -479,28 +471,52 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	wxBoxSizer* bSizer123;
 	bSizer123 = new wxBoxSizer(wxHORIZONTAL);
 
-	bSizer123->SetMinSize(wxSize(-1,100));
-	btnRunOrig = new wxButton(this,wxID_BTN_RUN_ORIG,_("Run Original"),wxDefaultPosition,wxSize(130,50),0);
+	bSizer123->SetMinSize(wxSize(-1,120));
+	btnRunOrig = new wxButton(this,wxID_BTN_RUN_ORIG,_("Run Original"),wxDefaultPosition,wxSize(-1,-1),0);
+	btnRunOrig->SetMinSize(wxSize(130,-1));
+
 	bSizer123->Add(btnRunOrig,0,wxALL|wxEXPAND,5);
+
+	wxBoxSizer* bSizer42;
+	bSizer42 = new wxBoxSizer(wxVERTICAL);
+
+	bSizer42->SetMinSize(wxSize(150,-1));
+	btnSaveWDorig = new wxButton(this,wxID_BTN_SAVE_WD_ORIG,_("Backup\nWORKDIR"),wxDefaultPosition,wxDefaultSize,0);
+	bSizer42->Add(btnSaveWDorig,1,wxALL|wxEXPAND,5);
+
+	btnRestoreWDorig = new wxButton(this,wxID_BTN_RESTORE_WD_ORIG,_("Restore\nWORKDIR"),wxDefaultPosition,wxDefaultSize,0);
+	bSizer42->Add(btnRestoreWDorig,1,wxALL|wxEXPAND,5);
+
+
+	bSizer123->Add(bSizer42,0,wxEXPAND,5);
 
 
 	bSizer123->Add(0,0,1,wxEXPAND,5);
-
-	wxBoxSizer* bSizer125;
-	bSizer125 = new wxBoxSizer(wxVERTICAL);
 
 	btnModInfo = new wxButton(this,wxID_BTN_MOD_INFO,_("Show\nMod Info"),wxDefaultPosition,wxSize(-1,-1),0);
 	btnModInfo->SetMinSize(wxSize(130,-1));
 
-	bSizer125->Add(btnModInfo,1,wxALL|wxEXPAND,5);
-
-
-	bSizer123->Add(bSizer125,0,wxEXPAND,5);
+	bSizer123->Add(btnModInfo,0,wxALL|wxEXPAND,5);
 
 
 	bSizer123->Add(0,0,1,wxEXPAND,5);
 
-	btnRunMod = new wxButton(this,wxID_BTN_RUN_MOD,_("Run Mod"),wxDefaultPosition,wxSize(130,50),0);
+	wxBoxSizer* bSizer421;
+	bSizer421 = new wxBoxSizer(wxVERTICAL);
+
+	bSizer421->SetMinSize(wxSize(150,-1));
+	btnSaveWDmod = new wxButton(this,wxID_BTN_SAVE_WD_MOD,_("Backup\nWORKDIR"),wxDefaultPosition,wxDefaultSize,0);
+	bSizer421->Add(btnSaveWDmod,1,wxALL|wxEXPAND,5);
+
+	btnRestoreWDmod = new wxButton(this,wxID_BTN_RESTORE_WD_MOD,_("Restore\nWORKDIR"),wxDefaultPosition,wxDefaultSize,0);
+	bSizer421->Add(btnRestoreWDmod,1,wxALL|wxEXPAND,5);
+
+
+	bSizer123->Add(bSizer421,0,wxEXPAND,5);
+
+	btnRunMod = new wxButton(this,wxID_BTN_RUN_MOD,_("Run Mod"),wxDefaultPosition,wxSize(-1,-1),0);
+	btnRunMod->SetMinSize(wxSize(130,-1));
+
 	bSizer123->Add(btnRunMod,0,wxALL|wxEXPAND,5);
 
 
@@ -533,6 +549,15 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	btnModInfo->SetBitmap(LoadSVGiconsBundle("IDR_INFO").GetBitmap(wxSize(32,32)));
 	btnModInfo->SetBitmapPosition(wxDirection::wxBOTTOM);
 	btnModInfo->SetBitmapMargins(0,5);
+
+	btnSaveWDorig->SetBitmap(LoadSVGiconsBundle("IDR_SAVE").GetBitmap(wxSize(24,24)));
+	btnSaveWDorig->SetBitmapMargins(5,0);
+	btnRestoreWDorig->SetBitmap(LoadSVGiconsBundle("IDR_RELOAD").GetBitmap(wxSize(24,24)));
+	btnRestoreWDorig->SetBitmapMargins(5,0);
+	btnSaveWDmod->SetBitmap(LoadSVGiconsBundle("IDR_SAVE").GetBitmap(wxSize(24,24)));
+	btnSaveWDmod->SetBitmapMargins(5,0);
+	btnRestoreWDmod->SetBitmap(LoadSVGiconsBundle("IDR_RELOAD").GetBitmap(wxSize(24,24)));
+	btnRestoreWDmod->SetBitmapMargins(5,0);
 	
 	auto op_sz = FromDIP(wxSize(16,16));
 	btnSpellPath->SetBitmap(LoadSVGiconsBundle("IDR_OPEN3").GetBitmap(op_sz));
@@ -550,12 +575,10 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	msmSaveModItem->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
 	mmSaveWDorg->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
 	mmSaveWDmod->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
-	mmSaveOrig->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
-	mmSaveMod->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
+	mmSaveOrig->SetBitmaps(LoadSVGiconsBundle("IDR_RELOAD"));
+	mmSaveMod->SetBitmaps(LoadSVGiconsBundle("IDR_RELOAD"));
 	mmRestoreWDorg->SetBitmaps(LoadSVGiconsBundle("IDR_RELOAD"));
 	mmRestoreWDmod->SetBitmaps(LoadSVGiconsBundle("IDR_RELOAD"));
-	mmRestoreSaveOrig->SetBitmaps(LoadSVGiconsBundle("IDR_RELOAD"));
-	mmRestoreSaveMod->SetBitmaps(LoadSVGiconsBundle("IDR_RELOAD"));
 
 	mmModPath->SetBitmaps(LoadSVGiconsBundle("IDR_OPEN"));
 	mmSpellPath->SetBitmaps(LoadSVGiconsBundle("IDR_OPEN"));
@@ -649,10 +672,13 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSaveWD,this,wxID_MM_SAVE_WD_MOD);
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSaveWD,this,wxID_MM_RESTORE_WD_MOD);
 
+	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormMain::OnBackupSaveWD,this,wxID_BTN_SAVE_WD_ORIG);
+	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormMain::OnBackupSaveWD,this,wxID_BTN_RESTORE_WD_ORIG);
+	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormMain::OnBackupSaveWD,this,wxID_BTN_SAVE_WD_MOD);
+	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormMain::OnBackupSaveWD,this,wxID_BTN_RESTORE_WD_MOD);
+
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSave,this,wxID_MM_SAVE_ORIG);
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSave,this,wxID_MM_SAVE_MOD);
-	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSave,this,wxID_MM_RESTORE_SAVE_ORIG);
-	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBackupSave,this,wxID_MM_RESTORE_SAVE_MOD);
 
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormMain::OnSelectSpellPath,this,wxID_BTN_SPELL_PATH);
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormMain::OnSelectSpellPath,this,wxID_BTN_SPELLCD_PATH);
@@ -668,6 +694,8 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 
 	sbar->SetFieldsCount(1);
 
+	/*wxMessageDialog dial(this,get_local_time_str(),_("Test"),wxICON_INFORMATION);
+	dial.ShowModal();*/
 	
 	// check mod state and offer restore
 	SpellMod mod;
@@ -817,7 +845,7 @@ void FormMain::OnBackupSave(wxCommandEvent& event)
 	auto id = event.GetId();
 	form_save_back->SetSpellPath(spell_path);
 	form_save_back->SetBackup(id == wxID_MM_SAVE_ORIG || id == wxID_MM_SAVE_MOD);
-	form_save_back->SetMod(id == wxID_MM_SAVE_MOD || id == wxID_MM_RESTORE_SAVE_MOD);
+	form_save_back->SetMod(id == wxID_MM_SAVE_MOD);
 	form_save_back->SetModPath(mod_path);
 	form_save_back->Show();
 }
@@ -825,8 +853,8 @@ void FormMain::OnBackupSave(wxCommandEvent& event)
 // on backup save WORKDIR
 void FormMain::OnBackupSaveWD(wxCommandEvent& event)
 {
-	bool is_save = event.GetId() == wxID_MM_SAVE_WD_ORG || event.GetId() == wxID_MM_SAVE_WD_MOD;
-	bool is_mod = event.GetId() == wxID_MM_SAVE_WD_MOD || event.GetId() == wxID_MM_RESTORE_WD_MOD;
+	bool is_save = event.GetId() == wxID_MM_SAVE_WD_ORG || event.GetId() == wxID_MM_SAVE_WD_MOD || event.GetId() == wxID_BTN_SAVE_WD_ORIG || event.GetId() == wxID_BTN_SAVE_WD_MOD;
+	bool is_mod = event.GetId() == wxID_MM_SAVE_WD_MOD || event.GetId() == wxID_MM_RESTORE_WD_MOD || event.GetId() == wxID_BTN_SAVE_WD_MOD || event.GetId() == wxID_BTN_RESTORE_WD_MOD;
 
 	std::filesystem::path save_dir;
 	if(is_mod)
@@ -1092,16 +1120,14 @@ void FormMain::SetControlsState(bool busy)
 		wxID_MM_MOD_BUILD,
 		wxID_MM_MOD_BUILD_SWAP,
 		wxID_MM_MOD_RESTORE,
-		wxID_MM_EDIT_MOD_DEF,
 		wxID_MM_MOD_CLEAN,
+		wxID_MM_EDIT_MOD_DEF,
 		wxID_MM_SAVE_WD_ORG,
 		wxID_MM_RESTORE_WD_ORG,
 		wxID_MM_SAVE_ORIG,
-		wxID_MM_RESTORE_SAVE_ORIG,
 		wxID_MM_SAVE_WD_MOD,
 		wxID_MM_RESTORE_WD_MOD,
 		wxID_MM_SAVE_MOD,
-		wxID_MM_RESTORE_SAVE_MOD,
 		wxID_MM_BUILD_LAUNCH,
 		wxID_MM_RUN_ORIG,
 		wxID_MM_RUN_MOD,
@@ -1125,7 +1151,11 @@ void FormMain::SetControlsState(bool busy)
 		wxID_CB_MOD_SAVES,
 		//wxID_TEXT_OUTPUT,
 		wxID_BTN_RUN_ORIG,
+		wxID_BTN_SAVE_WD_ORIG,
+		wxID_BTN_RESTORE_WD_ORIG,
 		wxID_BTN_MOD_INFO,
+		wxID_BTN_SAVE_WD_MOD,
+		wxID_BTN_RESTORE_WD_MOD,
 		wxID_BTN_RUN_MOD,
 	};
 

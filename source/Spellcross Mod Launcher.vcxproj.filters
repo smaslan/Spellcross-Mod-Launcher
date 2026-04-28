@@ -54,6 +54,9 @@
     <ClCompile Include="forms\form_save_backup.cpp">
       <Filter>Zdrojové soubory\forms</Filter>
     </ClCompile>
+    <ClCompile Include="SpellSaves.cpp">
+      <Filter>Zdrojové soubory</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -94,6 +97,9 @@
     </ClInclude>
     <ClInclude Include="forms\form_save_backup.h">
       <Filter>Hlavičkové soubory\forms</Filter>
+    </ClInclude>
+    <ClInclude Include="SpellSaves.h">
+      <Filter>Hlavičkové soubory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

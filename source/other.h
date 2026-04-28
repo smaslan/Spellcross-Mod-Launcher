@@ -26,6 +26,26 @@ int loadstr(std::filesystem::path path,std::string& strbuf);
 int loaddata(std::filesystem::path path,std::vector<uint8_t>& data);
 std::string trim_whites(std::string str);
 std::string get_timestr_iso();
+std::string get_local_time_str();
+
+template <typename TP>
+std::time_t to_time_t(TP tp)
+{
+    using namespace std::chrono;
+    auto sctp = time_point_cast<system_clock::duration>(tp - TP::clock::now() + system_clock::now());
+    return system_clock::to_time_t(sctp);
+}
+
+// get local time string
+template <typename TP> std::string get_time_str(TP tp)
+{
+    //auto time = std::chrono::system_clock::now();
+    std::time_t tt = to_time_t(tp);
+    std::tm* gmt = std::localtime(&tt);
+    std::stringstream buffer;
+    buffer << std::put_time(gmt,"%Y-%m-%d %H:%M:%S");
+    return(buffer.str());
+}
 
 bool fs_rename(std::filesystem::path source,std::filesystem::path dest);
 bool fs_copy(std::filesystem::path source,std::filesystem::path dest,std::filesystem::copy_options options=std::filesystem::copy_options::none);

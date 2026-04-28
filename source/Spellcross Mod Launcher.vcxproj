@@ -159,6 +159,7 @@
     <ClCompile Include="LZ_spell.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="other.cpp" />
+    <ClCompile Include="SpellSaves.cpp" />
     <ClCompile Include="SpellLaunch.cpp" />
     <ClCompile Include="SpellMod.cpp" />
     <ClCompile Include="wx_other.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="other.h" />
     <ClInclude Include="SimpleIni.h" />
     <ClInclude Include="SpellMod.h" />
+    <ClInclude Include="SpellSaves.h" />
     <ClInclude Include="wx_other.h" />
   </ItemGroup>
   <ItemGroup>

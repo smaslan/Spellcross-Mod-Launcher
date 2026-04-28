@@ -1121,7 +1121,7 @@ int SpellMod::MakeSaveIni(std::filesystem::path save_dir, std::string descriptio
     CSimpleIniA save_ini;
     save_ini.SetValue("SAVE","what_is_it","Set of Spellcross save games (SAVE folder) moved/copied by Spellcross Mod Builder","; Info");
     save_ini.SetValue("SAVE","description",description.c_str(),"; Save games set description");
-    save_ini.SetValue("SAVE","date",get_timestr_iso().c_str(),"; Timestamp of last move of this saves set");
+    save_ini.SetValue("SAVE","date",get_local_time_str().c_str(),"; Timestamp of last move of this saves set");
     auto save_ini_path = save_dir / "save.ini";
     return(save_ini.SaveFile(save_ini_path.wstring().c_str()));
 }
