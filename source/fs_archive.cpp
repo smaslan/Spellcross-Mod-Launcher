@@ -130,7 +130,7 @@ void FSarchive::Append(wstring path,int options)
 
 // load file data for given file record if not loaded before
 int FSarchive::LoadFile(FSfile *fsfile)
-{
+{	
 	if(fsfile->is_loaded)
 		return(0);
 
@@ -173,9 +173,14 @@ int FSarchive::LoadFile(FSfile *fsfile)
 // loads files from folder into archive
 int FSarchive::LoadFolder(std::wstring dir, std::string wild_filter, bool allow_replace)
 {
+	m_last_error = "";
+
 	auto path = std::filesystem::path(dir);
 	if(path.has_extension())
+	{
+		m_last_error = string_format("Loading folder \"%ls\" to FS archive failed! Path is likely not folder?",path.wstring().c_str());
 		return(1); // likely not folder
+	}
 
 	if(m_fs_name.empty())
 	{
@@ -211,6 +216,7 @@ int FSarchive::LoadFolder(std::wstring dir, std::string wild_filter, bool allow_
 		if(loaddata(item,file->data))
 		{
 			delete file;
+			m_last_error = string_format("Adding file \"%ls\" to FS archive failed! Cannot read the file data.",item.wstring().c_str());
 			return(1);
 		}
 		
@@ -232,10 +238,22 @@ int FSarchive::LoadFolder(std::wstring dir, std::string wild_filter, bool allow_
 // add file to archive, optional replace existing
 int FSarchive::AddFile(std::string name,std::vector<uint8_t> &data,bool allow_replace)
 {
+	m_last_error = "";
+
 	// try get existing
 	auto file = GetFileRec(name.c_str());
 	if(file && !allow_replace)
-		return(1); // replace not allowed
+	{
+		m_last_error = string_format("Adding file \"%s\" to FS archive failed! Name already exist and replace not allowed.",name.c_str());
+		return(1); 
+	}
+
+	if(name.size() > 13)
+	{
+		// invalid file name size
+		m_last_error = string_format("Adding file \"%s\" to FS archive failed! Only DOS file names upto 8.3 size allowed.",name.c_str());
+		return(1);
+	}
 
 	// make new if not present
 	if(!file)
@@ -256,19 +274,38 @@ int FSarchive::AddFile(std::string name,std::vector<uint8_t> &data,bool allow_re
 }
 
 // save archive to file
+/*int comp_fs_name(const void* a,const void* b)
+{
+	return(strcmp((*(FSarchive::FSfile**)a)->name.c_str(),(*(FSarchive::FSfile**)b)->name.c_str()));
+}*/
 int FSarchive::SaveFile(std::wstring path,bool allow_overwrite)
 {
+	m_last_error = "";
+
 	if(!path.empty())
 		m_file_path = path;
 	if(m_file_path.empty())
+	{
+		m_last_error = string_format("No save path defined for saving FS archive!");
 		return(1);
+	}
 	if(std::filesystem::exists(path) && !allow_overwrite)
+	{
+		m_last_error = string_format("Cannot save FS archive \"%ls\"! File already exists and rewrite not allowed.",path.c_str());
 		return(1);
+	}
+
+	// sort files by name
+	std::sort(m_files.begin(), m_files.end(), [](FSfile *a, FSfile *b){return(strcmp(b->name.c_str(), a->name.c_str()) > 0);});	
+	//std::qsort(m_files.data(), m_files.size(), sizeof(FSfile*),comp_fs_name);
 
 	// make new file (overwrite)
 	ofstreamext fw(path,std::ios::out | std::ios::binary | std::ios::trunc);
 	if(!fw.is_open())
+	{
+		m_last_error = string_format("Cannot write FS archive \"%ls\"! Possibly access violation?",path.c_str());
 		return(1);
+	}
 
 	// write files count
 	uint32_t count = (uint32_t)m_files.size();
@@ -283,7 +320,10 @@ int FSarchive::SaveFile(std::wstring path,bool allow_overwrite)
 		// write file name
 		char name[13];
 		if(file->name.size() > sizeof(name))
+		{
+			m_last_error = string_format("Cannot write file \"%s\" to FS archive \"%ls\"! File name too long.",path.c_str(),file->name.c_str());
 			return(1);
+		}
 		memset(name,'\0',sizeof(name));
 		memcpy(name,file->name.c_str(),file->name.size());
 		fw.write(name,sizeof(name));

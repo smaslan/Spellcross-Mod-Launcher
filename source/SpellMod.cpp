@@ -59,6 +59,7 @@ SpellArchive::SpellArchive()
     m_fs = NULL;
     m_fsu = NULL;
     m_path = "";
+    m_last_error = "";
 }
 
 // load data archive
@@ -66,17 +67,26 @@ SpellArchive::SpellArchive(SpellModPath &path,Type explicit_archive_type)
 {
     m_fs = NULL;
     m_fsu = NULL;
-    m_path = "";    
+    m_path = "";
+    m_last_error = "";
     if(Load(path,explicit_archive_type))
         throw std::runtime_error(m_last_error);        
+}
+
+SpellArchive::~SpellArchive()
+{
+    if(m_fs)
+        delete m_fs;
+    m_fs = NULL;
+    if(m_fsu)
+        delete m_fsu;
+    m_fsu = NULL;
 }
 
 // load archive from path (must be empty before)
 int SpellArchive::Load(std::filesystem::path path, Type explicit_archive_type)
 {
     m_last_error = "";
-    if(m_fs)
-        return(1);
     
     if(!path.has_extension())
     {
@@ -84,10 +94,17 @@ int SpellArchive::Load(std::filesystem::path path, Type explicit_archive_type)
         if(explicit_archive_type == Type::FSU)
         {        
             // FSU archive:
-            m_fsu = new FSUarchive();            
+            if(m_fsu)
+            {
+                m_last_error = string_format("Creating FSU archive from directory \"%ls\" to object SpellArchive failed! Object already has some archive loaded.",path.wstring().c_str());
+                return(1);
+            }
+            m_fsu = new FSUarchive();
             if(m_fsu->LoadFolder(path))
             {
                 m_last_error = m_fsu->m_last_error;
+                delete m_fsu;
+                m_fsu = NULL;
                 return(1);
             }
             m_path = path;        
@@ -95,10 +112,17 @@ int SpellArchive::Load(std::filesystem::path path, Type explicit_archive_type)
         else
         {
             // FS archive:
+            if(m_fs)
+            {
+                m_last_error = string_format("Creating FS archive from directory \"%ls\" to object SpellArchive failed! Object already has some archive loaded.",path.wstring().c_str());
+                return(1);
+            }
             m_fs = new FSarchive();
             if(m_fs->LoadFolder(path))
             {
-                m_last_error = string_format("Loading folder (%s) into FS archive failed!",path.string().c_str());
+                m_last_error = m_fs->m_last_error;
+                delete m_fs;
+                m_fs = NULL;
                 return(1);
             }
             m_path = path;
@@ -108,7 +132,12 @@ int SpellArchive::Load(std::filesystem::path path, Type explicit_archive_type)
     else if(iequals(path.extension().string(),".FS"))
     {
         // try load FS archive data
-        try {
+        if(m_fsu)
+        {
+            m_last_error = string_format("Loading FS archive \"%ls\" to object SpellArchive failed! Object already has some archive loaded.",path.wstring().c_str());
+            return(1);
+        }
+        try{
             m_fs = new FSarchive(path);
             m_path = path;
         }
@@ -120,6 +149,11 @@ int SpellArchive::Load(std::filesystem::path path, Type explicit_archive_type)
     else if(iequals(path.extension().string(),".FSU"))
     {
         // try load FSU archive data
+        if(m_fsu)
+        {
+            m_last_error = string_format("Loading FSU archive \"%ls\" to object SpellArchive failed! Object already has some archive loaded.",path.wstring().c_str());
+            return(1);
+        }
         try {
             m_fsu = new FSUarchive(path.wstring(), FSUarchive::Options::NO_DECODE);
             m_path = path;
@@ -135,17 +169,12 @@ int SpellArchive::Load(std::filesystem::path path, Type explicit_archive_type)
 int SpellArchive::Load(SpellModPath& path,Type explicit_archive_type)
 {
     m_last_error = "";
-    if(m_fs)
-        return(1);
     
     std::vector<std::filesystem::path> path_list = {path.path, path.alt_path};
     for(auto& path: path_list)
     {
         if(path.empty())
-        {
-            m_last_error = string_format("Loading archive failed (%s)!",path.string().c_str());
             return(1);
-        }
         if(!Load(path,explicit_archive_type))
             return(0);
     }
@@ -155,28 +184,29 @@ int SpellArchive::Load(SpellModPath& path,Type explicit_archive_type)
 // save archive to path
 int SpellArchive::Save(std::filesystem::path path,bool allow_overwrite)
 {
+    m_last_error = "";
     if(m_fs)
     {
         // FS archive
-        return(m_fs->SaveFile(path, allow_overwrite));
+        auto err = m_fs->SaveFile(path,allow_overwrite);
+        m_last_error = m_fs->m_last_error;
+        return(err);
     }
     else if(m_fsu)
     {
         // FSU archive
-        return(m_fsu->Save(path,allow_overwrite));
+        auto err = m_fsu->Save(path,allow_overwrite);
+        m_last_error = m_fsu->m_last_error;
+        return(err);
     }
     else
         return(1);
 }
 
-SpellArchive::~SpellArchive()
+// get last error string
+std::string SpellArchive::GetLastError()
 {
-    if(m_fs)
-        delete m_fs;
-    m_fs = NULL;
-    if(m_fsu)
-        delete m_fsu;
-    m_fsu = NULL;
+    return(m_last_error);
 }
 
 // is archive folder?
@@ -199,23 +229,38 @@ std::vector<std::string> SpellArchive::GetItemNames()
 // try get file from archive
 int SpellArchive::GetFile(std::string& name,std::vector<uint8_t>& data)
 {
+    m_last_error = "";
+
     data.clear();
-    if(!m_fs)
+    if(m_fs)
+    {
+        auto err = m_fs->GetFile(name.c_str(), data);
+        m_last_error = m_fs->m_last_error;
+        return(err);
+    }
+    else if(m_fsu)
+    {
+        m_last_error = "GetFile from FSU archive not implemented!";
         return(1);
-    return(m_fs->GetFile(name.c_str(), data));
+    }
+    m_last_error = string_format("Get file \"%s\" from spell archive failed! No archive loaded yet.",name.c_str());
+    return(1);
 }
 
 // try get file from archive
-std::vector<uint8_t> *SpellArchive::GetFile(std::string& name)
+/*std::vector<uint8_t> *SpellArchive::GetFile(std::string& name)
 {
+    m_last_error = "";
     if(!m_fs)
         return(NULL);
     return(m_fs->GetFileData(name.c_str()));
-}
+}*/
 
 // add file from another archive
 int SpellArchive::AddFile(SpellArchive &src, std::string& name, bool allow_replace)
 {   
+    m_last_error = "";
+
     if(src.m_fs && !m_fs)
     {
         // first file to add: make blank FS
@@ -231,21 +276,37 @@ int SpellArchive::AddFile(SpellArchive &src, std::string& name, bool allow_repla
     {    
         // FS archive:
         if(!src.m_fs)
+        {
+            m_last_error = string_format("Cannot add FSU data to FS archive!");
             return(1);
+        }
         auto data = src.m_fs->GetFileData(name.c_str());
         if(!data)
+        {
+            m_last_error = string_format("Adding file \"%s\" to FS archive failed! File not found in source archive \"%ls\".",name.c_str(),m_fs->m_file_path.c_str());
             return(1);
-        return(m_fs->AddFile(name,*data,allow_replace));
+        }
+        auto err = m_fs->AddFile(name,*data,allow_replace);
+        m_last_error = m_fs->m_last_error;
+        return(err);
     }
     if(m_fsu)
     {
         // FSU archive:
         if(!src.m_fsu)
+        {
+            m_last_error = string_format("Cannot add FS data to FSU archive!");
             return(1);
+        }
         auto data = src.m_fsu->GetResource(name.c_str());
         if(!data)
+        {
+            m_last_error = string_format("Adding file \"%s\" to FSU archive failed! File not found in source archive.",name.c_str());
             return(1);
-        return(m_fsu->AddResource(data));
+        }
+        auto err = m_fsu->AddResource(data);
+        m_last_error = m_fsu->m_last_error;
+        return(err);
     }
     return(1);
 }
@@ -447,6 +508,8 @@ SpellArchive* SpellMod::GetArchive(SpellModPath &path)
 // load source archive to memory or return pointer to already loaded
 SpellArchive* SpellMod::LoadArchive(SpellModPath &path, SpellArchive::Type arch_type)
 {
+    m_last_error = "";
+
     SpellArchive *arch = GetArchive(path);
     if(arch)
         return(arch);
@@ -455,6 +518,7 @@ SpellArchive* SpellMod::LoadArchive(SpellModPath &path, SpellArchive::Type arch_
     try {
         arch = new SpellArchive(path,arch_type);
     }catch(const std::runtime_error& error) {
+        m_last_error = string_format("%s",error.what());
         return(NULL);
     }
 
@@ -593,8 +657,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
     PrintConsole("done.\n");
 
     // parse archive section(s)
-    std::vector<std::string> archive_names = {"COMMON.FS", "T11.FS", "PUST.FS", "DEVAST.FS", "TEXTS.FS", "SAMPLES.FS", "MUSIC.FS", "RESEARCH.FS", "INFO.FS", "MOVIE.FS", "UNITS.FSU"};
-    //std::vector<std::string> archive_names ={"UNITS.FSU"};
+    std::vector<std::string> archive_names = {"COMMON.FS", "T11.FS", "PUST.FS", "DEVAST.FS", "TEXTS.FS", "SAMPLES.FS", "MUSIC.FS", "RESEARCH.FS", "INFO.FS", "SPEAKER.FS", "MOVIE.FS", "UNITS.FSU"};
     for(auto &arch_name: archive_names)
     {
         auto arch_path = make_dir / arch_name;
@@ -695,7 +758,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     if(!src)
                     {
                         // loading source data for add() command failed
-                        PrintConsole("failed! Line %d: loading source data failed in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: loading source data failed in command \"%s\".\n%s\n",cmd.m_line,cmd.m_raw.c_str(),m_last_error.c_str());
                         return(1);
                     }
 
@@ -708,7 +771,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                         if(arch.AddFile(*src, name, replace))
                         {
                             // adding file to archive in add() command failed
-                            PrintConsole("failed! Line %d: adding file \"%s\" in command \"%s\".\n",cmd.m_line,name.c_str(),cmd.m_raw.c_str());
+                            PrintConsole("failed! Line %d: adding file \"%s\" in command \"%s\".\n%s\n",cmd.m_line,name.c_str(),cmd.m_raw.c_str(),arch.GetLastError().c_str());
                             return(1);
                         }
                         count++;
@@ -738,15 +801,16 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
         // save archive
 
         // check if target archive differs from new one
+        
         bool can_write = true;
-        if(std::filesystem::exists(arch_path))
+        if(!config.force_write && std::filesystem::exists(arch_path))
         {            
             // try load archive from target path            
             SpellArchive ref_arch;
             if(ref_arch.Load(arch_path))
             {
                 // archive loading failed
-                PrintConsole("failed! Loading target archive \"%ls\".\n",arch_path.wstring().c_str());
+                PrintConsole("failed! Loading target archive \"%ls\".\n%s\n",arch_path.wstring().c_str(),ref_arch.GetLastError().c_str());
                 return(1);
             }
             // compare by content
@@ -754,7 +818,8 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
         }
         if(!can_write)
         {
-            PrintConsole("saved to \"%ls\".\n",arch_path.wstring().c_str());
+            //PrintConsole("done at \"%ls\" (no change).\n",arch_path.wstring().c_str());
+            PrintConsole("done (not saving, no change detected).\n");
             continue;
         }
 
@@ -762,7 +827,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
         if(arch.Save(arch_path, true))
         {
             // writting archive failed
-            PrintConsole("failed! Saving target archive \"%ls\".\n",arch_path.wstring().c_str());
+            PrintConsole("failed! Saving target archive \"%ls\".\n%s\n",arch_path.wstring().c_str(),arch.GetLastError().c_str());
             return(1);
         }
         PrintConsole("saved to \"%ls\".\n",arch_path.wstring().c_str());

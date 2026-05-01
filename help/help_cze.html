@@ -1,0 +1,119 @@
+<html>
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=windows-1250">
+  <meta name="Author" content="Maslan Stanislav">
+  <meta name="Copyright" content="(C) 2026">
+  <link rel="stylesheet" type="text/css" href="help.css">
+  <title>Spellcross - MOD builder/launcher</title>
+</head>                             
+<body>
+
+<table align="center"><tr><td width="974">
+
+<table align="right">
+ <tr>
+  <td>
+   <a href="help_eng.html"><img src="obr/eng.png" alt="English"></a>
+  </td>
+ </tr>
+</table>
+
+<div class="n1">Spellcross - MOD builder/launcher</div>
+<table align="center">
+ <tr>
+  <td>
+   <img src="obr/bline.gif" alt="" align="middle">
+  </td>
+ </tr>
+</table>
+
+
+<p align="justify">
+&nbsp;&nbsp; Spellcross Mod Launcher vznikl za účelem usnadnění modifikací hry protože postupovat stylem 
+dearchivace-editace-archivace každého jednotlivého archivu hry je poněkud nepohodlné zvláště pokud mám rozpracovaných více různých modů. Tato utilitka je schopná, podle zadání v definičním souboru modu, "namixovat" nové herní datové archivy *.FS a *.FSU a případně je automaticky prohodit s původními archivy nainstalované hry 
+i s těmi na CD (pokud je CD emulováno ze složky, namísto z ISO). Následně spustí hro a po jejím ukončení je zase vrátí zpět, aby bylo možné spustit původní hru nebo jiný mod. Tento nástroj lze používat samozřejmě i ke spouštění nemodifikované hry přes DOSbox. Program zárověn obsahuje i nástroje na zálohování uložených her.<br>
+</p>
+
+<div class="n2">Varování</div><p align="justify">
+&nbsp;&nbsp; Nástroj z principu věci přesouvá, kopíruje a nekdy maže datové soubory hry. Měl by být sice bezpečný a každá potenticálně nebezpečná operace vyžaduje potvrzení uživatele, ale je to zcela bez záruky. Rozhodně doporučuji udělat si před použitím nástroje zálohu všech souborů hry i uložených her!   
+</p>
+
+<br>
+<div class="n2">1 - Základní nastavení</div><p align="justify">
+&nbsp;&nbsp; Všechna hlavní nastavení lze provést na hlavním panelu. Předně je třeba nastavit cestu k instalaci hry <b>Spellcross installation folder</b> např. "C:/hry/SPELCROS". Dále je třeba nastavit cestu ke kopii CD hry <b>Spellcross CD path</b>. Sice lze nastavit i cestu k namontovanému ISO, ale ISO image pochopitelně nelze modifikovat, takže doporučuji udělat kopii např. do "C:/hry/SPELLCD". Pokud máte ve složce hry několik EXE souborů, např. různé verze patchů hry, můžete si vybrat cílový EXE pro spuštění <b>Spellcross executable</b>. Dále zvolte písmeno jednotky <b>Virtual CD drive letter</b> kam bude namontováno CD hry. Toto nastavení platí jak pro DOSbox, tak i pro Win32 režim. Pokud hry budete spouštět přes DOSbox, pak je třeba také zadat cestu k instalaci DOSboxu <b>DOSbox path</b>. Dále zvolte metodu spuštění hry <b>Run mode</b>. Nástroj byl původně vyvinut v době 32bit WinXP, kde se daly 16bitové DOSové aplikace provozovat nativně přes integrovaný emulátor NTDVM, takže obsahuje možnost spusti nativně "Win32". Toto nastavení je ovšem dnes již trochu mimo a aplikace ani není kompilovaná pro 32bit systém. Ale teoreticky by to mohlo jít spustit ve virtuálním stroji. Každopádně dnes je jediná rozumná metoda režim "DOSbox". Pro režim "DOSbox" lze volitelně vypnout "autoexec.bat" a nastavit spouštění ve fullscreen režimu.
+Další nastavení je cesta k modu <b>Mod path</b>. Pro spouštění modu lze eventuálně vypnout <b>Allow CD mod</b>, pokud by cesta k CD hry vedla na namontované ISO, které pochopitelně nezle přepisovat. Poslední volba je <b>Move SAVE games</b>. Pokud je vybráno, vytvoří Spellcross Mod Launcher po prvním hraní modu kopii uložených pozic do složky modu "save". Při dalším spuštění modu přesune tyto uložené pozice do herní složky "SAVE" (a pochopitelně zálohuje původní pozice v "SAVE") a po skončení hraní je zase přesune zpět do složky modu a obnoví původní "SAVE". Takto lze mít nezávislé uložené pozice pro každý mod i originální hru a nepletou se dohromady, protože jsou nekompatibilní a hra při načtení většinou padne.     
+</p>
+
+<table align="center"><tr><td>
+<img src="obr/screen_1.png" alt="Takhle to vypadá" title="Takhle to vypadá">
+</td></tr></table><br>
+
+<br>
+<div class="n2">2 - Instalace modu</div><p align="justify">
+&nbsp;&nbsp; Mody netřeba nijak složitě instalovat nebo nastavovat. Stačí stáhnout a někam rozbalit. Zde ovšem upozorňuji, že je vhodné umístít mod na stejnou jednotku, jako je instalace hry, tedy např. pokud je hra na "C:/HRY/SPELCROS", tak někam na jednotku "C:/". Takto je operace prohození originálních datových souborl hry za modifikované pouze otázka přepisu alokačních tabulke souborového systému, ale nedochází k fyzické kopii dat. V opačném případě by pro každé spuštěné došlo k zápisu až 500&nbsp;MB za čož vám váš SSD disk nepoděkuje. Spellcross Mod Launcher je navíc dále optimalizován pro šetření SSD tak, aby negeneroval modifikované soubory, pokud je jejich obsah shodný s originálním mi a také nepřepisuje žádné soubory, pokud se nezmění.
+</p>
+
+<div class="n2">3 - Spouštění hry a modů</div><p align="justify">
+&nbsp;&nbsp; After setting up paths, you can run the original unmodified game by button <b>Run Original</b> or run modded version using <b>Run Mod</b>. For runnig mod it is not necessary to do anything else. The tool will automatically build and swap the game archives and restore them after the game is finished. There is no need to use any other functions. 
+</p>
+
+<br>
+<div class="n2">5 - Historie verzí</div><p align="justify">
+<table  align="justify">
+ <tr valign="top">
+  <td width="130">
+   <span class="d1">V1.00 - 1.10.2011</span>:
+  </td>
+  <td>
+   První verze.
+  </td> 
+ <tr>
+ <tr valign="top">
+  <td>
+   <span class="d1">V1.10 - 10.10.2011</span>:
+  </td>
+  <td>
+   Pár dalších nastavení v *.ini suborech. Spellcross mod builder i launcher přepracován tak, aby vše korektně pracovalo i ve Windows 98 (upraveny i *.bat skripty). 
+  </td>
+ <tr>
+ <tr valign="top">
+  <td>
+   <span class="d1">V1.20 - 15.10.2011</span>:
+  </td>
+  <td>
+   Opraveno pár chybek v *.bat skriptech.
+  </td>
+ <tr>
+ <tr valign="top">
+  <td>
+   <span class="d1">V1.30 - 2.6.2013</span>:
+  </td>
+  <td>
+   Opraveno pár chybek v *.bat skriptech (nějak to nebralo mezery v cestě k modu).
+  </td>
+ <tr>
+</table>
+</p>
+
+
+<br>
+<div class="n2">6 - Licence</div><p align="justify">
+&nbsp;&nbsp; Je to freeware, takže může být libovolně používán a šířen, ale pouze se všemi přiloženými soubory (zejména tento help) a bez úprav!<br>
+&nbsp;&nbsp; Autor nenese žádnou zodpovědnost za případné problémy nebo škody vzniklé použitím tohoto SW, ať už by byly jakékoliv.<br>
+&nbsp;&nbsp; Pokud s uvedenými podmínkami nesouhlasíte, pak tento SW nepoužívejte. 
+</p>
+
+
+<br>
+<div class="n2">7 - Kontakt</div><p align="justify">
+&nbsp;&nbsp; V případě problémů s programem mě můžete kontaktovat na e-mailu 
+<a href="mailto:s.maslan@seznam.cz">s.maslan@seznam.cz</a>. Nějaké ty informace k programu a případné 
+další verze lze nalézt na mém webu: <a href="http://www.spellcross.kvalitne.cz/mod/spell_mod_builder.html">http://www.spellcross.kvalitne.cz/mod/spell_mod_builder.html</a>.
+</p>
+
+<br><br>
+<div class="rights">(c) 2011-2013, Stanislav Mašláň - Všechna práva vyhrazena.</div>
+
+</table>
+</body>
+</html>

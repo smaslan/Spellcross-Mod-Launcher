@@ -63,15 +63,16 @@ public:
     bool isFolder();
     std::vector<std::string> GetItemNames();
     int GetFile(std::string &name, std::vector<uint8_t> &data);
-    std::vector<uint8_t>* GetFile(std::string& name);
+    //std::vector<uint8_t>* GetFile(std::string& name);
     int AddFile(SpellArchive &src, std::string &name, bool allow_replace);
     bool Compare(SpellArchive& ref);
     int Save(std::filesystem::path path, bool allow_overwrite=false);
+    std::string GetLastError();
 };
 
 class SpellMod
 {
-public:
+public:       
 
     class Config
     {
@@ -82,6 +83,7 @@ public:
         std::filesystem::path state_ini_path;
         bool allow_cd_mod;
         bool move_saves;
+        bool force_write;
     };
 
     class ModArchivesList
@@ -118,6 +120,7 @@ private:
     std::vector<SpellArchive*> m_sources;
     std::function<void(std::string)> m_stdout_cb;
     std::string m_def;
+    std::string m_last_error;
 
     //void PrintConsole(const std::string fmt,...);
     template<typename... Args> void PrintConsole(const std::string fmt,Args... args);

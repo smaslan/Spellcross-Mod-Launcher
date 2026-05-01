@@ -16,6 +16,7 @@
 class FSarchive
 {
 	public:
+		std::string m_last_error;
 
 		class Options
 		{
@@ -63,11 +64,12 @@ class FSarchive
 		std::string GetFSname(bool with_extension=true);
 		std::vector<std::string> GetFileNames(std::string wild="*");
 
-	private:			
-		
-		int m_options;
 		std::wstring m_file_path;
 		std::string m_fs_name;
+
+	private:			
+		
+		int m_options;		
 		LZWexpand* m_lzw;
 		std::vector<FSfile*> m_files;
 

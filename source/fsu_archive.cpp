@@ -215,11 +215,26 @@ std::vector<std::string> FSUarchive::GetResourceNanes()
 //---------------------------------------------------------------------------
 // save FSU archive to file (must be undecoded one!)
 //---------------------------------------------------------------------------
+bool comp_fsu_names(FSU_resource* a,FSU_resource* b)
+{
+	auto name_a = a->name;
+	auto name_b = b->name;
+	name_a.resize(5,'_');
+	name_b.resize(5,'_');
+	return(strcmp(name_b.c_str(), name_a.c_str()) > 0);
+}
 int FSUarchive::Save(std::filesystem::path path,bool allow_overwrite)
 {
 	if(std::filesystem::exists(path) && !allow_overwrite)
 		return(1);
-	
+
+	// sort resources
+	std::sort(m_list.begin(), m_list.end(),comp_fsu_names);
+
+	// sort sprites
+	for(auto &res: m_list)
+		res->SortSprites();
+		
 	ofstreamext fw(path,std::ios::out | std::ios::binary | std::ios::trunc);
 	if(!fw.is_open())
 		return(1);
@@ -865,6 +880,12 @@ FSU_sprite *FSU_resource::GetSprite(const char *name)
 		if(iequals(item.name, name))
 			return(&item);
 	return(NULL);
+}
+
+// sort sprites
+void FSU_resource::SortSprites()
+{
+	std::sort(list.begin(), list.end(), [](FSU_sprite& a,FSU_sprite& b){return(strcmp(b.name.c_str(), a.name.c_str()) > 0);});
 }
 
 

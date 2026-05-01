@@ -160,6 +160,10 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	mmModBuild = new wxMenuItem(mmMod,wxID_MM_MOD_BUILD,wxString(_("Build mod")) + wxT('\t') + wxT("F2"),wxEmptyString,wxITEM_NORMAL);
 	mmMod->Append(mmModBuild);
 
+	wxMenuItem* mmModBuildForce;
+	mmModBuildForce = new wxMenuItem(mmMod,wxID_MM_MOD_BUILD_FORCE,wxString(_("Force rebuild mod")) + wxT('\t') + wxT("Ctrl+F2"),wxEmptyString,wxITEM_NORMAL);
+	mmMod->Append(mmModBuildForce);
+
 	wxMenuItem* mmModBuildSwap;
 	mmModBuildSwap = new wxMenuItem(mmMod,wxID_MM_MOD_BUILD_SWAP,wxString(_("Build and swap")) + wxT('\t') + wxT("Shift+F2"),wxEmptyString,wxITEM_NORMAL);
 	mmMod->Append(mmModBuildSwap);
@@ -506,7 +510,7 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 
 	bSizer421->SetMinSize(wxSize(150,-1));
 	btnSaveWDmod = new wxButton(this,wxID_BTN_SAVE_WD_MOD,_("Backup\nWORKDIR"),wxDefaultPosition,wxDefaultSize,0);
-	bSizer421->Add(btnSaveWDmod,1,wxALL|wxEXPAND,5);
+	bSizer421->Add(btnSaveWDmod,1,wxEXPAND|wxALL,5);
 
 	btnRestoreWDmod = new wxButton(this,wxID_BTN_RESTORE_WD_MOD,_("Restore\nWORKDIR"),wxDefaultPosition,wxDefaultSize,0);
 	bSizer421->Add(btnRestoreWDmod,1,wxALL|wxEXPAND,5);
@@ -591,6 +595,7 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 
 	mmBuildLaunch->SetBitmaps(LoadSVGiconsBundle("IDR_BUILD"));
 	mmModBuild->SetBitmaps(LoadSVGiconsBundle("IDR_BUILD"));
+	mmModBuildForce->SetBitmaps(LoadSVGiconsBundle("IDR_BUILD"));
 	mmModBuildSwap->SetBitmaps(LoadSVGiconsBundle("IDR_BUILD"));
 	mmModRestore->SetBitmaps(LoadSVGiconsBundle("IDR_RELOAD"));
 	mmModCleanup->SetBitmaps(LoadSVGiconsBundle("IDR_CLOSE"));
@@ -653,6 +658,7 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBuildLaunchFiles,this,wxID_MM_BUILD_LAUNCH);
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBuildMod,this,wxID_MM_MOD_BUILD);
+	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBuildMod,this,wxID_MM_MOD_BUILD_FORCE);
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBuildMod,this,wxID_MM_MOD_BUILD_SWAP);
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnBuildMod,this,wxID_MM_MOD_RESTORE);
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnCleanupMod,this,wxID_MM_MOD_CLEAN);
@@ -799,10 +805,11 @@ void FormMain::OnEditDOSboxConf(wxCommandEvent& event)
 {
 	auto box_path = GetPathChoiceLastPath(chDOSboxPath);
 	if(box_path.empty())
-		return;	
-	auto cmd = string_format("%ls -printconf -noconsole",box_path.c_str());
+		return;		
+	auto cmd = string_format("\"%ls\" -printconf -noconsole",box_path.c_str());
 	std::system(cmd.c_str());
-	auto path_file = std::filesystem::path(box_path).parent_path() / "stdout.txt";
+	//auto path_file = std::filesystem::path(box_path).parent_path() / "stdout.txt";
+	auto path_file = "stdout.txt";
 	std::string conf_path;
 	loadstr(path_file,conf_path);
 	conf_path = trim_whites(conf_path);
@@ -963,6 +970,7 @@ wxThread::ExitCode ProcTh::Entry()
 	SpellMod::Config mod_config;
 	mod_config.allow_cd_mod = m_config.allow_cd_mod;
 	mod_config.move_saves = m_config.move_saves;
+	mod_config.force_write = m_config.force_build;
 	mod_config.mod_path = m_config.mod_path;
 	mod_config.spell_dir = m_config.spell_dir;
 	mod_config.spellcd_dir = m_config.spellcd_dir;
@@ -1067,6 +1075,8 @@ void FormMain::OnBuildModEvent(wxThreadEvent& event)
 		// processing done		
 		sbar->SetStatusText("Ready!");
 		SetControlsState(false);
+		// ###note: this is required to recoved from DOSbox fullscreen mode
+		Layout();
 	}
 	else if(what == ProcTh::Event::CLEAR)
 	{
@@ -1118,6 +1128,7 @@ void FormMain::SetControlsState(bool busy)
 		wxID_MM_RUN_SETUPBAT,
 		wxID_MM_MOD_INFO,
 		wxID_MM_MOD_BUILD,
+		wxID_MM_MOD_BUILD_FORCE,
 		wxID_MM_MOD_BUILD_SWAP,
 		wxID_MM_MOD_RESTORE,
 		wxID_MM_MOD_CLEAN,
@@ -1205,6 +1216,7 @@ void FormMain::OnCleanupMod(wxCommandEvent& event)
 // build mod
 void FormMain::OnBuildMod(wxCommandEvent& event)
 {
+	auto evt_id = event.GetId();
 	textOutput->Clear();
 
 	// load setup
@@ -1215,6 +1227,7 @@ void FormMain::OnBuildMod(wxCommandEvent& event)
 	config.allow_cd_mod = cbAllowCDmod->GetValue();
 	config.move_saves = cbModSaves->GetValue();
 	config.state_ini_path = std::filesystem::path(GetExecutableDir()) / str_mod_state_ini_none;
+	config.force_build = evt_id == wxID_MM_MOD_BUILD_FORCE;
 	
 	if(config.mod_path.empty())
 		return;
@@ -1223,8 +1236,8 @@ void FormMain::OnBuildMod(wxCommandEvent& event)
 	
 	// what to do?
 	ProcTh::ActionsList actions;	
-	auto evt_id = event.GetId();
-	if(evt_id == wxID_MM_MOD_BUILD)
+	
+	if(evt_id == wxID_MM_MOD_BUILD || evt_id == wxID_MM_MOD_BUILD_FORCE)
 		actions.push_back(ProcTh::Action::BUILD);
 	else if(evt_id == wxID_MM_MOD_BUILD_SWAP)
 	{
@@ -1251,6 +1264,7 @@ void FormMain::OnBuildLaunchFiles(wxCommandEvent& event)
 // on run game
 void FormMain::OnRunGame(wxCommandEvent& event)
 {		
+	auto evt_id = event.GetId();
 	textOutput->Clear();
 
 	// load setup
@@ -1262,6 +1276,7 @@ void FormMain::OnRunGame(wxCommandEvent& event)
 	config.move_saves = cbModSaves->GetValue();
 	config.state_ini_path = std::filesystem::path(GetExecutableDir()) / str_mod_state_ini_none;
 	config.run_mode = chRunMode->GetStringSelection();
+	config.force_build = false;
 
 	// first make launch files
 	MakeSpellLaunchFiles();
@@ -1272,8 +1287,7 @@ void FormMain::OnRunGame(wxCommandEvent& event)
 		return;
 
 	// do mod before run?
-	ProcTh::ActionsList actions;
-	auto evt_id = event.GetId();
+	ProcTh::ActionsList actions;	
 	if(evt_id == wxID_BTN_RUN_MOD || evt_id == wxID_MM_RUN_MOD)
 	{
 		// mod: build and swap first

@@ -88,6 +88,7 @@ public:
 		bool dosbox_no_autoexec;
 		bool dosbox_fullscreen;
 		bool move_saves;
+		bool force_build;
 	};
 
 	ProcTh(wxFrame* parent,Params &config,ActionsList &actions);
@@ -171,6 +172,7 @@ protected:
 		wxID_MM_RUN_SETUPBAT,
 		wxID_MM_MOD_INFO,
 		wxID_MM_MOD_BUILD,
+		wxID_MM_MOD_BUILD_FORCE,
 		wxID_MM_MOD_BUILD_SWAP,
 		wxID_MM_MOD_RESTORE,
 		wxID_MM_MOD_CLEAN,

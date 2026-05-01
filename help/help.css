@@ -1,0 +1,27 @@
+body   {font-size: 14px; color: black; background-color: #fff5c0; font-family: arial}
+
+a:link {color: #dd7700}
+a:visited {color: #dd7700}
+a:active {color: #dd7700}
+a:hover {color: red}
+
+a:link img {border: 1px solid #ffdd00}
+a:visited img {border: 1px solid #ffaa00}
+a:active img {border: 1px solid #ffffbb}
+a:hover img {border: 1px solid red}
+
+a:link img.neram {border: 1px solid black}
+a:visited img.neram {border: 1px solid black}
+a:active img.neram {border: 1px solid black}
+a:hover img.neram {border: 1px solid red}
+
+.n1 {font-size: 30px; font-family: times new roman; text-align: center; font-weight: bold}
+.n2 {font-size: 16px; color: #A00030; text-align: left; font-weight: bold}
+.n3 {font-size: 14px; font-family: times new roman; color: #000000; text-align: left; font-weight: bold}
+.rights {font-size: 14px; font-family: times new roman; text-align: center; font-weight: bold}
+.d1 {font-family: times new roman;color: #200020; text-align: left; font-weight: bold}
+
+.modra {background-color: #000060; color: white}
+.zelena {background-color: #005000; color: white}
+.redtext {color: #ff0000}
+.danger {color: #ff0000; font-size: 22px; font-family: times; text-align: center; font-weight: bold}

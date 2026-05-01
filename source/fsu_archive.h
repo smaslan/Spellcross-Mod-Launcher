@@ -87,6 +87,7 @@ public:
 	} anim;	
 
 	FSU_sprite* GetSprite(const char* name);
+	void SortSprites();
 	Txy GetStatFireOriginMean(int slope);
 	Txy GetAnimFireOriginMean();
 	int GetAnimAzim(double angle);
