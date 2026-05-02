@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////
+﻿///////////////////////////////////////////////////////////////////////////
 // C++ code generated with wxFormBuilder (version 4.2.1-0-g80c4cb6)
 // http://www.wxformbuilder.org/
 //
@@ -7,30 +7,35 @@
 
 #pragma once
 
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveBack' on 2026-05-02 21:33:41
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
-#include <wx/statusbr.h>
-#include <wx/gdicmn.h>
-#include <wx/font.h>
-#include <wx/colour.h>
-#include <wx/settings.h>
 #include <wx/string.h>
 #include <wx/bitmap.h>
 #include <wx/image.h>
 #include <wx/icon.h>
 #include <wx/menu.h>
+#include <wx/gdicmn.h>
+#include <wx/font.h>
+#include <wx/colour.h>
+#include <wx/settings.h>
+#include <wx/statusbr.h>
 #include <wx/stattext.h>
 #include <wx/choice.h>
-#include <wx/sizer.h>
-#include <wx/textctrl.h>
 #include <wx/bmpbuttn.h>
 #include <wx/button.h>
+#include <wx/sizer.h>
+#include <wx/statline.h>
+#include <wx/checkbox.h>
+#include <wx/textctrl.h>
+#include <wx/frame.h>
+#include <wx/statbmp.h>
+#include <wx/dialog.h>
 #include <wx/listbox.h>
 #include <wx/checklst.h>
-#include <wx/statline.h>
-#include <wx/frame.h>
 
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveBack' on 2026-05-02 21:33:41
 #include <filesystem>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -79,6 +84,7 @@ private:
 
 
 protected:
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveBack' on 2026-05-02 21:33:41
 	enum
 	{
 		wxID_FORM_SAVE_BACK = 6000,
@@ -105,7 +111,7 @@ protected:
 		wxID_BTN_OK,
 		wxID_BTN_EXIT,
 	};
-
+	
 	wxStatusBar* sbar;
 	wxMenuBar* m_menubar2;
 	wxMenu* m_menu6;
@@ -138,6 +144,8 @@ protected:
 	wxButton* btnRemove;
 	wxButton* btnConfirm;
 	wxButton* btnExit;
+
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveBack' on 2026-05-02 21:33:41
 
 public:
 

@@ -1,4 +1,4 @@
-//=============================================================================
+﻿//=============================================================================
 // Spellcross Mod Launcher
 // ----------------------------------------------------------------------------
 // Top level functions, wxWidgets GUI.
@@ -15,8 +15,7 @@
 #include "simpleini.h"
 #include "SpellMod.h"
 
-// <wxFormsBuilder-include>
-#include <wx/thread.h>
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-05-02 21:33:39
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -32,14 +31,19 @@
 #include <wx/statusbr.h>
 #include <wx/stattext.h>
 #include <wx/choice.h>
+#include <wx/bmpbuttn.h>
+#include <wx/button.h>
 #include <wx/sizer.h>
 #include <wx/statline.h>
 #include <wx/checkbox.h>
 #include <wx/textctrl.h>
-#include <wx/button.h>
-#include <wx/tglbtn.h>
 #include <wx/frame.h>
-// </wxFormsBuilder-include>
+#include <wx/statbmp.h>
+#include <wx/dialog.h>
+#include <wx/listbox.h>
+#include <wx/checklst.h>
+
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-05-02 21:33:39
 
 
 // app entry point class
@@ -160,7 +164,7 @@ protected:
 	int wxID_FORM_SAVE_BACK = 5998;
 	int wxID_FORM_EDIT = 5999;	
 
-	// <wxFormsBuilder>
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-05-02 21:33:39
 	enum
 	{
 		wxID_FORM_MAIN = 6000,
@@ -216,7 +220,7 @@ protected:
 		wxID_BTN_RESTORE_WD_MOD,
 		wxID_BTN_RUN_MOD,
 	};
-
+	
 	wxMenuBar* mMenu;
 	wxMenu* mmFile;
 	wxMenu* mmSetup;
@@ -262,7 +266,8 @@ protected:
 	wxButton* btnSaveWDmod;
 	wxButton* btnRestoreWDmod;
 	wxButton* btnRunMod;
-	// </wxFormsBuilder>
+
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-05-02 21:33:39
 
 
 public:

@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////
+﻿///////////////////////////////////////////////////////////////////////////
 // C++ code generated with wxFormBuilder (version 4.2.1-0-g80c4cb6)
 // http://www.wxformbuilder.org/
 //
@@ -17,62 +17,65 @@
 
 FormEdit::FormEdit(wxWindow* parent,wxWindowID id,const wxString& title,const wxPoint& pos,const wxSize& size,long style) : wxFrame(parent,id,title,pos,size,style)
 {
-	this->SetSizeHints(wxDefaultSize,wxDefaultSize);
-	this->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENU));
-
-	sbar = this->CreateStatusBar(1,wxSTB_SIZEGRIP,wxID_SBAR);
-	m_menubar2 = new wxMenuBar(0);
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormEdit' on 2026-05-02 21:33:40
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_MENU ) );
+	
+	sbar = this->CreateStatusBar( 1, wxSTB_SIZEGRIP, wxID_SBAR );
+	m_menubar2 = new wxMenuBar( 0 );
 	m_menu6 = new wxMenu();
 	wxMenuItem* mmOpen;
-	mmOpen = new wxMenuItem(m_menu6,wxID_MM_OPEN,wxString(_("Open")),wxEmptyString,wxITEM_NORMAL);
-	m_menu6->Append(mmOpen);
-
+	mmOpen = new wxMenuItem( m_menu6, wxID_MM_OPEN, wxString( _("Open") ) , wxEmptyString, wxITEM_NORMAL );
+	m_menu6->Append( mmOpen );
+	
 	wxMenuItem* mmSave;
-	mmSave = new wxMenuItem(m_menu6,wxID_MM_SAVE,wxString(_("Save")),wxEmptyString,wxITEM_NORMAL);
-	m_menu6->Append(mmSave);
-
+	mmSave = new wxMenuItem( m_menu6, wxID_MM_SAVE, wxString( _("Save") ) , wxEmptyString, wxITEM_NORMAL );
+	m_menu6->Append( mmSave );
+	
 	m_menu6->AppendSeparator();
-
+	
 	wxMenuItem* mmExit;
-	mmExit = new wxMenuItem(m_menu6,wxID_MM_EXIT,wxString(_("Exit")),wxEmptyString,wxITEM_NORMAL);
-	m_menu6->Append(mmExit);
-
-	m_menubar2->Append(m_menu6,_("File"));
-
-	this->SetMenuBar(m_menubar2);
-
+	mmExit = new wxMenuItem( m_menu6, wxID_MM_EXIT, wxString( _("Exit") ) , wxEmptyString, wxITEM_NORMAL );
+	m_menu6->Append( mmExit );
+	
+	m_menubar2->Append( m_menu6, _("File") );
+	
+	this->SetMenuBar( m_menubar2 );
+	
 	wxBoxSizer* bSizer19;
-	bSizer19 = new wxBoxSizer(wxVERTICAL);
-
-	text = new wxTextCtrl(this,wxID_TEXT,wxEmptyString,wxDefaultPosition,wxDefaultSize,wxTE_MULTILINE);
-	bSizer19->Add(text,1,wxEXPAND|wxTOP|wxRIGHT|wxLEFT,5);
-
+	bSizer19 = new wxBoxSizer( wxVERTICAL );
+	
+	text = new wxTextCtrl( this, wxID_TEXT, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE );
+	bSizer19->Add( text, 1, wxEXPAND|wxTOP|wxRIGHT|wxLEFT, 5 );
+	
 	wxBoxSizer* bSizer20;
-	bSizer20 = new wxBoxSizer(wxHORIZONTAL);
-
-	bSizer20->SetMinSize(wxSize(-1,50));
-
-	bSizer20->Add(0,0,1,wxEXPAND,5);
-
-	btnSave = new wxButton(this,wxID_BTN_SAVE,_("Save"),wxDefaultPosition,wxDefaultSize,0);
-	btnSave->SetMinSize(wxSize(100,-1));
-
-	bSizer20->Add(btnSave,0,wxALL|wxEXPAND,5);
-
-	btnExit = new wxButton(this,wxID_BTN_EXIT,_("Exit"),wxDefaultPosition,wxDefaultSize,0);
-	btnExit->SetMinSize(wxSize(100,-1));
-
-	bSizer20->Add(btnExit,0,wxALL|wxEXPAND,5);
-
-
-	bSizer19->Add(bSizer20,0,wxEXPAND,5);
-
-
-	this->SetSizer(bSizer19);
+	bSizer20 = new wxBoxSizer( wxHORIZONTAL );
+	
+	bSizer20->SetMinSize( wxSize( -1,45 ) );
+	
+	bSizer20->Add( 0, 0, 1, wxEXPAND, 5 );
+	
+	btnSave = new wxButton( this, wxID_BTN_SAVE, _("Save"), wxDefaultPosition, wxDefaultSize, 0 );
+	btnSave->SetMinSize( wxSize( 100,-1 ) );
+	
+	bSizer20->Add( btnSave, 0, wxALL|wxEXPAND, 5 );
+	
+	btnExit = new wxButton( this, wxID_BTN_EXIT, _("Exit"), wxDefaultPosition, wxDefaultSize, 0 );
+	btnExit->SetMinSize( wxSize( 100,-1 ) );
+	
+	bSizer20->Add( btnExit, 0, wxALL|wxEXPAND, 5 );
+	
+	
+	bSizer19->Add( bSizer20, 0, wxEXPAND, 5 );
+	
+	
+	this->SetSizer( bSizer19 );
 	this->Layout();
+	
+	this->Centre( wxBOTH );
+	
 
-	this->Centre(wxBOTH);
-
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormEdit' on 2026-05-02 21:33:40
 	// === AUTO GENERATED END ===
 	RescaleWindowDPI(this);
 

@@ -1,4 +1,4 @@
-///////////////////////////////////////////////////////////////////////////
+﻿///////////////////////////////////////////////////////////////////////////
 // C++ code generated with wxFormBuilder (version 4.2.1-0-g80c4cb6)
 // http://www.wxformbuilder.org/
 //
@@ -19,230 +19,233 @@
 
 FormSaveBack::FormSaveBack(wxWindow* parent,wxWindowID id,const wxString& title,const wxPoint& pos,const wxSize& size,long style) : wxFrame(parent,id,title,pos,size,style)
 {
-	this->SetSizeHints(wxDefaultSize,wxDefaultSize);
-	this->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENU));
-
-	sbar = this->CreateStatusBar(1,wxSTB_SIZEGRIP,wxID_SBAR);
-	m_menubar2 = new wxMenuBar(0);
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveBack' on 2026-05-02 21:33:41
+	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
+	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_MENU ) );
+	
+	sbar = this->CreateStatusBar( 1, wxSTB_SIZEGRIP, wxID_SBAR );
+	m_menubar2 = new wxMenuBar( 0 );
 	m_menu6 = new wxMenu();
 	wxMenuItem* mmExit;
-	mmExit = new wxMenuItem(m_menu6,wxID_MM_EXIT,wxString(_("Exit")),wxEmptyString,wxITEM_NORMAL);
-	m_menu6->Append(mmExit);
-
-	m_menubar2->Append(m_menu6,_("File"));
-
-	this->SetMenuBar(m_menubar2);
-
+	mmExit = new wxMenuItem( m_menu6, wxID_MM_EXIT, wxString( _("Exit") ) , wxEmptyString, wxITEM_NORMAL );
+	m_menu6->Append( mmExit );
+	
+	m_menubar2->Append( m_menu6, _("File") );
+	
+	this->SetMenuBar( m_menubar2 );
+	
 	wxBoxSizer* bSizer19;
-	bSizer19 = new wxBoxSizer(wxVERTICAL);
-
+	bSizer19 = new wxBoxSizer( wxVERTICAL );
+	
 	wxBoxSizer* bSizer49;
-	bSizer49 = new wxBoxSizer(wxHORIZONTAL);
-
+	bSizer49 = new wxBoxSizer( wxHORIZONTAL );
+	
 	wxBoxSizer* bSizer37;
-	bSizer37 = new wxBoxSizer(wxVERTICAL);
-
-	m_staticText15 = new wxStaticText(this,wxID_ANY,_("Save target type:"),wxDefaultPosition,wxDefaultSize,0);
-	m_staticText15->Wrap(-1);
-	bSizer37->Add(m_staticText15,0,wxTOP|wxRIGHT|wxLEFT,5);
-
+	bSizer37 = new wxBoxSizer( wxVERTICAL );
+	
+	m_staticText15 = new wxStaticText( this, wxID_ANY, _("Save target type:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText15->Wrap( -1 );
+	bSizer37->Add( m_staticText15, 0, wxTOP|wxRIGHT|wxLEFT, 5 );
+	
 	wxArrayString chSourceDestChoices;
-	chSourceDest = new wxChoice(this,wxID_CH_SRC_DEST,wxDefaultPosition,wxDefaultSize,chSourceDestChoices,0);
-	chSourceDest->SetSelection(0);
-	bSizer37->Add(chSourceDest,0,wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND,5);
-
-
-	bSizer49->Add(bSizer37,1,wxEXPAND,5);
-
+	chSourceDest = new wxChoice( this, wxID_CH_SRC_DEST, wxDefaultPosition, wxDefaultSize, chSourceDestChoices, 0 );
+	chSourceDest->SetSelection( 0 );
+	bSizer37->Add( chSourceDest, 0, wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND, 5 );
+	
+	
+	bSizer49->Add( bSizer37, 1, wxEXPAND, 5 );
+	
 	wxBoxSizer* bSizer372;
-	bSizer372 = new wxBoxSizer(wxVERTICAL);
-
-	m_staticText152 = new wxStaticText(this,wxID_ANY,_("Save operation:"),wxDefaultPosition,wxDefaultSize,0);
-	m_staticText152->Wrap(-1);
-	bSizer372->Add(m_staticText152,0,wxTOP|wxRIGHT|wxLEFT,5);
-
+	bSizer372 = new wxBoxSizer( wxVERTICAL );
+	
+	m_staticText152 = new wxStaticText( this, wxID_ANY, _("Save operation:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText152->Wrap( -1 );
+	bSizer372->Add( m_staticText152, 0, wxTOP|wxRIGHT|wxLEFT, 5 );
+	
 	wxArrayString chOperationChoices;
-	chOperation = new wxChoice(this,wxID_CH_OPER,wxDefaultPosition,wxDefaultSize,chOperationChoices,0);
-	chOperation->SetSelection(0);
-	bSizer372->Add(chOperation,0,wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND,5);
-
-
-	bSizer49->Add(bSizer372,1,wxEXPAND,5);
-
-
-	bSizer19->Add(bSizer49,0,wxEXPAND,5);
-
+	chOperation = new wxChoice( this, wxID_CH_OPER, wxDefaultPosition, wxDefaultSize, chOperationChoices, 0 );
+	chOperation->SetSelection( 0 );
+	bSizer372->Add( chOperation, 0, wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND, 5 );
+	
+	
+	bSizer49->Add( bSizer372, 1, wxEXPAND, 5 );
+	
+	
+	bSizer19->Add( bSizer49, 0, wxEXPAND, 5 );
+	
 	wxBoxSizer* bSizer371;
-	bSizer371 = new wxBoxSizer(wxVERTICAL);
-
-	m_staticText151 = new wxStaticText(this,wxID_ANY,_("Mod path (if applicable):"),wxDefaultPosition,wxDefaultSize,0);
-	m_staticText151->Wrap(-1);
-	bSizer371->Add(m_staticText151,0,wxRIGHT|wxLEFT,5);
-
+	bSizer371 = new wxBoxSizer( wxVERTICAL );
+	
+	m_staticText151 = new wxStaticText( this, wxID_ANY, _("Mod path (if applicable):"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText151->Wrap( -1 );
+	bSizer371->Add( m_staticText151, 0, wxRIGHT|wxLEFT, 5 );
+	
 	wxBoxSizer* bSizer53;
-	bSizer53 = new wxBoxSizer(wxHORIZONTAL);
-
-	txtModPath = new wxTextCtrl(this,wxID_TXT_MOD_PATH,wxEmptyString,wxDefaultPosition,wxDefaultSize,wxTE_READONLY);
-	bSizer53->Add(txtModPath,1,wxBOTTOM|wxRIGHT|wxLEFT,5);
-
-	btnModPath = new wxBitmapButton(this,wxID_BTN_MOD_PATH,wxNullBitmap,wxDefaultPosition,wxDefaultSize,wxBU_AUTODRAW|wxBORDER_NONE);
-	bSizer53->Add(btnModPath,0,wxRIGHT|wxLEFT,5);
-
-
-	bSizer371->Add(bSizer53,1,wxEXPAND,5);
-
-
-	bSizer19->Add(bSizer371,0,wxEXPAND,5);
-
+	bSizer53 = new wxBoxSizer( wxHORIZONTAL );
+	
+	txtModPath = new wxTextCtrl( this, wxID_TXT_MOD_PATH, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_READONLY );
+	bSizer53->Add( txtModPath, 1, wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	
+	btnModPath = new wxBitmapButton( this, wxID_BTN_MOD_PATH, wxNullBitmap, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW|wxBORDER_NONE );
+	bSizer53->Add( btnModPath, 0, wxRIGHT|wxLEFT, 5 );
+	
+	
+	bSizer371->Add( bSizer53, 1, wxEXPAND, 5 );
+	
+	
+	bSizer19->Add( bSizer371, 0, wxEXPAND, 5 );
+	
 	wxBoxSizer* bSizer421;
-	bSizer421 = new wxBoxSizer(wxVERTICAL);
-
-	lblDest = new wxStaticText(this,wxID_LBL_DEST,_("Destination path:"),wxDefaultPosition,wxDefaultSize,0);
-	lblDest->Wrap(-1);
-	bSizer421->Add(lblDest,0,wxRIGHT|wxLEFT,5);
-
-	txtDest = new wxTextCtrl(this,wxID_TXT_DEST,wxEmptyString,wxDefaultPosition,wxDefaultSize,wxTE_READONLY);
-	bSizer421->Add(txtDest,0,wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND,5);
-
-
-	bSizer19->Add(bSizer421,0,wxEXPAND,5);
-
+	bSizer421 = new wxBoxSizer( wxVERTICAL );
+	
+	lblDest = new wxStaticText( this, wxID_LBL_DEST, _("Destination path:"), wxDefaultPosition, wxDefaultSize, 0 );
+	lblDest->Wrap( -1 );
+	bSizer421->Add( lblDest, 0, wxRIGHT|wxLEFT, 5 );
+	
+	txtDest = new wxTextCtrl( this, wxID_TXT_DEST, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_READONLY );
+	bSizer421->Add( txtDest, 0, wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND, 5 );
+	
+	
+	bSizer19->Add( bSizer421, 0, wxEXPAND, 5 );
+	
 	wxBoxSizer* bSizer42;
-	bSizer42 = new wxBoxSizer(wxVERTICAL);
-
-	lblSource = new wxStaticText(this,wxID_LBL_SRC,_("Source path:"),wxDefaultPosition,wxDefaultSize,0);
-	lblSource->Wrap(-1);
-	bSizer42->Add(lblSource,0,wxRIGHT|wxLEFT,5);
-
-	txtSource = new wxTextCtrl(this,wxID_TXT_SRC,wxEmptyString,wxDefaultPosition,wxDefaultSize,wxTE_READONLY);
-	bSizer42->Add(txtSource,0,wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND,5);
-
-
-	bSizer19->Add(bSizer42,0,wxEXPAND,5);
-
+	bSizer42 = new wxBoxSizer( wxVERTICAL );
+	
+	lblSource = new wxStaticText( this, wxID_LBL_SRC, _("Source path:"), wxDefaultPosition, wxDefaultSize, 0 );
+	lblSource->Wrap( -1 );
+	bSizer42->Add( lblSource, 0, wxRIGHT|wxLEFT, 5 );
+	
+	txtSource = new wxTextCtrl( this, wxID_TXT_SRC, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_READONLY );
+	bSizer42->Add( txtSource, 0, wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND, 5 );
+	
+	
+	bSizer19->Add( bSizer42, 0, wxEXPAND, 5 );
+	
 	wxBoxSizer* bSizer40;
-	bSizer40 = new wxBoxSizer(wxHORIZONTAL);
-
+	bSizer40 = new wxBoxSizer( wxHORIZONTAL );
+	
 	wxBoxSizer* bSizer39;
-	bSizer39 = new wxBoxSizer(wxVERTICAL);
-
-	lblGameSaves = new wxStaticText(this,wxID_LBL_GAME_SAVES,_("Game Source saves:"),wxDefaultPosition,wxDefaultSize,0);
-	lblGameSaves->Wrap(-1);
-	bSizer39->Add(lblGameSaves,0,wxRIGHT|wxLEFT,5);
-
-	lbGameSaves = new wxListBox(this,wxID_LB_GAME_SAVES,wxDefaultPosition,wxDefaultSize,0,NULL,wxLB_ALWAYS_SB);
-	lbGameSaves->SetFont(wxFont(9,wxFONTFAMILY_MODERN,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxT("Courier New")));
-
-	bSizer39->Add(lbGameSaves,1,wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND,5);
-
-
-	bSizer40->Add(bSizer39,1,wxEXPAND,5);
-
+	bSizer39 = new wxBoxSizer( wxVERTICAL );
+	
+	lblGameSaves = new wxStaticText( this, wxID_LBL_GAME_SAVES, _("Game Source saves:"), wxDefaultPosition, wxDefaultSize, 0 );
+	lblGameSaves->Wrap( -1 );
+	bSizer39->Add( lblGameSaves, 0, wxRIGHT|wxLEFT, 5 );
+	
+	lbGameSaves = new wxListBox( this, wxID_LB_GAME_SAVES, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_ALWAYS_SB );
+	lbGameSaves->SetFont( wxFont( 9, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Courier New") ) );
+	
+	bSizer39->Add( lbGameSaves, 1, wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND, 5 );
+	
+	
+	bSizer40->Add( bSizer39, 1, wxEXPAND, 5 );
+	
 	wxBoxSizer* bSizer391;
-	bSizer391 = new wxBoxSizer(wxVERTICAL);
-
-	lblBackupSaves = new wxStaticText(this,wxID_LBL_BACKUP_SAVES,_("Backup saves (right click popup menu):"),wxDefaultPosition,wxDefaultSize,0);
-	lblBackupSaves->Wrap(-1);
-	bSizer391->Add(lblBackupSaves,0,wxRIGHT|wxLEFT,5);
-
+	bSizer391 = new wxBoxSizer( wxVERTICAL );
+	
+	lblBackupSaves = new wxStaticText( this, wxID_LBL_BACKUP_SAVES, _("Backup saves (right click popup menu):"), wxDefaultPosition, wxDefaultSize, 0 );
+	lblBackupSaves->Wrap( -1 );
+	bSizer391->Add( lblBackupSaves, 0, wxRIGHT|wxLEFT, 5 );
+	
 	wxArrayString lbBackupSavesChoices;
-	lbBackupSaves = new wxCheckListBox(this,wxID_LB_BACKUP_SAVES,wxDefaultPosition,wxDefaultSize,lbBackupSavesChoices,wxLB_ALWAYS_SB);
-	lbBackupSaves->SetFont(wxFont(9,wxFONTFAMILY_MODERN,wxFONTSTYLE_NORMAL,wxFONTWEIGHT_NORMAL,false,wxT("Courier New")));
-
-	bSizer391->Add(lbBackupSaves,1,wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT,5);
-
-
-	bSizer40->Add(bSizer391,1,wxEXPAND,5);
-
-
-	bSizer19->Add(bSizer40,1,wxEXPAND,5);
-
-	m_staticline10 = new wxStaticLine(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,wxLI_HORIZONTAL);
-	bSizer19->Add(m_staticline10,0,wxEXPAND|wxRIGHT|wxLEFT,5);
-
+	lbBackupSaves = new wxCheckListBox( this, wxID_LB_BACKUP_SAVES, wxDefaultPosition, wxDefaultSize, lbBackupSavesChoices, wxLB_ALWAYS_SB );
+	lbBackupSaves->SetFont( wxFont( 9, wxFONTFAMILY_MODERN, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Courier New") ) );
+	
+	bSizer391->Add( lbBackupSaves, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	
+	
+	bSizer40->Add( bSizer391, 1, wxEXPAND, 5 );
+	
+	
+	bSizer19->Add( bSizer40, 1, wxEXPAND, 5 );
+	
+	m_staticline10 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	bSizer19->Add( m_staticline10, 0, wxEXPAND|wxRIGHT|wxLEFT, 5 );
+	
 	wxBoxSizer* bSizer46;
-	bSizer46 = new wxBoxSizer(wxHORIZONTAL);
-
+	bSizer46 = new wxBoxSizer( wxHORIZONTAL );
+	
 	wxBoxSizer* bSizer47;
-	bSizer47 = new wxBoxSizer(wxVERTICAL);
-
-	m_staticText22 = new wxStaticText(this,wxID_ANY,_("Existing backup save sets:"),wxDefaultPosition,wxDefaultSize,0);
-	m_staticText22->Wrap(-1);
-	bSizer47->Add(m_staticText22,0,wxRIGHT|wxLEFT,5);
-
-	lbList = new wxListBox(this,wxID_LB_LIST,wxDefaultPosition,wxDefaultSize,0,NULL,wxLB_ALWAYS_SB);
-	bSizer47->Add(lbList,1,wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND,5);
-
-
-	bSizer46->Add(bSizer47,1,wxEXPAND,5);
-
-	m_staticline8 = new wxStaticLine(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,wxLI_VERTICAL);
-	bSizer46->Add(m_staticline8,0,wxEXPAND|wxTOP|wxBOTTOM,5);
-
+	bSizer47 = new wxBoxSizer( wxVERTICAL );
+	
+	m_staticText22 = new wxStaticText( this, wxID_ANY, _("Existing backup save sets:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText22->Wrap( -1 );
+	bSizer47->Add( m_staticText22, 0, wxRIGHT|wxLEFT, 5 );
+	
+	lbList = new wxListBox( this, wxID_LB_LIST, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_ALWAYS_SB );
+	bSizer47->Add( lbList, 1, wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND, 5 );
+	
+	
+	bSizer46->Add( bSizer47, 1, wxEXPAND, 5 );
+	
+	m_staticline8 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
+	bSizer46->Add( m_staticline8, 0, wxEXPAND|wxTOP|wxBOTTOM, 5 );
+	
 	wxBoxSizer* bSizer48;
-	bSizer48 = new wxBoxSizer(wxVERTICAL);
-
-	m_staticText24 = new wxStaticText(this,wxID_ANY,_("Name:"),wxDefaultPosition,wxDefaultSize,0);
-	m_staticText24->Wrap(-1);
-	bSizer48->Add(m_staticText24,0,wxRIGHT|wxLEFT,5);
-
-	txtName = new wxTextCtrl(this,wxID_TXT_NAME,wxEmptyString,wxDefaultPosition,wxDefaultSize,0);
-	bSizer48->Add(txtName,0,wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND,5);
-
-	m_staticText23 = new wxStaticText(this,wxID_ANY,_("Date:"),wxDefaultPosition,wxDefaultSize,0);
-	m_staticText23->Wrap(-1);
-	bSizer48->Add(m_staticText23,0,wxRIGHT|wxLEFT,5);
-
-	txtDate = new wxTextCtrl(this,wxID_TXT_DATE,wxEmptyString,wxDefaultPosition,wxDefaultSize,wxTE_READONLY);
-	bSizer48->Add(txtDate,0,wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND,5);
-
-	lblDesc = new wxStaticText(this,wxID_LBL_DESC,_("Description:"),wxDefaultPosition,wxDefaultSize,0);
-	lblDesc->Wrap(-1);
-	bSizer48->Add(lblDesc,0,wxRIGHT|wxLEFT,5);
-
-	txtDescription = new wxTextCtrl(this,wxID_TXT_DESCRIPTION,wxEmptyString,wxDefaultPosition,wxDefaultSize,wxTE_MULTILINE);
-	bSizer48->Add(txtDescription,1,wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT,5);
-
-
-	bSizer46->Add(bSizer48,1,wxEXPAND,5);
-
-
-	bSizer19->Add(bSizer46,1,wxEXPAND,5);
-
-	m_staticline9 = new wxStaticLine(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,wxLI_HORIZONTAL);
-	bSizer19->Add(m_staticline9,0,wxEXPAND|wxRIGHT|wxLEFT,5);
-
+	bSizer48 = new wxBoxSizer( wxVERTICAL );
+	
+	m_staticText24 = new wxStaticText( this, wxID_ANY, _("Name:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText24->Wrap( -1 );
+	bSizer48->Add( m_staticText24, 0, wxRIGHT|wxLEFT, 5 );
+	
+	txtName = new wxTextCtrl( this, wxID_TXT_NAME, wxEmptyString, wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer48->Add( txtName, 0, wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND, 5 );
+	
+	m_staticText23 = new wxStaticText( this, wxID_ANY, _("Date:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText23->Wrap( -1 );
+	bSizer48->Add( m_staticText23, 0, wxRIGHT|wxLEFT, 5 );
+	
+	txtDate = new wxTextCtrl( this, wxID_TXT_DATE, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_READONLY );
+	bSizer48->Add( txtDate, 0, wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND, 5 );
+	
+	lblDesc = new wxStaticText( this, wxID_LBL_DESC, _("Description:"), wxDefaultPosition, wxDefaultSize, 0 );
+	lblDesc->Wrap( -1 );
+	bSizer48->Add( lblDesc, 0, wxRIGHT|wxLEFT, 5 );
+	
+	txtDescription = new wxTextCtrl( this, wxID_TXT_DESCRIPTION, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE );
+	bSizer48->Add( txtDescription, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	
+	
+	bSizer46->Add( bSizer48, 1, wxEXPAND, 5 );
+	
+	
+	bSizer19->Add( bSizer46, 1, wxEXPAND, 5 );
+	
+	m_staticline9 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	bSizer19->Add( m_staticline9, 0, wxEXPAND|wxRIGHT|wxLEFT, 5 );
+	
 	wxBoxSizer* bSizer20;
-	bSizer20 = new wxBoxSizer(wxHORIZONTAL);
-
-	bSizer20->SetMinSize(wxSize(-1,45));
-
-	bSizer20->Add(0,0,1,wxEXPAND,5);
-
-	btnRemove = new wxButton(this,wxID_BTN_REMOVE,_("REMOVE"),wxDefaultPosition,wxDefaultSize,0);
-	btnRemove->SetMinSize(wxSize(120,-1));
-
-	bSizer20->Add(btnRemove,0,wxALL|wxEXPAND,5);
-
-	btnConfirm = new wxButton(this,wxID_BTN_OK,_("OK"),wxDefaultPosition,wxDefaultSize,0);
-	btnConfirm->SetMinSize(wxSize(120,-1));
-
-	bSizer20->Add(btnConfirm,0,wxALL|wxEXPAND,5);
-
-	btnExit = new wxButton(this,wxID_BTN_EXIT,_("EXIT"),wxDefaultPosition,wxDefaultSize,0);
-	btnExit->SetMinSize(wxSize(120,-1));
-
-	bSizer20->Add(btnExit,0,wxALL|wxEXPAND,5);
-
-
-	bSizer19->Add(bSizer20,0,wxEXPAND,5);
-
-
-	this->SetSizer(bSizer19);
+	bSizer20 = new wxBoxSizer( wxHORIZONTAL );
+	
+	bSizer20->SetMinSize( wxSize( -1,45 ) );
+	
+	bSizer20->Add( 0, 0, 1, wxEXPAND, 5 );
+	
+	btnRemove = new wxButton( this, wxID_BTN_REMOVE, _("REMOVE"), wxDefaultPosition, wxDefaultSize, 0 );
+	btnRemove->SetMinSize( wxSize( 120,-1 ) );
+	
+	bSizer20->Add( btnRemove, 0, wxALL|wxEXPAND, 5 );
+	
+	btnConfirm = new wxButton( this, wxID_BTN_OK, _("OK"), wxDefaultPosition, wxDefaultSize, 0 );
+	btnConfirm->SetMinSize( wxSize( 120,-1 ) );
+	
+	bSizer20->Add( btnConfirm, 0, wxALL|wxEXPAND, 5 );
+	
+	btnExit = new wxButton( this, wxID_BTN_EXIT, _("EXIT"), wxDefaultPosition, wxDefaultSize, 0 );
+	btnExit->SetMinSize( wxSize( 120,-1 ) );
+	
+	bSizer20->Add( btnExit, 0, wxALL|wxEXPAND, 5 );
+	
+	
+	bSizer19->Add( bSizer20, 0, wxEXPAND, 5 );
+	
+	
+	this->SetSizer( bSizer19 );
 	this->Layout();
+	
+	this->Centre( wxBOTH );
+	
 
-	this->Centre(wxBOTH);
-
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveBack' on 2026-05-02 21:33:41
 	// === AUTO GENERATED END ===
 	RescaleWindowDPI(this);
 		

@@ -1,4 +1,4 @@
-//=============================================================================
+﻿//=============================================================================
 // Spellcross Mod Launcher
 // ----------------------------------------------------------------------------
 // Top level functions, wxWidgets GUI.
@@ -98,441 +98,443 @@ int MyApp::OnExit()
 
 FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxString& title,const wxPoint& pos,const wxSize& size,long style) : wxFrame(parent,id,title,pos,size,style)
 {
-	// <wxFormsBuilder>
-	this->SetSizeHints(wxSize(900,650),wxDefaultSize);
-	this->SetForegroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_WINDOWTEXT));
-	this->SetBackgroundColour(wxSystemSettings::GetColour(wxSYS_COLOUR_MENU));
-
-	mMenu = new wxMenuBar(0);
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormMain' on 2026-05-02 21:33:39
+	this->SetSizeHints( wxSize( 900,650 ), wxDefaultSize );
+	this->SetForegroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_WINDOWTEXT ) );
+	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_MENU ) );
+	
+	mMenu = new wxMenuBar( 0 );
 	mmFile = new wxMenu();
 	wxMenuItem* mmModPath;
-	mmModPath = new wxMenuItem(mmFile,wxID_MM_MOD_PATH,wxString(_("Select mod")) + wxT('\t') + wxT("Ctrl+O"),wxEmptyString,wxITEM_NORMAL);
-	mmFile->Append(mmModPath);
-
+	mmModPath = new wxMenuItem( mmFile, wxID_MM_MOD_PATH, wxString( _("Select mod") ) + wxT('\t') + wxT("Ctrl+O"), wxEmptyString, wxITEM_NORMAL );
+	mmFile->Append( mmModPath );
+	
 	mmFile->AppendSeparator();
-
+	
 	wxMenuItem* mmSpellPath;
-	mmSpellPath = new wxMenuItem(mmFile,wxID_MM_SPELL_PATH,wxString(_("Set spellcross path")),wxEmptyString,wxITEM_NORMAL);
-	mmFile->Append(mmSpellPath);
-
+	mmSpellPath = new wxMenuItem( mmFile, wxID_MM_SPELL_PATH, wxString( _("Set spellcross path") ) , wxEmptyString, wxITEM_NORMAL );
+	mmFile->Append( mmSpellPath );
+	
 	wxMenuItem* mmSpellcdPath;
-	mmSpellcdPath = new wxMenuItem(mmFile,wxID_MM_SPELLCD_PATH,wxString(_("Set Spellcross CD path")),wxEmptyString,wxITEM_NORMAL);
-	mmFile->Append(mmSpellcdPath);
-
+	mmSpellcdPath = new wxMenuItem( mmFile, wxID_MM_SPELLCD_PATH, wxString( _("Set Spellcross CD path") ) , wxEmptyString, wxITEM_NORMAL );
+	mmFile->Append( mmSpellcdPath );
+	
 	mmFile->AppendSeparator();
-
+	
 	wxMenuItem* mmDosboxPath;
-	mmDosboxPath = new wxMenuItem(mmFile,wxID_MM_DOSBOX_PATH,wxString(_("Set DOSbox path")),wxEmptyString,wxITEM_NORMAL);
-	mmFile->Append(mmDosboxPath);
-
+	mmDosboxPath = new wxMenuItem( mmFile, wxID_MM_DOSBOX_PATH, wxString( _("Set DOSbox path") ) , wxEmptyString, wxITEM_NORMAL );
+	mmFile->Append( mmDosboxPath );
+	
 	mmFile->AppendSeparator();
-
+	
 	wxMenuItem* mmExit;
-	mmExit = new wxMenuItem(mmFile,wxID_MM_EXIT,wxString(_("Exit")) + wxT('\t') + wxT("Alt+F4"),wxEmptyString,wxITEM_NORMAL);
-	mmFile->Append(mmExit);
-
-	mMenu->Append(mmFile,_("File"));
-
+	mmExit = new wxMenuItem( mmFile, wxID_MM_EXIT, wxString( _("Exit") ) + wxT('\t') + wxT("Alt+F4"), wxEmptyString, wxITEM_NORMAL );
+	mmFile->Append( mmExit );
+	
+	mMenu->Append( mmFile, _("File") );
+	
 	mmSetup = new wxMenu();
 	wxMenuItem* mmEditSpellCfg;
-	mmEditSpellCfg = new wxMenuItem(mmSetup,wxID_MM_EDIT_SPELLCFG,wxString(_("Edit SPELCROS.CFG")),wxEmptyString,wxITEM_NORMAL);
-	mmSetup->Append(mmEditSpellCfg);
-
+	mmEditSpellCfg = new wxMenuItem( mmSetup, wxID_MM_EDIT_SPELLCFG, wxString( _("Edit SPELCROS.CFG") ) , wxEmptyString, wxITEM_NORMAL );
+	mmSetup->Append( mmEditSpellCfg );
+	
 	wxMenuItem* mmEditDOSboxCfg;
-	mmEditDOSboxCfg = new wxMenuItem(mmSetup,wxID_MM_EDIT_DOSBOX_CFG,wxString(_("Edit DOSbox config file")),wxEmptyString,wxITEM_NORMAL);
-	mmSetup->Append(mmEditDOSboxCfg);
-
+	mmEditDOSboxCfg = new wxMenuItem( mmSetup, wxID_MM_EDIT_DOSBOX_CFG, wxString( _("Edit DOSbox config file") ) , wxEmptyString, wxITEM_NORMAL );
+	mmSetup->Append( mmEditDOSboxCfg );
+	
 	mmSetup->AppendSeparator();
-
+	
 	wxMenuItem* mmRunSetupBat;
-	mmRunSetupBat = new wxMenuItem(mmSetup,wxID_MM_RUN_SETUPBAT,wxString(_("Run game SETUP.BAT")),wxEmptyString,wxITEM_NORMAL);
-	mmSetup->Append(mmRunSetupBat);
-
-	mMenu->Append(mmSetup,_("Setup"));
-
+	mmRunSetupBat = new wxMenuItem( mmSetup, wxID_MM_RUN_SETUPBAT, wxString( _("Run game SETUP.BAT") ) , wxEmptyString, wxITEM_NORMAL );
+	mmSetup->Append( mmRunSetupBat );
+	
+	mMenu->Append( mmSetup, _("Setup") );
+	
 	mmMod = new wxMenu();
 	wxMenuItem* mmModInfo;
-	mmModInfo = new wxMenuItem(mmMod,wxID_MM_MOD_INFO,wxString(_("Show mod info")) + wxT('\t') + wxT("Ctrl+I"),wxEmptyString,wxITEM_NORMAL);
-	mmMod->Append(mmModInfo);
-
+	mmModInfo = new wxMenuItem( mmMod, wxID_MM_MOD_INFO, wxString( _("Show mod info") ) + wxT('\t') + wxT("Ctrl+I"), wxEmptyString, wxITEM_NORMAL );
+	mmMod->Append( mmModInfo );
+	
 	mmMod->AppendSeparator();
-
+	
 	wxMenuItem* mmModBuild;
-	mmModBuild = new wxMenuItem(mmMod,wxID_MM_MOD_BUILD,wxString(_("Build mod")) + wxT('\t') + wxT("F2"),wxEmptyString,wxITEM_NORMAL);
-	mmMod->Append(mmModBuild);
-
+	mmModBuild = new wxMenuItem( mmMod, wxID_MM_MOD_BUILD, wxString( _("Build mod") ) + wxT('\t') + wxT("F2"), wxEmptyString, wxITEM_NORMAL );
+	mmMod->Append( mmModBuild );
+	
 	wxMenuItem* mmModBuildForce;
-	mmModBuildForce = new wxMenuItem(mmMod,wxID_MM_MOD_BUILD_FORCE,wxString(_("Force rebuild mod")) + wxT('\t') + wxT("Ctrl+F2"),wxEmptyString,wxITEM_NORMAL);
-	mmMod->Append(mmModBuildForce);
-
+	mmModBuildForce = new wxMenuItem( mmMod, wxID_MM_MOD_BUILD_FORCE, wxString( _("Force rebuild mod") ) + wxT('\t') + wxT("Ctrl+F2"), wxEmptyString, wxITEM_NORMAL );
+	mmMod->Append( mmModBuildForce );
+	
 	wxMenuItem* mmModBuildSwap;
-	mmModBuildSwap = new wxMenuItem(mmMod,wxID_MM_MOD_BUILD_SWAP,wxString(_("Build and swap")) + wxT('\t') + wxT("Shift+F2"),wxEmptyString,wxITEM_NORMAL);
-	mmMod->Append(mmModBuildSwap);
-
+	mmModBuildSwap = new wxMenuItem( mmMod, wxID_MM_MOD_BUILD_SWAP, wxString( _("Build and swap") ) + wxT('\t') + wxT("Shift+F2"), wxEmptyString, wxITEM_NORMAL );
+	mmMod->Append( mmModBuildSwap );
+	
 	wxMenuItem* mmModRestore;
-	mmModRestore = new wxMenuItem(mmMod,wxID_MM_MOD_RESTORE,wxString(_("Restore original")) + wxT('\t') + wxT("F3"),wxEmptyString,wxITEM_NORMAL);
-	mmMod->Append(mmModRestore);
-
+	mmModRestore = new wxMenuItem( mmMod, wxID_MM_MOD_RESTORE, wxString( _("Restore original") ) + wxT('\t') + wxT("F3"), wxEmptyString, wxITEM_NORMAL );
+	mmMod->Append( mmModRestore );
+	
 	wxMenuItem* mmModCleanup;
-	mmModCleanup = new wxMenuItem(mmMod,wxID_MM_MOD_CLEAN,wxString(_("Cleanup mod config")),wxEmptyString,wxITEM_NORMAL);
-	mmMod->Append(mmModCleanup);
-
+	mmModCleanup = new wxMenuItem( mmMod, wxID_MM_MOD_CLEAN, wxString( _("Cleanup mod config") ) , wxEmptyString, wxITEM_NORMAL );
+	mmMod->Append( mmModCleanup );
+	
 	mmMod->AppendSeparator();
-
+	
 	wxMenuItem* mmEditModDEF;
-	mmEditModDEF = new wxMenuItem(mmMod,wxID_MM_EDIT_MOD_DEF,wxString(_("Edit mod DEF file")),wxEmptyString,wxITEM_NORMAL);
-	mmMod->Append(mmEditModDEF);
-
-	mMenu->Append(mmMod,_("Mod"));
-
+	mmEditModDEF = new wxMenuItem( mmMod, wxID_MM_EDIT_MOD_DEF, wxString( _("Edit mod DEF file") ) , wxEmptyString, wxITEM_NORMAL );
+	mmMod->Append( mmEditModDEF );
+	
+	mMenu->Append( mmMod, _("Mod") );
+	
 	mmSave = new wxMenu();
 	msmSaveOrig = new wxMenu();
-	wxMenuItem* msmSaveOrigItem = new wxMenuItem(mmSave,wxID_ANY,_("Original game saves"),wxEmptyString,wxITEM_NORMAL,msmSaveOrig);
+	wxMenuItem* msmSaveOrigItem = new wxMenuItem( mmSave, wxID_ANY, _("Original game saves"), wxEmptyString, wxITEM_NORMAL, msmSaveOrig );
 	wxMenuItem* mmSaveWDorg;
-	mmSaveWDorg = new wxMenuItem(msmSaveOrig,wxID_MM_SAVE_WD_ORG,wxString(_("Backup WORKDIR")),wxEmptyString,wxITEM_NORMAL);
-	msmSaveOrig->Append(mmSaveWDorg);
-
+	mmSaveWDorg = new wxMenuItem( msmSaveOrig, wxID_MM_SAVE_WD_ORG, wxString( _("Backup WORKDIR") ) , wxEmptyString, wxITEM_NORMAL );
+	msmSaveOrig->Append( mmSaveWDorg );
+	
 	wxMenuItem* mmRestoreWDorg;
-	mmRestoreWDorg = new wxMenuItem(msmSaveOrig,wxID_MM_RESTORE_WD_ORG,wxString(_("Restore WORKDIR")),wxEmptyString,wxITEM_NORMAL);
-	msmSaveOrig->Append(mmRestoreWDorg);
-
+	mmRestoreWDorg = new wxMenuItem( msmSaveOrig, wxID_MM_RESTORE_WD_ORG, wxString( _("Restore WORKDIR") ) , wxEmptyString, wxITEM_NORMAL );
+	msmSaveOrig->Append( mmRestoreWDorg );
+	
 	msmSaveOrig->AppendSeparator();
-
+	
 	wxMenuItem* mmSaveOrig;
-	mmSaveOrig = new wxMenuItem(msmSaveOrig,wxID_MM_SAVE_ORIG,wxString(_("Manage SAVEs")),wxEmptyString,wxITEM_NORMAL);
-	msmSaveOrig->Append(mmSaveOrig);
-
-	mmSave->Append(msmSaveOrigItem);
-
+	mmSaveOrig = new wxMenuItem( msmSaveOrig, wxID_MM_SAVE_ORIG, wxString( _("Manage SAVEs") ) , wxEmptyString, wxITEM_NORMAL );
+	msmSaveOrig->Append( mmSaveOrig );
+	
+	mmSave->Append( msmSaveOrigItem );
+	
 	msmSaveMod = new wxMenu();
-	wxMenuItem* msmSaveModItem = new wxMenuItem(mmSave,wxID_ANY,_("Mod save games"),wxEmptyString,wxITEM_NORMAL,msmSaveMod);
+	wxMenuItem* msmSaveModItem = new wxMenuItem( mmSave, wxID_ANY, _("Mod save games"), wxEmptyString, wxITEM_NORMAL, msmSaveMod );
 	wxMenuItem* mmSaveWDmod;
-	mmSaveWDmod = new wxMenuItem(msmSaveMod,wxID_MM_SAVE_WD_MOD,wxString(_("Backup WORKDIR")),wxEmptyString,wxITEM_NORMAL);
-	msmSaveMod->Append(mmSaveWDmod);
-
+	mmSaveWDmod = new wxMenuItem( msmSaveMod, wxID_MM_SAVE_WD_MOD, wxString( _("Backup WORKDIR") ) , wxEmptyString, wxITEM_NORMAL );
+	msmSaveMod->Append( mmSaveWDmod );
+	
 	wxMenuItem* mmRestoreWDmod;
-	mmRestoreWDmod = new wxMenuItem(msmSaveMod,wxID_MM_RESTORE_WD_MOD,wxString(_("Restore WORKDIR")),wxEmptyString,wxITEM_NORMAL);
-	msmSaveMod->Append(mmRestoreWDmod);
-
+	mmRestoreWDmod = new wxMenuItem( msmSaveMod, wxID_MM_RESTORE_WD_MOD, wxString( _("Restore WORKDIR") ) , wxEmptyString, wxITEM_NORMAL );
+	msmSaveMod->Append( mmRestoreWDmod );
+	
 	msmSaveMod->AppendSeparator();
-
+	
 	wxMenuItem* mmSaveMod;
-	mmSaveMod = new wxMenuItem(msmSaveMod,wxID_MM_SAVE_MOD,wxString(_("Manage SAVEs")),wxEmptyString,wxITEM_NORMAL);
-	msmSaveMod->Append(mmSaveMod);
-
-	mmSave->Append(msmSaveModItem);
-
-	mMenu->Append(mmSave,_("Savegame"));
-
+	mmSaveMod = new wxMenuItem( msmSaveMod, wxID_MM_SAVE_MOD, wxString( _("Manage SAVEs") ) , wxEmptyString, wxITEM_NORMAL );
+	msmSaveMod->Append( mmSaveMod );
+	
+	mmSave->Append( msmSaveModItem );
+	
+	mMenu->Append( mmSave, _("Savegame") );
+	
 	mmRun = new wxMenu();
 	wxMenuItem* mmBuildLaunch;
-	mmBuildLaunch = new wxMenuItem(mmRun,wxID_MM_BUILD_LAUNCH,wxString(_("Build launch files")),wxEmptyString,wxITEM_NORMAL);
-	mmRun->Append(mmBuildLaunch);
-
+	mmBuildLaunch = new wxMenuItem( mmRun, wxID_MM_BUILD_LAUNCH, wxString( _("Build launch files") ) , wxEmptyString, wxITEM_NORMAL );
+	mmRun->Append( mmBuildLaunch );
+	
 	mmRun->AppendSeparator();
-
+	
 	wxMenuItem* mmRunOrig;
-	mmRunOrig = new wxMenuItem(mmRun,wxID_MM_RUN_ORIG,wxString(_("Run original")) + wxT('\t') + wxT("F5"),wxEmptyString,wxITEM_NORMAL);
-	mmRun->Append(mmRunOrig);
-
+	mmRunOrig = new wxMenuItem( mmRun, wxID_MM_RUN_ORIG, wxString( _("Run original") ) + wxT('\t') + wxT("F5"), wxEmptyString, wxITEM_NORMAL );
+	mmRun->Append( mmRunOrig );
+	
 	wxMenuItem* mmRunMod;
-	mmRunMod = new wxMenuItem(mmRun,wxID_MM_RUN_MOD,wxString(_("Run mod")) + wxT('\t') + wxT("F7"),wxEmptyString,wxITEM_NORMAL);
-	mmRun->Append(mmRunMod);
-
-	mMenu->Append(mmRun,_("Run"));
-
+	mmRunMod = new wxMenuItem( mmRun, wxID_MM_RUN_MOD, wxString( _("Run mod") ) + wxT('\t') + wxT("F7"), wxEmptyString, wxITEM_NORMAL );
+	mmRun->Append( mmRunMod );
+	
+	mMenu->Append( mmRun, _("Run") );
+	
 	mmHelpMenu = new wxMenu();
 	wxMenuItem* mmHelp;
-	mmHelp = new wxMenuItem(mmHelpMenu,wxID_MM_HELP,wxString(_("Help")) + wxT('\t') + wxT("F1"),wxEmptyString,wxITEM_NORMAL);
-	mmHelpMenu->Append(mmHelp);
-
+	mmHelp = new wxMenuItem( mmHelpMenu, wxID_MM_HELP, wxString( _("Help") ) + wxT('\t') + wxT("F1"), wxEmptyString, wxITEM_NORMAL );
+	mmHelpMenu->Append( mmHelp );
+	
 	wxMenuItem* mmAbout;
-	mmAbout = new wxMenuItem(mmHelpMenu,wxID_MM_ABOUT,wxString(_("About")),wxEmptyString,wxITEM_NORMAL);
-	mmHelpMenu->Append(mmAbout);
-
-	mMenu->Append(mmHelpMenu,_("Help"));
-
-	this->SetMenuBar(mMenu);
-
-	sbar = this->CreateStatusBar(1,wxSTB_SIZEGRIP,wxID_SBAR);
+	mmAbout = new wxMenuItem( mmHelpMenu, wxID_MM_ABOUT, wxString( _("About") ) , wxEmptyString, wxITEM_NORMAL );
+	mmHelpMenu->Append( mmAbout );
+	
+	mMenu->Append( mmHelpMenu, _("Help") );
+	
+	this->SetMenuBar( mMenu );
+	
+	sbar = this->CreateStatusBar( 1, wxSTB_SIZEGRIP, wxID_SBAR );
 	wxBoxSizer* bSizer114;
-	bSizer114 = new wxBoxSizer(wxVERTICAL);
-
+	bSizer114 = new wxBoxSizer( wxVERTICAL );
+	
 	wxBoxSizer* bSizer16;
-	bSizer16 = new wxBoxSizer(wxHORIZONTAL);
-
+	bSizer16 = new wxBoxSizer( wxHORIZONTAL );
+	
 	wxBoxSizer* bSizer17;
-	bSizer17 = new wxBoxSizer(wxVERTICAL);
-
-	m_staticText115 = new wxStaticText(this,wxID_ANY,_("Spellcross installation folder:"),wxDefaultPosition,wxDefaultSize,0);
-	m_staticText115->Wrap(-1);
-	bSizer17->Add(m_staticText115,0,wxTOP|wxRIGHT|wxLEFT,5);
-
+	bSizer17 = new wxBoxSizer( wxVERTICAL );
+	
+	m_staticText115 = new wxStaticText( this, wxID_ANY, _("Spellcross installation folder:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText115->Wrap( -1 );
+	bSizer17->Add( m_staticText115, 0, wxTOP|wxRIGHT|wxLEFT, 5 );
+	
 	wxBoxSizer* bSizer211;
-	bSizer211 = new wxBoxSizer(wxHORIZONTAL);
-
+	bSizer211 = new wxBoxSizer( wxHORIZONTAL );
+	
 	wxArrayString chSpellPathChoices;
-	chSpellPath = new wxChoice(this,wxID_CH_SPELL_PATH,wxDefaultPosition,wxDefaultSize,chSpellPathChoices,0);
-	chSpellPath->SetSelection(0);
-	bSizer211->Add(chSpellPath,1,wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT,5);
-
-	btnSpellPath = new wxBitmapButton(this,wxID_BTN_SPELL_PATH,wxNullBitmap,wxDefaultPosition,wxDefaultSize,wxBU_AUTODRAW|wxBORDER_NONE);
-	bSizer211->Add(btnSpellPath,0,wxRIGHT,5);
-
-
-	bSizer17->Add(bSizer211,1,wxEXPAND,5);
-
-
-	bSizer16->Add(bSizer17,1,wxEXPAND,5);
-
+	chSpellPath = new wxChoice( this, wxID_CH_SPELL_PATH, wxDefaultPosition, wxDefaultSize, chSpellPathChoices, 0 );
+	chSpellPath->SetSelection( 0 );
+	bSizer211->Add( chSpellPath, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	
+	btnSpellPath = new wxBitmapButton( this, wxID_BTN_SPELL_PATH, wxNullBitmap, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW|wxBORDER_NONE );
+	bSizer211->Add( btnSpellPath, 0, wxRIGHT, 5 );
+	
+	
+	bSizer17->Add( bSizer211, 1, wxEXPAND, 5 );
+	
+	
+	bSizer16->Add( bSizer17, 1, wxEXPAND, 5 );
+	
 	wxBoxSizer* bSizer171;
-	bSizer171 = new wxBoxSizer(wxVERTICAL);
-
-	bSizer171->SetMinSize(wxSize(200,-1));
-	m_staticText1151 = new wxStaticText(this,wxID_ANY,_("Spellcross executable:"),wxDefaultPosition,wxDefaultSize,0);
-	m_staticText1151->Wrap(-1);
-	bSizer171->Add(m_staticText1151,0,wxTOP|wxRIGHT|wxLEFT,5);
-
+	bSizer171 = new wxBoxSizer( wxVERTICAL );
+	
+	bSizer171->SetMinSize( wxSize( 200,-1 ) );
+	m_staticText1151 = new wxStaticText( this, wxID_ANY, _("Spellcross executable:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText1151->Wrap( -1 );
+	bSizer171->Add( m_staticText1151, 0, wxTOP|wxRIGHT|wxLEFT, 5 );
+	
 	wxArrayString chSpellExecChoices;
-	chSpellExec = new wxChoice(this,wxID_CH_SPELL_EXE,wxDefaultPosition,wxDefaultSize,chSpellExecChoices,0);
-	chSpellExec->SetSelection(0);
-	bSizer171->Add(chSpellExec,0,wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT,5);
-
-
-	bSizer16->Add(bSizer171,0,wxEXPAND,5);
-
-
-	bSizer114->Add(bSizer16,0,wxEXPAND,5);
-
+	chSpellExec = new wxChoice( this, wxID_CH_SPELL_EXE, wxDefaultPosition, wxDefaultSize, chSpellExecChoices, 0 );
+	chSpellExec->SetSelection( 0 );
+	bSizer171->Add( chSpellExec, 0, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	
+	
+	bSizer16->Add( bSizer171, 0, wxEXPAND, 5 );
+	
+	
+	bSizer114->Add( bSizer16, 0, wxEXPAND, 5 );
+	
 	wxBoxSizer* bSizer115;
-	bSizer115 = new wxBoxSizer(wxHORIZONTAL);
-
+	bSizer115 = new wxBoxSizer( wxHORIZONTAL );
+	
 	wxBoxSizer* bSizer116;
-	bSizer116 = new wxBoxSizer(wxVERTICAL);
-
-	m_staticText116 = new wxStaticText(this,wxID_ANY,_("Spellcross CD path (if available):"),wxDefaultPosition,wxDefaultSize,0);
-	m_staticText116->Wrap(-1);
-	bSizer116->Add(m_staticText116,0,wxRIGHT|wxLEFT,5);
-
+	bSizer116 = new wxBoxSizer( wxVERTICAL );
+	
+	m_staticText116 = new wxStaticText( this, wxID_ANY, _("Spellcross CD path (if available):"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText116->Wrap( -1 );
+	bSizer116->Add( m_staticText116, 0, wxRIGHT|wxLEFT, 5 );
+	
 	wxBoxSizer* bSizer221;
-	bSizer221 = new wxBoxSizer(wxHORIZONTAL);
-
+	bSizer221 = new wxBoxSizer( wxHORIZONTAL );
+	
 	wxArrayString chSpellCdPathChoices;
-	chSpellCdPath = new wxChoice(this,wxID_CH_SPELLCD_PATH,wxDefaultPosition,wxDefaultSize,chSpellCdPathChoices,0);
-	chSpellCdPath->SetSelection(0);
-	bSizer221->Add(chSpellCdPath,1,wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT,5);
-
-	btnSpellcdPath = new wxBitmapButton(this,wxID_BTN_SPELLCD_PATH,wxNullBitmap,wxDefaultPosition,wxDefaultSize,wxBU_AUTODRAW|wxBORDER_NONE);
-	bSizer221->Add(btnSpellcdPath,0,wxRIGHT,5);
-
-
-	bSizer116->Add(bSizer221,1,wxEXPAND,5);
-
-
-	bSizer115->Add(bSizer116,1,wxEXPAND,5);
-
+	chSpellCdPath = new wxChoice( this, wxID_CH_SPELLCD_PATH, wxDefaultPosition, wxDefaultSize, chSpellCdPathChoices, 0 );
+	chSpellCdPath->SetSelection( 0 );
+	bSizer221->Add( chSpellCdPath, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	
+	btnSpellcdPath = new wxBitmapButton( this, wxID_BTN_SPELLCD_PATH, wxNullBitmap, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW|wxBORDER_NONE );
+	bSizer221->Add( btnSpellcdPath, 0, wxRIGHT, 5 );
+	
+	
+	bSizer116->Add( bSizer221, 1, wxEXPAND, 5 );
+	
+	
+	bSizer115->Add( bSizer116, 1, wxEXPAND, 5 );
+	
 	wxBoxSizer* bSizer117;
-	bSizer117 = new wxBoxSizer(wxVERTICAL);
-
-	bSizer117->SetMinSize(wxSize(200,-1));
-	m_staticText117 = new wxStaticText(this,wxID_ANY,_("Virtual CD letter:"),wxDefaultPosition,wxDefaultSize,0);
-	m_staticText117->Wrap(-1);
-	bSizer117->Add(m_staticText117,0,wxRIGHT|wxLEFT,5);
-
+	bSizer117 = new wxBoxSizer( wxVERTICAL );
+	
+	bSizer117->SetMinSize( wxSize( 200,-1 ) );
+	m_staticText117 = new wxStaticText( this, wxID_ANY, _("Virtual CD letter:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText117->Wrap( -1 );
+	bSizer117->Add( m_staticText117, 0, wxRIGHT|wxLEFT, 5 );
+	
 	wxArrayString chVirtCDChoices;
-	chVirtCD = new wxChoice(this,wxID_CH_CD_LETTER,wxDefaultPosition,wxSize(-1,-1),chVirtCDChoices,0);
-	chVirtCD->SetSelection(0);
-	bSizer117->Add(chVirtCD,0,wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND,5);
-
-
-	bSizer115->Add(bSizer117,0,wxEXPAND,5);
-
-
-	bSizer114->Add(bSizer115,0,wxEXPAND,5);
-
-	m_staticline42 = new wxStaticLine(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,wxLI_HORIZONTAL);
-	bSizer114->Add(m_staticline42,0,wxEXPAND | wxALL,5);
-
+	chVirtCD = new wxChoice( this, wxID_CH_CD_LETTER, wxDefaultPosition, wxSize( -1,-1 ), chVirtCDChoices, 0 );
+	chVirtCD->SetSelection( 0 );
+	bSizer117->Add( chVirtCD, 0, wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND, 5 );
+	
+	
+	bSizer115->Add( bSizer117, 0, wxEXPAND, 5 );
+	
+	
+	bSizer114->Add( bSizer115, 0, wxEXPAND, 5 );
+	
+	m_staticline42 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	bSizer114->Add( m_staticline42, 0, wxEXPAND | wxALL, 5 );
+	
 	wxBoxSizer* bSizer118;
-	bSizer118 = new wxBoxSizer(wxHORIZONTAL);
-
+	bSizer118 = new wxBoxSizer( wxHORIZONTAL );
+	
 	wxBoxSizer* bSizer119;
-	bSizer119 = new wxBoxSizer(wxVERTICAL);
-
-	m_staticText118 = new wxStaticText(this,wxID_ANY,_("DOSbox path:"),wxDefaultPosition,wxDefaultSize,0);
-	m_staticText118->Wrap(-1);
-	bSizer119->Add(m_staticText118,0,wxRIGHT|wxLEFT,5);
-
+	bSizer119 = new wxBoxSizer( wxVERTICAL );
+	
+	m_staticText118 = new wxStaticText( this, wxID_ANY, _("DOSbox path:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText118->Wrap( -1 );
+	bSizer119->Add( m_staticText118, 0, wxRIGHT|wxLEFT, 5 );
+	
 	wxBoxSizer* bSizer23;
-	bSizer23 = new wxBoxSizer(wxHORIZONTAL);
-
+	bSizer23 = new wxBoxSizer( wxHORIZONTAL );
+	
 	wxArrayString chDOSboxPathChoices;
-	chDOSboxPath = new wxChoice(this,wxID_CH_DOSBOX_PATH,wxDefaultPosition,wxDefaultSize,chDOSboxPathChoices,0);
-	chDOSboxPath->SetSelection(0);
-	bSizer23->Add(chDOSboxPath,1,wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT,5);
-
-	btnDOSboxPath = new wxBitmapButton(this,wxID_BTN_DB_PATH,wxNullBitmap,wxDefaultPosition,wxDefaultSize,wxBU_AUTODRAW|wxBORDER_NONE);
-	bSizer23->Add(btnDOSboxPath,0,wxRIGHT,5);
-
-
-	bSizer119->Add(bSizer23,1,wxEXPAND,5);
-
-
-	bSizer118->Add(bSizer119,1,wxEXPAND,5);
-
+	chDOSboxPath = new wxChoice( this, wxID_CH_DOSBOX_PATH, wxDefaultPosition, wxDefaultSize, chDOSboxPathChoices, 0 );
+	chDOSboxPath->SetSelection( 0 );
+	bSizer23->Add( chDOSboxPath, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	
+	btnDOSboxPath = new wxBitmapButton( this, wxID_BTN_DB_PATH, wxNullBitmap, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW|wxBORDER_NONE );
+	bSizer23->Add( btnDOSboxPath, 0, wxRIGHT, 5 );
+	
+	
+	bSizer119->Add( bSizer23, 1, wxEXPAND, 5 );
+	
+	
+	bSizer118->Add( bSizer119, 1, wxEXPAND, 5 );
+	
 	wxBoxSizer* bSizer120;
-	bSizer120 = new wxBoxSizer(wxVERTICAL);
-
-	bSizer120->SetMinSize(wxSize(180,-1));
-	cbNoAutoexec = new wxCheckBox(this,wxID_CB_NO_AUTOEXEC,_("Disable autoexec.bat"),wxDefaultPosition,wxDefaultSize,0);
-	bSizer120->Add(cbNoAutoexec,0,wxALL,5);
-
-	cbFullscreen = new wxCheckBox(this,wxID_CB_FULLSCREEN,_("Start fullscreen"),wxDefaultPosition,wxDefaultSize,0);
-	bSizer120->Add(cbFullscreen,0,wxBOTTOM|wxRIGHT|wxLEFT,5);
-
-
-	bSizer118->Add(bSizer120,0,wxEXPAND,5);
-
-	m_staticline4 = new wxStaticLine(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,wxLI_VERTICAL);
-	bSizer118->Add(m_staticline4,0,wxEXPAND,5);
-
+	bSizer120 = new wxBoxSizer( wxVERTICAL );
+	
+	bSizer120->SetMinSize( wxSize( 180,-1 ) );
+	cbNoAutoexec = new wxCheckBox( this, wxID_CB_NO_AUTOEXEC, _("Disable autoexec.bat"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer120->Add( cbNoAutoexec, 0, wxALL, 5 );
+	
+	cbFullscreen = new wxCheckBox( this, wxID_CB_FULLSCREEN, _("Start fullscreen"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer120->Add( cbFullscreen, 0, wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	
+	
+	bSizer118->Add( bSizer120, 0, wxEXPAND, 5 );
+	
+	m_staticline4 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
+	bSizer118->Add( m_staticline4, 0, wxEXPAND, 5 );
+	
 	wxBoxSizer* bSizer21;
-	bSizer21 = new wxBoxSizer(wxVERTICAL);
-
-	bSizer21->SetMinSize(wxSize(200,-1));
-	m_staticText9 = new wxStaticText(this,wxID_ANY,_("Run mode:"),wxDefaultPosition,wxDefaultSize,0);
-	m_staticText9->Wrap(-1);
-	bSizer21->Add(m_staticText9,0,wxRIGHT|wxLEFT,5);
-
+	bSizer21 = new wxBoxSizer( wxVERTICAL );
+	
+	bSizer21->SetMinSize( wxSize( 200,-1 ) );
+	m_staticText9 = new wxStaticText( this, wxID_ANY, _("Run mode:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText9->Wrap( -1 );
+	bSizer21->Add( m_staticText9, 0, wxRIGHT|wxLEFT, 5 );
+	
 	wxArrayString chRunModeChoices;
-	chRunMode = new wxChoice(this,wxID_CH_RUN_MODE,wxDefaultPosition,wxDefaultSize,chRunModeChoices,0);
-	chRunMode->SetSelection(0);
-	bSizer21->Add(chRunMode,0,wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT,5);
-
-
-	bSizer118->Add(bSizer21,0,wxEXPAND,5);
-
-
-	bSizer114->Add(bSizer118,0,wxEXPAND,5);
-
-	m_staticline43 = new wxStaticLine(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,wxLI_HORIZONTAL);
-	bSizer114->Add(m_staticline43,0,wxEXPAND | wxALL,5);
-
+	chRunMode = new wxChoice( this, wxID_CH_RUN_MODE, wxDefaultPosition, wxDefaultSize, chRunModeChoices, 0 );
+	chRunMode->SetSelection( 0 );
+	bSizer21->Add( chRunMode, 0, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	
+	
+	bSizer118->Add( bSizer21, 0, wxEXPAND, 5 );
+	
+	
+	bSizer114->Add( bSizer118, 0, wxEXPAND, 5 );
+	
+	m_staticline43 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	bSizer114->Add( m_staticline43, 0, wxEXPAND | wxALL, 5 );
+	
 	wxBoxSizer* bSizer121;
-	bSizer121 = new wxBoxSizer(wxHORIZONTAL);
-
+	bSizer121 = new wxBoxSizer( wxHORIZONTAL );
+	
 	wxBoxSizer* bSizer22;
-	bSizer22 = new wxBoxSizer(wxVERTICAL);
-
-	m_staticText119 = new wxStaticText(this,wxID_ANY,_("Mod path:"),wxDefaultPosition,wxDefaultSize,0);
-	m_staticText119->Wrap(-1);
-	bSizer22->Add(m_staticText119,0,wxRIGHT|wxLEFT,5);
-
+	bSizer22 = new wxBoxSizer( wxVERTICAL );
+	
+	m_staticText119 = new wxStaticText( this, wxID_ANY, _("Mod path:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText119->Wrap( -1 );
+	bSizer22->Add( m_staticText119, 0, wxRIGHT|wxLEFT, 5 );
+	
 	wxBoxSizer* bSizer24;
-	bSizer24 = new wxBoxSizer(wxHORIZONTAL);
-
+	bSizer24 = new wxBoxSizer( wxHORIZONTAL );
+	
 	wxArrayString chModPathChoices;
-	chModPath = new wxChoice(this,wxID_CH_MOD_PATH,wxDefaultPosition,wxDefaultSize,chModPathChoices,0);
-	chModPath->SetSelection(0);
-	bSizer24->Add(chModPath,1,wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT,5);
-
-	btnModPath = new wxBitmapButton(this,wxID_BTN_MOD_PATH,wxNullBitmap,wxDefaultPosition,wxDefaultSize,wxBU_AUTODRAW|wxBORDER_NONE);
-	bSizer24->Add(btnModPath,0,wxRIGHT,5);
-
-
-	bSizer22->Add(bSizer24,1,wxEXPAND,5);
-
-
-	bSizer121->Add(bSizer22,1,wxEXPAND,5);
-
+	chModPath = new wxChoice( this, wxID_CH_MOD_PATH, wxDefaultPosition, wxDefaultSize, chModPathChoices, 0 );
+	chModPath->SetSelection( 0 );
+	bSizer24->Add( chModPath, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	
+	btnModPath = new wxBitmapButton( this, wxID_BTN_MOD_PATH, wxNullBitmap, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW|wxBORDER_NONE );
+	bSizer24->Add( btnModPath, 0, wxRIGHT, 5 );
+	
+	
+	bSizer22->Add( bSizer24, 1, wxEXPAND, 5 );
+	
+	
+	bSizer121->Add( bSizer22, 1, wxEXPAND, 5 );
+	
 	wxBoxSizer* bSizer122;
-	bSizer122 = new wxBoxSizer(wxVERTICAL);
-
-	bSizer122->SetMinSize(wxSize(200,-1));
-	cbAllowCDmod = new wxCheckBox(this,wxID_CB_ALLOW_CD_MOD,_("Allow CD mod"),wxDefaultPosition,wxSize(-1,-1),0);
-	bSizer122->Add(cbAllowCDmod,0,wxALL,5);
-
-	cbModSaves = new wxCheckBox(this,wxID_CB_MOD_SAVES,_("Move SAVE games"),wxDefaultPosition,wxDefaultSize,0);
-	cbModSaves->SetToolTip(_("Move SAVE folder with save games to mod folder and restores it when mod run again. So multiple mods can have their own sets of save games."));
-
-	bSizer122->Add(cbModSaves,0,wxBOTTOM|wxRIGHT|wxLEFT,5);
-
-
-	bSizer121->Add(bSizer122,0,wxEXPAND,5);
-
-
-	bSizer114->Add(bSizer121,0,wxEXPAND,5);
-
-	m_staticline44 = new wxStaticLine(this,wxID_ANY,wxDefaultPosition,wxDefaultSize,wxLI_HORIZONTAL);
-	bSizer114->Add(m_staticline44,0,wxEXPAND | wxALL,5);
-
-	m_staticText120 = new wxStaticText(this,wxID_ANY,_("Spellcross mod builder status:"),wxDefaultPosition,wxDefaultSize,0);
-	m_staticText120->Wrap(-1);
-	bSizer114->Add(m_staticText120,0,wxRIGHT|wxLEFT,5);
-
-	textOutput = new wxTextCtrl(this,wxID_TEXT_OUTPUT,wxEmptyString,wxDefaultPosition,wxDefaultSize,wxTE_MULTILINE|wxTE_READONLY);
-	bSizer114->Add(textOutput,1,wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT,5);
-
+	bSizer122 = new wxBoxSizer( wxVERTICAL );
+	
+	bSizer122->SetMinSize( wxSize( 200,-1 ) );
+	cbAllowCDmod = new wxCheckBox( this, wxID_CB_ALLOW_CD_MOD, _("Allow CD mod"), wxDefaultPosition, wxSize( -1,-1 ), 0 );
+	bSizer122->Add( cbAllowCDmod, 0, wxALL, 5 );
+	
+	cbModSaves = new wxCheckBox( this, wxID_CB_MOD_SAVES, _("Move SAVE games"), wxDefaultPosition, wxDefaultSize, 0 );
+	cbModSaves->SetToolTip( _("Move SAVE folder with save games to mod folder and restores it when mod run again. So multiple mods can have their own sets of save games.") );
+	
+	bSizer122->Add( cbModSaves, 0, wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	
+	
+	bSizer121->Add( bSizer122, 0, wxEXPAND, 5 );
+	
+	
+	bSizer114->Add( bSizer121, 0, wxEXPAND, 5 );
+	
+	m_staticline44 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
+	bSizer114->Add( m_staticline44, 0, wxEXPAND | wxALL, 5 );
+	
+	m_staticText120 = new wxStaticText( this, wxID_ANY, _("Spellcross mod builder status:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText120->Wrap( -1 );
+	bSizer114->Add( m_staticText120, 0, wxRIGHT|wxLEFT, 5 );
+	
+	textOutput = new wxTextCtrl( this, wxID_TEXT_OUTPUT, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY );
+	bSizer114->Add( textOutput, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	
 	wxBoxSizer* bSizer123;
-	bSizer123 = new wxBoxSizer(wxHORIZONTAL);
-
-	bSizer123->SetMinSize(wxSize(-1,120));
-	btnRunOrig = new wxButton(this,wxID_BTN_RUN_ORIG,_("Run Original"),wxDefaultPosition,wxSize(-1,-1),0);
-	btnRunOrig->SetMinSize(wxSize(130,-1));
-
-	bSizer123->Add(btnRunOrig,0,wxALL|wxEXPAND,5);
-
+	bSizer123 = new wxBoxSizer( wxHORIZONTAL );
+	
+	bSizer123->SetMinSize( wxSize( -1,120 ) );
+	btnRunOrig = new wxButton( this, wxID_BTN_RUN_ORIG, _("Run Original"), wxDefaultPosition, wxSize( -1,-1 ), 0 );
+	btnRunOrig->SetMinSize( wxSize( 130,-1 ) );
+	
+	bSizer123->Add( btnRunOrig, 0, wxALL|wxEXPAND, 5 );
+	
 	wxBoxSizer* bSizer42;
-	bSizer42 = new wxBoxSizer(wxVERTICAL);
-
-	bSizer42->SetMinSize(wxSize(150,-1));
-	btnSaveWDorig = new wxButton(this,wxID_BTN_SAVE_WD_ORIG,_("Backup\nWORKDIR"),wxDefaultPosition,wxDefaultSize,0);
-	bSizer42->Add(btnSaveWDorig,1,wxALL|wxEXPAND,5);
-
-	btnRestoreWDorig = new wxButton(this,wxID_BTN_RESTORE_WD_ORIG,_("Restore\nWORKDIR"),wxDefaultPosition,wxDefaultSize,0);
-	bSizer42->Add(btnRestoreWDorig,1,wxALL|wxEXPAND,5);
-
-
-	bSizer123->Add(bSizer42,0,wxEXPAND,5);
-
-
-	bSizer123->Add(0,0,1,wxEXPAND,5);
-
-	btnModInfo = new wxButton(this,wxID_BTN_MOD_INFO,_("Show\nMod Info"),wxDefaultPosition,wxSize(-1,-1),0);
-	btnModInfo->SetMinSize(wxSize(130,-1));
-
-	bSizer123->Add(btnModInfo,0,wxALL|wxEXPAND,5);
-
-
-	bSizer123->Add(0,0,1,wxEXPAND,5);
-
+	bSizer42 = new wxBoxSizer( wxVERTICAL );
+	
+	bSizer42->SetMinSize( wxSize( 150,-1 ) );
+	btnSaveWDorig = new wxButton( this, wxID_BTN_SAVE_WD_ORIG, _("Backup\nWORKDIR"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer42->Add( btnSaveWDorig, 1, wxALL|wxEXPAND, 5 );
+	
+	btnRestoreWDorig = new wxButton( this, wxID_BTN_RESTORE_WD_ORIG, _("Restore\nWORKDIR"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer42->Add( btnRestoreWDorig, 1, wxALL|wxEXPAND, 5 );
+	
+	
+	bSizer123->Add( bSizer42, 0, wxEXPAND, 5 );
+	
+	
+	bSizer123->Add( 0, 0, 1, wxEXPAND, 5 );
+	
+	btnModInfo = new wxButton( this, wxID_BTN_MOD_INFO, _("Show\nMod Info"), wxDefaultPosition, wxSize( -1,-1 ), 0 );
+	btnModInfo->SetMinSize( wxSize( 130,-1 ) );
+	
+	bSizer123->Add( btnModInfo, 0, wxALL|wxEXPAND, 5 );
+	
+	
+	bSizer123->Add( 0, 0, 1, wxEXPAND, 5 );
+	
 	wxBoxSizer* bSizer421;
-	bSizer421 = new wxBoxSizer(wxVERTICAL);
-
-	bSizer421->SetMinSize(wxSize(150,-1));
-	btnSaveWDmod = new wxButton(this,wxID_BTN_SAVE_WD_MOD,_("Backup\nWORKDIR"),wxDefaultPosition,wxDefaultSize,0);
-	bSizer421->Add(btnSaveWDmod,1,wxEXPAND|wxALL,5);
-
-	btnRestoreWDmod = new wxButton(this,wxID_BTN_RESTORE_WD_MOD,_("Restore\nWORKDIR"),wxDefaultPosition,wxDefaultSize,0);
-	bSizer421->Add(btnRestoreWDmod,1,wxALL|wxEXPAND,5);
-
-
-	bSizer123->Add(bSizer421,0,wxEXPAND,5);
-
-	btnRunMod = new wxButton(this,wxID_BTN_RUN_MOD,_("Run Mod"),wxDefaultPosition,wxSize(-1,-1),0);
-	btnRunMod->SetMinSize(wxSize(130,-1));
-
-	bSizer123->Add(btnRunMod,0,wxALL|wxEXPAND,5);
-
-
-	bSizer114->Add(bSizer123,0,wxEXPAND,5);
-
-
-	this->SetSizer(bSizer114);
+	bSizer421 = new wxBoxSizer( wxVERTICAL );
+	
+	bSizer421->SetMinSize( wxSize( 150,-1 ) );
+	btnSaveWDmod = new wxButton( this, wxID_BTN_SAVE_WD_MOD, _("Backup\nWORKDIR"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer421->Add( btnSaveWDmod, 1, wxEXPAND|wxALL, 5 );
+	
+	btnRestoreWDmod = new wxButton( this, wxID_BTN_RESTORE_WD_MOD, _("Restore\nWORKDIR"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer421->Add( btnRestoreWDmod, 1, wxALL|wxEXPAND, 5 );
+	
+	
+	bSizer123->Add( bSizer421, 0, wxEXPAND, 5 );
+	
+	btnRunMod = new wxButton( this, wxID_BTN_RUN_MOD, _("Run Mod"), wxDefaultPosition, wxSize( -1,-1 ), 0 );
+	btnRunMod->SetMinSize( wxSize( 130,-1 ) );
+	
+	bSizer123->Add( btnRunMod, 0, wxALL|wxEXPAND, 5 );
+	
+	
+	bSizer114->Add( bSizer123, 0, wxEXPAND, 5 );
+	
+	
+	this->SetSizer( bSizer114 );
 	this->Layout();
+	
+	this->Centre( wxBOTH );
+	
 
-	this->Centre(wxBOTH);
-	// </wxFormsBuilder>
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormMain' on 2026-05-02 21:33:39
     
     // ------------ no edit above (auto generated by wxFormBuilder) ----------------
 	m_ini = ini;
@@ -1429,18 +1431,21 @@ void FormMain::ListSpellExecutables(std::filesystem::path spell_dir, wxChoice* c
 	auto last_sel = choice->GetStringSelection();
 	choice->Freeze();
 	choice->Clear();
-	for(const auto& entry: std::filesystem::directory_iterator(spell_dir))
+	if(std::filesystem::exists(spell_dir))
 	{
-		auto item = entry.path();
-		if(entry.is_directory())
-			continue;
-		auto name = item.filename().string();
-		name = toupper(name);
-		if(!wildcmp("*.EXE",name.c_str()))
-			continue;
-		if(name == "DOS4GW.EXE" || name == "INSTALUJ.EXE" || name == "INSTALL95.EXE" || name == "SETUP.EXE")
-			continue;
-		choice->Append(name);
+		for(const auto& entry: std::filesystem::directory_iterator(spell_dir))
+		{
+			auto item = entry.path();
+			if(entry.is_directory())
+				continue;
+			auto name = item.filename().string();
+			name = toupper(name);
+			if(!wildcmp("*.EXE",name.c_str()))
+				continue;
+			if(name == "DOS4GW.EXE" || name == "INSTALUJ.EXE" || name == "INSTALL95.EXE" || name == "SETUP.EXE")
+				continue;
+			choice->Append(name);
+		}
 	}
 	if(!choice->GetCount())
 		choice->Append(str_choice_none);
