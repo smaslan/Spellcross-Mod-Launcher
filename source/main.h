@@ -15,6 +15,7 @@
 #include "simpleini.h"
 #include "SpellMod.h"
 
+// <wxFormsBuilder-include>
 #include <wx/thread.h>
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
@@ -38,6 +39,7 @@
 #include <wx/button.h>
 #include <wx/tglbtn.h>
 #include <wx/frame.h>
+// </wxFormsBuilder-include>
 
 
 // app entry point class
@@ -158,6 +160,7 @@ protected:
 	int wxID_FORM_SAVE_BACK = 5998;
 	int wxID_FORM_EDIT = 5999;	
 
+	// <wxFormsBuilder>
 	enum
 	{
 		wxID_FORM_MAIN = 6000,
@@ -259,6 +262,7 @@ protected:
 	wxButton* btnSaveWDmod;
 	wxButton* btnRestoreWDmod;
 	wxButton* btnRunMod;
+	// </wxFormsBuilder>
 
 
 public:
