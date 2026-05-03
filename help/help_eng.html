@@ -28,23 +28,23 @@
 </table>
 
 <p align="justify">
-&nbsp;&nbsp; Spellcross Mod Launcher is simple tool for runtime building of game archives mods and launching Spellcross game.
+&nbsp;&nbsp; Spellcross Mod Launcher is simple tool for runtime building of game data archive mods and launching Spellcross game.
 This tool can build modded game data archives from original game files and added or modified user files based on simple definition file.
 It can then replace game archives, launch the game and restore original game files afterwards. It can be of course also used to launch original game without mods.
 It also contains simple SAVE games manager for making backups.
 </p>
 
 <div class="n2">Disclaimer and precautions</div><p align="justify">
-&nbsp;&nbsp; The tool is provided wihtout any warrenty! It modifies, moves and removes files, so be cautious what you do and I strongly recommend to make backup of your game files and save games before you run this tool. Any potentially risky operation will be prompted.  
+&nbsp;&nbsp; The tool is provided without any warranty! It modifies, moves and removes files, so be cautious what you do and I strongly recommend to make backup of your game files and save games before you run this tool. Any potentially risky operation will be prompted.  
 </p>
 
 <div class="n2">1 - Basic setup</div><p align="justify">
-&nbsp;&nbsp; First thing after first startup is to define few paths in the main panel. First, specify <b>Spellcross installation folder</b>, e.g. "C:/games/SPELCROS". If your game version involves CD (some versions may run without), specify also path to <b>Spellcross CD path</b>. Here it is important to note that if the game mod should modify also CD files (e.g. videos and unit renders), you must copy content of CD to some folder, e.g. to "C:/games/SPELLCD" because mounted CD ISO is read only. 
-If you have several Spellcross path version EXE files in your Spellcross installation folder, so you may select desired <b>Spellcross executable</b> (should be listed, default is "SPELCROS.EXE"). Next, specify <b>Virtual CD drive letter</b> to which Spellcross CD will be mounted (applies to both DOSbox mod and native Win32 modes).
-Next, define your <b>DOSbox path</b> (for DOSbox mode only obviously). You can optionally disable autoexec.bat and start fullscreen in DOSbox.
-Next, select Spellcross <b>Run mode</b>. This tool was originally made in era of 32bit WinXP which could still run 16bit DOS apps natively using its integrated NTDVM and DOSbox was a bit too slow back than. So, there is still option "Win32" to run it natively e.g. in virtual machine. But now the only viable option is "DOSbox" mode.
+&nbsp;&nbsp; First thing after first startup is to define few paths in the main panel. First, specify <b>Spellcross installation folder</b>, e.g. "C:/games/SPELCROS". If your game version involves CD (some versions may run without), specify also path to <b>Spellcross CD path</b>. Here it is important to note that if the game mod should modify also CD files (e.g. videos and unit renders), you must copy content of CD to some local folder, e.g. to "C:/games/SPELLCD" because mounted CD ISO is read only. 
+If you have several Spellcross patch version EXE files in your Spellcross installation folder, so you may select desired <b>Spellcross executable</b> to launch (should be listed, default is "SPELCROS.EXE"). Next, specify <b>Virtual CD drive letter</b> to which Spellcross CD will be mounted (applies to both DOSbox mod and native Win32 modes).
+Next, define your <b>DOSbox path</b> (for DOSbox mode only). You can optionally disable "autoexec.bat" and start fullscreen in DOSbox.
+Next, select Spellcross <b>Run mode</b>. This tool was originally made in the era of 32bit WinXP which could still run 16bit DOS apps natively using its integrated NTDVM and DOSbox was a bit too slow back than. So, there is still legacy option "Win32" to run it natively e.g. in virtual machine. But now the only viable option is "DOSbox" mode.
 Finally, if you want to run mod, select <b>Mod path</b>. For each mod you can specify if it's allowed to modify CD game files (default: yes). Last option is to move SAVE games folder with the mod. The idea here is that your save games will be copied to selected mod folder when you finish playing. On the next startup they will be moved to the game location (originals are preserved/backuped) and will be moved to mod folder again when you finish playing. This way you can have multiple sets of save games not colliding with each other.
-And that is all for basic setup.
+And that is it for basic setup.
 </p>
 
 <table align="center"><tr><td>
@@ -52,7 +52,7 @@ And that is all for basic setup.
 </td></tr></table><br>
 
 <div class="n2">2 - Installing mods</div><p align="justify">
-&nbsp;&nbsp; Mod installation is trivial. Just download mod and unpack it to some folder and set the <b>Mod path</b>. Here it is important to note the mod should be placed to the same drive letter as the game, so if you have game e.g. in "C:/games/SPELCROS", place it anywhere to "C:/...". This will ensure the replacement of game data files is fast and no data are copied (system will only change file locations in filesystem allocation tables). Whereas when you have mod at different drive, it will have to copy all data there and back again which might be up to some 500&nbsp;MB of unnecessary SSD drive writes per run. Note the tool is optimized, so it will not generate modded archive if it detects its content is same as the original. It will also not rewrite any files if they do not change. 
+&nbsp;&nbsp; Mod installation is trivial. Just download mod and unpack it to some folder and set the <b>Mod path</b>. Here it is important to note the mod should be placed to the same drive letter as the game, so if you have game e.g. in "C:/games/SPELCROS", place it anywhere to "C:/". This will ensure the replacement of game data files is fast and no data are copied (system will only change file locations in file system allocation tables). Whereas when you have mod at different drive, it will have to copy all its data there and back again which might be up to some 500&nbsp;MB of unnecessary SSD drive writes per run. Note the tool is also optimized, so it will not generate modded archive if it detects its content is same as the original. It will also not rewrite any files if they do not change. 
 </p>
 
 <div class="n2">3 - Running game and mods</div><p align="justify">
@@ -60,13 +60,13 @@ And that is all for basic setup.
 </p>
 
 <div class="n2">4 - Advanced usage</div><p align="justify">
-&nbsp;&nbsp; There are few other actions useful for mainly for development of mods. First, in the <b>Setup</b> menu you can edit various config files and run Spellcross "SETUP.BAT". In the menu <b>Mod</b> you can choose <b>Build mod</b>. This will make modded archives into the mod's MAKE folder. Option <b>Force rebuild mod</b> will make mod files and force write even when content is not changed. Option <b>Build and swap</b> will build mod files and replace the original game files and they will stay there until restored. Option <b>Restore original</b> will move the modded archives back to the mod's MAKE folder and restore original game files from their backup location. Note all these operations are done automatically when you run mod by button <b>Run Mod</b>. The restore operation is called automatically before any other action to ensure game is always in its original state. In some rare cases the restore operation might fail. This can happen in very unlikely case when PC crashes during game archives swap operation. But it can also happen when you are viewing content of some folder or file that is to be moved by some of the tool operations. The restore can be retried any number of times. The tool stores state of modded files (and saves) in file "mod_state.ini", so it should be able to recover automatically even after crash or restart. If that for some reason fails consistently, you can use option <b>Cleanup mod config</b> which will clear the state file. But this will almost certainly lead to inconsistent state of game files (and possibly save games if you use option "Move SAVE games"), so that is really last resort option. After this operation you'll likely have to manually restore everything from your backup.<br>
+&nbsp;&nbsp; There are few other actions useful for mainly for development of mods. First, in the <b>Setup</b> menu you can edit various config files and run Spellcross "SETUP.BAT". In the menu <b>Mod</b> you can choose <b>Build mod</b>. This will make modded archives into the mod's MAKE folder. Option <b>Force rebuild mod</b> will make mod files and force write operation even when content is not changed. Option <b>Build and swap</b> will build mod files and replace the original game files and they will stay there until restored. Option <b>Restore original</b> will move the modded archives back to the mod's MAKE folder and restore original game files from their backup location. Note all these operations are done automatically when you run the mod by button <b>Run Mod</b>. The restore operation is called automatically before any other action to ensure game is always in its original state. In some rare cases the restore operation might fail. This can happen in very unlikely case when PC crashes during game archives swap operation. But it can also happen when you are viewing content of some folder or file that is to be moved by some of the tool operations. The restore can be retried any number of times. The tool stores state of modded files (and saves) in file "mod_state.ini", so it should be able to recover automatically even after crash or restart. If that for some reason fails consistently, you can use option <b>Cleanup mod config</b> which will clear the state file. But this will almost certainly lead to inconsistent state of game files (and possibly save games if you use option <b>Move SAVE games</b>), so that is really the last resort option. After this operation you'll likely have to manually restore everything from your backup.<br>
 &nbsp;&nbsp; In menu <b>Run</b> you can use <b>Build launch files</b> which will generate various game startup BATch files to the game installation folder. You can run those outside this tool if you wish. Note these are generated automatically whenever you start the game via this tool.  
 </p>
 
 <div class="n2">5 - Save game management</div><p align="justify">
-&nbsp;&nbsp; As mentioned above, the tool has option <b>Move SAVE games</b>. This will move your saves made during modded game play to the mod sub-folder "save". When you run the modded game again it will move them to game "SAVE" folder. This will ensure you can have separate sets of save games not mixing together because modded saves are usually not compatible with original game ones (causes crashes). This why there are two sets of operations for any save game action in this tool. One set works with original game save in its folder "SAVE", the other set works with saves copy in the mod folder.<br> 
-&nbsp;&nbsp; First save feature is fast backup and restore of "SAVE/WORKDIR". There are game missions which are terminated without option to reload when some critical unit dies (typically convoys). This is very anoying feature. But there is easy workaround. When you leave war map with save state option, the game stores state to game "SAVE/WORKDIR" folder. When you exist the game, you can backup this folder by button <b>Backup WORKDIR</b>. Then you can continue gameplay again. When mission fails, you can again exist game again and use <b>Restore WORKDIR</b> to reset the save game state and when you run the game again you continue when you ended before. This is basically an extra save game. It's kind of cheating, but might be handy. 
+&nbsp;&nbsp; As mentioned above, the tool has option <b>Move SAVE games</b>. This will move your saves made during modded game play to the mod sub-folder "save". When you run the modded game again it will move them to game "SAVE" folder. This will ensure you can have separate sets of save games not mixing together because modded saves are usually not compatible with original game ones (causes game crashes). This is why there are two sets of operations for any save game action in this tool. One set works with original game save in its folder "SAVE", the other set works with saves copy in the mod folder.<br> 
+&nbsp;&nbsp; Another save feature is fast backup and restore of "SAVE/WORKDIR". There are game missions which are terminated without option to reload when some critical unit dies (typically convoys). This is very annoying feature. But there is easy workaround. When you leave war map with save state option, the game stores state to game "SAVE/WORKDIR" folder. When you exist the game, you can backup this folder by button <b>Backup WORKDIR</b>. Then you can continue gameplay again. When mission fails, you can again exit the game and use <b>Restore WORKDIR</b> to reset the save game state and when you run the game again you continue when you ended before. This is basically an extra save game. It's kind of cheating, but might be handy. 
 </p>
 
 <table align="center"><tr><td>
@@ -78,7 +78,7 @@ And that is all for basic setup.
 </p>
 
 <div class="n2">6 - Making mods</div><p align="justify">
-&nbsp;&nbsp; This section will briefly describe how the mod structure works. An example of typical structure of mod folder is following:
+&nbsp;&nbsp; This section will briefly describe how the mod structure works. An example of a typical structure of mod folder is following:
 </p>
 <pre>
 ./data/common/M01_01A.DEF
@@ -95,12 +95,12 @@ And that is all for basic setup.
 </pre>
 
 <p align="justify">
-&nbsp;&nbsp; Mod structure is define in its "*.def" file which is C++ style-ish format. This file consists of few sections. Fist section is "PATH" where we define necessary path variable for further operations. Example of such section: 
+&nbsp;&nbsp; The whole concept of modifications is based on maximum usage of original game data. It would not be practical to distribute all game files and it would be also questionable due to the copyright reasons. Therefore, modded game files are generated on runtime when the mod is launched from original game files as a basis and the mod contains only new or modified files to be implemented. Mod structure is defined in its "*.def" file which is C++ style-ish format. This file consists of few sections. Fist section is "class PATH" where we define necessary path variables for further operations. Example of such section: 
 </p>
 <pre>
 class PATH
 {
-    // --- REQUIERED ITEMS (reserved names) ---
+    // --- REQUIRED ITEMS (reserved names) ---
     // make folder, relative path to folder to store output archives
     MAKE=make;
 
@@ -118,9 +118,9 @@ class PATH
 }
 </pre>
 <p align="justify">
-The "MAKE" variable is mandatory and defines where the tool stores modified archives. In this case it is to the mod sub-folder "make". All other variable definitions are optional up to user needs. Any variable definition can contain reference(s) to previously defined variable in format %variable_name% that will be expanded during execution. The tool recognizes three predefined variables: %SPELL%, %SPELLCD% and %SPELLANY%. %SPELL% and %SPELLCD% are expanded to paths <b>Spellcross installation folder</b> and <b>Spellcross CD path</b> as set in the main tool panel. %SPELLANY% will automatically choose either of %SPELL% or %SPELLCD%, which is handy because different Spellcross versions can have the data files located differently between CD and installation folders. Note that the path definitions can be also placed to a separate class "SRC". This is deprecated method, but still supported because of old version of this tool.<br>   
-&nbsp;&nbsp; In the example above we define few more variables. Variables "COMMON" and "UNITS" point to original game data archives. Variable "DMOD" points to sub-folder "data" in the mod folder. Finally, we define two more variables "MOD_COMMON" and "MOD_UNITS" pointing to the particular mod data folders.<br> 
-&nbsp;&nbsp; Finally, follows sections that defines content of particular game archives to be built. Example for "COMMON.FS" archive is following:
+The "MAKE" variable is mandatory and defines where the tool generates modified archives. In this case it is to the mod sub-folder "make". All other variable definitions are optional up to user needs. Any variable definition can contain reference(s) to previously defined variable in format %variable_name% that will be expanded during execution. The tool recognizes three predefined variables: %SPELL%, %SPELLCD% and %SPELLANY%. %SPELL% and %SPELLCD% are expanded to paths <b>Spellcross installation folder</b> and <b>Spellcross CD path</b> as set in the main tool panel. %SPELLANY% will automatically choose either of %SPELL% or %SPELLCD%, which is handy because different Spellcross versions can have the data files located differently between CD and installation folders. Note that the path definitions can be also placed to a separate "class SRC". This is deprecated method, but still supported because of old version of this tool.<br>   
+&nbsp;&nbsp; In the example above we define few more variables. Variables "COMMON" and "UNITS" point to the original game data archives. Variable "DMOD" points to sub-folder "data" in the mod folder. Finally, we define two more variables "MOD_COMMON" and "MOD_UNITS" pointing to the particular mod data folders.<br> 
+&nbsp;&nbsp; Finally, follow sections that define content of particular game archives to be built. Example for "COMMON.FS" archive is following:
 </p>
 <pre>
 class COMMON.FS
@@ -133,17 +133,26 @@ class COMMON.FS
 }
 </pre>
 <p align="justify">
-&nbsp;&nbsp; The switch "replace=1" means every following "add()" command will replace already added files. "replace=0" means it will only add new ones. This can be also specified individually in the "add()" command itself (see template of mod for more details). All other archives are the same with exception of "UNITS.FSU". This game archive contains unit sprite graphics and it is internally structured per-unit. Each unit has name up to 5 characters long and it contain sprites with names of exactly 3 characters with no extensions. These files are LZ compressed. When adding data to this archive from a folder (in the example above from a folder "data/units"), the folder must contain sub-folder with the name of the unit. Example is following:
+&nbsp;&nbsp; The switch "replace=1" means every following "add()" command will replace already added files. "replace=0" means it will only add new ones. This can be also specified individually in the "add()" command itself.
+</p>
+<pre>
+add(source);                // add all files from "source"
+add(mode,source);           // same as above, "mode" defines addition method NEW (add only new files) or ALL (overwrite existing)
+add(source,wildcard);       // add files matching "wildcard" key (e.g. *.LZ or LEVEL_??.DEF)
+add(mode,source,wildcard);  // same as above with "mode" switch
+</pre> 
+<p align="justify">
+&nbsp;&nbsp; All other archives are the same with exception of "UNITS.FSU". This game archive contains unit sprite graphics and it is internally structured per-unit. Each unit has name up to 5 characters long and it contain sprites with names of exactly 3 characters with no extensions. These files are LZ compressed. When adding data to this archive from a folder (in the example above from a folder "data/units"), the folder must contain sub-folder with the name of the unit, in the example "MAMUT". Example is following:
 </p>
 <pre>
 class UNITS.FSU
 {
     add(%UNITS%);              // add all data from original game archive COMMON.FSU
-    add(%MOD_UNITS%,MAMUT);    // add unit data from "data/UNITS" folder    
+    add(%MOD_UNITS%,MAMUT);    // add unit "MAMUT" data from "data/UNITS" folder    
 }
 </pre>
 <p align="justify">
-&nbsp;&nbsp; Each mod can have its description in HTML format. The help/doc is placed in sub-folder "info" of the mod and is named "info.html". This file can be displayed by the tool.
+&nbsp;&nbsp; Each mod can have its description in HTML format. The description is placed in sub-folder "info" of the mod and is named "info.html". This file can be displayed by the tool.
 </p>
 
 
@@ -163,7 +172,7 @@ class UNITS.FSU
 
 <br>
 <div class="n2">7 - License</div><p align="justify">
-&nbsp;&nbsp; The tool is provided without any warrenty as open source project under MIT lincese.
+&nbsp;&nbsp; The tool is provided without any warranty as open source project under MIT license.
 </p>
 <pre>
 Spellcross Mod Launcher

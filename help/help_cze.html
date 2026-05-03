@@ -31,17 +31,17 @@
 <p align="justify">
 &nbsp;&nbsp; Spellcross Mod Launcher vznikl za úèelem usnadnìní modifikací hry protoe postupovat stylem 
 dearchivace-editace-archivace kadého jednotlivého archivu hry je ponìkud nepohodlné zvláštì pokud mám rozpracovanıch více rùznıch modù. Tato utilitka je schopná, podle zadání v definièním souboru modu, "namixovat" nové herní datové archivy *.FS a *.FSU a pøípadnì je automaticky prohodit s pùvodními archivy nainstalované hry 
-i s tìmi na CD (pokud je CD emulováno ze sloky, namísto z ISO). Následnì spustí hro a po jejím ukonèení je zase vrátí zpìt, aby bylo moné spustit pùvodní hru nebo jinı mod. Tento nástroj lze pouívat samozøejmì i ke spouštìní nemodifikované hry pøes DOSbox. Program zárovìn obsahuje i nástroje na zálohování uloenıch her.<br>
+i s tìmi na CD (pokud je CD emulováno ze sloky, namísto z ISO). Následnì spustí hro a po jejím ukonèení je zase vrátí zpìt, aby bylo moné spustit pùvodní hru nebo jinı mod. Tento nástroj lze pouívat samozøejmì i ke spouštìní nemodifikované hry pøes DOSbox. Program zároveò obsahuje i nástroje na zálohování uloenıch her.<br>
 </p>
 
 <div class="n2">Varování</div><p align="justify">
-&nbsp;&nbsp; Nástroj z principu vìci pøesouvá, kopíruje a nekdy mae datové soubory hry. Mìl by bıt sice bezpeènı a kadá potenticálnì nebezpeèná operace vyaduje potvrzení uivatele, ale je to zcela bez záruky. Rozhodnì doporuèuji udìlat si pøed pouitím nástroje zálohu všech souborù hry i uloenıch her!   
+&nbsp;&nbsp; Nástroj z principu vìci pøesouvá, kopíruje a nìkdy mae datové soubory hry. Mìl by bıt sice bezpeènı a kadá potenciálnì nebezpeèná operace vyaduje potvrzení uivatele, ale je to zcela bez záruky. Rozhodnì doporuèuji udìlat si pøed pouitím nástroje zálohu všech souborù hry i uloenıch her!   
 </p>
 
 <br>
 <div class="n2">1 - Základní nastavení</div><p align="justify">
-&nbsp;&nbsp; Všechna hlavní nastavení lze provést na hlavním panelu. Pøednì je tøeba nastavit cestu k instalaci hry <b>Spellcross installation folder</b> napø. "C:/hry/SPELCROS". Dále je tøeba nastavit cestu ke kopii CD hry <b>Spellcross CD path</b>. Sice lze nastavit i cestu k namontovanému ISO, ale ISO image pochopitelnì nelze modifikovat, take doporuèuji udìlat kopii napø. do "C:/hry/SPELLCD". Pokud máte ve sloce hry nìkolik EXE souborù, napø. rùzné verze patchù hry, mùete si vybrat cílovı EXE pro spuštìní <b>Spellcross executable</b>. Dále zvolte písmeno jednotky <b>Virtual CD drive letter</b> kam bude namontováno CD hry. Toto nastavení platí jak pro DOSbox, tak i pro Win32 reim. Pokud hry budete spouštìt pøes DOSbox, pak je tøeba také zadat cestu k instalaci DOSboxu <b>DOSbox path</b>. Dále zvolte metodu spuštìní hry <b>Run mode</b>. Nástroj byl pùvodnì vyvinut v dobì 32bit WinXP, kde se daly 16bitové DOSové aplikace provozovat nativnì pøes integrovanı emulátor NTDVM, take obsahuje monost spusti nativnì "Win32". Toto nastavení je ovšem dnes ji trochu mimo a aplikace ani není kompilovaná pro 32bit systém. Ale teoreticky by to mohlo jít spustit ve virtuálním stroji. Kadopádnì dnes je jediná rozumná metoda reim "DOSbox". Pro reim "DOSbox" lze volitelnì vypnout "autoexec.bat" a nastavit spouštìní ve fullscreen reimu.
-Další nastavení je cesta k modu <b>Mod path</b>. Pro spouštìní modu lze eventuálnì vypnout <b>Allow CD mod</b>, pokud by cesta k CD hry vedla na namontované ISO, které pochopitelnì nezle pøepisovat. Poslední volba je <b>Move SAVE games</b>. Pokud je vybráno, vytvoøí Spellcross Mod Launcher po prvním hraní modu kopii uloenıch pozic do sloky modu "save". Pøi dalším spuštìní modu pøesune tyto uloené pozice do herní sloky "SAVE" (a pochopitelnì zálohuje pùvodní pozice v "SAVE") a po skonèení hraní je zase pøesune zpìt do sloky modu a obnoví pùvodní "SAVE". Takto lze mít nezávislé uloené pozice pro kadı mod i originální hru a nepletou se dohromady, protoe jsou nekompatibilní a hra pøi naètení vìtšinou padne.     
+&nbsp;&nbsp; Všechna hlavní nastavení lze provést na hlavním panelu. Pøednì je tøeba nastavit cestu k instalaci hry <b>Spellcross installation folder</b> napø. "C:/hry/SPELCROS". Dále je tøeba nastavit cestu ke kopii CD hry <b>Spellcross CD path</b>. Sice lze nastavit i cestu k namontovanému ISO, ale ISO image pochopitelnì nelze modifikovat, take doporuèuji udìlat kopii napø. do "C:/hry/SPELLCD". Pokud máte ve sloce hry nìkolik EXE souborù, napø. rùzné verze patchù hry, mùete si vybrat cílovı EXE pro spuštìní <b>Spellcross executable</b>. Dále zvolte písmeno jednotky <b>Virtual CD drive letter</b> kam bude namontováno CD hry. Toto nastavení platí jak pro DOSbox, tak i pro Win32 reim. Pokud hry budete spouštìt pøes DOSbox, pak je tøeba také zadat cestu k instalaci DOSboxu <b>DOSbox path</b>. Dále zvolte metodu spuštìní hry <b>Run mode</b>. Nástroj byl pùvodnì vyvinut v dobì 32bit WinXP, kde se daly 16bitové DOSové aplikace provozovat nativnì pøes integrovanı emulátor NTDVM, take obsahuje monost spustit nativnì "Win32". Toto nastavení je ovšem dnes ji trochu mimo a aplikace ani není kompilovaná pro 32bit systém. Ale teoreticky by to mohlo jít spustit ve virtuálním stroji. Kadopádnì dnes je jediná rozumná metoda reim "DOSbox". Pro reim "DOSbox" lze volitelnì vypnout "autoexec.bat" a nastavit spouštìní ve fullscreen reimu.
+Další nastavení je cesta k modu <b>Mod path</b>. Pro spouštìní modu lze eventuálnì vypnout <b>Allow CD mod</b>, pokud by cesta k CD hry vedla na namontované ISO, které pochopitelnì nelze pøepisovat. Poslední volba je <b>Move SAVE games</b>. Pokud je vybráno, vytvoøí Spellcross Mod Launcher po prvním hraní modu kopii uloenıch pozic do sloky modu "save". Pøi dalším spuštìní modu pøesune tyto uloené pozice do herní sloky "SAVE" (a pochopitelnì zálohuje pùvodní pozice v "SAVE") a po skonèení hraní je zase pøesune zpìt do sloky modu a obnoví pùvodní "SAVE". Takto lze mít nezávislé uloené pozice pro kadı mod i originální hru a nepletou se dohromady, protoe jsou nekompatibilní a hra pøi naètení vìtšinou padne.     
 </p>
 
 <table align="center"><tr><td>
@@ -50,51 +50,120 @@ Další nastavení je cesta k modu <b>Mod path</b>. Pro spouštìní modu lze eventuál
 
 <br>
 <div class="n2">2 - Instalace modu</div><p align="justify">
-&nbsp;&nbsp; Mody netøeba nijak sloitì instalovat nebo nastavovat. Staèí stáhnout a nìkam rozbalit. Zde ovšem upozoròuji, e je vhodné umístít mod na stejnou jednotku, jako je instalace hry, tedy napø. pokud je hra na "C:/HRY/SPELCROS", tak nìkam na jednotku "C:/". Takto je operace prohození originálních datovıch souborl hry za modifikované pouze otázka pøepisu alokaèních tabulke souborového systému, ale nedochází k fyzické kopii dat. V opaèném pøípadì by pro kadé spuštìné došlo k zápisu a 500&nbsp;MB za èo vám váš SSD disk nepodìkuje. Spellcross Mod Launcher je navíc dále optimalizován pro šetøení SSD tak, aby negeneroval modifikované soubory, pokud je jejich obsah shodnı s originálním mi a také nepøepisuje ádné soubory, pokud se nezmìní.
+&nbsp;&nbsp; Mody netøeba nijak sloitì instalovat nebo nastavovat. Staèí stáhnout a nìkam rozbalit. Zde ovšem upozoròuji, e je vhodné umístit mod na stejnou jednotku, jako je instalace hry, tedy napø. pokud je hra na "C:/HRY/SPELCROS", tak nìkam na jednotku "C:/". Takto je operace prohození originálních datovıch souborù hry za modifikované pouze otázka pøepisu alokaèních tabulce souborového systému, ale nedochází k fyzické kopii dat. V opaèném pøípadì by pro kadé spuštìné došlo k zápisu a 500&nbsp;MB za co vám váš SSD disk nepodìkuje. Spellcross Mod Launcher je navíc dále optimalizován pro šetøení SSD tak, aby negeneroval modifikované soubory, pokud je jejich obsah shodnı s originálním mi a také nepøepisuje ádné soubory, pokud se nezmìní.
 </p>
 
 <div class="n2">3 - Spouštìní hry a modù</div><p align="justify">
-&nbsp;&nbsp; Pro soupštìní hry nebo modù staèí pouít tlaèítka <b>Run Original</b> a pro modifikovanou verzi <b>Run Mod</b>. V pøípadì modifikované verze hry nástroj pøed spuštìním automaticky vygeneruje modifikované datové archivy, nahradí jimi archivy hry a po skonèení je zase vrátí zpìt. 
+&nbsp;&nbsp; Pro spouštìní hry nebo modù staèí pouít tlaèítka <b>Run Original</b> a pro modifikovanou verzi <b>Run Mod</b>. V pøípadì modifikované verze hry nástroj pøed spuštìním automaticky vygeneruje modifikované datové archivy, nahradí jimi archivy hry a po skonèení je zase vrátí zpìt. 
 </p>
 
 <div class="n2">4 - Pokroèilé operace</div><p align="justify">
-&nbsp;&nbsp; Mimo základního spouštìní umoòuje pár další operací. V menu <b>Setup</b> lze spustit "SETUP.BAT" hry pro nastavní zvuku. Dále lze editovat konfiguraèní soubor Spellcrossu a DOSboxu. V menu <b>Mod</b> lze vybrat <b>Build mod</b>. Tato funkce sestaví datové archivy modu. Volba <b>Force rebuild mod</b> sestaví soubory modu a vynutí zápis na disk i pokud se data proti minulému sestavení nezmìní. Volba <b>Build and swap</b>  sestaví soubory modu a prohodí je s archivy hry. V tomto stavu zùstanou a do provedení operace <b>Restore mod</b>. Operace <b>Restore mod</b> vrátí soubory modu zpìt do sloky modu a obnoví pùvodní data hry.  
+&nbsp;&nbsp; Mimo základního spouštìní umoòuje pár další operací. V menu <b>Setup</b> lze spustit "SETUP.BAT" hry pro nastavení zvuku. Dále lze editovat konfiguraèní soubor Spellcrossu a DOSboxu. V menu <b>Mod</b> lze vybrat <b>Build mod</b>. Tato funkce sestaví datové archivy modu. Volba <b>Force rebuild mod</b> sestaví soubory modu a vynutí zápis na disk i pokud se data proti minulému sestavení nezmìní. Volba <b>Build and swap</b>  sestaví soubory modu a prohodí je s archivy hry. V tomto stavu zùstanou a do provedení operace <b>Restore mod</b>. Operace <b>Restore mod</b> vrátí soubory modu zpìt do sloky modu a obnoví pùvodní data hry. Tato funkce je volána automaticky pøed kadou operací, aby se zajistil konzistentní stav dat hry. Nástroj uchovává stav modifikaci v konfiguraèním souboru "mod_state.ini", take by mìl bıt schopen obnovit stav pøi pádu hry nebo sytému.<br>
+&nbsp;&nbsp; Ve velmi nepravdìpodobném pøípadì, kdy by došlo k pádu systému v mezièase mezi pøesuny dat a zápisem do "mod_state.ini" by operace <b>Restore mod</b> mohla opakovanì selhávat. V takovém pøípadì lze pouít operaci <b>Cleanup mod</b>, která vymae obsah stavového souboru "mod_state.ini". To je ovšem poslední monost a témìø jistì povede k nekonzistentním souborùm hry a bude pravdìpodobnì tøeba je ruènì obnovit ze zálohy. Pøed touto operací je vhodné se ujistit, e neselhává napø. z dùvodu prohlíení obsahu nìkteré sloky nebo souboru, kterı má bıt pøesouván (file sharing violation).<br>
+&nbsp;&nbsp; V menu <b>Run</b> lze zvolit <b>Build launch files</b>, co vygeneruje spouštìcí BAT soubory hry. Ty jsou generovány automaticky pøi spouštìní pøes <b>Run Original</b> a <b>Run Mod</b>.
 </p>
+
+<div class="n2">5 - Správa uloenıch pozic</div><p align="justify">
+&nbsp;&nbsp; Jak bylo struènì zmínìno vıše, je k dispozici volba <b>Move SAVE games</b>. Ta zajistí, e nástroj po skonèení hradní modifikované verze hry pøesune uloené pozice do podsloky "save" ve sloce modu. Pøi dalším spuštìní je zase pøesune zpìt do herní sloky "SAVE". Díky tomu lze mít nìkolik vzájemnì nekolidujících sad uloenıch pozic pro jednotlivé mody i pro originální hru. Nástroj po vıberu modu automaticky nastaví <b>Move SAVE games</b>, pokud ve sloce modu najde uloené pozice. Díky této volbì jsou v nástroji vdy všechny operace s uloenımi pozicemi dvojmo: Jedny pro originální hru, které pracují se slokou "SAVE" a druhé pro modifikovanou verzi, které pracují s pozicemi v posloce "save" modu.<br>
+&nbsp;&nbsp; Další funkcí nástroje je monost rychlé zálohy a obnovení doèasné pozice hry ve sloce "SAVE/WORKDIR". To je uiteèná funkce v misích, kde znièení kritické jednotky ukonèí misi bez monosti nahrání (typicky doprava konvoje). Zde lze postupovat takto: Opustit misi s uloením pozice; ukonèit hru; v nástroji zvolit <b>Backup WORKDIR</b>; znovu spustit hru; v pøípadì selhání opìt ukonèit hru; zvolit <b>Restore WORKDIR</b> a znovu spustit hru a pokraèovat v misi. Je to v podstatì uloená pozice navíc. Je to tak trochu podvádìní, ale asi lepší, ne to hrát celé znovu... Levá tlaèítka jsou pro originální hry, pravá pro modifikovanou, pokud je pouita volba <b>Move SAVE games</b>.
+</p>
+
+<table align="center"><tr><td>
+<img src="obr/save_manager_1.png" alt="Save game manager" title="Save game manager">
+</td></tr></table>
+
+<p align="justify">
+&nbsp;&nbsp; Poslední funkcí v menu <b>Savegame</b> je <b>Manage SAVEs</b>. To spustí jednoduchého správce uloenıch pozic ve kterém lze vytváøet a obnovovat zálohy celé sady uloenıch pozic buïto ze sloky hry "SAVE" nebo lokální uloené pozice ve sloce modu "save". Uloené pozice lze obnovovat i jednotlivì. Operace obnovení pochopitelnì pøepisuje stávající uloené pozice, ale nástroj pøed kadou operací vypíše pøesnı popis provedenıch zmìn, take doporuèuji peèlivì pøeèíst! 
+</p>
+
+<div class="n2">6 - Vytváøení modù</div><p align="justify">
+&nbsp;&nbsp; Celı koncept modifikací spoèívá v maximálním vyuití pùvodních dat hry. Nebylo by praktické pro kadı mod distribuovat všechna data hry. Navíc by to mohlo bıt v rozporu s copyrightem. Proto je koncept postaven tak, e se modifikace generuje runtime pøi spuštìní hry z pùvodních souborù a mod obsahuje pouze nové nebo modifikované soubory. Tato kapitola struènì popíše strukturu modu. Pøíklad sloky modu mùe bıt následující:
+</p>
+<pre>
+./data/common/M01_01A.DEF
+./data/common/RESEARCH.DEF
+./data/common/...
+./data/units/MAMUT/000
+./data/units/MAMUT/001
+./data/units/MAMUT/...
+./info/info.html
+./info/...
+./make/common.fs
+./make/units.fsu
+./config.def
+</pre>
+
+<p align="justify">
+&nbsp;&nbsp; Struktura modu je definována v souboru "*.def". Jeho formát je ve stylu C++ tøíd. Obsahuje nìkolik sekcí. První a povinnou sekci je "class PATH", kde jsou definovány cesty ke zdrojùm souborù hry. Pøíklad:
+</p>
+<pre>
+class PATH
+{
+    // --- REQUIRED ITEMS (reserved names) ---
+    // make folder, relative path to folder to store output archives
+    MAKE=make;
+
+    // --- OPTIONAL ITEMS ---        
+    // links to original game data files
+    COMMON=%SPELL%\DATA\COMMON.FS;
+    UNITS=%SPELL%\DATA\UNITS.FSU;
+    
+    // folder with this mod data
+    DMOD=data;
+
+    // the mod data folders
+    MOD_COMMON=%DMOD%\COMMON;
+    MOD_UNITS=%DMOD%\UNITS;
+}
+</pre>
+<p align="justify">
+Promìnná "MAKE" je povinná a urèuje cílovou sloku, kam nástroj generuje modifikované soubory. V pøíkladu to bude podsloka "make" ve sloce modu. Všechny ostatní zde definované promìnné jsou volitelné. Kadá mùe obsahovat odkazy na ji definované promìnné ve formátu %název_promìnné%. Nástroj navíc obsahuje tøi pøedem definované promìnné: %SPELL%, %SPELLCD% a %SPELLANY%. %SPELL% a %SPELLCD% odkazují na sloky vybrané v nastavení nástroje <b>Spellcross installation folder</b> a <b>Spellcross CD path</b>. Promìnná %SPELLANY% automaticky volí mez %SPELL% a %SPELLCD%, co je vhodné, protoe rùzné verze Spellcrossu mají datové soubory rùznì rozdìlení mezi CD a instalaèní slokou hry.<br> 
+&nbsp;&nbsp; Poznámka: Pùvodní verze tohoto nástroje navíc obsahovala ještì sekci "class SRC", kde bylo moné definovat další cesty a je podporována i v této verzi, ale jednodušší je vše definovat v sekci "class PATH".<br>
+&nbsp;&nbsp; V pøikladu vıše jsou definovány cesty "COMMON" a "UNITS", které odkazují na originální datové archivy hry. Promìnná "DMOD" odkazuje na podsloky "data" modu. Zbylé promìnné "MOD_COMMON" a "MOD_UNITS" odkazují na konkrétní podloky s datovımi soubory modu.<br> 
+&nbsp;&nbsp; V "*.def" souboru následují sekce pro kadı datovı archiv hry, kterı má bıt modifikován. Pøíklad pro archiv "COMMON.FS" je následující:
+</p>
+<pre>
+class COMMON.FS
+{
+    replace=1;                      // by default overwrite previous data by each add() command
+    add(%COMMON%);                  // add all data from original game archive COMMON.FS
+    add(%MOD_COMMON%,M01_01A.DEF);  // add specific file from mod "data/COMMON" folder
+    add(%MOD_COMMON%,*.CUR);        // add wildcard key matching files from mod "data/COMMON" folder
+    add(%MOD_COMMON%);              // add all files from mod "data/COMMON" folder
+}
+</pre>
+<p align="justify">
+&nbsp;&nbsp; Pøepínaè "replace=1" znamená, e kadı další pøíkaz "add()" pøepíše soubory pøidané pøedchozími pøíkazy. "replace=0" znamená, e jsou pøidány pouze nové soubory a ji existující jsou pøeskoèeny. Tato volba mùe bıt provedena i jednotlivì pro kadı pøíkaz "add()". Varianty parametrù pøíkazu "add()":
+<pre>
+add(zdroj);               // pøidá všechny soubory ze "zdroj"
+add(mód,zdroj);           // viz vıše, "mód" mùe bıt NEW (pøidá pouze nové soubory) nebo ALL (pøepisuje existující)
+add(zdroj,wildcard);      // pøidá soubory odpovídající klíèi ve formátu "wildcard" (napø *.LZ nebo LEVEL_??.DEF)
+add(mód,zdroj,wildcard);  // viz vıše s definicí reimu "mód"
+</pre>
+Všechny datové archivy hry "*.FS" jsou identické. Vıjimkou je pouze "UNITS.FSU". Ten obsahuje sprity jednotek a jako jedinı je èlenìn do podsloek. Kadá podsloka reprezentuje jednu jednotku a musí mít název do délky 5 znakù. Jednotlivé podsloky pak obsahuji LZ komprimované sprity s názvy délky 3 znaky. Ve zdrojovıch slokách modu tedy musí bıt odkazované data organizovány v podlokách, viz pøíklad "data/units/MAMUT". Pøíklad sekce pro "UNITS.FSU":
+</p>
+<pre>
+class UNITS.FSU
+{
+    add(%UNITS%);              // add all data from original game archive COMMON.FSU
+    add(%MOD_UNITS%,MAMUT);    // add unit data from "data/UNITS" folder    
+}
+</pre>
+<p align="justify">
+&nbsp;&nbsp; Kadı mod mùe mít jednoduchou dokumentaci v HTML formátu v podsloce "info" v souboru "info.html". Tu lze z nástroje zobrazit pomocí <b>Show mod info</b>.
+</p>
+
 
 <br>
 <div class="n2">5 - Historie verzí</div><p align="justify">
 <table  align="justify">
  <tr valign="top">
   <td width="130">
-   <span class="d1">V1.00 - 1.10.2011</span>:
+   <span class="d1">V1.00 - 1.5.2026</span>:
   </td>
   <td>
    První verze.
   </td> 
- <tr>
- <tr valign="top">
-  <td>
-   <span class="d1">V1.10 - 10.10.2011</span>:
-  </td>
-  <td>
-   Pár dalších nastavení v *.ini suborech. Spellcross mod builder i launcher pøepracován tak, aby vše korektnì pracovalo i ve Windows 98 (upraveny i *.bat skripty). 
-  </td>
- <tr>
- <tr valign="top">
-  <td>
-   <span class="d1">V1.20 - 15.10.2011</span>:
-  </td>
-  <td>
-   Opraveno pár chybek v *.bat skriptech.
-  </td>
- <tr>
- <tr valign="top">
-  <td>
-   <span class="d1">V1.30 - 2.6.2013</span>:
-  </td>
-  <td>
-   Opraveno pár chybek v *.bat skriptech (nìjak to nebralo mezery v cestì k modu).
-  </td>
  <tr>
 </table>
 </p>
@@ -102,21 +171,42 @@ Další nastavení je cesta k modu <b>Mod path</b>. Pro spouštìní modu lze eventuál
 
 <br>
 <div class="n2">6 - Licence</div><p align="justify">
-&nbsp;&nbsp; Je to freeware, take mùe bıt libovolnì pouíván a šíøen, ale pouze se všemi pøiloenımi soubory (zejména tento help) a bez úprav!<br>
-&nbsp;&nbsp; Autor nenese ádnou zodpovìdnost za pøípadné problémy nebo škody vzniklé pouitím tohoto SW, a u by byly jakékoliv.<br>
-&nbsp;&nbsp; Pokud s uvedenımi podmínkami nesouhlasíte, pak tento SW nepouívejte. 
+&nbsp;&nbsp; Nástroj je šíøen jako open source pod licencí MIT. Lze ho volnì šíøit v souladu s licencí. Hrubı pøeklad MIT licence:
 </p>
+<pre>
+Spellcross Mod Launcher
+url: https://github.com/smaslan/spellcross-mod-launcher
+Copyright (c) 2026 Stanislav Maslan, s.maslan@seznam.cz
 
+Tímto se bezúplatnì udìluje svolení kadému, kdo získá kopii tohoto softwaru
+a pøidruené dokumentace (dále jen „software“), nakládat se softwarem 
+bez omezení, vèetnì bez omezení práva pouívat, kopírovat, mìnit, spojovat, 
+publikovat, distribuovat, poskytovat sublicence a/nebo prodávat kopie softwaru 
+a umonit tak osobám, kterım je software poskytnut, èinit toté, a to 
+za následujících podmínek:
+
+Vıše uvedené upozornìní o autorskıch právech a toto svolení musí bıt zahrnuto 
+ve všech kopiích nebo podstatnıch èástech softwaru.
+
+SOFTWARE JE POSKYTOVÁN „TAK, JAK JE“, BEZ ZÁRUKY JAKÉHOKOLIV DRUHU, VİSLOVNÉ 
+NEBO PØEDPOKLÁDANÉ, VÈETNÌ, ALE NIKOLIV OMEZENÉ NA ZÁRUKY PRODEJNOSTI, 
+VHODNOSTI PRO KONKRÉTNÍ ÚÈEL A NEPORUŠOVÁNÍ PRÁV. V ÁDNÉM PØÍPADÌ NEJSOU 
+AUTOØI NEBO DRITELÉ AUTORSKİCH PRÁV ODPOVÌDNÍ ZA JAKİKOLIV NÁROK, 
+ŠKODU NEBO JINOU ODPOVÌDNOST, A U V RÁMCI SMLOUVY, DELIKTU NEBO JINAK, 
+VZNIKLOU V DÙSLEDKU, Z NEBO V SOUVISLOSTI SE SOFTWAREM NEBO POUÍVÁNÍM 
+NEBO JINİM NAKLÁDÁNÍM SE SOFTWAREM.
+</pre>
 
 <br>
 <div class="n2">7 - Kontakt</div><p align="justify">
 &nbsp;&nbsp; V pøípadì problémù s programem mì mùete kontaktovat na e-mailu 
 <a href="mailto:s.maslan@seznam.cz">s.maslan@seznam.cz</a>. Nìjaké ty informace k programu a pøípadné 
-další verze lze nalézt na mém webu: <a href="http://www.spellcross.kvalitne.cz/mod/spell_mod_builder.html">http://www.spellcross.kvalitne.cz/mod/spell_mod_builder.html</a>.
+další verze lze nalézt na GitHubu projektu: <a href="https://github.com/smaslan/Spellcross-Mod-Launcher">https://github.com/smaslan/Spellcross-Mod-Launcher</a>.
 </p>
 
+
 <br><br>
-<div class="rights">(c) 2011-2013, Stanislav Mašláò - Všechna práva vyhrazena.</div>
+<div class="rights">(c) 2026, Stanislav Mašláò - Všechna práva vyhrazena.</div>
 
 </table>
 </body>
