@@ -141,7 +141,6 @@
     <None Include="wx\msw\cross.cur">
       <Filter>Soubory zdrojů</Filter>
     </None>
-    <None Include="ico\save.svg" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="ico\icon.ico">

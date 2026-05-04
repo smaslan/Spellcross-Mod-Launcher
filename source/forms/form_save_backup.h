@@ -7,7 +7,7 @@
 
 #pragma once
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveBack' on 2026-05-02 21:33:41
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveBack' on 2026-05-03 19:15:48
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -35,7 +35,7 @@
 #include <wx/listbox.h>
 #include <wx/checklst.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveBack' on 2026-05-02 21:33:41
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveBack' on 2026-05-03 19:15:48
 #include <filesystem>
 
 ///////////////////////////////////////////////////////////////////////////
@@ -84,7 +84,7 @@ private:
 
 
 protected:
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveBack' on 2026-05-02 21:33:41
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveBack' on 2026-05-03 19:15:48
 	enum
 	{
 		wxID_FORM_SAVE_BACK = 6000,
@@ -145,7 +145,7 @@ protected:
 	wxButton* btnConfirm;
 	wxButton* btnExit;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveBack' on 2026-05-02 21:33:41
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveBack' on 2026-05-03 19:15:48
 
 public:
 

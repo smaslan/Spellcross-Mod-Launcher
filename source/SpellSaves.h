@@ -18,4 +18,5 @@ public:
 
     static int LoadSave(std::filesystem::path dir,Save &save,bool allow_empty=true);
     static int LoadSaves(std::filesystem::path dir, Saves &saves,bool skip_missing=true);
+    static bool CheckSaves(std::filesystem::path dir);
 };

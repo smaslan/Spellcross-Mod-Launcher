@@ -19,7 +19,7 @@
 
 FormSaveBack::FormSaveBack(wxWindow* parent,wxWindowID id,const wxString& title,const wxPoint& pos,const wxSize& size,long style) : wxFrame(parent,id,title,pos,size,style)
 {
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveBack' on 2026-05-02 21:33:41
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveBack' on 2026-05-03 19:15:48
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_MENU ) );
 	
@@ -245,7 +245,7 @@ FormSaveBack::FormSaveBack(wxWindow* parent,wxWindowID id,const wxString& title,
 	this->Centre( wxBOTH );
 	
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveBack' on 2026-05-02 21:33:41
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveBack' on 2026-05-03 19:15:48
 	// === AUTO GENERATED END ===
 	RescaleWindowDPI(this);
 		

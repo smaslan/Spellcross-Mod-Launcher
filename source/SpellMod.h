@@ -61,6 +61,7 @@ public:
     int Load(std::filesystem::path path,Type explicit_archive_type=Type::AUTO);
     ~SpellArchive();
     bool isFolder();
+    bool isEmpty();
     std::vector<std::string> GetItemNames();
     int GetFile(std::string &name, std::vector<uint8_t> &data);
     //std::vector<uint8_t>* GetFile(std::string& name);

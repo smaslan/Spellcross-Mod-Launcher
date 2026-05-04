@@ -7,7 +7,7 @@
 
 #pragma once
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormEdit' on 2026-05-02 21:33:41
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormEdit' on 2026-05-03 19:15:48
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -35,7 +35,7 @@
 #include <wx/listbox.h>
 #include <wx/checklst.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormEdit' on 2026-05-02 21:33:41
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormEdit' on 2026-05-03 19:15:48
 
 #include <filesystem>
 
@@ -57,7 +57,7 @@ private:
 	std::filesystem::path m_path;
 
 protected:
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormEdit' on 2026-05-02 21:33:41
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormEdit' on 2026-05-03 19:15:48
 	enum
 	{
 		wxID_FORM_EDIT = 6000,
@@ -77,7 +77,7 @@ protected:
 	wxButton* btnSave;
 	wxButton* btnExit;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormEdit' on 2026-05-02 21:33:41
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormEdit' on 2026-05-03 19:15:48
 
 public:
 

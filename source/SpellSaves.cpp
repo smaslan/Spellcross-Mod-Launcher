@@ -63,3 +63,20 @@ int SpellSave::LoadSaves(std::filesystem::path dir,Saves& saves, bool skip_missi
 
     return(0);
 }
+
+// check if saves dir contain at least one save slot (even empty one)
+bool SpellSave::CheckSaves(std::filesystem::path dir)
+{
+    std::vector<std::string> names;
+    for(int k = 0; k <= 8; k++)
+        names.push_back(string_format("SAVE%04d",k));
+    names.push_back("WORKDIR");
+
+    for(auto& name: names)
+    {
+        auto path = dir / name;
+        if(std::filesystem::exists(path))
+            return(true);
+    }
+    return(false);
+}

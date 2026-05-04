@@ -126,6 +126,7 @@ The "MAKE" variable is mandatory and defines where the tool generates modified a
 class COMMON.FS
 {
     replace=1;                      // by default overwrite previous data by each add() command
+    optional=0;                     // optional flag (default 0: generate error if source not found)
     add(%COMMON%);                  // add all data from original game archive COMMON.FS
     add(%MOD_COMMON%,M01_01A.DEF);  // add specific file from mod "data/COMMON" folder
     add(%MOD_COMMON%,*.CUR);        // add wildcard key matching files from mod "data/COMMON" folder
@@ -133,7 +134,7 @@ class COMMON.FS
 }
 </pre>
 <p align="justify">
-&nbsp;&nbsp; The switch "replace=1" means every following "add()" command will replace already added files. "replace=0" means it will only add new ones. This can be also specified individually in the "add()" command itself.
+&nbsp;&nbsp; The switch "replace=1" means every following "add()" command will replace already added files. "replace=0" means it will only add new ones. This can be also specified individually in the "add()" command itself:
 </p>
 <pre>
 add(source);                // add all files from "source"
@@ -142,6 +143,7 @@ add(source,wildcard);       // add files matching "wildcard" key (e.g. *.LZ or L
 add(mode,source,wildcard);  // same as above with "mode" switch
 </pre> 
 <p align="justify">
+Switch "optional=1" can mark archive as optional, so tool will not generate error if "source" data in "add()" command is not found. Default is "optional=0", which means the "source" must exist.<br>
 &nbsp;&nbsp; All other archives are the same with exception of "UNITS.FSU". This game archive contains unit sprite graphics and it is internally structured per-unit. Each unit has name up to 5 characters long and it contain sprites with names of exactly 3 characters with no extensions. These files are LZ compressed. When adding data to this archive from a folder (in the example above from a folder "data/units"), the folder must contain sub-folder with the name of the unit, in the example "MAMUT". Example is following:
 </p>
 <pre>

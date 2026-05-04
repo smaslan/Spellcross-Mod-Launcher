@@ -7,7 +7,7 @@
 
 #pragma once
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormAbout' on 2026-05-02 21:33:40
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormAbout' on 2026-05-03 19:15:47
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -35,7 +35,7 @@
 #include <wx/listbox.h>
 #include <wx/checklst.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormAbout' on 2026-05-02 21:33:40
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormAbout' on 2026-05-03 19:15:47
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +50,7 @@ class FormAbout : public wxDialog
 		void OnURL(wxTextUrlEvent& event);
 
 	protected:
-		// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormAbout' on 2026-05-02 21:33:40
+		// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormAbout' on 2026-05-03 19:15:47
 		enum
 		{
 			wxID_FORM_ABOUT = 6000,
@@ -82,7 +82,7 @@ class FormAbout : public wxDialog
 		wxStaticLine* m_staticline31;
 		wxButton* btnOK;
 
-		// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormAbout' on 2026-05-02 21:33:40
+		// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormAbout' on 2026-05-03 19:15:47
 
 	public:
 

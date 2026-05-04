@@ -18,7 +18,7 @@
 
 FormAbout::FormAbout( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
 {
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormAbout' on 2026-05-02 21:33:40
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormAbout' on 2026-05-03 19:15:47
 	this->SetSizeHints( wxSize( 600,350 ), wxDefaultSize );
 	
 	wxBoxSizer* bSizer73;
@@ -81,7 +81,7 @@ FormAbout::FormAbout( wxWindow* parent, wxWindowID id, const wxString& title, co
 	
 	bSizer76->Add( txtVersion, 0, wxBOTTOM|wxEXPAND|wxTOP, 5 );
 	
-	txtName = new wxTextCtrl( this, wxID_TXT_NAME, _("Stanislav Ma??l????"), wxDefaultPosition, wxDefaultSize, wxTE_RICH|wxBORDER_NONE );
+	txtName = new wxTextCtrl( this, wxID_TXT_NAME, _("Stanislav Mašláň"), wxDefaultPosition, wxDefaultSize, wxTE_RICH|wxBORDER_NONE );
 	txtName->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 	txtName->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_BTNFACE ) );
 	
@@ -99,7 +99,7 @@ FormAbout::FormAbout( wxWindow* parent, wxWindowID id, const wxString& title, co
 	
 	bSizer76->Add( txtURL, 0, wxBOTTOM|wxEXPAND|wxTOP, 5 );
 	
-	txtLicense = new wxTextCtrl( this, wxID_TXT_LICENSE, _("MIT License, (c) 2026, Stanislav Ma??l????"), wxDefaultPosition, wxDefaultSize, wxTE_RICH|wxBORDER_NONE );
+	txtLicense = new wxTextCtrl( this, wxID_TXT_LICENSE, _("MIT License, (c) 2026, Stanislav Mašláň"), wxDefaultPosition, wxDefaultSize, wxTE_RICH|wxBORDER_NONE );
 	txtLicense->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 	txtLicense->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_BTNFACE ) );
 	
@@ -135,7 +135,7 @@ FormAbout::FormAbout( wxWindow* parent, wxWindowID id, const wxString& title, co
 	this->Centre( wxBOTH );
 	
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormAbout' on 2026-05-02 21:33:40
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormAbout' on 2026-05-03 19:15:47
 	// === AUTO GENERATED END ===
 	RescaleWindowDPI(this);
 	

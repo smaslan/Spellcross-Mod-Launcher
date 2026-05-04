@@ -15,7 +15,7 @@
 #include "simpleini.h"
 #include "SpellMod.h"
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-05-02 21:33:39
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-05-03 19:15:47
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -43,7 +43,7 @@
 #include <wx/listbox.h>
 #include <wx/checklst.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-05-02 21:33:39
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-05-03 19:15:47
 
 
 // app entry point class
@@ -134,7 +134,7 @@ private:
 	void OnBackupSaveWD(wxCommandEvent& event);
 
 	
-	
+	bool CheckModSaves();
 	void EditFile(std::filesystem::path path);
 	void SetControlsState(bool busy);
 	void FillChoicePaths(wxChoice* choice,CSimpleIniA* ini,std::string section,std::string key);
@@ -164,7 +164,7 @@ protected:
 	int wxID_FORM_SAVE_BACK = 5998;
 	int wxID_FORM_EDIT = 5999;	
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-05-02 21:33:39
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-05-03 19:15:47
 	enum
 	{
 		wxID_FORM_MAIN = 6000,
@@ -267,7 +267,7 @@ protected:
 	wxButton* btnRestoreWDmod;
 	wxButton* btnRunMod;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-05-02 21:33:39
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-05-03 19:15:47
 
 
 public:

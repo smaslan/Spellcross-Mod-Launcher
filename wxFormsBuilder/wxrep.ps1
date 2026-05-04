@@ -53,18 +53,18 @@ $class_name = $args[2]
 
 $note = ("Section auto-inserted from '{0}' class '{1}' on {2:yyyy-MM-dd} {2:HH:mm:ss}" -f $wxforms_source_path,$class_name,(Get-Date))
 
-$file = Get-Content $target_source_file_path
+$file = Get-Content $target_source_file_path -Encoding UTF8
 
 if($wxforms_source_path -match '\.h$')
 {
     # header file mode:
 
-    $head = Get-Content $wxforms_source_path -Encoding ascii    
+    $head = Get-Content $wxforms_source_path -Encoding UTF8
     $head = [system.String]::Join("`r`n",($head | select-string -Pattern '#include'))
      
     $file = replace-tagged-section $file 'wxFormsBuilder-include' $head $note
     
-    $head = Get-Content $wxforms_source_path -Raw -Encoding ascii  
+    $head = Get-Content $wxforms_source_path -Raw -Encoding UTF8
     $found = $head -match '(?s).*class\s+%CLASS%.+?\n(\s*enum.*?)\s+public:'.replace('%CLASS%',$class_name)
     if(!$found) {
         Write-Error 'class not found in wxform_path!' 
@@ -80,7 +80,7 @@ else
 {
     # cpp file mode:
     
-    $data = Get-Content $wxforms_source_path -Raw -Encoding ascii
+    $data = Get-Content $wxforms_source_path -Raw -Encoding UTF8
     $found = $data -match '(?s).*%CLASS%::%CLASS%.*?\n.*?\{.*?\n(.*?)\}'.replace('%CLASS%',$class_name)
     if(!$found) {
         Write-Error 'class not found in wxform_path!' 

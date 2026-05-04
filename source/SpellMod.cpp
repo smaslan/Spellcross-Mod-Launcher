@@ -215,6 +215,18 @@ bool SpellArchive::isFolder()
     return(!m_path.has_extension());
 }
 
+// is archive empty?
+bool SpellArchive::isEmpty()
+{
+    if(!m_fs && !m_fsu)
+        return(true);
+    if(m_fs && !m_fs->Count())
+        return(true);
+    if(m_fsu && !m_fsu->GetCount())
+        return(true);
+    return(false);
+}
+
 // get list of items in archive
 std::vector<std::string> SpellArchive::GetItemNames()
 {
@@ -566,7 +578,13 @@ int SpellMod::LoadDEF(Config& config)
         {
             // likely path assign
             auto path = std::filesystem::path(var_value).lexically_normal();
-            if(path.is_relative())
+            auto p_path = ParsePath(path);
+            if(!p_path.isValid())
+            {
+                PrintConsole("failed! Line %d: adding path \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                return(1);
+            }            
+            if(std::filesystem::path(p_path.path).is_relative())
                 path = mod_dir / path;
             if(!AddPath(var_name,path,"",true))
             {
@@ -660,18 +678,30 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
     std::vector<std::string> archive_names = {"COMMON.FS", "T11.FS", "PUST.FS", "DEVAST.FS", "TEXTS.FS", "SAMPLES.FS", "MUSIC.FS", "RESEARCH.FS", "INFO.FS", "SPEAKER.FS", "MOVIE.FS", "UNITS.FSU"};
     for(auto &arch_name: archive_names)
     {
+        // target archive absolute path
         auto arch_path = make_dir / arch_name;
+
+        // try find original archive path
+        std::filesystem::path org_path = "";
+        auto org_p_path = ParsePath(std::filesystem::path("%SPELLANY%") / "data" /arch_name);
+        if(org_p_path.isValid())
+        {
+            if(std::filesystem::exists(org_p_path.path))
+                org_path = org_p_path.path;
+            else if(std::filesystem::exists(org_p_path.alt_path))
+                org_path = org_p_path.alt_path;
+        }
 
         // try load archive definition class        
         if(GetClass(m_def,arch_name,cmd_list))
             continue;
 
-        PrintConsole(" - Building %s archive ... ",arch_name.c_str());
+        PrintConsole(" - Building archive %s ... ",arch_name.c_str());
 
         // make blank archive
-        //FSarchive *fs = new FSarchive(arch_name);        
         SpellArchive arch;
         bool glob_replace = 0;
+        bool is_optional = false;
 
         // section exists
         for(auto& cmd: cmd_list)
@@ -684,6 +714,8 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 // var assign
                 if(var_name == "replace")
                     glob_replace = std::atoi(var_value.c_str());
+                else if(var_name == "optional")
+                    is_optional = std::atoi(var_value.c_str());
                 else
                 {
                     // unknown variable                    
@@ -754,13 +786,15 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     SpellArchive::Type arch_type = SpellArchive::Type::AUTO;
                     if(wildcmp("*.FSU",arch_name.c_str()))
                         arch_type = SpellArchive::Type::FSU;
+                    if(!std::filesystem::exists(parsed_path.path) && !std::filesystem::exists(parsed_path.alt_path) && is_optional)
+                        continue; // optional mode: skip
                     auto src = LoadArchive(parsed_path,arch_type);
                     if(!src)
                     {
                         // loading source data for add() command failed
                         PrintConsole("failed! Line %d: loading source data failed in command \"%s\".\n%s\n",cmd.m_line,cmd.m_raw.c_str(),m_last_error.c_str());
                         return(1);
-                    }
+                    }                    
 
                     // add stuff
                     int count = 0;
@@ -800,10 +834,9 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
         }
         // save archive
 
-        // check if target archive differs from new one
-        
-        bool can_write = true;
-        if(!config.force_write && std::filesystem::exists(arch_path))
+        // check if target archive differs from newly built one
+        bool must_write = config.force_write && !arch.isEmpty();
+        if(!must_write && !arch.isEmpty() && std::filesystem::exists(arch_path))
         {            
             // try load archive from target path            
             SpellArchive ref_arch;
@@ -814,12 +847,30 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 return(1);
             }
             // compare by content
-            can_write = !arch.Compare(ref_arch);
+            must_write |= !arch.Compare(ref_arch);            
         }
-        if(!can_write)
+        if(!must_write && !arch.isEmpty() && std::filesystem::exists(org_path))
+        {
+            // try load archive from spellcross target path
+            SpellArchive ref_arch;
+            if(ref_arch.Load(org_path))
+            {
+                // archive loading failed
+                PrintConsole("failed! Loading target archive \"%ls\".\n%s\n",org_path.wstring().c_str(),ref_arch.GetLastError().c_str());
+                return(1);
+            }
+            // compare by content
+            must_write |= !arch.Compare(ref_arch);
+        }
+        if(!must_write)
         {
             //PrintConsole("done at \"%ls\" (no change).\n",arch_path.wstring().c_str());
-            PrintConsole("done (not saving, no change detected).\n");
+            PrintConsole("done (not saving: no change detected).\n");
+            continue;
+        }
+        if(arch.isEmpty())
+        {
+            PrintConsole("done (not saving: empty archive).\n");
             continue;
         }
 

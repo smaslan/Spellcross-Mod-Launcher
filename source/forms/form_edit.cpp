@@ -17,7 +17,7 @@
 
 FormEdit::FormEdit(wxWindow* parent,wxWindowID id,const wxString& title,const wxPoint& pos,const wxSize& size,long style) : wxFrame(parent,id,title,pos,size,style)
 {
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormEdit' on 2026-05-02 21:33:40
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormEdit' on 2026-05-03 19:15:47
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_MENU ) );
 	
@@ -75,7 +75,7 @@ FormEdit::FormEdit(wxWindow* parent,wxWindowID id,const wxString& title,const wx
 	this->Centre( wxBOTH );
 	
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormEdit' on 2026-05-02 21:33:40
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormEdit' on 2026-05-03 19:15:47
 	// === AUTO GENERATED END ===
 	RescaleWindowDPI(this);
 

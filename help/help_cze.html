@@ -126,6 +126,7 @@ Promìnná "MAKE" je povinná a urèuje cílovou složku, kam nástroj generuje modifik
 class COMMON.FS
 {
     replace=1;                      // by default overwrite previous data by each add() command
+    optional=0;                     // optional flag (default 0: generate error if source not found)
     add(%COMMON%);                  // add all data from original game archive COMMON.FS
     add(%MOD_COMMON%,M01_01A.DEF);  // add specific file from mod "data/COMMON" folder
     add(%MOD_COMMON%,*.CUR);        // add wildcard key matching files from mod "data/COMMON" folder
@@ -133,14 +134,16 @@ class COMMON.FS
 }
 </pre>
 <p align="justify">
-&nbsp;&nbsp; Pøepínaè "replace=1" znamená, že každý další pøíkaz "add()" pøepíše soubory pøidané pøedchozími pøíkazy. "replace=0" znamená, že jsou pøidány pouze nové soubory a již existující jsou pøeskoèeny. Tato volba mùže být provedena i jednotlivì pro každý pøíkaz "add()". Varianty parametrù pøíkazu "add()":
+&nbsp;&nbsp; Pøepínaè "replace=1" znamená, že každý další pøíkaz "add()" pøepíše soubory pøidané pøedchozími pøíkazy. "replace=0" znamená, že jsou pøidány pouze nové soubory a již existující jsou pøeskoèeny. Tato volba mùže být provedena i jednotlivì pro každý pøíkaz "add()". Varianty parametrù pøíkazu "add()":</p>
 <pre>
 add(zdroj);               // pøidá všechny soubory ze "zdroj"
 add(mód,zdroj);           // viz výše, "mód" mùže být NEW (pøidá pouze nové soubory) nebo ALL (pøepisuje existující)
 add(zdroj,wildcard);      // pøidá soubory odpovídající klíèi ve formátu "wildcard" (napø *.LZ nebo LEVEL_??.DEF)
 add(mód,zdroj,wildcard);  // viz výše s definicí režimu "mód"
 </pre>
-Všechny datové archivy hry "*.FS" jsou identické. Výjimkou je pouze "UNITS.FSU". Ten obsahuje sprity jednotek a jako jediný je èlenìn do podsložek. Každá podsložka reprezentuje jednu jednotku a musí mít název do délky 5 znakù. Jednotlivé podsložky pak obsahuji LZ komprimované sprity s názvy délky 3 znaky. Ve zdrojových složkách modu tedy musí být odkazované data organizovány v podložkách, viz pøíklad "data/units/MAMUT". Pøíklad sekce pro "UNITS.FSU":
+<p align="justify">
+Pøepínaè "optional=1" oznaèí archiv jako volitený, takže nástroj negeneruje chybu pokud "zdroj" nebude nalezen. Defaultní hodnota je "optional=0", tj. "zdroj" mustí existovat.<br>
+&nbsp;&nbsp; Všechny datové archivy hry "*.FS" jsou identické. Výjimkou je pouze "UNITS.FSU". Ten obsahuje sprity jednotek a jako jediný je èlenìn do podsložek. Každá podsložka reprezentuje jednu jednotku a musí mít název do délky 5 znakù. Jednotlivé podsložky pak obsahuji LZ komprimované sprity s názvy délky 3 znaky. Ve zdrojových složkách modu tedy musí být odkazované data organizovány v podložkách, viz pøíklad "data/units/MAMUT". Pøíklad sekce pro "UNITS.FSU":
 </p>
 <pre>
 class UNITS.FSU
