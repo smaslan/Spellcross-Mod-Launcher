@@ -30,7 +30,7 @@ Original tool was very messy and made in Borland VCL C++ which is obsolete. So I
 
 Here are available release builds for Windows. It was tested in Windows 10, but should work in Win11 as well. There is not installation, just download ZIP file, unpack it where you like it and run. 
 
-- [V1.0, 5th May 2026 ZIP](./builds/Spellcross Mod Launcher V1.0.zip):
+- [V1.0, 5th May 2026 (zip file)](./builds/Spellcross-Mod-Launcher-V1.0.zip)
   - First release (careful, not fully tested, make backups!).  
 
                                  
