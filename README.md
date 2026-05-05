@@ -35,6 +35,6 @@ Here are available release builds for Windows. It was tested in Windows 10, but 
 
                                  
 ## License
-The tool is distributed under [MIT license](./LICENSE.txt). 
+The tool is distributed under [MIT license](./LICENSE). 
   
   
