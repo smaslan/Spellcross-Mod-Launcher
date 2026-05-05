@@ -50,7 +50,8 @@ Další nastavení je cesta k modu <b>Mod path</b>. Pro spouštìní modu lze eventuál
 
 <br>
 <div class="n2">2 - Instalace modu</div><p align="justify">
-&nbsp;&nbsp; Mody netøeba nijak složitì instalovat nebo nastavovat. Staèí stáhnout a nìkam rozbalit. Zde ovšem upozoròuji, že je vhodné umístit mod na stejnou jednotku, jako je instalace hry, tedy napø. pokud je hra na "C:/HRY/SPELCROS", tak nìkam na jednotku "C:/". Takto je operace prohození originálních datových souborù hry za modifikované pouze otázka pøepisu alokaèních tabulce souborového systému, ale nedochází k fyzické kopii dat. V opaèném pøípadì by pro každé spuštìné došlo k zápisu až 500&nbsp;MB za což vám váš SSD disk nepodìkuje. Spellcross Mod Launcher je navíc dále optimalizován pro šetøení SSD tak, aby negeneroval modifikované soubory, pokud je jejich obsah shodný s originálním mi a také nepøepisuje žádné soubory, pokud se nezmìní.
+&nbsp;&nbsp; Mody netøeba nijak složitì instalovat nebo nastavovat. Staèí stáhnout a nìkam rozbalit. Zde ovšem upozoròuji, že je vhodné umístit mod na stejnou jednotku, jako je instalace hry, tedy napø. pokud je hra na "C:/HRY/SPELCROS", tak nìkam na jednotku "C:/". Takto je operace prohození originálních datových souborù hry za modifikované pouze otázka pøepisu alokaèních tabulce souborového systému, ale nedochází k fyzické kopii dat. V opaèném pøípadì by pro každé spuštìné došlo k zápisu až 500&nbsp;MB za což vám váš SSD disk nepodìkuje. Spellcross Mod Launcher je navíc dále optimalizován pro šetøení SSD tak, aby negeneroval modifikované soubory, pokud je jejich obsah shodný s originálním mi a také nepøepisuje žádné soubory, pokud se nezmìní. Pár modù lze sáhnout zde:
+<a href="https://spellcross.kvalitne.cz/mod/spell_mod_builder.html">https://spellcross.kvalitne.cz/mod/spell_mod_builder.html</a>.
 </p>
 
 <div class="n2">3 - Spouštìní hry a modù</div><p align="justify">
@@ -153,7 +154,8 @@ class UNITS.FSU
 }
 </pre>
 <p align="justify">
-&nbsp;&nbsp; Každý mod mùže mít jednoduchou dokumentaci v HTML formátu v podsložce "info" v souboru "info.html". Tu lze z nástroje zobrazit pomocí <b>Show mod info</b>.
+&nbsp;&nbsp; Každý mod mùže mít jednoduchou dokumentaci v HTML formátu v podsložce "info" v souboru "info.html". Tu lze z nástroje zobrazit pomocí <b>Show mod info</b><br>.
+&nbsp;&nbsp; Pro zjednodušení vytváøení nového modu lze využít template distribuovaný s tímto nástrojem, který je umístìn ve pod-složce nástroje "mod_template". Je to jednoduchá kostra modu, která naète všechna data originální hry a následnì doplní nebo pøepíše originální soubory daty ze složek modu, takže staèí do nich nahrát cokoliv má být pøidáno/modifikováno.
 </p>
 
 
@@ -162,7 +164,7 @@ class UNITS.FSU
 <table  align="justify">
  <tr valign="top">
   <td width="130">
-   <span class="d1">V1.00 - 1.5.2026</span>:
+   <span class="d1">V1.00 - 5.5.2026</span>:
   </td>
   <td>
    První verze.

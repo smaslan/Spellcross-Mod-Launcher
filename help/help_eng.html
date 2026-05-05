@@ -52,7 +52,9 @@ And that is it for basic setup.
 </td></tr></table><br>
 
 <div class="n2">2 - Installing mods</div><p align="justify">
-&nbsp;&nbsp; Mod installation is trivial. Just download mod and unpack it to some folder and set the <b>Mod path</b>. Here it is important to note the mod should be placed to the same drive letter as the game, so if you have game e.g. in "C:/games/SPELCROS", place it anywhere to "C:/". This will ensure the replacement of game data files is fast and no data are copied (system will only change file locations in file system allocation tables). Whereas when you have mod at different drive, it will have to copy all its data there and back again which might be up to some 500&nbsp;MB of unnecessary SSD drive writes per run. Note the tool is also optimized, so it will not generate modded archive if it detects its content is same as the original. It will also not rewrite any files if they do not change. 
+&nbsp;&nbsp; Mod installation is trivial. Just download mod and unpack it to some folder and set the <b>Mod path</b>. Here it is important to note the mod should be placed to the same drive letter as the game, so if you have game e.g. in "C:/games/SPELCROS", place it anywhere to "C:/". This will ensure the replacement of game data files is fast and no data are copied (system will only change file locations in file system allocation tables). Whereas when you have mod at different drive, it will have to copy all its data there and back again which might be up to some 500&nbsp;MB of unnecessary SSD drive writes per run. Note the tool is also optimized, so it will not generate modded archive if it detects its content is identical to the original. It will also not rewrite any files if they do not change. Some mods can be found here:
+<a href="https://spellcross.kvalitne.cz/mod/spell_mod_builder.html">https://spellcross.kvalitne.cz/mod/spell_mod_builder.html</a>.
+ 
 </p>
 
 <div class="n2">3 - Running game and mods</div><p align="justify">
@@ -154,7 +156,8 @@ class UNITS.FSU
 }
 </pre>
 <p align="justify">
-&nbsp;&nbsp; Each mod can have its description in HTML format. The description is placed in sub-folder "info" of the mod and is named "info.html". This file can be displayed by the tool.
+&nbsp;&nbsp; Each mod can have its description in HTML format. The description is placed in sub-folder "info" of the mod and is named "info.html". This file can be displayed by the tool.<br>
+&nbsp;&nbsp; For maximum simplicity I provide template of mod in folder of this tool (sub-folder "mod_template"). It is a skeleton with *.def file prepared so it will load all original game data and then adds and eventually overwrites it with mod content from the mod data folders. So all that needs to be done is to place new or modded files to the mod data folders.
 </p>
 
 
