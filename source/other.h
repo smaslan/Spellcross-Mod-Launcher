@@ -23,6 +23,7 @@ bool iequals(const std::string& a,const std::string& b);
 std::string& strrep(std::string& str,std::string key,std::string rep);
 int savestr(std::wstring path,std::string& str);
 int loadstr(std::filesystem::path path,std::string& strbuf);
+int savedata(std::wstring path,std::vector<uint8_t>& data);
 int loaddata(std::filesystem::path path,std::vector<uint8_t>& data);
 std::string trim_whites(std::string str);
 std::string get_timestr_iso();
@@ -61,14 +62,18 @@ int hex2num(char hex);
 char num2hex(int num);
 std::string fix_no_duplicate_string(std::string str,std::vector<std::string>& list);
 
-std::string info_get_string(std::string info,std::string key,std::string default_value="");
-int info_get_int(std::string info,std::string key,int default_value=0);
+std::string info_get_string(std::string &info,std::string key,std::string default_value="");
+std::string info_get_string(std::vector<std::string>& lines,std::string key,std::string default_value="");
+int info_get_int(std::string& info,std::string key,int default_value=0);
+int info_get_int(std::vector<std::string>& lines,std::string key,int default_value=0);
 std::string info_make_text_vector(std::string key,std::vector<std::string> list,std::string comment="");
 std::string info_make_section(std::string section_name,std::string data,std::string comment="");
-std::vector<std::string> info_get_text_vector(std::string info,std::string key);
-std::string info_get_section(std::string info,std::string section);
+std::vector<std::string> info_get_text_vector(std::string& info,std::string key);
+std::vector<std::string> info_get_text_vector(std::vector<std::string>& lines,std::string key);
+std::vector<std::string> info_get_section(std::string &info,std::string section);
+std::vector<std::string> info_get_section(std::vector<std::string>& lines,std::string section);
 
-std::vector<std::string> get_text_lines(std::string string,bool trim_whites=true,char separator='\n');
+std::vector<std::string> get_text_lines(std::string string,bool trim_white=true,char separator='\n');
 std::vector<std::string> regexp_get(std::string str,std::string regkey);
 
 uint32_t popcount(uint32_t v);

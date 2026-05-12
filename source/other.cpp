@@ -271,23 +271,80 @@ std::string fix_no_duplicate_string(std::string str, std::vector<std::string> &l
     return(str);
 }
 
-// fetch info file key value
-std::string info_get_string(std::string info, std::string key, std::string default_value)
+// check for presence if "::" separator and return parts <left>::<right> with white space trim
+bool info_get_special(std::string &line, std::string &left, std::string &right)
 {
-    // look for entire section
-    std::regex secexp("^\\s*" + key + ":: ([^\\n]+)");
-    std::smatch match;
-    std::regex_search(info,match,secexp);
-    if(match.size() < 2)
-        return(default_value);
-    return(match[1]);
+    left.clear();
+    right.clear();
+    auto pos = line.find("::");
+    if(pos == std::string::npos)
+        return(false);
+    left = trim_whites(line.substr(0,pos));
+    right = trim_whites(line.substr(pos + 2));
+    return(true);
+}
+
+// fetch info file key value
+std::string info_get_string(std::string &info, std::string key, std::string default_value)
+{
+    auto lines = get_text_lines(info,true);
+    return(info_get_string(lines, key, default_value));
+}
+std::string info_get_string(std::vector<std::string>& lines,std::string key,std::string default_value)
+{
+    int section = 0;
+    int matrix = 0;
+    std::string matrix_name = "";
+    std::vector<std::string> section_names;
+    for(auto &line: lines)
+    {
+        std::string left,right;
+        if(!info_get_special(line, left, right))
+            continue;        
+        if(left == "#startmatrix")
+        {
+            if(matrix)
+                return("");
+            matrix++;
+            matrix_name = right;
+        }
+        else if(left == "#endmatrix")
+        {
+            if(!matrix || right != matrix_name)
+                return("");
+            matrix--;
+        }
+        else if(left == "#startsection")
+        {
+            if(section)
+                return("");
+            section++;
+            section_names.push_back(right);
+        }
+        else if(left == "#endsection")
+        {
+            if(!section || right != section_names.back())
+                return("");
+            section--;
+            section_names.pop_back();
+        }
+        else if(left == key && !matrix && !section)
+            return(right);
+    }
+    return(default_value);
 }
 
 // fetch info file key integer value
-int info_get_int(std::string info,std::string key,int default_value)
+int info_get_int(std::string &info,std::string key,int default_value)
 {
-    // look for entire section
     auto str = info_get_string(info,key,"");
+    if(str.empty())
+        return(default_value);
+    return(std::atoi(str.c_str()));
+}
+int info_get_int(std::vector<std::string>& lines,std::string key,int default_value)
+{        
+    auto str = info_get_string(lines,key,"");
     if(str.empty())
         return(default_value);
     return(std::atoi(str.c_str()));
@@ -323,51 +380,130 @@ std::string info_make_section(std::string section_name,std::string data,std::str
 }
 
 // get strings vector from info file
-std::vector<std::string> info_get_text_vector(std::string info,std::string key)
+std::vector<std::string> info_get_text_vector(std::string& info,std::string key)
+{
+    auto lines = get_text_lines(info,true);
+    return(info_get_text_vector(lines,key));
+}
+std::vector<std::string> info_get_text_vector(std::vector<std::string> &lines,std::string key)
 {
     std::vector<std::string> rows;
+    int section = 0;
+    int matrix = 0;
+    std::string matrix_name = "";
+    std::vector<std::string> section_names;
+    for(auto& line: lines)
+    {
+        std::string left,right;
+        bool is_key = info_get_special(line,left,right);
+        if(is_key && left == "#startmatrix")
+        {
+            if(matrix)
+                return(rows);
+            matrix++;
+            matrix_name = right;
+        }
+        else if(is_key && left == "#endmatrix")
+        {
+            if(!matrix || right != matrix_name)
+                return(rows);
+            matrix--;
+        }
+        else if(is_key && left == "#startsection")
+        {
+            if(section)
+                return(rows);
+            section++;
+            section_names.push_back(right);
+        }
+        else if(is_key && left == "#endsection")
+        {
+            if(!section || right != section_names.back())
+                return(rows);
+            section--;
+            section_names.pop_back();
+        }
+        else if(matrix == 1 && matrix_name == key && !section)
+        {
+            rows.push_back(line);
+        }
+    }   
 
-    // look for entire matrix section
-    auto regstr = string_format(".*?#startmatrix::\\s*%s\\n([\\s\\S]*?)#endmatrix::\\s*%s\\n*",key.c_str(),key.c_str());
-    std::regex secexp(regstr);
-    std::smatch match;
-    std::regex_search(info,match,secexp);
-    if(match.size() < 2)
-        return(rows);
-
-    // split rows
-    std::istringstream iss(match[1]);
-    std::string line;
-    while(std::getline(iss,line,'\n')) {
-        rows.push_back(std::regex_replace(line,std::regex("^\\s+|\\s+$|(\\s)\\s+"),"$1"));
-    };
     return(rows);
 }
 
 // get section content
-std::string info_get_section(std::string info,std::string section)
+std::vector<std::string> info_get_section(std::string &info,std::string section)
 {
-    auto regstr = string_format(".*?#startsection::\\s*%s\\n([\\s\\S]*?)#endsection::\\s*%s\\n*",section.c_str(),section.c_str());
+    auto lines = get_text_lines(info,true);
+    return(info_get_section(lines,section));
+}
+std::vector<std::string> info_get_section(std::vector<std::string> &lines,std::string section)
+{
+    std::vector<std::string> rows;
+
+    int section_level = 0;
+    int matrix = 0;
+    std::string matrix_name = "";
+    std::vector<std::string> section_names;
+    for(auto& line: lines)
+    {
+        bool section_level_prev = section_level;
+        std::string left,right;
+        bool is_key = info_get_special(line,left,right);
+        if(is_key && left == "#startmatrix")
+        {
+            if(matrix)
+                return(rows);
+            matrix++;
+            matrix_name = right;
+        }
+        else if(is_key && left == "#endmatrix")
+        {
+            if(!matrix || right != matrix_name)
+                return(rows);
+            matrix--;
+        }
+        else if(is_key && left == "#startsection")
+        {
+            if(section_level)
+                return(rows);
+            section_level++;
+            section_names.push_back(right);
+        }
+        else if(is_key && left == "#endsection")
+        {
+            if(!section_level || right != section_names.back())
+                return(rows);
+            section_level--;
+            section_names.pop_back();
+        }
+        
+        if(section_level > 0 && section_level_prev > 0 && section_names[0] == section)
+            rows.push_back(line);        
+    }
+    return(rows);
+    
+    /*auto regstr = string_format(".*?#startsection::\\s*%s\\n([\\s\\S]*?)#endsection::\\s*%s\\n*",section.c_str(),section.c_str());
     std::regex secexp(regstr);
     std::smatch match;
     std::regex_search(info,match,secexp);
     if(match.size() < 2)
         return("");
-    return(match[1]);
+    return(match[1]);*/
 }
 
 // split string by lines (or other separators), by default also trims white chars both ends
-std::vector<std::string> get_text_lines(std::string string, bool trim_whites, char separator)
+std::vector<std::string> get_text_lines(std::string string, bool trim_white, char separator)
 {
     // split rows
     std::vector<std::string> rows;
     std::istringstream iss(string);
     std::string line;
     while(std::getline(iss,line,separator)) {
-        if(trim_whites)
-            rows.push_back(std::regex_replace(line,std::regex("^\\s+|\\s+$|(\\s)\\s+"),"$1"));
-        else
-            rows.push_back(line);
+        if(trim_white)
+            line = trim_whites(line);
+        rows.push_back(line);
     };
     return(rows);
 }
@@ -388,7 +524,20 @@ std::vector<std::string> regexp_get(std::string str,std::string regkey)
 // trim white spaces from string (both ends)
 std::string trim_whites(std::string str)
 {
-    return(std::regex_replace(str,std::regex("^\\s+|\\s+$|(\\s)\\s+"),"$1"));
+    for(auto it = str.rbegin(); it < str.rend(); it++)
+        if(*it != ' ' && *it != '\t' && *it != '\r' && *it != '\n')
+        {
+            str.resize(str.rend() - it);
+            break;
+        }
+    for(auto it = str.begin(); it < str.end(); it++)
+        if(*it != ' ' && *it != '\t' && *it != '\r' && *it != '\n')
+        {
+            str = str.substr(it - str.begin());
+            return(str);
+        }
+    return(str);
+    //return(std::regex_replace(str,std::regex("^\\s+|\\s+$|(\\s)\\s+"),"$1"));
 }
 
 // get ISO8601 time/date string
@@ -427,6 +576,17 @@ int savestr(std::wstring path, std::string &str)
     if(!fw.is_open())
         return(1);
     fw.write(str.c_str(),str.size());
+    fw.close();
+    return(0);
+}
+
+// save string to a file (save as binary - no alteration of line breaks)
+int savedata(std::wstring path,std::vector<uint8_t>& data)
+{
+    std::ofstream fw(path,std::ios::out | std::ios::binary | std::ios::trunc);
+    if(!fw.is_open())
+        return(1);
+    fw.write((const char*)data.data(),data.size());
     fw.close();
     return(0);
 }

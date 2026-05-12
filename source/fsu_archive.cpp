@@ -405,7 +405,7 @@ int FSUarchive::LoadResource(uint8_t *data, int rid, FSU_resource *res, LZWexpan
 
 		if(!delz)
 		{
-			// no decding mode: just store raw data
+			// no decoding mode: just store raw data
 			sprite->data.resize(sprite->len);			
 			memcpy(sprite->data.data(), src,sprite->len);			
 			sprite->not_decoded = true;
@@ -473,6 +473,8 @@ int FSUarchive::LoadResource(uint8_t *data, int rid, FSU_resource *res, LZWexpan
 			// read full parts
 			for(int k = 0; k < ful*4; k++)
 			{
+				/*if(sd[k] > 223)
+					sd[k] = 254;*/
 				if(sd[k])
 					img[k] = sd[k];
 				else
@@ -685,6 +687,136 @@ int FSUarchive::LoadResource(uint8_t *data, int rid, FSU_resource *res, LZWexpan
 	
 	return(0);
 }
+
+// save sprite raster data to file in proper sprite format
+int FSU_sprite::SaveSprite(std::filesystem::path path, std::vector<uint8_t> &buffer, int x_buf_size, int x_offset, int y_offset, uint8_t shadow_index)
+{
+	int y_buf_size = buffer.size() / x_buf_size;
+	if(y_buf_size*x_buf_size != buffer.size())
+		return(1);
+
+	std::vector<uint8_t> sprite;
+	sprite.resize(buffer.size()*4);
+	auto data = sprite.data();
+
+	uint16_t *p_y_size = (uint16_t*)data; data += sizeof(uint16_t);
+	int16_t *p_y_offset = (int16_t*)data; data += sizeof(int16_t);
+
+	uint8_t* p_last_line = data;
+	int y_min = -1;
+	int y_max = -1;
+	auto buf = buffer.data();
+	for(int y = 0; y < y_buf_size; y++)
+	{		
+		uint8_t* p_last = data;
+		uint16_t *p_x_offset = (uint16_t*)data; data += sizeof(uint16_t);
+		uint8_t* p_full_count = (uint8_t*)data; data += sizeof(uint8_t);
+		uint8_t* p_part_count = (uint8_t*)data; data += sizeof(uint8_t);		
+		
+		uint8_t quad[4] = {0,0,0,0};
+		uint8_t mask[4] = {0x00,0x00,0x00,0x00};
+		int pid = 0;
+		bool is_partial = false;
+		int full_count = 0;
+		int part_count = 0;
+		int last_part_count = part_count;
+		int last_full_count = full_count;
+		int x_min = -1;
+		for(int x = 0; x < x_buf_size; x++)
+		{
+			auto pix = buf[x + y*x_buf_size];
+			if(pix)
+			{
+				// first non-empty row
+				if(y_min < 0)
+					y_min = y;
+				// first non-empty pixel
+				if(x_min < 0)
+					x_min = x;								
+			}
+			if(x_min >= 0)
+			{
+				is_partial |= !pix;
+				quad[pid] = (pix == shadow_index)?0xFD:pix;
+				mask[pid] = (pix)?0x00:0xFF;
+				pid++;
+			}
+			if(y_min < 0)
+				continue;
+			if(pid >= 4 || x == x_buf_size - 1)
+			{
+				is_partial |= (pid < 4);
+				bool is_valid = part_count == 0 && full_count == 0;
+				for(int k = 0; k < pid; k++)
+					is_valid |= (mask[k] == 0);
+				// put pixel data chunk
+				for(int k = 0; k < 4; k++)
+					*data++ = quad[k];
+				// put mask chunk
+				if(is_partial)
+					for(int k = 0; k < 4; k++)
+						*data++ = mask[k];
+				if(pid > 0 && is_partial)
+					part_count++;
+				else if(pid > 0)
+					full_count++;				
+				memset(quad,0x00,4);
+				memset(mask,0x00,4);
+				pid = 0;
+				if(is_valid)
+				{
+					p_last = data;
+					last_part_count = part_count;
+					last_full_count = full_count;
+				}
+			}
+		}
+		// move back to last valid line data
+		part_count = last_part_count;
+		full_count = last_full_count;
+		data = p_last;
+		if(y_min < 0)
+			continue;
+		// put line header
+		*p_x_offset = max(x_min,0) + x_offset;
+		*p_full_count = full_count;
+		*p_part_count = part_count;		
+		if(x_min >= 0)
+		{
+			p_last_line = data;
+			y_max = y;
+		}
+	}	
+	// put data y size
+	*p_y_size = y_max - y_min + 1;
+	// put first line y offset
+	*p_y_offset = y_min + y_offset;
+	
+	// trim to last non-empty line
+	data = p_last_line;
+	sprite.resize(data - sprite.data());
+
+	// empty sprite?
+	if(y_min < 0)
+		return(1);
+
+	// try compress
+	std::vector<uint8_t> lz_data;
+	LZspell* lz = new LZspell(sprite.data(),sprite.size(),lz_data);
+	delete lz;
+	if(lz_data.empty())
+		return(1);
+
+	// rather check if it compressed ok...
+	LZWexpand lze(100000);
+	auto lz_dec = lze.Decode(lz_data.data(),lz_data.data() + lz_data.size());
+	if(sprite != lz_dec)
+		return(1);
+
+	// try save result
+	return(savedata(path, lz_data));
+}
+
 
 // get graphic resource by name
 FSU_resource *FSUarchive::GetResource(const char* name)

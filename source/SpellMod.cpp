@@ -849,7 +849,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             // compare by content
             must_write |= !arch.Compare(ref_arch);            
         }
-        if(!must_write && !arch.isEmpty() && std::filesystem::exists(org_path))
+        if(!must_write && !arch.isEmpty() && std::filesystem::exists(org_path) && !std::filesystem::exists(arch_path))
         {
             // try load archive from spellcross target path
             SpellArchive ref_arch;

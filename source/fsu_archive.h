@@ -35,6 +35,7 @@ public:
 	FSU_sprite();
 	~FSU_sprite();
 	void Render(uint8_t* buffer, uint8_t* buf_end, int buf_x_pos, int buf_y_pos, int buf_x_size, uint8_t* shadow_filter,uint8_t* filter=NULL,int zoom=1);
+	static int SaveSprite(std::filesystem::path path,std::vector<uint8_t>& buffer,int x_buf_size,int x_offset=0,int y_offset=0,uint8_t shadow_index=0xFD);
 };
 
 class FSU_resource
