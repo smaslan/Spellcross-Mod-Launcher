@@ -15,7 +15,7 @@
 #include "simpleini.h"
 #include "SpellMod.h"
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-05-03 19:15:47
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-06-01 18:29:43
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -42,8 +42,13 @@
 #include <wx/dialog.h>
 #include <wx/listbox.h>
 #include <wx/checklst.h>
+#include <wx/propgrid/propgrid.h>
+#include <wx/propgrid/advprops.h>
+#include <wx/panel.h>
+#include <wx/grid.h>
+#include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-05-03 19:15:47
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-06-01 18:29:43
 
 
 // app entry point class
@@ -100,15 +105,17 @@ public:
 	ProcTh(wxFrame* parent,Params &config,ActionsList &actions);
 	virtual ExitCode Entry();	
 
+	
+
 private:
 	wxFrame* m_parent;
 	Params m_config;
 	ActionsList m_actions;
 
-	void ConsoleStringCallback(std::string info);
+	
 	void ConsoleClearCallback();
+	void ConsoleStringCallback(std::string info);
 	void SetStatusCallback(std::string info);
-
 };
 
 class FormMain : public wxFrame
@@ -132,6 +139,7 @@ private:
 	void OnModInfo(wxCommandEvent& event);
 	void OnBackupSave(wxCommandEvent& event);
 	void OnBackupSaveWD(wxCommandEvent& event);
+	void OnSaveEdit(wxCommandEvent& event);
 
 	
 	bool CheckModSaves();
@@ -158,13 +166,15 @@ private:
 
 	FormEdit *form_edit;
 	FormSaveBack *form_save_back;
+	FormSaveEdit* form_save_edit;
 
 protected:
 	
+	int wxID_FORM_SAVE_EDIT = 5997;
 	int wxID_FORM_SAVE_BACK = 5998;
 	int wxID_FORM_EDIT = 5999;	
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-05-03 19:15:47
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-06-01 18:29:43
 	enum
 	{
 		wxID_FORM_MAIN = 6000,
@@ -187,9 +197,11 @@ protected:
 		wxID_MM_SAVE_WD_ORG,
 		wxID_MM_RESTORE_WD_ORG,
 		wxID_MM_SAVE_ORIG,
+		wxID_MM_SAVE_EDIT_ORIG,
 		wxID_MM_SAVE_WD_MOD,
 		wxID_MM_RESTORE_WD_MOD,
 		wxID_MM_SAVE_MOD,
+		wxID_MM_SAVE_EDIT_MOD,
 		wxID_MM_BUILD_LAUNCH,
 		wxID_MM_RUN_ORIG,
 		wxID_MM_RUN_MOD,
@@ -267,7 +279,7 @@ protected:
 	wxButton* btnRestoreWDmod;
 	wxButton* btnRunMod;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-05-03 19:15:47
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-06-01 18:29:43
 
 
 public:

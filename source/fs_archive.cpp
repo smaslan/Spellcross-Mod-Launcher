@@ -442,7 +442,7 @@ FSarchive::FSfile* FSarchive::GetFileRec(const char* name)
 	return(NULL);
 }
 
-// get pointer to file data
+// get file data as bytes vector
 std::vector<uint8_t> *FSarchive::GetFileData(const char* name)
 {
 	auto file = GetFileRec(name);
@@ -451,6 +451,20 @@ std::vector<uint8_t> *FSarchive::GetFileData(const char* name)
 	if(!file->is_loaded && LoadFile(file))
 		return(NULL);		
 	return(&file->data);
+}
+
+// get file data as string
+std::string FSarchive::GetFileStr(const char* name)
+{
+	auto file = GetFileRec(name);
+	if(!file)
+		return("");
+	if(!file->is_loaded && LoadFile(file))
+		return("");
+	std::string str;
+	str.resize(file->file_size);
+	memcpy(str.data(),file->data.data(),file->file_size);
+	return(str);
 }
 
 // get file by name

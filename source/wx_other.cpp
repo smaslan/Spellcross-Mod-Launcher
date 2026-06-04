@@ -1,10 +1,12 @@
 #include "wx_other.h"
 
 #include <wx/stdpaths.h>
-#include <filesystem>
+#include <wx/menu.h>
+#include <wx/menuitem.h>
+
 
 // get executable directory via wxWidgets (should be multiplatform)
-std::wstring GetExecutableDir()
+std::filesystem::path GetExecutableDir()
 {
 	// get exec path
 	std::wstring exe_path = ::wxStandardPaths::Get().GetExecutablePath().ToStdWstring();
@@ -15,15 +17,40 @@ std::wstring GetExecutableDir()
 }
 
 // load SVG resource and make icon variants in all common sizes
-wxBitmapBundle LoadSVGiconsBundle(const char *resrouce_name)
+wxBitmapBundle LoadSVGiconsBundle(const char *resource_name)
 {
 	// ###note: I have dound no other ways then render SVG to all common sizes...
 	wxVector<wxBitmap> bmp_list;
 	int sizes[] = {16,20,24,28,32,48,64};
 	for(auto dim: sizes)
-		bmp_list.push_back(wxBitmapBundle::FromSVGResource(resrouce_name,wxSize(dim,dim)).GetBitmap(wxSize(dim,dim)));
+		bmp_list.push_back(wxBitmapBundle::FromSVGResource(resource_name,wxSize(dim,dim)).GetBitmap(wxSize(dim,dim)));
 	wxBitmapBundle bundle = wxBitmapBundle::FromBitmaps(bmp_list);	
 	return(bundle);
+}
+
+// try assign SVG resource icon to wxFrame menu item by item id
+int AssignSVGresourceToMenu(wxMenu *frame, int item_id,const char* resource_name)
+{
+	if(!frame || !item_id)
+		return(1);
+	auto item = frame->FindItem(item_id);
+	if(!item)
+		return(1);
+	auto res = LoadSVGiconsBundle(resource_name);
+	item->SetBitmaps(res);
+	return(0);
+	
+}
+
+// try assign SVG resource icon to wxFrame menu item
+int AssignSVGresourceToMenu(wxMenuItem* item,const char* resource_name)
+{
+	if(!item)
+		return(1);
+	auto res = LoadSVGiconsBundle(resource_name);
+	item->SetBitmaps(res);
+	return(0);
+
 }
 
 // rescale window based on DPI, if has parent, center to parent
@@ -52,4 +79,22 @@ int RescaleWindowDPI(wxWindow *win)
 		win->Layout();
 	}
 	return(0);
+}
+
+// make PropertyGrid choices from std::map<int,string> (careful - not reentrant!)
+wxPGChoices& MapToPGenumChoices(const std::map<int,std::string>& map)
+{
+	static wxPGChoices ch;
+	ch.Clear();
+	for(auto& item: map)
+		ch.Add(item.second,item.first);
+	return(ch);
+}
+wxPGChoices& MapToPGenumChoices(const std::map<int,std::wstring>& map)
+{
+	static wxPGChoices ch;
+	ch.Clear();
+	for(auto& item: map)
+		ch.Add(item.second,item.first);
+	return(ch);
 }

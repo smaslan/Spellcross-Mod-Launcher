@@ -103,11 +103,14 @@ public:
     void Clear();
     void SetConsoleOutCb(std::function<void(std::string)> status_cb);
 
+    int LoadDEF(Config& config);
     int BuildMod(Config& config,bool allow_restore = true);
     int CheckRestoreMod(Config& config,bool& something_to_restore);
     int RestoreMod(Config& config);
     int SwapMod(Config& config, bool allow_restore = true);
     int CleanupMod(Config& config);
+
+    SpellModPath* GetPath(std::string name);
 
     class SaveInfo {
     public:
@@ -116,6 +119,7 @@ public:
     };
     static int GetSaveIni(std::filesystem::path save_dir,SaveInfo& info);
     static int MakeSaveIni(std::filesystem::path save_dir,std::string description);
+
 private:
     std::vector<SpellModPath> m_paths;
     std::vector<SpellArchive*> m_sources;
@@ -126,9 +130,8 @@ private:
     //void PrintConsole(const std::string fmt,...);
     template<typename... Args> void PrintConsole(const std::string fmt,Args... args);
 
-    int LoadDEF(Config& config);
     
-    SpellModPath* GetPath(std::string name);
+        
     SpellModPath ParsePath(std::filesystem::path path,std::filesystem::path alt_path="",std::string name="");
     SpellModPath* AddPath(std::string name,std::filesystem::path path,std::filesystem::path alt_path="",bool overwrite=false);
 

@@ -394,7 +394,7 @@ void FormSaveBack::OnChangeBackup(wxCommandEvent& event)
 	lbBackupSaves->Freeze();
 	for(auto& save: saves)
 	{
-		auto name = string_format(": %s",save.name.c_str());
+		auto name = string_format(": %ls",save.name.c_str());
 		auto date = string_format(" (%s)",save.date.c_str());
 		if(save.is_empty)
 		{
@@ -563,7 +563,7 @@ void FormSaveBack::OnOK(wxCommandEvent& event)
 		}		
 		info += string_format("Following backup saves:\n");
 		for(auto& save: saves_list)
-			info += string_format("  %s: %s\n",save.dir_name.c_str(), save.name.c_str());		
+			info += string_format("  %s: %ls\n",save.dir_name.c_str(), save.name.c_str());		
 		info += string_format("from backup \"%s\" from path:\n",backup_name.c_str());
 		info += string_format("  %ls\n",backup_path.wstring().c_str());
 		info += string_format("will be copied to game SAVE path:\n");
@@ -724,7 +724,7 @@ void FormSaveBack::OnUpdateList(std::string backup_to_select)
 	lbGameSaves->Clear();
 	for(auto& save: saves)
 	{
-		auto name = string_format(": %s",save.name.c_str());
+		auto name = string_format(": %ls",save.name.c_str());
 		auto date = string_format(" (%s)",save.date.c_str());
 		if(save.is_empty)
 		{

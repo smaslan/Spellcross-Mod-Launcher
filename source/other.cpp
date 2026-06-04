@@ -233,12 +233,58 @@ std::string string_format(const std::string fmt,...) {
     }
     return str;
 }
+std::wstring wstring_format(const std::wstring fmt,...) {
+    int size = ((int)fmt.size()) * 2 + 50;   // Use a rubric appropriate for your code
+    std::wstring str;
+    va_list ap;
+    while(1) {     // Maximum two passes on a POSIX system...
+        str.resize(size);
+        va_start(ap,fmt);
+        int n = _vsnwprintf((wchar_t*)str.data(),size,fmt.c_str(),ap);
+        va_end(ap);
+        if(n > -1 && n < size) {  // Everything worked
+            str.resize(n);
+            return str;
+        }
+        if(n > -1)  // Needed size returned
+            size = n + 1;   // For null char
+        else
+            size *= 2;      // Guess at a larger size (OS specific)
+    }
+    return str;
+}
+
+// format to binary string
+std::string format_bin(uint32_t dword, int digits, bool gaps)
+{
+    std::string str;
+    for(int k = digits-1; k >= 0; k--)
+    {
+        str += (dword & (1<<k))?"1":"0";
+        if(gaps && (k % 8) == 0)
+            str += " ";
+    }
+    return(str);
+}
 
 // compare strings case insensitive
 bool iequals(const std::string& a,const std::string& b)
 {
     return(_strcmpi(a.c_str(), b.c_str()) == 0);
     
+    // ###: this was incredibly slow! at leas in debug mode...
+    /*return std::equal(a.begin(),a.end(),
+        b.begin(),b.end(),
+        [](char a,char b) {
+            return std::tolower(a) == std::tolower(b);
+        });*/
+}
+
+// compare strings case insensitive
+bool iequals(const std::wstring& a,const std::wstring& b)
+{
+    return(_wcsicmp(a.c_str(),b.c_str()) == 0);
+
     // ###: this was incredibly slow! at leas in debug mode...
     /*return std::equal(a.begin(),a.end(),
         b.begin(),b.end(),
@@ -725,6 +771,30 @@ void plot_line(uint8_t* buffer,uint8_t* buf_end,int buf_x,int buf_y,int x_size,u
     for(;;) {  /* loop */
         uint8_t* pix = &buffer[buf_x + x0 + (buf_y + y0) * x_size];
         if(pix >= buffer && pix < buf_end)
+            *pix = color;
+        if(x0 == x1 && y0 == y1) break;
+        e2 = 2 * err;
+        if(e2 >= dy) { err += dy; x0 += sx; } /* e_xy+e_x > 0 */
+        if(e2 <= dx) { err += dx; y0 += sy; } /* e_xy+e_y < 0 */
+    }
+}
+
+// Bresneham algorithm(based on GitHub/bert algorithm) with masking raster (*mask_buf == mask_id)
+void plot_line_mask(uint8_t* buffer,uint8_t* buf_end,int buf_x,int buf_y,int x_size,uint8_t color,int x0,int y0,int x1,int y1,uint8_t* mask_buf,uint8_t mask_id)
+{
+    int dx =  abs(x1 - x0),sx = x0 < x1 ? 1 : -1;
+    int dy = -abs(y1 - y0),sy = y0 < y1 ? 1 : -1;
+    int err = dx + dy,e2; /* error value e_xy */
+
+    x0 += buf_x;
+    x1 += buf_x;
+    y0 += buf_y;
+    y1 += buf_y;
+
+    for(;;) {  /* loop */
+        uint8_t* pix = &buffer[x0 + y0*x_size];
+        uint8_t* mask = &mask_buf[x0 + y0*x_size];
+        if(x0 >= 0 && x0 < x_size && y0 >=0 && pix >= buffer && pix < buf_end && *mask == mask_id)
             *pix = color;
         if(x0 == x1 && y0 == y1) break;
         e2 = 2 * err;

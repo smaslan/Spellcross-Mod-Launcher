@@ -19,7 +19,10 @@ char wchar2charCP895(wchar_t sym);
 std::string wstring2stringCP895(std::wstring str);
 std::string& toupper(std::string& str);
 std::string string_format(const std::string fmt,...);
+std::wstring wstring_format(const std::wstring fmt,...);
+std::string format_bin(uint32_t dword,int digits=32,bool gaps=false);
 bool iequals(const std::string& a,const std::string& b);
+bool iequals(const std::wstring& a,const std::wstring& b);
 std::string& strrep(std::string& str,std::string key,std::string rep);
 int savestr(std::wstring path,std::string& str);
 int loadstr(std::filesystem::path path,std::string& strbuf);
@@ -91,6 +94,7 @@ uint32_t popcount(uint32_t v);
 
 
 void plot_line(uint8_t* buffer,uint8_t* buf_end,int buf_x,int buf_y,int x_size,uint8_t color,int x0,int y0,int x1,int y1);
+void plot_line_mask(uint8_t* buffer,uint8_t* buf_end,int buf_x,int buf_y,int x_size,uint8_t color,int x0,int y0,int x1,int y1,uint8_t *mask,uint8_t mask_id);
 
 void apply_gamma(uint8_t* pal,double gamma);
 

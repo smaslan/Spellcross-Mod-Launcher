@@ -316,7 +316,7 @@ int SpellArchive::AddFile(SpellArchive &src, std::string& name, bool allow_repla
             m_last_error = string_format("Adding file \"%s\" to FSU archive failed! File not found in source archive.",name.c_str());
             return(1);
         }
-        auto err = m_fsu->AddResource(data);
+        auto err = m_fsu->AddResource(data,allow_replace);
         m_last_error = m_fsu->m_last_error;
         return(err);
     }
@@ -540,7 +540,7 @@ SpellArchive* SpellMod::LoadArchive(SpellModPath &path, SpellArchive::Type arch_
     return(arch);
 }
 
-
+// basic parse of mod DEF file
 int SpellMod::LoadDEF(Config& config)
 {
     auto mod_dir = config.mod_path.parent_path();
