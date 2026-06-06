@@ -992,7 +992,29 @@ int SpellSaveBigMap::SortUnits(bool remove_gaps,bool separate,bool by_types,bool
 
     return(0);
 }
+int SpellSaveBigMap::SwapUnits(int id_a, int id_b)
+{
+    if(id_a < 0 || id_a >= units.size() || id_b < 0 || id_b >= units.size())
+        return(1);
 
+    if(!units[id_a].is_empty())
+    {
+        for(auto& com: commanders)
+            if(com.unit_id == id_a)
+                com.unit_id = 1000 + id_b;
+    }
+    if(!units[id_b].is_empty())
+    {
+        for(auto& com: commanders)
+            if(com.unit_id == id_b)
+                com.unit_id = 1000 + id_a;
+    }
+    std::swap(units[id_a],units[id_b]);
+    for(auto& com: commanders)
+        if(com.unit_id >= 1000)
+            com.unit_id -= 1000;
+    return(0);
+}
 
 // decodder of CLK territory files
 //   note: from https://github.com/luboshorak/spellcross_restoration_tools/blob/main/spellcross-map-edit-main/source/forms/form_level.cpp

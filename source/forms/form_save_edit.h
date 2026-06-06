@@ -7,7 +7,7 @@
 
 #pragma once
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-06 08:48:28
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-06 16:20:46
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -40,7 +40,7 @@
 #include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-06 08:48:28
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-06 16:20:46
 #include <wx/tglbtn.h>
 
 #include <filesystem>
@@ -87,6 +87,14 @@ private:
 	void OnTerrPropChange(wxPropertyGridEvent& event);
 	void OnLevelPropChange(wxPropertyGridEvent& event);
 	void OnUnitPropChange(wxPropertyGridEvent& event);
+
+	wxString OnGetUnitItem(long item_id);
+	void OnUnitBeginDrag(wxListEvent& event);
+	void OnUnitDragMotion(wxMouseEvent& event);
+	void OnUnitEndDrag(wxMouseEvent& event);
+	void OnUnitDragLost(wxMouseCaptureLostEvent& event);
+	std::unique_ptr<wxDragImage> m_drag_unit_img;
+	int m_drag_unit;
 	
 	void UpdateList();
 	wxString OnGetHierUnitItem(long item_id);
@@ -111,7 +119,7 @@ protected:
 	const int wxID_CH_HIERARCH_COM3C_0 = 7300;
 	const int wxID_CH_HIERARCH_COM3U_0 = 7350;
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-06 08:48:28
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-06 16:20:46
 	enum
 	{
 		wxID_FORM_SAVE_EDIT = 6000,
@@ -133,7 +141,7 @@ protected:
 		wxID_GRID_UPG,
 		wxID_GRID_RAW_UPGRADES,
 		wxID_PAN_UNITS,
-		wxID_LBOX_UNITS,
+		wxID_LIST_UNITS,
 		wxID_BTN_UNIT_RESET_NAMES,
 		wxID_BTN_UNIT_REM_GAPS,
 		wxID_BTN_UNIT_SORT_PERM_REIN,
@@ -165,6 +173,9 @@ protected:
 	wxBitmapButton* btnLoadSpellSave;
 	wxNotebook* pageCtrl;
 	wxPanel* panResearch;
+	wxBoxSizer* szrUnitsC;
+	wxBoxSizer* szrUnitsB;
+	wxBoxSizer* szrUnitsA;
 	wxStaticText* m_staticText21;
 	wxListBox* listRes;
 	wxStaticText* lblResName;
@@ -180,7 +191,7 @@ protected:
 	wxGrid* gridRawUpgrades;
 	wxPanel* panUnits;
 	wxStaticText* m_staticText212;
-	wxListBox* listUnits;
+	wxListCtrlVirtual* listUnits;
 	wxButton* btnUnitsResetNames;
 	wxStaticLine* m_staticline17;
 	wxButton* btnUnitsNoGaps;
@@ -210,6 +221,7 @@ protected:
 	wxStaticText* m_staticText321;
 	wxListCtrlVirtual* listHierCommanders;
 	wxPanel* panBigmap;
+	wxBoxSizer* szrBigmap;
 	wxStaticText* m_staticText41;
 	wxListBox* listTerritory;
 	wxPanel* canvasBigmap;
@@ -223,7 +235,7 @@ protected:
 	wxStaticText* lblResName12;
 	wxPropertyGrid* gridLevelProp;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-06 08:48:28
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-06 16:20:46
 
 public:
 

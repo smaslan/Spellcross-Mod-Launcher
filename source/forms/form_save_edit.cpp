@@ -9,6 +9,7 @@
 #include <wx/msgdlg.h>
 #include <wx/rawbmp.h>
 #include <wx/dcclient.h>
+#include <wx/dragimag.h>
 
 #include <functional>
 #include <math.h>
@@ -20,7 +21,7 @@
 
 FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
 {
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-06-06 08:48:28
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-06-06 16:20:46
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_MENU ) );
 	
@@ -72,14 +73,11 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	
 	pageCtrl = new wxNotebook( this, wxID_PAGE_CTRL, wxDefaultPosition, wxDefaultSize, 0 );
 	panResearch = new wxPanel( pageCtrl, wxID_PAN_RESEARCH, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* bSizer44;
-	bSizer44 = new wxBoxSizer( wxHORIZONTAL );
+	szrUnitsC = new wxBoxSizer( wxHORIZONTAL );
 	
-	wxBoxSizer* bSizer76;
-	bSizer76 = new wxBoxSizer( wxVERTICAL );
+	szrUnitsB = new wxBoxSizer( wxVERTICAL );
 	
-	wxBoxSizer* bSizer74;
-	bSizer74 = new wxBoxSizer( wxHORIZONTAL );
+	szrUnitsA = new wxBoxSizer( wxHORIZONTAL );
 	
 	wxBoxSizer* bSizer46;
 	bSizer46 = new wxBoxSizer( wxVERTICAL );
@@ -93,7 +91,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	bSizer46->Add( listRes, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
 	
 	
-	bSizer74->Add( bSizer46, 0, wxEXPAND, 5 );
+	szrUnitsA->Add( bSizer46, 0, wxEXPAND, 5 );
 	
 	wxBoxSizer* bSizer47;
 	bSizer47 = new wxBoxSizer( wxVERTICAL );
@@ -107,14 +105,14 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	bSizer47->Add( gridResProp, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
 	
 	
-	bSizer74->Add( bSizer47, 1, wxEXPAND, 5 );
+	szrUnitsA->Add( bSizer47, 1, wxEXPAND, 5 );
 	
 	
-	bSizer76->Add( bSizer74, 1, wxEXPAND, 5 );
+	szrUnitsB->Add( szrUnitsA, 1, wxEXPAND, 5 );
 	
 	m_staticText39 = new wxStaticText( panResearch, wxID_ANY, _("Raw research:"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText39->Wrap( -1 );
-	bSizer76->Add( m_staticText39, 0, wxRIGHT|wxLEFT, 5 );
+	szrUnitsB->Add( m_staticText39, 0, wxRIGHT|wxLEFT, 5 );
 	
 	gridRawResearch = new wxGrid( panResearch, wxID_GRID_RAW_RESEARCH, wxDefaultPosition, wxDefaultSize, 0 );
 	
@@ -147,13 +145,13 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	
 	// Cell Defaults
 	gridRawResearch->SetDefaultCellAlignment( wxALIGN_CENTER, wxALIGN_TOP );
-	bSizer76->Add( gridRawResearch, 0, wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	szrUnitsB->Add( gridRawResearch, 0, wxBOTTOM|wxRIGHT|wxLEFT, 5 );
 	
 	
-	bSizer44->Add( bSizer76, 1, wxEXPAND, 5 );
+	szrUnitsC->Add( szrUnitsB, 1, wxEXPAND, 5 );
 	
 	m_staticline11 = new wxStaticLine( panResearch, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
-	bSizer44->Add( m_staticline11, 0, wxEXPAND|wxTOP|wxBOTTOM, 5 );
+	szrUnitsC->Add( m_staticline11, 0, wxEXPAND|wxTOP|wxBOTTOM, 5 );
 	
 	wxBoxSizer* bSizer77;
 	bSizer77 = new wxBoxSizer( wxVERTICAL );
@@ -230,13 +228,13 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	bSizer77->Add( gridRawUpgrades, 0, wxBOTTOM|wxRIGHT|wxLEFT, 5 );
 	
 	
-	bSizer44->Add( bSizer77, 1, wxEXPAND, 5 );
+	szrUnitsC->Add( bSizer77, 1, wxEXPAND, 5 );
 	
 	
-	panResearch->SetSizer( bSizer44 );
+	panResearch->SetSizer( szrUnitsC );
 	panResearch->Layout();
-	bSizer44->Fit( panResearch );
-	pageCtrl->AddPage( panResearch, _("Research"), true );
+	szrUnitsC->Fit( panResearch );
+	pageCtrl->AddPage( panResearch, _("Research"), false );
 	panUnits = new wxPanel( pageCtrl, wxID_PAN_UNITS, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer441;
 	bSizer441 = new wxBoxSizer( wxHORIZONTAL );
@@ -245,12 +243,12 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	bSizer462 = new wxBoxSizer( wxVERTICAL );
 	
 	bSizer462->SetMinSize( wxSize( 200,-1 ) );
-	m_staticText212 = new wxStaticText( panUnits, wxID_ANY, _("Units list:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText212 = new wxStaticText( panUnits, wxID_ANY, _("Units list (drag && drop):"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText212->Wrap( -1 );
 	bSizer462->Add( m_staticText212, 0, wxTOP|wxRIGHT|wxLEFT, 5 );
 	
-	listUnits = new wxListBox( panUnits, wxID_LBOX_UNITS, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_ALWAYS_SB );
-	bSizer462->Add( listUnits, 1, wxEXPAND|wxRIGHT|wxLEFT, 5 );
+	listUnits = new wxListCtrlVirtual(panUnits,wxID_LIST_UNITS,wxDefaultPosition,wxSize(200,-1),wxLC_NO_HEADER|wxLC_REPORT|wxLC_SINGLE_SEL|wxLC_VIRTUAL|wxALWAYS_SHOW_SB|wxVSCROLL);
+	bSizer462->Add( listUnits, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
 	
 	btnUnitsResetNames = new wxButton( panUnits, wxID_BTN_UNIT_RESET_NAMES, _("Reset names"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer462->Add( btnUnitsResetNames, 0, wxALL|wxEXPAND, 5 );
@@ -514,8 +512,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	szHierA->Fit( panHierarchy );
 	pageCtrl->AddPage( panHierarchy, _("Hierarchy"), false );
 	panBigmap = new wxPanel( pageCtrl, wxID_PAN_BIGMAP, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
-	wxBoxSizer* bSizer44111;
-	bSizer44111 = new wxBoxSizer( wxHORIZONTAL );
+	szrBigmap = new wxBoxSizer( wxHORIZONTAL );
 	
 	wxBoxSizer* bSizer75;
 	bSizer75 = new wxBoxSizer( wxVERTICAL );
@@ -529,7 +526,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	bSizer75->Add( listTerritory, 1, wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND, 5 );
 	
 	
-	bSizer44111->Add( bSizer75, 0, wxEXPAND, 5 );
+	szrBigmap->Add( bSizer75, 0, wxEXPAND, 5 );
 	
 	wxBoxSizer* bSizer46211;
 	bSizer46211 = new wxBoxSizer( wxVERTICAL );
@@ -606,13 +603,13 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	bSizer46211->Add( bSizer71, 1, wxEXPAND, 5 );
 	
 	
-	bSizer44111->Add( bSizer46211, 1, wxEXPAND, 5 );
+	szrBigmap->Add( bSizer46211, 1, wxEXPAND, 5 );
 	
 	
-	panBigmap->SetSizer( bSizer44111 );
+	panBigmap->SetSizer( szrBigmap );
 	panBigmap->Layout();
-	bSizer44111->Fit( panBigmap );
-	pageCtrl->AddPage( panBigmap, _("Big Map"), false );
+	szrBigmap->Fit( panBigmap );
+	pageCtrl->AddPage( panBigmap, _("Big Map"), true );
 	panLevel = new wxPanel( pageCtrl, wxID_PAN_LEVEL, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer4412;
 	bSizer4412 = new wxBoxSizer( wxHORIZONTAL );
@@ -645,7 +642,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Centre( wxBOTH );
 	
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-06-06 08:48:28
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-06-06 16:20:46
 
 	mmSave->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
 	mmSaveAs->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
@@ -664,8 +661,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	
 
 	Bind(wxEVT_COMMAND_LISTBOX_SELECTED,&FormSaveEdit::OnResSelect,this,wxID_LBOX_RES);
-	Bind(wxEVT_COMMAND_LISTBOX_SELECTED,&FormSaveEdit::OnUpgSelect,this,wxID_LBOX_UPG);
-	Bind(wxEVT_COMMAND_LISTBOX_SELECTED,&FormSaveEdit::OnUnitSelect,this,wxID_LBOX_UNITS);
+	Bind(wxEVT_COMMAND_LISTBOX_SELECTED,&FormSaveEdit::OnUpgSelect,this,wxID_LBOX_UPG);	
 	Bind(wxEVT_COMMAND_LISTBOX_SELECTED,&FormSaveEdit::OnCommanderSelect,this,wxID_LBOX_COMANDERS);
 	Bind(wxEVT_COMMAND_LISTBOX_SELECTED,&FormSaveEdit::OnTerritorySelect,this,wxID_LBOX_TERRITORY);
 	Bind(wxEVT_COMMAND_CHOICE_SELECTED,&FormSaveEdit::OnHierPartSelect,this,wxID_CH_HEIR_PART);
@@ -686,7 +682,10 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnUnitPropChange,this,wxID_GRID_UPG);
 	
 	
-	
+	listUnits->SetGetItemTextCb(std::bind(&FormSaveEdit::OnGetUnitItem,this,std::placeholders::_1));
+	Bind(wxEVT_LIST_ITEM_SELECTED,&FormSaveEdit::OnUnitSelect,this,wxID_LIST_UNITS);	
+	Bind(wxEVT_LIST_BEGIN_DRAG,&FormSaveEdit::OnUnitBeginDrag,this,wxID_LIST_UNITS);
+	//Bind(wxEVT_,&FormSaveEdit::OnUnitBeginDrag,this,wxID_LIST_UNITS);
 	
 	listHierUnits->SetGetItemTextCb(std::bind(&FormSaveEdit::OnGetHierUnitItem,this,std::placeholders::_1));
 	listHierUnits->SetGetItemAttrCb(std::bind(&FormSaveEdit::OnGetHierUnitItemAttr,this,std::placeholders::_1));
@@ -720,6 +719,10 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 			grid->SetRowLabelValue(k,string_format("%Xxh",k));
 		}
 	}
+	szrUnitsA->Layout();
+	szrUnitsB->Layout();
+	szrUnitsC->Layout();
+	szrBigmap->Layout();
 	Layout();
 	
 	for(int k = 0; k < 16; k++)
@@ -906,14 +909,19 @@ void FormSaveEdit::UpdateList()
 		listUpg->Select(sel_id);
 	listUpg->Thaw();
 
-	listUnits->Freeze();
+	/*listUnits->Freeze();
 	sel_id = listUnits->GetSelection();
 	listUnits->Clear();
 	for(auto& unit: m_bigmap.units)
 		listUnits->Append(string_format("#%02d: ",&unit - m_bigmap.units.data()) + unit.name);
 	if(sel_id >=0 && sel_id < listUnits->GetCount())
 		listUnits->Select(sel_id);
-	listUnits->Thaw();
+	listUnits->Thaw();*/
+	listUnits->ClearAll();
+	listUnits->AppendColumn("list",wxLIST_FORMAT_LEFT,wxLIST_AUTOSIZE);
+	listUnits->SetItemCount(m_bigmap.units.size());
+	listUnits->SetColumnWidth(0,wxLIST_AUTOSIZE_USEHEADER);
+	listUnits->Refresh();
 
 	listComanders->Freeze();
 	sel_id = listComanders->GetSelection();
@@ -984,43 +992,44 @@ void FormSaveEdit::UpdateList()
 
 	gridLevelProp->Thaw();
 	gridLevelProp->FitColumns();
-
-
+	
 	FillHierarchy();
-	canvasBigmap->Refresh();
+	canvasBigmap->Refresh();	
 }
 
 // edit level properties
 void FormSaveEdit::OnLevelPropChange(wxPropertyGridEvent& event)
-{
+{	
 	auto pgrid = (wxPropertyGrid*)event.GetEventObject();
 	if(!pgrid)
 		return;
-
+	
 	auto prop = event.GetProperty();
 	auto obj = (wxPGobj*)prop->GetClientObject();
 	if(obj)
 	{
 		obj->Update(prop);
-	}	
+	}		
 }
 
 
 
 // on sort units
 void FormSaveEdit::OnSortUnits(wxCommandEvent& event)
-{
+{		
 	auto id = event.GetId();
 	m_bigmap.SortUnits(id == wxID_BTN_UNIT_REM_GAPS, id == wxID_BTN_UNIT_SORT_PERM_REIN, id == wxID_BTN_UNIT_SORT_TYPES, id == wxID_BTN_UNIT_SORT_NAMES);
 	UpdateList();
+	
 }
 // reset unit names
 void FormSaveEdit::OnResetUnitNames(wxCommandEvent& event)
 {
 	if(event.GetId() == wxID_BTN_UNIT_RESET_NAME)
-	{
-		auto sel_id = listUnits->GetSelection();
-		if(sel_id)
+	{		
+		//auto sel_id = listUnits->GetSelection();
+		auto sel_id = listUnits->GetNextItem(-1,wxLIST_NEXT_ALL,wxLIST_STATE_SELECTED);
+		if(sel_id >= 0)
 			m_bigmap.ResetUnitName(sel_id);
 	}
 	else
@@ -1457,6 +1466,8 @@ void FormSaveEdit::OnResSelect(wxCommandEvent& event)
 		if(row >= gridRawResearch->GetNumberRows())
 			break;
 	}
+	gridRawResearch->Layout();
+	
 
 	gridResProp->Freeze();
 	gridResProp->Clear();
@@ -1516,13 +1527,82 @@ void FormSaveEdit::OnUpgSelect(wxCommandEvent& event)
 	gridUpgProp->FitColumns();
 }
 
+
+
+wxString FormSaveEdit::OnGetUnitItem(long item_id)
+{
+	if(item_id >= m_bigmap.units.size())
+		return("");
+	auto& unit = m_bigmap.units[item_id];
+	auto unit_name = string_format("#%02d: ",item_id) + unit.name;
+	return(unit_name);
+}
+
+// unit drag/drop stuff
+void FormSaveEdit::OnUnitBeginDrag(wxListEvent& event)
+{	
+	m_drag_unit = event.GetIndex();
+
+	listUnits->Bind(wxEVT_MOTION,&FormSaveEdit::OnUnitDragMotion,this);
+	listUnits->Bind(wxEVT_LEFT_UP,&FormSaveEdit::OnUnitEndDrag,this);
+	listUnits->Bind(wxEVT_MOUSE_CAPTURE_LOST,&FormSaveEdit::OnUnitDragLost,this);
+
+	m_drag_unit_img = std::make_unique<wxDragImage>(OnGetUnitItem(m_drag_unit));
+	m_drag_unit_img->BeginDrag(wxDefaultPosition,listUnits);
+	m_drag_unit_img->Show();
+
+	listUnits->CaptureMouse();
+}
+void FormSaveEdit::OnUnitDragMotion(wxMouseEvent& event)
+{
+	if(m_drag_unit_img.get() && event.Dragging() && listUnits->HasCapture()) {
+		// Move the drag image to the current mouse position
+		// Convert to screen/client coordinates properly depending on BeginDrag setup
+		wxPoint pos = event.GetPosition();
+		m_drag_unit_img->Move(pos);
+	}
+	event.Skip();
+}
+void FormSaveEdit::OnUnitDragLost(wxMouseCaptureLostEvent& event)
+{	
+}
+void FormSaveEdit::OnUnitEndDrag(wxMouseEvent& event)
+{
+	if(m_drag_unit_img.get())
+	{
+		m_drag_unit_img->EndDrag();
+		m_drag_unit_img->Hide();
+	}
+
+	if(m_drag_unit < 0)
+		return;
+	auto drag_id = m_drag_unit;
+		
+	if(listUnits->HasCapture())
+		listUnits->ReleaseMouse();
+	listUnits->Unbind(wxEVT_MOTION,&FormSaveEdit::OnUnitDragMotion,this);
+	listUnits->Unbind(wxEVT_LEFT_UP,&FormSaveEdit::OnUnitEndDrag,this);
+	listUnits->Unbind(wxEVT_MOUSE_CAPTURE_LOST,&FormSaveEdit::OnUnitDragLost,this);
+	m_drag_unit = -1;
+
+	wxPoint pos = event.GetPosition();
+	int flags = 0;
+	auto drop_id = listUnits->HitTest(pos,flags);
+	if(drag_id >= 0 && drop_id >=0)
+	{
+		m_bigmap.SwapUnits(drop_id, drag_id);
+		listUnits->Refresh();
+		//UpdateList();
+	}
+}
+
 // on select unit item
 void FormSaveEdit::OnUnitSelect(wxCommandEvent& event)
 {
 	gridUnitProp->Clear();
 
-	auto rid = listUnits->GetSelection();
-	if(rid >= m_bigmap.units.size())
+	auto rid = listUnits->GetNextItem(-1,wxLIST_NEXT_ALL,wxLIST_STATE_SELECTED);
+	if(rid < 0 || rid >= m_bigmap.units.size())
 		return;
 	auto& unit = m_bigmap.units[rid];
 

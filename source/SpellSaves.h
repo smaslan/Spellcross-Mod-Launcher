@@ -259,6 +259,7 @@ public:
     int Load(std::filesystem::path path, std::filesystem::path common_fs_path="");
     int Save(std::filesystem::path path);
     int SortUnits(bool remove_gaps,bool separate,bool by_types,bool by_names);
+    int SwapUnits(int id_a,int id_b);
     int ResetUnitName(int unit_id=-1,bool also_reinforces=false);
 
     std::map<int,std::wstring> GetUpgradeList(SpellSaveUpgrade::UpgradeClass type);
