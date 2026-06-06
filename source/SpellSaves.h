@@ -5,20 +5,59 @@
 #include <string>
 #include <map>
 
+
+
 class SpellSaveResearch{
 public:
+    static const std::map<int,std::string> c_groups;
+    static const std::map<int,std::string> c_flags;
+
+    enum Group : int
+    {
+        NONE,
+        GLOBAL,
+        RACES,
+        UPGRADE,
+        TECH
+    };
+    enum Flags : int
+    {        
+        None,
+        Special,
+        UpgradeItem,
+        UnitType,
+        Info,        
+        NewUnit,        
+    };
+    
+    std::vector<uint8_t> raw;
     std::wstring name;
-    int flags;
-    int group_code;
+    Flags flags;
+    Group group;
     int cost;
     int time;
     int level;
     int data_id;
     int state;
+
+    std::string GetGroupName()
+    {
+        if(c_groups.find(group) != c_groups.end())
+            return(c_groups.at(group));
+        return("");
+    };
+    std::string GetFlagName()
+    {
+        if(c_flags.find(group) != c_flags.end())
+            return(c_flags.at(flags));
+        return("");
+    };
 };
 
 class SpellSaveUpgrade {
 public:
+    static const std::map<int,std::string> c_flags;
+    
     enum UpgradeClass : int
     {
         NONE,
@@ -27,6 +66,7 @@ public:
         ARMOR
     };
 
+    std::vector<uint8_t> raw;
     std::wstring name;
     int sight;
     int attack;
@@ -42,10 +82,9 @@ public:
 
     std::string GetUpgradeClassStr()
     {
-        const std::vector<std::string> flags_list = {"","Engine","Weapon","Armor"};
-        if(type < 0 || type >= flags_list.size())
-            return("");
-        return(flags_list[type]);
+        if(c_flags.find(type) != c_flags.end())
+            return(c_flags.at(type));
+        return("");
     }
    
 };
@@ -89,7 +128,7 @@ public:
 
     int is_empty() {return(!valid);};
     int command_level() {return(flags >> 7);}; // id of hierarchy level {0, 1, 2}
-    int command_pos() {return(flags & 0x0F);}; // is of position in hierarchy table
+    int command_pos() {return(flags & 0x0F);}; // id of position in hierarchy table
     bool is_placed() {return{!!flags};}; // is placed in hierarchy table?
     // place commander to hierarchy slot
     void place(int level=-1, int pos=-1)
@@ -224,6 +263,8 @@ public:
 
     std::map<int,std::wstring> GetUpgradeList(SpellSaveUpgrade::UpgradeClass type);
     std::map<int,std::wstring> GetUnitTypeList(bool add_empty=false,bool with_id=false);
+    std::map<int,std::wstring> GetUnitNames(bool with_id=false);
+    std::map<int,std::wstring> GetRanksList();
 };
 
 class SpellSave{

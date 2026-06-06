@@ -20,7 +20,7 @@
 
 FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
 {
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-06-04 18:52:31
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-06-06 08:48:28
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_MENU ) );
 	
@@ -75,6 +75,12 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	wxBoxSizer* bSizer44;
 	bSizer44 = new wxBoxSizer( wxHORIZONTAL );
 	
+	wxBoxSizer* bSizer76;
+	bSizer76 = new wxBoxSizer( wxVERTICAL );
+	
+	wxBoxSizer* bSizer74;
+	bSizer74 = new wxBoxSizer( wxHORIZONTAL );
+	
 	wxBoxSizer* bSizer46;
 	bSizer46 = new wxBoxSizer( wxVERTICAL );
 	
@@ -87,7 +93,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	bSizer46->Add( listRes, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
 	
 	
-	bSizer44->Add( bSizer46, 0, wxEXPAND, 5 );
+	bSizer74->Add( bSizer46, 0, wxEXPAND, 5 );
 	
 	wxBoxSizer* bSizer47;
 	bSizer47 = new wxBoxSizer( wxVERTICAL );
@@ -101,10 +107,59 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	bSizer47->Add( gridResProp, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
 	
 	
-	bSizer44->Add( bSizer47, 0, wxEXPAND, 5 );
+	bSizer74->Add( bSizer47, 1, wxEXPAND, 5 );
+	
+	
+	bSizer76->Add( bSizer74, 1, wxEXPAND, 5 );
+	
+	m_staticText39 = new wxStaticText( panResearch, wxID_ANY, _("Raw research:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText39->Wrap( -1 );
+	bSizer76->Add( m_staticText39, 0, wxRIGHT|wxLEFT, 5 );
+	
+	gridRawResearch = new wxGrid( panResearch, wxID_GRID_RAW_RESEARCH, wxDefaultPosition, wxDefaultSize, 0 );
+	
+	// Grid
+	gridRawResearch->CreateGrid( 3, 16 );
+	gridRawResearch->EnableEditing( true );
+	gridRawResearch->EnableGridLines( true );
+	gridRawResearch->EnableDragGridSize( false );
+	gridRawResearch->SetMargins( 0, 0 );
+	
+	// Columns
+	gridRawResearch->SetColSize( 0, 38 );
+	gridRawResearch->SetColSize( 1, 45 );
+	gridRawResearch->SetColSize( 2, 39 );
+	gridRawResearch->SetColSize( 3, 39 );
+	gridRawResearch->SetColSize( 4, 32 );
+	gridRawResearch->SetColSize( 5, 35 );
+	gridRawResearch->SetColSize( 6, 35 );
+	gridRawResearch->SetColSize( 7, 39 );
+	gridRawResearch->AutoSizeColumns();
+	gridRawResearch->EnableDragColMove( false );
+	gridRawResearch->EnableDragColSize( false );
+	gridRawResearch->SetColLabelAlignment( wxALIGN_CENTER, wxALIGN_CENTER );
+	
+	// Rows
+	gridRawResearch->EnableDragRowSize( false );
+	gridRawResearch->SetRowLabelAlignment( wxALIGN_LEFT, wxALIGN_CENTER );
+	
+	// Label Appearance
+	
+	// Cell Defaults
+	gridRawResearch->SetDefaultCellAlignment( wxALIGN_CENTER, wxALIGN_TOP );
+	bSizer76->Add( gridRawResearch, 0, wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	
+	
+	bSizer44->Add( bSizer76, 1, wxEXPAND, 5 );
 	
 	m_staticline11 = new wxStaticLine( panResearch, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_VERTICAL );
 	bSizer44->Add( m_staticline11, 0, wxEXPAND|wxTOP|wxBOTTOM, 5 );
+	
+	wxBoxSizer* bSizer77;
+	bSizer77 = new wxBoxSizer( wxVERTICAL );
+	
+	wxBoxSizer* bSizer751;
+	bSizer751 = new wxBoxSizer( wxHORIZONTAL );
 	
 	wxBoxSizer* bSizer461;
 	bSizer461 = new wxBoxSizer( wxVERTICAL );
@@ -118,7 +173,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	bSizer461->Add( listUpg, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
 	
 	
-	bSizer44->Add( bSizer461, 0, wxEXPAND, 5 );
+	bSizer751->Add( bSizer461, 0, wxEXPAND, 5 );
 	
 	wxBoxSizer* bSizer471;
 	bSizer471 = new wxBoxSizer( wxVERTICAL );
@@ -132,13 +187,56 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	bSizer471->Add( gridUpgProp, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
 	
 	
-	bSizer44->Add( bSizer471, 1, wxEXPAND, 5 );
+	bSizer751->Add( bSizer471, 1, wxEXPAND, 5 );
+	
+	
+	bSizer77->Add( bSizer751, 1, wxEXPAND, 5 );
+	
+	m_staticText40 = new wxStaticText( panResearch, wxID_ANY, _("Raw upgrades:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText40->Wrap( -1 );
+	bSizer77->Add( m_staticText40, 0, wxRIGHT|wxLEFT, 5 );
+	
+	gridRawUpgrades = new wxGrid( panResearch, wxID_GRID_RAW_UPGRADES, wxDefaultPosition, wxDefaultSize, 0 );
+	
+	// Grid
+	gridRawUpgrades->CreateGrid( 9, 16 );
+	gridRawUpgrades->EnableEditing( true );
+	gridRawUpgrades->EnableGridLines( true );
+	gridRawUpgrades->EnableDragGridSize( false );
+	gridRawUpgrades->SetMargins( 0, 0 );
+	
+	// Columns
+	gridRawUpgrades->SetColSize( 0, 38 );
+	gridRawUpgrades->SetColSize( 1, 45 );
+	gridRawUpgrades->SetColSize( 2, 39 );
+	gridRawUpgrades->SetColSize( 3, 39 );
+	gridRawUpgrades->SetColSize( 4, 32 );
+	gridRawUpgrades->SetColSize( 5, 35 );
+	gridRawUpgrades->SetColSize( 6, 35 );
+	gridRawUpgrades->SetColSize( 7, 39 );
+	gridRawUpgrades->AutoSizeColumns();
+	gridRawUpgrades->EnableDragColMove( false );
+	gridRawUpgrades->EnableDragColSize( false );
+	gridRawUpgrades->SetColLabelAlignment( wxALIGN_CENTER, wxALIGN_CENTER );
+	
+	// Rows
+	gridRawUpgrades->EnableDragRowSize( false );
+	gridRawUpgrades->SetRowLabelAlignment( wxALIGN_LEFT, wxALIGN_CENTER );
+	
+	// Label Appearance
+	
+	// Cell Defaults
+	gridRawUpgrades->SetDefaultCellAlignment( wxALIGN_CENTER, wxALIGN_TOP );
+	bSizer77->Add( gridRawUpgrades, 0, wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	
+	
+	bSizer44->Add( bSizer77, 1, wxEXPAND, 5 );
 	
 	
 	panResearch->SetSizer( bSizer44 );
 	panResearch->Layout();
 	bSizer44->Fit( panResearch );
-	pageCtrl->AddPage( panResearch, _("Research"), false );
+	pageCtrl->AddPage( panResearch, _("Research"), true );
 	panUnits = new wxPanel( pageCtrl, wxID_PAN_UNITS, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer441;
 	bSizer441 = new wxBoxSizer( wxHORIZONTAL );
@@ -241,7 +339,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	panUnits->SetSizer( bSizer441 );
 	panUnits->Layout();
 	bSizer441->Fit( panUnits );
-	pageCtrl->AddPage( panUnits, _("Units"), true );
+	pageCtrl->AddPage( panUnits, _("Units"), false );
 	panCommanders = new wxPanel( pageCtrl, wxID_PAN_UNITS, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer4411;
 	bSizer4411 = new wxBoxSizer( wxHORIZONTAL );
@@ -547,7 +645,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Centre( wxBOTH );
 	
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-06-04 18:52:31
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-06-06 08:48:28
 
 	mmSave->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
 	mmSaveAs->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
@@ -584,6 +682,8 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnLevelPropChange,this,wxID_GRID_LEVEL);
 	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnUnitPropChange,this,wxID_GRID_UNITS);
 	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnUnitPropChange,this,wxID_GRID_COMANDERS);
+	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnUnitPropChange,this,wxID_GRID_RES);
+	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnUnitPropChange,this,wxID_GRID_UPG);
 	
 	
 	
@@ -606,7 +706,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	canvasBigmap->Bind(wxEVT_LEFT_DOWN,&FormSaveEdit::OnBigmapMouse,this,wxID_CANVAS_BIGMAP);
 
 	// init raw data viewers
-	std::vector<wxGrid*> hex = {gridRawUnit, gridRawCommander, gridRawBigmap};
+	std::vector<wxGrid*> hex = {gridRawUnit, gridRawCommander, gridRawBigmap, gridRawResearch, gridRawUpgrades};
 	for(auto grid: hex)
 	{
 		grid->SetRowLabelSize(40);
@@ -619,7 +719,8 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 		{
 			grid->SetRowLabelValue(k,string_format("%Xxh",k));
 		}
-	}		
+	}
+	Layout();
 	
 	for(int k = 0; k < 16; k++)
 	{
@@ -788,23 +889,29 @@ void FormSaveEdit::UpdateList()
 	m_territory_mouse = 0;
 
 	listRes->Freeze();
+	auto sel_id = listRes->GetSelection();
 	listRes->Clear();
 	for(auto& res: m_bigmap.research)
 		listRes->Append(string_format("#%02d: ",&res - m_bigmap.research.data()) + res.name);
+	if(sel_id >=0 && sel_id < listRes->GetCount())
+		listRes->Select(sel_id);
 	listRes->Thaw();
 
 	listUpg->Freeze();
+	sel_id = listUpg->GetSelection();
 	listUpg->Clear();
 	for(auto& upg: m_bigmap.upgrade)
 		listUpg->Append(string_format("#%02d: ",&upg - m_bigmap.upgrade.data()) + upg.name);
+	if(sel_id >=0 && sel_id < listUpg->GetCount())
+		listUpg->Select(sel_id);
 	listUpg->Thaw();
 
 	listUnits->Freeze();
-	auto sel_id = listUnits->GetSelection();
+	sel_id = listUnits->GetSelection();
 	listUnits->Clear();
 	for(auto& unit: m_bigmap.units)
 		listUnits->Append(string_format("#%02d: ",&unit - m_bigmap.units.data()) + unit.name);
-	if(sel_id && sel_id < listUnits->GetCount())
+	if(sel_id >=0 && sel_id < listUnits->GetCount())
 		listUnits->Select(sel_id);
 	listUnits->Thaw();
 
@@ -813,7 +920,7 @@ void FormSaveEdit::UpdateList()
 	listComanders->Clear();
 	for(auto& com: m_bigmap.commanders)
 		listComanders->Append(string_format("#%02d: ",&com - m_bigmap.commanders.data()) + com.full_name());
-	if(sel_id && sel_id < listComanders->GetCount())
+	if(sel_id >=0 && sel_id < listComanders->GetCount())
 		listComanders->Select(sel_id);
 	listComanders->Thaw();
 
@@ -833,7 +940,7 @@ void FormSaveEdit::UpdateList()
 			listTerritory->Append(string_format("Map %d: <empty slot>",&terr - m_bigmap.bigmap.terr.data()));
 	}
 	listTerritory->Thaw();
-
+	
 
 	listHierUnits->ClearAll();
 	listHierUnits->AppendColumn("list",wxLIST_FORMAT_LEFT,wxLIST_AUTOSIZE);
@@ -1336,16 +1443,31 @@ void FormSaveEdit::OnResSelect(wxCommandEvent& event)
 		return;
 	auto &res = m_bigmap.research[rid];
 
+	int row = 0;
+	int col = 0;
+	for(auto& val: res.raw)
+	{
+		gridRawResearch->SetCellValue(row,col,string_format("%d",val));
+		col++;
+		if(col >= gridRawResearch->GetNumberCols())
+		{
+			col = 0;
+			row++;
+		}
+		if(row >= gridRawResearch->GetNumberRows())
+			break;
+	}
+
 	gridResProp->Freeze();
 	gridResProp->Clear();
-	gridResProp->Append(new wxStringProperty(wxT("Name"),wxT(""),res.name));
-	gridResProp->Append(new wxStringProperty(wxT("Upgrade price"),wxT(""),string_format("%d",res.cost)));
-	gridResProp->Append(new wxStringProperty(wxT("Group"),wxT(""),string_format("%d",res.group_code)));
-	gridResProp->Append(new wxStringProperty(wxT("Level"),wxT(""),string_format("%d",res.level)));
-	gridResProp->Append(new wxStringProperty(wxT("Time"),wxT(""),string_format("%d",res.time)));
-	gridResProp->Append(new wxStringProperty(wxT("Data"),wxT(""),string_format("%d",res.data_id)));
-	gridResProp->Append(new wxStringProperty(wxT("Flags"),wxT(""),string_format("%d",res.flags)));
-	gridResProp->Append(new wxStringProperty(wxT("State"),wxT(""),string_format("%d",res.state)));
+	gridResProp->Append(new wxStringPropertyExt(wxT("Name"),wxT(""),&res.name,31));
+	gridResProp->Append(new wxIntPropertyExt(wxT("Upgrade price"),wxT(""),&res.cost));
+	gridResProp->Append(new wxEnumPropertyExt(wxT("Group"),wxT(""),MapToPGenumChoices(SpellSaveResearch::c_groups),(int*)&res.group));
+	gridResProp->Append(new wxEnumPropertyExt(wxT("Flags"),wxT(""),MapToPGenumChoices(SpellSaveResearch::c_flags),(int*)&res.flags));
+	gridResProp->Append(new wxIntPropertyExt(wxT("Level"),wxT(""),&res.level));
+	gridResProp->Append(new wxIntPropertyExt(wxT("Time"),wxT(""),&res.time));
+	gridResProp->Append(new wxIntPropertyExt(wxT("Data"),wxT(""),&res.data_id));	
+	gridResProp->Append(new wxIntPropertyExt(wxT("State"),wxT(""),&res.state));
 	gridResProp->Thaw();
 	gridResProp->FitColumns();
 }
@@ -1360,22 +1482,35 @@ void FormSaveEdit::OnUpgSelect(wxCommandEvent& event)
 		return;
 	auto& upg = m_bigmap.upgrade[rid];
 
+	int row = 0;
+	int col = 0;
+	for(auto& val: upg.raw)
+	{
+		gridRawUpgrades->SetCellValue(row,col,string_format("%d",val));
+		col++;
+		if(col >= gridRawUpgrades->GetNumberCols())
+		{
+			col = 0;
+			row++;
+		}
+		if(row >= gridRawUpgrades->GetNumberRows())
+			break;
+	}
+
 	gridUpgProp->Freeze();
 	gridUpgProp->Clear();
-	gridUpgProp->Append(new wxStringProperty(wxT("Name"),wxT(""),upg.name));
-	gridUpgProp->Append(new wxStringProperty(wxT("Upgrade price"),wxT(""),string_format("%d",upg.upg_price)));
-	gridUpgProp->Append(new wxStringProperty(wxT("Upgrade time"),wxT(""),string_format("%d",upg.upg_time)));
-	gridUpgProp->Append(new wxStringProperty(wxT("Move"),wxT(""),string_format("%d",upg.move)));
-	gridUpgProp->Append(new wxStringProperty(wxT("Attack"),wxT(""),string_format("%d",upg.attack)));
-	gridUpgProp->Append(new wxStringProperty(wxT("Attack PT"),wxT(""),string_format("%d",upg.attack_pt)));
-	gridUpgProp->Append(new wxStringProperty(wxT("Defence"),wxT(""),string_format("%d",upg.defence)));
-	gridUpgProp->Append(new wxStringProperty(wxT("Range"),wxT(""),string_format("%d",upg.range)));
-	gridUpgProp->Append(new wxStringProperty(wxT("Sight"),wxT(""),string_format("%d",upg.sight)));
-	gridUpgProp->Append(new wxStringProperty(wxT("Flags"),wxT(""),upg.GetUpgradeClassStr()));
-	
-	std::ostringstream types_str;
-	std::copy(std::begin(upg.suitable_types),std::end(upg.suitable_types),std::ostream_iterator<int>(types_str,", "));
-	gridUpgProp->Append(new wxStringProperty(wxT("Suitable types"),wxT(""),std::string(types_str.str())));
+	gridUpgProp->Append(new wxStringPropertyExt(wxT("Name"),wxT(""),&upg.name,29));
+	gridUpgProp->Append(new wxIntPropertyExt(wxT("Upgrade price"),wxT(""),&upg.upg_price));
+	gridUpgProp->Append(new wxIntPropertyExt(wxT("Upgrade time"),wxT(""),&upg.upg_time));
+	gridUpgProp->Append(new wxIntPropertyExt(wxT("Move"),wxT(""),&upg.move));
+	gridUpgProp->Append(new wxIntPropertyExt(wxT("Attack"),wxT(""),&upg.attack));
+	gridUpgProp->Append(new wxIntPropertyExt(wxT("Attack PT"),wxT(""),&upg.attack_pt));
+	gridUpgProp->Append(new wxIntPropertyExt(wxT("Defence"),wxT(""),&upg.defence));
+	gridUpgProp->Append(new wxIntPropertyExt(wxT("Range"),wxT(""),&upg.range));
+	gridUpgProp->Append(new wxIntPropertyExt(wxT("Sight"),wxT(""),&upg.sight));
+	gridUpgProp->Append(new wxEnumPropertyExt(wxT("Flags"),wxT(""),MapToPGenumChoices(SpellSaveUpgrade::c_flags),(int*)&upg.type));	
+	gridUpgProp->Append(new wxMultiChoicePropertyExt(wxT("Suitable types"),wxT(""),MapToPGenumChoices(m_bigmap.GetUnitNames(true)),&upg.suitable_types));
+		
 	
 	gridUpgProp->Thaw();
 	gridUpgProp->FitColumns();
@@ -1418,7 +1553,7 @@ void FormSaveEdit::OnUnitSelect(wxCommandEvent& event)
 	gridUnitProp->Append(new wxIntPropertyExt(wxT("HP"),wxT(""),&unit.hp));
 	gridUnitProp->Append(new wxIntPropertyExt(wxT("HP max"),wxT(""),&unit.hp_max));
 	gridUnitProp->Append(new wxStringProperty(wxT("Hierarchy pos"),wxT(""),string_format("%d",unit.hierarch_pos)));		
-	gridUnitProp->Append(new wxEnumPropertyExt(wxT("Upgrade armor"),wxT("armor"),MapToPGenumChoices(m_bigmap.GetUpgradeList(SpellSaveUpgrade::UpgradeClass::ARMOR)),&unit.upg_armor));
+	gridUnitProp->Append(new wxEnumPropertyExt(wxT("Upgrade armor"),wxT(""),MapToPGenumChoices(m_bigmap.GetUpgradeList(SpellSaveUpgrade::UpgradeClass::ARMOR)),&unit.upg_armor));
 	gridUnitProp->Append(new wxEnumPropertyExt(wxT("Upgrade weapon"),wxT(""),MapToPGenumChoices(m_bigmap.GetUpgradeList(SpellSaveUpgrade::UpgradeClass::WEAPON)),&unit.upg_weapon));
 	gridUnitProp->Append(new wxEnumPropertyExt(wxT("Upgrade engine"),wxT(""),MapToPGenumChoices(m_bigmap.GetUpgradeList(SpellSaveUpgrade::UpgradeClass::ENGINE)),&unit.upg_engine));	
 	gridUnitProp->Append(new wxIntPropertyExt(wxT("Upgrade timeout"),wxT(""),&unit.upg_timeout));
@@ -1477,7 +1612,7 @@ void FormSaveEdit::OnCommanderSelect(wxCommandEvent& event)
 	gridCommanderProp->Append(new wxStringPropertyExt(wxT("Name"),wxT(""),&com.name,29));
 	gridCommanderProp->Append(new wxStringProperty(wxT("Flags"),wxT(""),string_format("0x%04X",com.flags)));
 	gridCommanderProp->Append(new wxIntPropertyExt(wxT("Battles"),wxT(""),&com.battles));
-	gridCommanderProp->Append(new wxIntPropertyExt(wxT("Rank"),wxT(""),&com.rank));
+	gridCommanderProp->Append(new wxEnumPropertyExt(wxT("Rank"),wxT(""),MapToPGenumChoices(m_bigmap.GetRanksList()),&com.rank));
 	gridCommanderProp->Append(new wxStringProperty(wxT("Hierarchy Level"),wxT(""),string_format("%d",com.command_level())));
 	gridCommanderProp->Append(new wxStringProperty(wxT("Hierarchy position"),wxT(""),string_format("%d",com.command_pos())));
 	gridCommanderProp->Append(new wxStringProperty(wxT("Assigned to unit"),wxT(""),string_format("%d",com.unit_id)));

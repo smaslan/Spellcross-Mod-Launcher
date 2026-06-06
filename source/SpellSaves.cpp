@@ -81,7 +81,34 @@ bool SpellSave::CheckSaves(std::filesystem::path dir)
 
 
 
-const std::map<int,std::string> SpellSaveTerritories::c_states = {{0x00,"Enemy"},{0x0F,"Player"},{0x0D,"Accessible"},{0x10,"Locked"},{0x1F,"Unlocked"},{0x1D,"Was unlocked (bug)"},{0x0C,"Was accessible"}};
+const std::map<int,std::string> SpellSaveTerritories::c_states = {
+    {0x00,"Enemy"},
+    {0x0F,"Player"},
+    {0x0D,"Accessible"},
+    {0x10,"Locked"},
+    {0x1F,"Unlocked"},
+    {0x1D,"Was unlocked (bug)"},
+    {0x0C,"Was accessible"}};
+
+const std::map<int,std::string> SpellSaveResearch::c_groups ={
+    {SpellSaveResearch::Group::NONE,"None"},
+    {SpellSaveResearch::Group::GLOBAL,"Global"},
+    {SpellSaveResearch::Group::RACES,"Races"},
+    {SpellSaveResearch::Group::UPGRADE,"Upgrades"},
+    {SpellSaveResearch::Group::TECH,"Technologies"}};
+
+const std::map<int,std::string> SpellSaveResearch::c_flags ={
+    {SpellSaveResearch::Flags::Info,"Info"},
+    {SpellSaveResearch::Flags::NewUnit,"NewUnit"},
+    {SpellSaveResearch::Flags::Special,"Special"},
+    {SpellSaveResearch::Flags::UnitType,"UnitType"},
+    {SpellSaveResearch::Flags::UpgradeItem,"UpgradeItem"}};
+
+const std::map<int,std::string> SpellSaveUpgrade::c_flags = {
+    {UpgradeClass::NONE,"None"},
+    {UpgradeClass::ENGINE,"Engine"},
+    {UpgradeClass::WEAPON,"Weapon"},
+    {UpgradeClass::ARMOR,"Armor"}};
 
 SpellSaveBigMap::SpellSaveBigMap()
 {
@@ -141,10 +168,35 @@ std::map<int,std::wstring> SpellSaveBigMap::GetUnitTypeList(bool add_empty,bool 
     {
         auto id = &unit - m_unit_names.data();
         if(with_id)
-            list.insert({id,unit});
+            list.insert({id,wstring_format(L"#%02d: %ls",id,unit.c_str())});            
         else
-            list.insert({id,wstring_format(L"#%02d: %ls",id,unit.c_str())});
+            list.insert({id,unit});            
     }
+    return(list);
+}
+
+// get list of unit name
+std::map<int,std::wstring> SpellSaveBigMap::GetUnitNames(bool with_id)
+{
+    std::map<int,std::wstring> list;
+    for(auto &unit: m_unit_names)
+    {
+        auto id = &unit - m_unit_names.data();
+        if(with_id)
+            list.insert({id,wstring_format(L"#%02d: %ls",id,unit.c_str())});
+        else
+            list.insert({id,unit});
+            
+    }
+    return(list);
+}
+
+// get list of rank strings
+std::map<int,std::wstring> SpellSaveBigMap::GetRanksList()
+{
+    std::map<int,std::wstring> list;
+    for(auto &rank: m_rank_names)
+        list.insert({&rank - m_rank_names.data(), rank});
     return(list);
 }
 
@@ -245,6 +297,8 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
     for(int k = 0; k < res_count; k++)
     {
         auto &res = research.emplace_back();
+        res.raw.resize(47);
+        memcpy(res.raw.data(),ptr,47);
 
         // read name, convert to unicode
         auto name_len = strnlen((const char*)&ptr[15],32);
@@ -256,8 +310,8 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
         res.data_id = *(int16_t*)&ptr[7];
 
         // other stuff
-        res.flags = ptr[3];
-        res.group_code = ptr[2];
+        res.flags = (SpellSaveResearch::Flags)ptr[3];
+        res.group = (SpellSaveResearch::Group)ptr[2];
         res.cost = *(int16_t*)&ptr[9];
         res.time = *(int16_t*)&ptr[5];
         res.level = ptr[4];        
@@ -269,7 +323,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
     // load upgrade entries
     ptr = &raw[0x24C0];
     for(int k = 0; k < 35; k++)
-    {        
+    {                        
         // read name, convert to unicode
         auto name_len = strnlen((const char*)&ptr[0],30);
         if(!name_len)
@@ -280,6 +334,9 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
             return(1);        
 
         auto& upg = upgrade.emplace_back();
+        upg.raw.resize(142);
+        memcpy(upg.raw.data(),ptr,142);
+
         upg.name = char2wstringCP895((char*)&ptr[0]);
 
         upg.attack = *(int16_t*)&ptr[30];
@@ -576,8 +633,88 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
 // save big_map.sav session
 int SpellSaveBigMap::Save(std::filesystem::path path)
 {    
+    // store research stuff
+    if(research.size() > 200)
+        return(1);    
+    auto ptr = &raw[0x0000];
+    // items count
+    *(uint32_t*)&ptr[0] = research.size();
+    ptr += 8;
+    // clear records
+    memset(ptr,0x00,200*47);
+
+    for(auto &res: research)
+    {
+        // start with raw original data
+        memcpy(ptr,res.raw.data(),res.raw.size());
+
+        // put name
+        memset(&ptr[15],0,32);
+        if(res.name.length() > 31)
+            return(1);
+        auto name = wstring2stringCP895(res.name);
+        memcpy(&ptr[15],name.c_str(),name.length());
+        
+        // linked data id
+        *(int16_t*)&ptr[7] = res.data_id;
+
+        // other stuff
+        ptr[3] = res.flags;
+        ptr[2] = res.group;
+        *(int16_t*)&ptr[9] = res.cost;
+        *(int16_t*)&ptr[5] = res.time;
+        ptr[4] = res.level;
+        *(int16_t*)&ptr[0] = res.state;
+
+        ptr += 47;
+    }
+
+    // load upgrade entries
+    ptr = &raw[0x24C0];
+    for(auto &upg: upgrade)
+    {
+        // start with raw original data
+        memcpy(ptr,upg.raw.data(),upg.raw.size());
+
+        // put name
+        memset(&ptr[0],0,30);
+        if(upg.name.length() > 29)
+            return(1);
+        auto name = wstring2stringCP895(upg.name);
+        memcpy(&ptr[0],name.c_str(),name.length());
+
+
+        *(int16_t*)&ptr[30] = upg.attack;
+        *(int16_t*)&ptr[32] = upg.attack_pt;
+        *(int16_t*)&ptr[34] = upg.defence;
+        *(int16_t*)&ptr[36] = upg.range;
+        *(int16_t*)&ptr[38] = upg.sight; // just guess
+        *(int16_t*)&ptr[40] = upg.move;
+
+        *(int16_t*)&ptr[44] = upg.state;
+        *(int16_t*)&ptr[46] = upg.upg_price;
+        *(int16_t*)&ptr[48] = upg.upg_time;
+
+        // upgrade type class id
+        *(int16_t*)&ptr[42] = upg.type;
+
+        // list of suitable unit ids
+        if(upg.suitable_types.size() > 90)
+            return(1);
+        *(int16_t*)&ptr[50] = upg.suitable_types.size();
+        for(int m = 0; m < upg.suitable_types.size(); m++)
+        {
+            if(upg.suitable_types[m] > 90 || upg.suitable_types[m] < 0)
+                return(1);
+            ptr[52 + m] = upg.suitable_types[m];
+        }
+
+        ptr += 142;
+    }
+    
+    
     // list of player units
-    auto ptr = &raw[0x396C];
+    ptr = &raw[0x396C];
     for(auto &unit: units)
     {
         if(unit.is_empty())

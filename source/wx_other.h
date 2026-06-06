@@ -108,7 +108,8 @@ public:
 		INT,
 		STRING,
 		WSTRING,
-		ENUM
+		ENUM,
+		ARRAY
 	};
 
 	DataType m_type;
@@ -129,6 +130,20 @@ public:
 			*(std::wstring*)m_data = prop->GetValue().GetString();
 		else if(m_type == wxPGobj::DataType::ENUM)
 			*(int*)m_data = prop->GetValue().GetLong();
+		else if(m_type == wxPGobj::DataType::ARRAY)
+		{
+			auto data = (std::vector<int>*)m_data;
+			data->clear();
+			auto selections = prop->GetValue().GetArrayString();
+			auto ch = prop->GetChoices().GetLabels();
+			for(auto &sel: selections)
+			{
+				auto sel_id = std::find(ch.begin(), ch.end(), sel);
+				if(sel_id == ch.end())
+					continue;
+				data->push_back(sel_id - ch.begin());
+			}				
+		}
 		else
 			return(false);
 		return(true);
@@ -188,6 +203,25 @@ public:
 	}
 };
 
+// PropGrid multi-choice strings with selection indices vector using linker variable
+class wxMultiChoicePropertyExt : public wxMultiChoiceProperty
+{
+private:
+	wxArrayString GenSelections(wxPGChoices& choices, std::vector<int> *values)
+	{		
+		auto ch_list = choices.GetLabels();
+		wxArrayString list;
+		for(auto id: *values)
+			list.push_back(ch_list[id]);
+		return(list);
+	};
+public:
+	wxMultiChoicePropertyExt(const wxString& label,const wxString& name,wxPGChoices& choices,std::vector<int> *value)
+		: wxMultiChoiceProperty(label,name,choices,GenSelections(choices,value))
+	{
+		SetClientObject(new wxPGobj(wxPGobj::DataType::ARRAY,value));
+	};
+};
 
 
 

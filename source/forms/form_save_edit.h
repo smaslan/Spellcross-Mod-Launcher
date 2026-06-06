@@ -7,7 +7,7 @@
 
 #pragma once
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-04 18:52:32
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-06 08:48:28
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -36,11 +36,11 @@
 #include <wx/checklst.h>
 #include <wx/propgrid/propgrid.h>
 #include <wx/propgrid/advprops.h>
-#include <wx/panel.h>
 #include <wx/grid.h>
+#include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-04 18:52:32
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-06 08:48:28
 #include <wx/tglbtn.h>
 
 #include <filesystem>
@@ -111,7 +111,7 @@ protected:
 	const int wxID_CH_HIERARCH_COM3C_0 = 7300;
 	const int wxID_CH_HIERARCH_COM3U_0 = 7350;
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-04 18:52:32
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-06 08:48:28
 	enum
 	{
 		wxID_FORM_SAVE_EDIT = 6000,
@@ -127,9 +127,11 @@ protected:
 		wxID_LBOX_RES,
 		wxID_LBL_RES_NAME,
 		wxID_GRID_RES,
+		wxID_GRID_RAW_RESEARCH,
 		wxID_LBOX_UPG,
 		wxID_LBL_UPG_NAME,
 		wxID_GRID_UPG,
+		wxID_GRID_RAW_UPGRADES,
 		wxID_PAN_UNITS,
 		wxID_LBOX_UNITS,
 		wxID_BTN_UNIT_RESET_NAMES,
@@ -167,11 +169,15 @@ protected:
 	wxListBox* listRes;
 	wxStaticText* lblResName;
 	wxPropertyGrid* gridResProp;
+	wxStaticText* m_staticText39;
+	wxGrid* gridRawResearch;
 	wxStaticLine* m_staticline11;
 	wxStaticText* m_staticText211;
 	wxListBox* listUpg;
 	wxStaticText* lblUpgName;
 	wxPropertyGrid* gridUpgProp;
+	wxStaticText* m_staticText40;
+	wxGrid* gridRawUpgrades;
 	wxPanel* panUnits;
 	wxStaticText* m_staticText212;
 	wxListBox* listUnits;
@@ -217,7 +223,7 @@ protected:
 	wxStaticText* lblResName12;
 	wxPropertyGrid* gridLevelProp;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-04 18:52:32
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-06 08:48:28
 
 public:
 
