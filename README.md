@@ -10,8 +10,8 @@ Spellcross is my favourite oldie game. Some 20 years ago I started playing with 
 
 ![Spellcross Mod Launcher Tool](fig/screen_1.png)
 
-Howver, when I wanted to make actual mods involving changes in several game archives, it has become a bit impractical to do so manually by unpacking, editing files and repacking each archive again. The situation became even more convoluted when I had multiple different mods. So, I made a [tool](https://spellcross.kvalitne.cz/mod/spell_mod_builder.html) that can build modified game archives on runtime based on definition file from original game files and additional user files to be added/modified. 
-Than, it can replace original game archives with modded ones, launch the game and of course restore original game archives after the game is finished. 
+However, when I wanted to make actual mods involving changes in several game archives, it has become a bit impractical to do so manually by unpacking, editing files and repacking each archive again. The situation became even more convoluted when I had multiple different mods. So, I made a [tool](https://spellcross.kvalitne.cz/mod/spell_mod_builder.html) that can build modified game archives on runtime based on definition file from original game files and additional user files to be added/modified. 
+Then it can replace original game archives with modded ones, launch the game and of course restore original game archives after the game is finished. 
 Original tool was very messy and made in Borland VCL C++ which is obsolete. So I spent few days and made the whole thing from a scratch again in MSVC C++ with wxWidgets GUI (in theory prepared for multiplatform builds).
 
 ![Modded gameplay](fig/scr02.png)
@@ -23,8 +23,9 @@ Original tool was very messy and made in Borland VCL C++ which is obsolete. So I
 - It can also move SAVE games folder along with the modded archives, so you can have separate set of saves for each mod not colliding with each other.
 - It generates game launch batch files for either DOSbox mode or native Win32 mode. The Win32 is now obsolete but if compiled for x86 it can be run in e.g. 32bit WinXP which still has NTDVM emulator integrated.
 - It can directly launch the game via DOSbox or Win32 modes - one click operation together with or without mod.
-- It can make fast backup and restore of temporary WORKDIR save that is useful when you play some of the bloody mission where loss of special unit terminates mission without option to load (we all know those missions right? :-).
+- It can make fast backup and restore of temporary WORKDIR save that is useful when you play some of the bloody mission where loss of special unit terminates mission without option to load (we all know those convoy missions right? :-).
 - It has simple SAVE game backup manager to make and restore backups of whole save games set just in case...
+- It has experimental SAVE game editor for inspecting and editing saves (can fix some of known game bugs).
 
 ## Builds
 
@@ -32,7 +33,12 @@ Here are available release builds for Windows. It was tested in Windows 10, but 
 
 - [V1.0, 5th May 2026 (zip file)](./builds/Spellcross-Mod-Launcher-V1.0.zip)
   - First release (careful, not fully tested, make backups!).  
+- [V1.1, 11th June 2026 (zip file)](./builds/Spellcross-Mod-Launcher-V1.1.zip)
+  - Added save game editor (careful, not fully tested, make backups!).
 
+## Uasge
+
+The tool has help in the application folder. It should be able to launch the HTML help via menu (it may fail due to Windows security policies). If not, open it manually using your browser. 
                                  
 ## License
 The tool is distributed under [MIT license](./LICENSE). 

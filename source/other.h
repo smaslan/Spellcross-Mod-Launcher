@@ -259,30 +259,6 @@ public:
 };
 
 
-/*class ofstreamext : public basic_ofstream<char,char_traits<char>>
-{
-public:
-    void write(uint32_t u32);
-};*/
-
-// write numeric
-/*void fwrite_num(ofstream &fw, uint32_t u32)
-{
-    fw.write((char*)&u32, sizeof(uint32_t));
-}
-void fwrite_num(ofstream& fw,uint16_t u16)
-{
-    fw.write((char*)&u16,sizeof(uint16_t));
-}
-// write string with size prefix
-void fwrite_string(ofstream& fw,string str)
-{
-    uint16_t len = str.size()+1;
-    fw.write((char*)&len,sizeof(uint16_t));
-    fw.write((char*)str.c_str(),len);
-}*/
-
-
 #endif
 
 

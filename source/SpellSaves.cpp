@@ -472,7 +472,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
     bigmap.final_terr = ptr[3];
 
     // load bigmap territories
-    std::vector<bool> used_territories(128,true);    
+    std::vector<bool> used_territories(128,false);    
     if(common_fs && bigmap.level >= 1)
     {
         auto bigmap_img_name = string_format("LEVEL_%02d.LZ",bigmap.level);

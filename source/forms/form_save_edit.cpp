@@ -644,6 +644,12 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-06-06 16:20:46
 
+	// set icon
+	wxIcon appIcon;
+	appIcon.LoadFile("IDI_ICON2",wxBITMAP_TYPE_ICO_RESOURCE);
+	if(appIcon.IsOk())
+		SetIcon(appIcon);
+
 	mmSave->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
 	mmSaveAs->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
 	mmOpen->SetBitmaps(LoadSVGiconsBundle("IDR_OPEN"));

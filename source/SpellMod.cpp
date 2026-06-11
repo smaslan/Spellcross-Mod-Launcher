@@ -1136,6 +1136,7 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
         if(fs_rename(arch.dest,temp_path))
         {
             PrintConsole("failed! Moving original (%ls) to temp location (%ls).\n",arch.dest.wstring().c_str(), temp_path.wstring().c_str());            
+            was_error = true;
             break;
         }
         ini.SetBoolValue(arch.name.c_str(),"modified",true);
@@ -1147,6 +1148,7 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
         if(fs_rename(arch.source,arch.dest))
         {
             PrintConsole("failed! Moving mod (%ls) to game location (%ls).\n",arch.source.wstring().c_str(),arch.dest.wstring().c_str());
+            was_error = true;
             break;
         }
         ini.SetValue(arch.name.c_str(),"mod_from",arch.source.string().c_str());
@@ -1155,7 +1157,7 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
     }
     
     // swap save games?
-    if(config.move_saves)
+    if(!was_error && config.move_saves)
     {        
         auto save_dir = config.spell_dir / "SAVE";
         auto mod_save_dir = mod_dir / "save";
@@ -1164,20 +1166,27 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
         PrintConsole(" - Replacing SAVE games ...");
         if(!std::filesystem::exists(mod_save_dir))
         {
-            // no save games in mod folder yet: make copy of current game saves
+            // no save games in mod folder yet: make a copy of current game saves
             if(fs_copy(save_dir,mod_save_dir,std::filesystem::copy_options::recursive))
+            {
                 PrintConsole("failed! Making initial copy of games saves (%ls) to mod location (%ls).\n",mod_save_dir.wstring().c_str(),save_dir.wstring().c_str());
+                was_error = true;
+            }
             else
                 MakeSaveIni(mod_save_dir,"Initial copy of original Spellcross SAVE folder");
         }
-
-        MakeSaveIni(save_dir,"Temporary copy of original game SAVE folder");
+                
         
         // now try to swap saves
-        if(fs_rename(save_dir,save_temp_dir))
-            PrintConsole("failed! Moving original saves (%ls) to temp location (%ls).\n",save_dir.wstring().c_str(),save_temp_dir.wstring().c_str());
-        else
+        if(!was_error && fs_rename(save_dir,save_temp_dir))
         {
+            PrintConsole("failed! Moving original saves (%ls) to temp location (%ls).\n",save_dir.wstring().c_str(),save_temp_dir.wstring().c_str());
+            was_error = true;
+        }
+        else if(!was_error)
+        {
+            MakeSaveIni(save_temp_dir,"Temporary copy of original game SAVE folder");
+
             ini.SetBoolValue("SAVE","modified",true);
             ini.SetValue("SAVE","location",save_dir.string().c_str());
             ini.SetValue("SAVE","where_original",save_temp_dir.string().c_str());
@@ -1186,16 +1195,18 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
             MakeSaveIni(mod_save_dir,string_format("Save games of mod \"%ls\"",config.mod_path.wstring().c_str()));
                         
             if(fs_rename(mod_save_dir,save_dir))
+            {
                 PrintConsole("failed! Moving mod saves (%ls) to game location (%ls).\n",mod_save_dir.wstring().c_str(),save_dir.wstring().c_str());
+                was_error = true;
+            }
             else
             {
                 ini.SetValue("SAVE","mod_from",mod_save_dir.string().c_str());            
-                
-                
             }
         }
 
-        PrintConsole(" done\n");
+        if(!was_error)
+            PrintConsole(" done\n");
         
     }
 
@@ -1206,7 +1217,7 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
     else
         PrintConsole(" - Game mod done!\n");
 
-    return(0);
+    return(was_error);
 }
 
 // cleanup mod state file

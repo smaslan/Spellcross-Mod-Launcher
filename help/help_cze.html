@@ -77,6 +77,16 @@ Další nastavení je cesta k modu <b>Mod path</b>. Pro spouštìní modu lze eventuál
 &nbsp;&nbsp; Poslední funkcí v menu <b>Savegame</b> je <b>Manage SAVEs</b>. To spustí jednoduchého správce uloenıch pozic ve kterém lze vytváøet a obnovovat zálohy celé sady uloenıch pozic buïto ze sloky hry "SAVE" nebo lokální uloené pozice ve sloce modu "save". Uloené pozice lze obnovovat i jednotlivì. Operace obnovení pochopitelnì pøepisuje stávající uloené pozice, ale nástroj pøed kadou operací vypíše pøesnı popis provedenıch zmìn, take doporuèuji peèlivì pøeèíst! 
 </p>
 
+<div class="n2">6 - Editor uloenıch pozic</div><p align="justify">
+&nbsp;&nbsp; V menu <b>Savegame</b> lze spustit <b>Savegame editor</b>. Jedná se o tìce experimentální nástroj pro prohlíení a editaci souboru "big_map.sav", kterı je jádrem kadé uloené pozice Spellcrossu (sloky v SAVE). Lze otevøít buïto jednu z nabízenıch uloenıch pozic nebo pøímo soubor "big_map.sav". Podaøilo se mi dešifrovat vıznam vìtšiny jeho poloek, ale stále ještì nìjaké neznámé zbıvají. Editovat lze sice libovolné poloky naètené v panelech editoru, ale ne všechny se uloí. Kadopádnì pøed uloením jakıchkoliv zmìn si udìlejte zálohu! Není to plnì odladìné.<br>
+&nbsp;&nbsp; Po otevøení souboru lze vybrat jednotlivé skupiny nastavení. List <b>Research</b> umoòuje editovat stav vızkumu a vlastnosti vylepšení. To se mùe hodit, protoe vızkum je sice definován v DEF souborech v COMMON.FS, ale hra si vytvoøí binární kopii do "big_map.sav" a zmìny v DEF ignoruje, take je tøeba je provádìt zde. Další list <b>Units</b> umoòuje øazení, pøejmenování a editaci jednotek hráèe. Zejména øazení je uiteèné, protoe Spellcross bohuel mícha dohromady stále jednotky a posily. Pøi pøechodu na další úroveò odstraní posily a v seznamu zùstanou mezery. Do tìch pak umisuje nové jednotky, take se to ve høe jeví jako by je øadil náhodnì. Zde lze mezery odstranit a pøípadnì jednotky ruènì pøesouvat. V dalším listu <b>Commanders</b> lze editovat velitele a také je pøejmenovat. Editor automaticky pøiøadí jméno velitele ze seznamu, pokud se bugne (hra nìkdy sama vymae jméno velitele, ale všechny jeho parametry zachová). V listu <b>Hierarchy</b> lze sestavit hierarchii velení. To se hodí, kdy je tøeba poøešit známı bug s mizejícími jednotkami a veliteli ve høe. Pouití je identické s hrou. V listu <b>Big Map</b> lze editovat vlastnosti území v rámci úrovnì hry. To se hodí zejména k odbugnutí nìkterıch území, kdy vám je napadne OS (úroveò 9 - klíèe k pohoøí). Zde upozoròuji, e mùe bıt nutné zmìnit status i okolních území, aby na nì bylo lze útoèit. Inspirujte se nìkterım funkèním savegame. Poslední záloka <b>Level</b> umoòuje editaci nìkterıch globálních parametrù jako statistiky, peníze a apod.            
+</p>
+
+<table align="center"><tr><td>
+<img src="obr/save_editor_1.png" alt="Save game editor" title="Save game editor">
+</td></tr></table>
+
+<br>
 <div class="n2">6 - Vytváøení modù</div><p align="justify">
 &nbsp;&nbsp; Celı koncept modifikací spoèívá v maximálním vyuití pùvodních dat hry. Nebylo by praktické pro kadı mod distribuovat všechna data hry. Navíc by to mohlo bıt v rozporu s copyrightem. Proto je koncept postaven tak, e se modifikace generuje runtime pøi spuštìní hry z pùvodních souborù a mod obsahuje pouze nové nebo modifikované soubory. Tato kapitola struènì popíše strukturu modu. Pøíklad sloky modu mùe bıt následující:
 </p>
@@ -168,6 +178,14 @@ class UNITS.FSU
   </td>
   <td>
    První verze.
+  </td> 
+ <tr>
+ <tr valign="top">
+  <td width="130">
+   <span class="d1">V1.10 - 11.6.2026</span>:
+  </td>
+  <td>
+   Pøidán editor uloenıch pozic.
   </td> 
  <tr>
 </table>

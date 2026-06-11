@@ -79,7 +79,19 @@ And that is it for basic setup.
 &nbsp;&nbsp; In menu <b>Savegame</b> you can run <b>Manage SAVEs</b>. This will run simple tool for making backups of the whole set of save games. It basically makes named copies of the game "SAVE" folder (or from save copy in mod folder). Then you can restore from these either all saves at once or you can pick one particular. The manager will always prompt user with details of operation so it should be safe.
 </p>
 
-<div class="n2">6 - Making mods</div><p align="justify">
+
+<div class="n2">6 - Save game editor</div><p align="justify">
+&nbsp;&nbsp; In menu <b>Savegame</b> you can also run <b>Savegame editor</b>. It is highly experimental viewer/editor of the save game file "big_map.sav" which is core of every Spellcross save game folder. You can open, inspect, modify and save certain elements (not all of them). You can open either listed save games or any "big_map.sav" file directly in the game SAVE folder. I was able to decode most of its content but there are still some items I was unable to decipher. Make backups before you save the changes or you might destroy your saves!<br>
+&nbsp;&nbsp; In page <b>Research</b> is is possible to unlock and modify research and upgrade items. Spellcross keeps binary copy of DEF files placed in COMMON.FS here, so changing parameters in COMMON.FS DEF files won't do anything unless edited here in "big_map.sav". In panel <b>Units</b> you can rename, reorder and edit your unit parameters such as upgrades. It may be handy to reorder units because when you pass to next level, Spellcross will remove reinforcements from previous level and leaves in the gaps in units list. Then, when you buy new ones, it will place it to the first gap, so it appears like it's inserting the units randomly. Note I do not recommend editing units that have ongoing upgrades or recruitment. 
+In page <b>Commanders</b> you can rename and edit some of properties of your commanders. In page <b>Hierarchy</b> it is possible to assign command chain same as in game itself. This is useful in case of known game bug of disappearing commanders. Usage is identical to ingame editor. In page <b>Big Map</b> you can edit parameters of your territories. This is useful if you encounter the known bug at Level 9 where territory can get permanently locked by enemy counter attack. You can change state of any territory, but keep in mind you should also correctly change state of neighboring territories too (see working save game as example). Finally, in page <b>Level</b> you can edit some generic parameters like money, statistics, etc.  
+</p>
+
+<table align="center"><tr><td>
+<img src="obr/save_editor_1.png" alt="Save game editor" title="Save game editor">
+</td></tr></table><br>
+
+
+<div class="n2">7 - Making mods</div><p align="justify">
 &nbsp;&nbsp; This section will briefly describe how the mod structure works. An example of a typical structure of mod folder is following:
 </p>
 <pre>
@@ -162,21 +174,29 @@ class UNITS.FSU
 
 
 <br>
-<div class="n2">6 - Versions history</div><p align="justify">
+<div class="n2">7 - Versions history</div><p align="justify">
 <table  align="justify">
  <tr valign="top">
   <td width="200">
-   <span class="d1">V1.00 - May 1., 2026</span>:
+   <span class="d1">V1.00 - May 5th, 2026</span>:
   </td>
   <td>
-   First version.
-  </td> 
+   First release.
+  </td>
+ <tr> 
+ <tr valign="top">
+  <td width="200">
+   <span class="d1">V1.10 - June 11th, 2026</span>:
+  </td>
+  <td>
+   Added save game editor.
+  </td>
  <tr>
 </table>
 </p>
 
 <br>
-<div class="n2">7 - License</div><p align="justify">
+<div class="n2">8 - License</div><p align="justify">
 &nbsp;&nbsp; The tool is provided without any warranty as open source project under MIT license.
 </p>
 <pre>
@@ -203,9 +223,8 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 </pre>
 
-
 <br>
-<div class="n2">8 - Contact</div><p align="justify">
+<div class="n2">10 - Contact</div><p align="justify">
 &nbsp;&nbsp; In case of some problems with this SW you can contact me at <a href="mailto:s.maslan@seznam.cz">s.maslan@seznam.cz</a>.
 Additional informations and new versions can be found at project GitHub: 
 <a href="https://github.com/smaslan/Spellcross-Mod-Launcher">https://github.com/smaslan/Spellcross-Mod-Launcher</a>.
