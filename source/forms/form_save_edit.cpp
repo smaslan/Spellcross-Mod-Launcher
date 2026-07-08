@@ -973,7 +973,18 @@ void FormSaveEdit::UpdateList()
 	gridLevelProp->Clear();
 	gridLevelProp->Append(new wxIntPropertyExt(wxT("Level"),wxT(""),&m_bigmap.bigmap.level));
 	gridLevelProp->Append(new wxEnumPropertyExt(wxT("Final territory"),wxT(""),MapToPGenumChoices(terr_enum),&m_bigmap.bigmap.final_terr));
+
+	gridLevelProp->Append(new wxStringPropertyExt(wxT("Level music"),wxT(""),&level.level_music,13));
 	
+	gridLevelProp->Append(new wxMultiChoicePropertyExt(wxT("AttackUnits(...)"),wxT(""),MapToPGenumChoices(m_bigmap.GetUnitNames(true)),&level.attack_units));
+	gridLevelProp->Append(new wxMultiChoicePropertyExt(wxT("AttackSpecialUnits(...)"),wxT(""),MapToPGenumChoices(m_bigmap.GetUnitNames(true)),&level.attack_spec_units));
+	gridLevelProp->Append(new wxIntPropertyExt(wxT("AttackFlags(non_special_count,...)"),wxT(""),&level.attack_flags_non_spec));
+	gridLevelProp->Append(new wxIntPropertyExt(wxT("AttackFlags(...,total_count,...)"),wxT(""),&level.attack_flags_total));
+	gridLevelProp->Append(new wxIntPropertyExt(wxT("AttackFlags(...,?,...)"),wxT(""),&level.attack_flags_xp_level));
+	gridLevelProp->Append(new wxIntPropertyExt(wxT("AttackFlags(...,xp_level,...)"),wxT(""),&level.attack_flags_xp_level2));
+	gridLevelProp->Append(new wxIntPropertyExt(wxT("AttackFlags(...,freq_random_attack_a,...)"),wxT(""),&level.attack_flags_xp_f_attack_a));
+	gridLevelProp->Append(new wxIntPropertyExt(wxT("AttackFlags(...,freq_random_attack_b)"),wxT(""),&level.attack_flags_xp_f_attack_b));
+		
 	gridLevelProp->Append(new wxIntPropertyExt(wxT("Money"),wxT(""),&level.money));
 	gridLevelProp->Append(new wxIntPropertyExt(wxT("Money to research"),wxT(""),&level.money_research));
 	gridLevelProp->Append(new wxIntPropertyExt(wxT("Round"),wxT(""),&level.round));
@@ -1485,6 +1496,7 @@ void FormSaveEdit::OnResSelect(wxCommandEvent& event)
 	gridResProp->Append(new wxIntPropertyExt(wxT("Time"),wxT(""),&res.time));
 	gridResProp->Append(new wxIntPropertyExt(wxT("Data"),wxT(""),&res.data_id));	
 	gridResProp->Append(new wxIntPropertyExt(wxT("State"),wxT(""),&res.state));
+	gridResProp->Append(new wxIntPropertyExt(wxT("Available"),wxT(""),&res.available));
 	gridResProp->Thaw();
 	gridResProp->FitColumns();
 }

@@ -18,6 +18,8 @@
 #include "other.h"
 #include "fs_archive.h"
 #include "fsu_archive.h"
+#include "spell_units.h"
+#include "spell_randomizer.h"
 #include "SimpleIni.h"
 
 // check if command is asignement "left=right", return left, right
@@ -239,7 +241,7 @@ std::vector<std::string> SpellArchive::GetItemNames()
 }
 
 // try get file from archive
-int SpellArchive::GetFile(std::string& name,std::vector<uint8_t>& data)
+int SpellArchive::GetFile(std::string name,std::vector<uint8_t>& data)
 {
     m_last_error = "";
 
@@ -319,6 +321,36 @@ int SpellArchive::AddFile(SpellArchive &src, std::string& name, bool allow_repla
         auto err = m_fsu->AddResource(data,allow_replace);
         m_last_error = m_fsu->m_last_error;
         return(err);
+    }
+    return(1);
+}
+
+// add file data from raw string
+int SpellArchive::AddFile(std::string &string,std::string& name,bool allow_replace)
+{
+    m_last_error = "";
+
+    if(m_fsu)
+    {
+        m_last_error = string_format("Cannot add raw text to FSU archive!");
+        return(1);
+    }
+    if(!m_fs)
+    {
+        // first file to add: make blank FS
+        m_fs = new FSarchive();
+    }
+    if(m_fs)
+    {
+        // FS archive:
+        std::vector<uint8_t> data(string.begin(), string.end());
+        auto err = m_fs->AddFile(name,data,allow_replace);
+        m_last_error = m_fs->m_last_error;
+        return(err);
+    }
+    if(m_fsu)
+    {
+        // FSU archive:        
     }
     return(1);
 }
@@ -680,6 +712,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
     {
         // target archive absolute path
         auto arch_path = make_dir / arch_name;
+        bool is_common = arch_name == "COMMON.FS";
 
         // try find original archive path
         std::filesystem::path org_path = "";
@@ -832,7 +865,60 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 return(1);
             }
         }
-        // save archive
+
+        // units randomizer?        
+        if(config.randomize && is_common)
+        {
+            // parse units definition
+            std::vector<uint8_t> data;
+            if(arch.GetFile("JEDNOTKY.DEF",data))
+            {
+                // unknown command
+                PrintConsole("failed! Unit randomizer cannot find file JEDNOTKY.DEF in COMMON.FS.\n");
+                return(1);
+            }
+            std::unique_ptr<SpellUnits> units;
+            try{
+                units = std::make_unique<SpellUnits>(data.data(), data.size());
+            }catch(const std::runtime_error& error) {
+                PrintConsole(string_format("failed! Unit randomizer cannot decode file JEDNOTKY.DEF in COMMON.FS.\n"));
+                return(1);
+            }
+            
+            // for each possible map script:
+            for(auto& name: arch.GetItemNames())
+            {
+                std::string key = "M??_*.DEF";
+                if(!wildcmp(key,name))
+                    continue;
+                if(arch.GetFile(name,data))
+                {
+                    // unknown command
+                    PrintConsole("failed! Unit randomizer cannot load file \"%s\" in COMMON.FS.\n",name.c_str());
+                    return(1);
+                }
+
+                // try randomize
+                std::string def(data.begin(),data.end());
+                std::string errstr;
+                if(UnitRandomizer::RandomizeMap(def,units.get(),errstr))
+                {
+                    PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name.c_str(),errstr.c_str());
+                    return(1);
+                }
+
+                // replace
+                if(arch.AddFile(def,name,true))
+                {
+                    PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name.c_str(),arch.GetLastError().c_str());
+                    return(1);
+                }
+            }
+            
+        }
+        
+
+        // --- save archive:
 
         // check if target archive differs from newly built one
         bool must_write = config.force_write && !arch.isEmpty();
@@ -861,6 +947,11 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             }
             // compare by content
             must_write |= !arch.Compare(ref_arch);
+        }
+        if(!must_write && !arch.isEmpty() && !std::filesystem::exists(arch_path) && org_path.empty())
+        {
+            // force write if archive not present in-game
+            must_write =  true;
         }
         if(!must_write)
         {
@@ -972,7 +1063,8 @@ int SpellMod::RestoreMod(Config& config)
         auto location = std::filesystem::path(location_cstr);
         auto where_original = std::filesystem::path(where_original_cstr);
         auto mod_from = std::filesystem::path(mod_from_cstr);
-        
+        bool has_original = !where_original.empty();
+
         if(!mod_from.empty())
         {
             if(!std::filesystem::exists(mod_from.parent_path()))
@@ -999,7 +1091,7 @@ int SpellMod::RestoreMod(Config& config)
                 MakeSaveIni(mod_from,string_format("Save games of mod \"%ls\"",config.mod_path.wstring().c_str()));
         }       
                 
-        if(!std::filesystem::exists(where_original))
+        if(has_original && !std::filesystem::exists(where_original))
         {
             PrintConsole("failed! Original game archive path not exist (%ls).\n",where_original.wstring().c_str());
             was_error = true;
@@ -1007,7 +1099,7 @@ int SpellMod::RestoreMod(Config& config)
         }
                 
         // move original from temp back to game location
-        if(fs_rename(where_original,location))
+        if(has_original && fs_rename(where_original,location))
         {
             PrintConsole("failed! Moving original from temp location (%ls) back (%ls).\n",where_original.wstring().c_str(),location.wstring().c_str());
             was_error = true;
@@ -1067,9 +1159,9 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
     auto make_dir = path->path;
 
     // candidate search paths of original Spellcross archives
-    std::vector<std::filesystem::path> spell_dirs = {config.spell_dir};
+    /*std::vector<std::filesystem::path> spell_dirs = {config.spell_dir};
     if(config.allow_cd_mod && !config.spellcd_dir.empty())
-        spell_dirs.push_back(config.spellcd_dir);      
+        spell_dirs.push_back(config.spellcd_dir);      */
 
     // look for all archives in mod MAKE
     PrintConsole(" - Reading MAKE folder archives...\n");
@@ -1090,18 +1182,15 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
         arch.source = item;
 
         // try to find where to place it original spellcross data (can be installation or CD)
-        for(auto &dir: spell_dirs)
-        {
-            auto path = dir / "DATA" / name;
-            if(!std::filesystem::exists(path))
-                continue;
-            arch.dest = path;
-        }
-        if(arch.dest.empty())
+        arch.dest = config.spell_dir / "DATA" / name;
+        auto cd_dest = config.spellcd_dir / "DATA" / name;
+        if(!config.spellcd_dir.empty() && config.allow_cd_mod && std::filesystem::exists(cd_dest))
+            arch.dest = cd_dest;        
+        /*if(arch.dest.empty())
         {            
             continue;
             //return(1);
-        }
+        }*/
 
         arch.dest_dir = arch.dest.parent_path();
         dir_list.push_back(arch.dest_dir);
@@ -1129,11 +1218,12 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
     for(auto &arch: arch_list)
     {
         auto temp_path = arch.dest_dir / temp_dir_name / arch.name;
+        bool has_orig = std::filesystem::exists(arch.dest);
 
         PrintConsole(" - Replacing archive %s ... ", arch.name.c_str());
         
         // move original to temp
-        if(fs_rename(arch.dest,temp_path))
+        if(has_orig && fs_rename(arch.dest,temp_path))
         {
             PrintConsole("failed! Moving original (%ls) to temp location (%ls).\n",arch.dest.wstring().c_str(), temp_path.wstring().c_str());            
             was_error = true;
@@ -1141,7 +1231,10 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
         }
         ini.SetBoolValue(arch.name.c_str(),"modified",true);
         ini.SetValue(arch.name.c_str(),"location",arch.dest.string().c_str());
-        ini.SetValue(arch.name.c_str(),"where_original",temp_path.string().c_str());
+        if(has_orig)
+            ini.SetValue(arch.name.c_str(),"where_original",temp_path.string().c_str());
+        else
+            ini.SetValue(arch.name.c_str(),"where_original","");
         ini.SetValue(arch.name.c_str(),"mod_from","");
 
         // move mod to original

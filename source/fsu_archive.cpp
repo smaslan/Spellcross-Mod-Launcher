@@ -727,7 +727,7 @@ int FSU_sprite::SaveSprite(std::filesystem::path path, std::vector<uint8_t> &buf
 		uint8_t* p_part_count = (uint8_t*)data; data += sizeof(uint8_t);		
 		
 		uint8_t quad[4] = {0,0,0,0};
-		uint8_t mask[4] = {0x00,0x00,0x00,0x00};
+		uint8_t mask[4] = {0xFF,0xFF,0xFF,0xFF};
 		int pid = 0;
 		bool is_partial = false;
 		int full_count = 0;
@@ -774,7 +774,7 @@ int FSU_sprite::SaveSprite(std::filesystem::path path, std::vector<uint8_t> &buf
 				else if(pid > 0)
 					full_count++;				
 				memset(quad,0x00,4);
-				memset(mask,0x00,4);
+				memset(mask,0xFF,4);
 				pid = 0;
 				if(is_valid)
 				{

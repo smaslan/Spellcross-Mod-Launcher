@@ -200,6 +200,68 @@ std::map<int,std::wstring> SpellSaveBigMap::GetRanksList()
     return(list);
 }
 
+// get string of up to max len
+std::string get_save_str(uint8_t* data,uint8_t *data_end,int max)
+{
+    std::string str;
+    for(int k = 0; k < max; k++)
+    {
+        if(data >= data_end)
+            return(str);
+        if(!*data)
+            break;
+        str.append(1,(char)*data);
+        data++;
+    }
+    return(str);
+}
+
+// store string of up to max len
+int store_save_str(uint8_t* data,uint8_t* data_end,int len,std::string str)
+{
+   if(len <= 0)
+       return(1);
+   if(data + len >= data_end) 
+       return(1);
+   if(str.length() > len)
+       return(1);
+   memset(data,'\0',len);
+   memcpy(data,str.c_str(),str.size());
+   return(0);
+}
+
+// read array of int16 with elements count given by first uint16
+std::vector<int> get_save_array_i16(uint8_t* data,uint8_t* data_end)
+{
+    int count = *(uint16_t*)data; data += sizeof(uint16_t);
+    std::vector<int> list;
+    for(int k = 0; k < count; k++)
+    {
+        if(data >= data_end - sizeof(int16_t) + 1)
+            return(list);
+        list.push_back(*(uint16_t*)data);
+        data += sizeof(uint16_t);
+    }
+    return(list);
+}
+
+// store array of int16 with elements count given by first uint16
+int store_save_array_i16(uint8_t* data,uint8_t* data_end,std::vector<int> &list,int max_len)
+{
+    if(data + sizeof(uint16_t) >= data_end)
+        return(1);
+    if(list.size() > max_len)
+        return(1);
+    *(uint16_t*)data = list.size(); data += sizeof(uint16_t);
+    for(auto &val: list)
+    {
+        if(data + sizeof(int16_t) >= data_end)
+            return(1);
+        *(uint16_t*)data = val; data += sizeof(uint16_t);
+    }
+    return(0);
+}
+
 // load big_map.sav session
 int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path common_fs_path)
 {
@@ -286,6 +348,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
     uint8_t *ptr = raw.data();
     if(raw.size() < min_size)
         return(1);
+    uint8_t *pend = ptr + raw.size();
 
     // research entries count (max 200)
     int res_count = *(uint32_t*)&ptr[0];
@@ -316,13 +379,14 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
         res.time = *(int16_t*)&ptr[5];
         res.level = ptr[4];        
         res.state = *(int16_t*)&ptr[0];
+        res.available = 0;
 
         ptr += 47;
     }
 
     // load upgrade entries
     ptr = &raw[0x24C0];
-    for(int k = 0; k < 35; k++)
+    for(int k = 0; k < 36; k++)
     {                        
         // read name, convert to unicode
         auto name_len = strnlen((const char*)&ptr[0],30);
@@ -361,6 +425,26 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
             upg.suitable_types.push_back(ptr[52 + m]);
 
         ptr += 142;
+    }
+
+    // unit available flags (this is independent of research flags for whatever reason)
+    ptr = &raw[0x38B8];
+    for(int k = 0; k < 90; k++)
+    {
+        int flag = *(int16_t*)ptr;
+        for(auto &res: research)
+        {
+            if(res.group != SpellSaveResearch::Group::RACES)
+                continue;
+            if(res.flags != SpellSaveResearch::Flags::UnitType && res.flags != SpellSaveResearch::Flags::NewUnit)
+                continue;
+            if(res.data_id != k)
+                continue;
+            res.available = flag;
+            break;
+        }
+
+        ptr += sizeof(int16_t);
     }
 
     // list of player units
@@ -432,7 +516,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
             if(com.flags)
                 used_com_names.push_back(com.name);
         }
-        else if(com.flags)
+        else if(com.flags & com.flags != 0xFFFF)
         {
             // bugged name - generate blank
             com.name = L"<>";
@@ -450,7 +534,9 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
     // assigned screwed up names
     for(auto &com: commanders)
     {
-        if(!com.is_empty() && com.name != L"<>")
+        if(com.is_empty())
+            continue;
+        if(com.name != L"<>")
             continue;
         for(auto &name: m_commander_names)
         {
@@ -562,6 +648,23 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
         }
     }
 
+    // level music
+    level.level_music = get_save_str(&raw[0x4838],pend,13);
+    
+    // counter attack normal units: AttackUnits()
+    level.attack_units = get_save_array_i16(&raw[0x4845],pend);
+    
+    // counter attack special units: AttackSpecialUnits()
+    level.attack_spec_units = get_save_array_i16(&raw[0x486F],pend);
+
+    // counter attack flags: AttackFlags()
+    level.attack_flags_non_spec = *(int16_t*)&raw[0x4899 + 0];
+    level.attack_flags_total = *(int16_t*)&raw[0x4899 + 2];
+    level.attack_flags_xp_level = *(int16_t*)&raw[0x4899 + 4];
+    level.attack_flags_xp_level2 = *(int16_t*)&raw[0x4899 + 6];
+    level.attack_flags_xp_f_attack_a = *(int16_t*)&raw[0x4899 + 8];
+    level.attack_flags_xp_f_attack_b = *(int16_t*)&raw[0x4899 + 10];
+
 
     // round
     level.round = *(int16_t*)&raw[0x4835];
@@ -570,7 +673,6 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
     // money to research
     level.money_research = *(int32_t*)&raw[0x50FD];
 
-    
     level.xp = *(int32_t*)&raw[0x50EF];
     level.rank = *(int8_t*)&raw[0x50ED];
 
@@ -637,6 +739,7 @@ int SpellSaveBigMap::Save(std::filesystem::path path)
     if(research.size() > 200)
         return(1);    
     auto ptr = &raw[0x0000];
+    auto pend = raw.data() + raw.size();
     // items count
     *(uint32_t*)&ptr[0] = research.size();
     ptr += 8;
@@ -710,6 +813,24 @@ int SpellSaveBigMap::Save(std::filesystem::path path)
         }
 
         ptr += 142;
+    }
+
+    // unit available flags (this is independent of research flags for whatever reason)
+    ptr = &raw[0x38B8];
+    for(int k = 0; k < 90; k++)
+    {        
+        for(auto& res: research)
+        {
+            if(res.group != SpellSaveResearch::Group::RACES)
+                continue;
+            if(res.flags != SpellSaveResearch::Flags::UnitType && res.flags != SpellSaveResearch::Flags::NewUnit)
+                continue;
+            if(res.data_id != k)
+                continue;
+            *(int16_t*)ptr = res.available;
+            break;
+        }
+        ptr += sizeof(int16_t);
     }
     
     
@@ -829,6 +950,24 @@ int SpellSaveBigMap::Save(std::filesystem::path path)
     raw[0x4834] = bigmap.level;
     // last territory index?
     raw[0x4837] = bigmap.final_terr;
+
+
+    // level music
+    store_save_str(&raw[0x4838],pend,13,level.level_music);
+    
+    // counter attack normal units: AttackUnits()
+    store_save_array_i16(&raw[0x4845],pend,level.attack_units,20);
+
+    // counter attack special units: AttackSpecialUnits()
+    store_save_array_i16(&raw[0x486F],pend,level.attack_spec_units,20);
+
+    // counter attack flags: AttackFlags()
+    *(int16_t*)&raw[0x4899 + 0] = level.attack_flags_non_spec;
+    *(int16_t*)&raw[0x4899 + 2] = level.attack_flags_total;
+    *(int16_t*)&raw[0x4899 + 4] = level.attack_flags_xp_level;
+    *(int16_t*)&raw[0x4899 + 6] = level.attack_flags_xp_level2;
+    *(int16_t*)&raw[0x4899 + 8] = level.attack_flags_xp_f_attack_a;
+    *(int16_t*)&raw[0x4899 + 10] = level.attack_flags_xp_f_attack_b;
 
     // level stuff
     *(int16_t*)&raw[0x4835] = level.round;

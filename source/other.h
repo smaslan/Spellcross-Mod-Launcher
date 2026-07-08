@@ -77,6 +77,7 @@ std::vector<std::string> info_get_section(std::string &info,std::string section)
 std::vector<std::string> info_get_section(std::vector<std::string>& lines,std::string section);
 
 std::vector<std::string> get_text_lines(std::string string,bool trim_white=true,char separator='\n');
+std::string merge_text_lines(std::vector<std::string>& lines,std::string separator="\r\n");
 std::vector<std::string> regexp_get(std::string str,std::string regkey);
 
 uint32_t popcount(uint32_t v);

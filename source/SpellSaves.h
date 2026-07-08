@@ -39,6 +39,7 @@ public:
     int level;
     int data_id;
     int state;
+    int available;
 
     std::string GetGroupName()
     {
@@ -235,6 +236,16 @@ public:
     int stat_loss_armor_tot;
     int stat_loss_air_tot;
     int stat_loss_com_tot;
+
+    std::string level_music;
+    std::vector<int> attack_units;
+    std::vector<int> attack_spec_units;
+    int attack_flags_non_spec;
+    int attack_flags_total;
+    int attack_flags_xp_level;
+    int attack_flags_xp_level2;
+    int attack_flags_xp_f_attack_a;
+    int attack_flags_xp_f_attack_b;
 };
 
 class SpellSaveBigMap{

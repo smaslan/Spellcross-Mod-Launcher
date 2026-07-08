@@ -125,7 +125,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_HAS_STD_BYTE=0;_WINSOCKAPI_;_DEBUG;_WINDOWS;WXUSINGDLL;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;__WINDOWS_DS__;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_HAS_STD_BYTE=0;_WINSOCKAPI_;_DEBUG;_WINDOWS;WXUSINGDLL;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;MINIMAL_SPELL_UNITS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(wxwin)include;$(wxwin)include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -143,7 +143,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_HAS_STD_BYTE=0;_WINSOCKAPI_;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_HAS_STD_BYTE=0;_WINSOCKAPI_;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;MINIMAL_SPELL_UNITS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>$(wxwin)include;$(wxwin)include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -171,6 +171,9 @@
     <ClCompile Include="SpellSaves.cpp" />
     <ClCompile Include="SpellLaunch.cpp" />
     <ClCompile Include="SpellMod.cpp" />
+    <ClCompile Include="spell_def.cpp" />
+    <ClCompile Include="spell_randomizer.cpp" />
+    <ClCompile Include="spell_units.cpp" />
     <ClCompile Include="wx_other.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -180,6 +183,7 @@
     <ClInclude Include="forms\form_save_edit.h" />
     <ClInclude Include="fsu_archive.h" />
     <ClInclude Include="fs_archive.h" />
+    <ClInclude Include="map_types.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SpellLaunch.h" />
     <ClInclude Include="LZ_spell.h" />
@@ -188,6 +192,9 @@
     <ClInclude Include="SimpleIni.h" />
     <ClInclude Include="SpellMod.h" />
     <ClInclude Include="SpellSaves.h" />
+    <ClInclude Include="spell_def.h" />
+    <ClInclude Include="spell_randomizer.h" />
+    <ClInclude Include="spell_units.h" />
     <ClInclude Include="wx_other.h" />
   </ItemGroup>
   <ItemGroup>

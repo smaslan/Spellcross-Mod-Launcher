@@ -60,6 +60,15 @@
     <ClCompile Include="forms\form_save_edit.cpp">
       <Filter>Zdrojové soubory\forms</Filter>
     </ClCompile>
+    <ClCompile Include="spell_units.cpp">
+      <Filter>Zdrojové soubory</Filter>
+    </ClCompile>
+    <ClCompile Include="spell_randomizer.cpp">
+      <Filter>Zdrojové soubory</Filter>
+    </ClCompile>
+    <ClCompile Include="spell_def.cpp">
+      <Filter>Zdrojové soubory</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -106,6 +115,18 @@
     </ClInclude>
     <ClInclude Include="forms\form_save_edit.h">
       <Filter>Hlavičkové soubory\forms</Filter>
+    </ClInclude>
+    <ClInclude Include="spell_units.h">
+      <Filter>Hlavičkové soubory</Filter>
+    </ClInclude>
+    <ClInclude Include="map_types.h">
+      <Filter>Hlavičkové soubory</Filter>
+    </ClInclude>
+    <ClInclude Include="spell_randomizer.h">
+      <Filter>Hlavičkové soubory</Filter>
+    </ClInclude>
+    <ClInclude Include="spell_def.h">
+      <Filter>Hlavičkové soubory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

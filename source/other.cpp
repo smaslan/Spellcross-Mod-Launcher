@@ -554,6 +554,20 @@ std::vector<std::string> get_text_lines(std::string string, bool trim_white, cha
     return(rows);
 }
 
+// split string by lines (or other separators), by default also trims white chars both ends
+std::string merge_text_lines(std::vector<std::string> &lines,std::string separator)
+{
+    std::string str;
+    for(int k = 0; k < lines.size(); k++)
+    {
+        str += lines[k];
+        if(k < lines.size() - 1)
+            str += separator;
+    }
+    return(str);
+}
+
+
 // get stuff using regex
 std::vector<std::string> regexp_get(std::string str,std::string regkey)
 {

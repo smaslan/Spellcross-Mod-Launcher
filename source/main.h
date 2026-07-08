@@ -15,7 +15,7 @@
 #include "simpleini.h"
 #include "SpellMod.h"
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-06-01 18:29:43
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-07-08 19:07:01
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -44,11 +44,11 @@
 #include <wx/checklst.h>
 #include <wx/propgrid/propgrid.h>
 #include <wx/propgrid/advprops.h>
-#include <wx/panel.h>
 #include <wx/grid.h>
+#include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-06-01 18:29:43
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-07-08 19:07:01
 
 
 // app entry point class
@@ -100,6 +100,7 @@ public:
 		bool dosbox_fullscreen;
 		bool move_saves;
 		bool force_build;
+		bool allow_unit_mod;
 	};
 
 	ProcTh(wxFrame* parent,Params &config,ActionsList &actions);
@@ -174,7 +175,7 @@ protected:
 	int wxID_FORM_SAVE_BACK = 5998;
 	int wxID_FORM_EDIT = 5999;	
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-06-01 18:29:43
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-07-08 19:07:01
 	enum
 	{
 		wxID_FORM_MAIN = 6000,
@@ -223,6 +224,7 @@ protected:
 		wxID_BTN_MOD_PATH,
 		wxID_CB_ALLOW_CD_MOD,
 		wxID_CB_MOD_SAVES,
+		wxID_CB_MOD_RANDOMIZE,
 		wxID_TEXT_OUTPUT,
 		wxID_BTN_RUN_ORIG,
 		wxID_BTN_SAVE_WD_ORIG,
@@ -268,6 +270,7 @@ protected:
 	wxBitmapButton* btnModPath;
 	wxCheckBox* cbAllowCDmod;
 	wxCheckBox* cbModSaves;
+	wxCheckBox* cbModRandomize;
 	wxStaticLine* m_staticline44;
 	wxStaticText* m_staticText120;
 	wxTextCtrl* textOutput;
@@ -279,7 +282,7 @@ protected:
 	wxButton* btnRestoreWDmod;
 	wxButton* btnRunMod;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-06-01 18:29:43
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-07-08 19:07:01
 
 
 public:
