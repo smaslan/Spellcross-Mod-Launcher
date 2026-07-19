@@ -1219,6 +1219,28 @@ MapUnit::~MapUnit()
 	}
 }
 
+// get name string of unit randomizer
+std::string MapUnit::GetRandomizerModeName()
+{
+	switch(randomize_mode)
+	{
+	case RandomizeMode::OFF: return("off"); break;
+	case RandomizeMode::AUTO: return("auto"); break;
+	case RandomizeMode::EXPLICIT: 
+		std::string str = "explicit {";
+		for(int k = 0; k < randomize_units.size(); k++)
+		{
+			str += string_format("%d",randomize_units[k]);
+			if(k + 1 < randomize_units.size())
+				str += ", ";
+		}
+		str += "}";
+		return(str);
+		break;
+	}
+	return("");
+}
+
 // morph unit type to target (used e.g. for land/take off action)
 int MapUnit::MorphUnit(SpellUnitRec* target, int health)
 {

@@ -41,7 +41,8 @@ i s tìmi na CD (pokud je CD emulováno ze složky, namísto z ISO). Následnì spustí
 <br>
 <div class="n2">1 - Základní nastavení</div><p align="justify">
 &nbsp;&nbsp; Všechna hlavní nastavení lze provést na hlavním panelu. Pøednì je tøeba nastavit cestu k instalaci hry <b>Spellcross installation folder</b> napø. "C:/hry/SPELCROS". Dále je tøeba nastavit cestu ke kopii CD hry <b>Spellcross CD path</b>. Sice lze nastavit i cestu k namontovanému ISO, ale ISO image pochopitelnì nelze modifikovat, takže doporuèuji udìlat kopii napø. do "C:/hry/SPELLCD". Pokud máte ve složce hry nìkolik EXE souborù, napø. rùzné verze patchù hry, mùžete si vybrat cílový EXE pro spuštìní <b>Spellcross executable</b>. Dále zvolte písmeno jednotky <b>Virtual CD drive letter</b> kam bude namontováno CD hry. Toto nastavení platí jak pro DOSbox, tak i pro Win32 režim. Pokud hry budete spouštìt pøes DOSbox, pak je tøeba také zadat cestu k instalaci DOSboxu <b>DOSbox path</b>. Dále zvolte metodu spuštìní hry <b>Run mode</b>. Nástroj byl pùvodnì vyvinut v dobì 32bit WinXP, kde se daly 16bitové DOSové aplikace provozovat nativnì pøes integrovaný emulátor NTDVM, takže obsahuje možnost spustit nativnì "Win32". Toto nastavení je ovšem dnes již trochu mimo a aplikace ani není kompilovaná pro 32bit systém. Ale teoreticky by to mohlo jít spustit ve virtuálním stroji. Každopádnì dnes je jediná rozumná metoda režim "DOSbox". Pro režim "DOSbox" lze volitelnì vypnout "autoexec.bat" a nastavit spouštìní ve fullscreen režimu.
-Další nastavení je cesta k modu <b>Mod path</b>. Pro spouštìní modu lze eventuálnì vypnout <b>Allow CD mod</b>, pokud by cesta k CD hry vedla na namontované ISO, které pochopitelnì nelze pøepisovat. Poslední volba je <b>Move SAVE games</b>. Pokud je vybráno, vytvoøí Spellcross Mod Launcher po prvním hraní modu kopii uložených pozic do složky modu "save". Pøi dalším spuštìní modu pøesune tyto uložené pozice do herní složky "SAVE" (a pochopitelnì zálohuje pùvodní pozice v "SAVE") a po skonèení hraní je zase pøesune zpìt do složky modu a obnoví pùvodní "SAVE". Takto lze mít nezávislé uložené pozice pro každý mod i originální hru a nepletou se dohromady, protože jsou nekompatibilní a hra pøi naètení vìtšinou padne.     
+Další nastavení je cesta k modu <b>Mod path</b>. Pro spouštìní modu lze eventuálnì vypnout <b>Allow CD mod</b>, pokud by cesta k CD hry vedla na namontované ISO, které pochopitelnì nelze pøepisovat. Poslední volba je <b>Move SAVE games</b>. Pokud je vybráno, vytvoøí Spellcross Mod Launcher po prvním hraní modu kopii uložených pozic do složky modu "save". Pøi dalším spuštìní modu pøesune tyto uložené pozice do herní složky "SAVE" (a pochopitelnì zálohuje pùvodní pozice v "SAVE") a po skonèení hraní je zase pøesune zpìt do složky modu a obnoví pùvodní "SAVE". Takto lze mít nezávislé uložené pozice pro každý mod i originální hru a nepletou se dohromady, protože jsou nekompatibilní a hra pøi naètení vìtšinou padne. 
+Déle lze zapnout <b>Allow randomize units</b>. Tato volba umožní automatickou randomizaci typù jednotek podle pravidel v DEF souborech misí (viz detaily <a href="#randomizer">8 - Randomizér jednotek</a>). Pokud mod obsahuje nìjaké uživatelské volby, zobrazí se v seznamu <b>Options</b>. Detaily viz <a href="#options">7 - Vytváøení modù</a>.     
 </p>
 
 <table align="center"><tr><td>
@@ -87,7 +88,7 @@ Další nastavení je cesta k modu <b>Mod path</b>. Pro spouštìní modu lze eventuál
 </td></tr></table>
 
 <br>
-<div class="n2">6 - Vytváøení modù</div><p align="justify">
+<div class="n2">7 - Vytváøení modù</div><p align="justify">
 &nbsp;&nbsp; Celý koncept modifikací spoèívá v maximálním využití pùvodních dat hry. Nebylo by praktické pro každý mod distribuovat všechna data hry. Navíc by to mohlo být v rozporu s copyrightem. Proto je koncept postaven tak, že se modifikace generuje runtime pøi spuštìní hry z pùvodních souborù a mod obsahuje pouze nové nebo modifikované soubory. Tato kapitola struènì popíše strukturu modu. Pøíklad složky modu mùže být následující:
 </p>
 <pre>
@@ -104,6 +105,7 @@ Další nastavení je cesta k modu <b>Mod path</b>. Pro spouštìní modu lze eventuál
 ./config.def
 </pre>
 
+<a name="options"></a>
 <p align="justify">
 &nbsp;&nbsp; Struktura modu je definována v souboru "*.def". Jeho formát je ve stylu C++ tøíd. Obsahuje nìkolik sekcí. První a povinnou sekci je "class PATH", kde jsou definovány cesty ke zdrojùm souborù hry. Pøíklad:
 </p>
@@ -125,12 +127,23 @@ class PATH
     // the mod data folders
     MOD_COMMON=%DMOD%\COMMON;
     MOD_UNITS=%DMOD%\UNITS;
+    
+    // mod options    
+    option(LEVEL,Level,1,10,1);
+    option(LANG,Language,1,2,1,{Czech;English});
+    option(BOOST,Elevate enemy stats with game levels,0,1,1,{No;Yes});
 }
 </pre>
 <p align="justify">
 Promìnná "MAKE" je povinná a urèuje cílovou složku, kam nástroj generuje modifikované soubory. V pøíkladu to bude podsložka "make" ve složce modu. Všechny ostatní zde definované promìnné jsou volitelné. Každá mùže obsahovat odkazy na již definované promìnné ve formátu %název_promìnné%. Nástroj navíc obsahuje tøi pøedem definované promìnné: %SPELL%, %SPELLCD% a %SPELLANY%. %SPELL% a %SPELLCD% odkazují na složky vybrané v nastavení nástroje <b>Spellcross installation folder</b> a <b>Spellcross CD path</b>. Promìnná %SPELLANY% automaticky volí mez %SPELL% a %SPELLCD%, což je vhodné, protože rùzné verze Spellcrossu mají datové soubory rùznì rozdìlení mezi CD a instalaèní složkou hry.<br> 
 &nbsp;&nbsp; Poznámka: Pùvodní verze tohoto nástroje navíc obsahovala ještì sekci "class SRC", kde bylo možné definovat další cesty a je podporována i v této verzi, ale jednodušší je vše definovat v sekci "class PATH".<br>
 &nbsp;&nbsp; V pøikladu výše jsou definovány cesty "COMMON" a "UNITS", které odkazují na originální datové archivy hry. Promìnná "DMOD" odkazuje na podsložky "data" modu. Zbylé promìnné "MOD_COMMON" a "MOD_UNITS" odkazují na konkrétní podložky s datovými soubory modu.<br> 
+&nbsp;&nbsp; Tato sekce mùže obsahovat definice voleb modu pøíkazem "option()". Syntaxe je nádledující:</p>
+<pre>
+    option(option_label,option_description,min_value,max_value,default_value,{optional_string_values});
+</pre>
+<p align="justify">
+"option_label" je unikátní identifikátor promìnné, který je použitelný v dalším kódu. "option_description" je textový popis volby, který se zobrazí na hlavním panelu nástroje. "min_value", "max_value" a "default_value" definují rozsah hodnot volby a jeho výchozí hodnotu. Poslední parametr je volitelný výèet textových hodnot oddìlený støedníky. Volba "LEVEL" je vyhrazený název a nástroj se pokusí získat její výchozí hodnotu z poslední uložené pozice WORKDIR, takže by jeho hodnota mìla automaticky odpovídat aktuální pozici hráèe.<br> 
 &nbsp;&nbsp; V "*.def" souboru následují sekce pro každý datový archiv hry, který má být modifikován. Pøíklad pro archiv "COMMON.FS" je následující:
 </p>
 <pre>
@@ -142,10 +155,13 @@ class COMMON.FS
     add(%MOD_COMMON%,M01_01A.DEF);  // add specific file from mod "data/COMMON" folder
     add(%MOD_COMMON%,*.CUR);        // add wildcard key matching files from mod "data/COMMON" folder
     add(%MOD_COMMON%);              // add all files from mod "data/COMMON" folder
+    // copy file JEDN_L4.DEF from mod "data/COMMON" folder and rename to JEDNOTKY.DEF
+    // executed conditionally if option LEVEL > 5
+    if(%LEVEL% > 5) copy(%MOD_COMMON%,JEDN_L4.DEF,JEDNOTKY.DEF);                   
 }
 </pre>
 <p align="justify">
-&nbsp;&nbsp; Pøepínaè "replace=1" znamená, že každý další pøíkaz "add()" pøepíše soubory pøidané pøedchozími pøíkazy. "replace=0" znamená, že jsou pøidány pouze nové soubory a již existující jsou pøeskoèeny. Tato volba mùže být provedena i jednotlivì pro každý pøíkaz "add()". Varianty parametrù pøíkazu "add()":</p>
+&nbsp;&nbsp; Pøepínaè "replace=1" znamená, že každý další pøíkaz "add()" nebo "copy()" pøepíše soubory pøidané pøedchozími pøíkazy. "replace=0" znamená, že jsou pøidány pouze nové soubory a již existující jsou pøeskoèeny. Tato volba mùže být provedena i jednotlivì pro každý pøíkaz "add()". Varianty parametrù pøíkazu "add()":</p>
 <pre>
 add(zdroj);               // pøidá všechny soubory ze "zdroj"
 add(mód,zdroj);           // viz výše, "mód" mùže být NEW (pøidá pouze nové soubory) nebo ALL (pøepisuje existující)
@@ -154,6 +170,17 @@ add(mód,zdroj,wildcard);  // viz výše s definicí režimu "mód"
 </pre>
 <p align="justify">
 Pøepínaè "optional=1" oznaèí archiv jako volitený, takže nástroj negeneruje chybu pokud "zdroj" nebude nalezen. Defaultní hodnota je "optional=0", tj. "zdroj" mustí existovat.<br>
+&nbsp;&nbsp; Další možný pøíkaz je "copy()", který kopíruje jeden soubor s pøejmenováním. Syntaxe je následující:</p>
+<pre>
+    copy(source_archive,source_file_name,destination_file_name);
+</pre>
+<p align="justify">, kde "source_archive" je zdrojový archiv, "source_file_name" název zdrojového souboru a "destination_file_name" cílový název souboru.<br>  
+&nbsp;&nbsp; Každý pøíkaz mùže být dále podmínìn pøíkazem "if()". Mùsí ovšem být na jednom øádku s podmínkou:</p>
+<pre>
+    if(%LEVEL% > 5) copy(%MOD_COMMON%,JEDN_L4.DEF,JEDNOTKY.DEF);
+</pre>
+<p align="justify">
+Podmínka mùže obsahovat odkazy na jednotlivé volby definované "option()", jako v tomto pøípadì bude pøíkaz výkonán pokud LEVEL &gt 5.<br> 
 &nbsp;&nbsp; Všechny datové archivy hry "*.FS" jsou identické. Výjimkou je pouze "UNITS.FSU". Ten obsahuje sprity jednotek a jako jediný je èlenìn do podsložek. Každá podsložka reprezentuje jednu jednotku a musí mít název do délky 5 znakù. Jednotlivé podsložky pak obsahuji LZ komprimované sprity s názvy délky 3 znaky. Ve zdrojových složkách modu tedy musí být odkazované data organizovány v podložkách, viz pøíklad "data/units/MAMUT". Pøíklad sekce pro "UNITS.FSU":
 </p>
 <pre>
@@ -170,7 +197,27 @@ class UNITS.FSU
 
 
 <br>
-<div class="n2">5 - Historie verzí</div><p align="justify">
+<a name="randomizer"></a>
+<div class="n2">8 - Randomizér jednotek</div><p align="justify">
+&nbsp;&nbsp; Nástroj umožòuje randomizovat typy jednotek v jednotlivých misích na základì definovaných pravidel. Tato funkce je umožnìna souèinností s mým <a href="https://github.com/smaslan/spellcross-map-edit">Spellcross Map Editorem</a>. Ten pøidává do DEF souborù misí pomocné pøíkazy. Originální hra je ignoruje, takže data zùstávají kompatibilní.<br>
+&nbsp;&nbsp; Pøednì v sekci "MissionData" DEF souboru mise mohou být pøidány pøíkazy "AutoRandomizeRule(ref_unit_type,rand_unit_type_list)", kde "ref_unit_type" je ID typu jednotky, ktery má být randomizován a "rand_unit_type_list" je seznam typù jednotek na které má být pùvodní typ randomizován. Tìchto pøíkazù mùže být libovolné množství, ale mùsí být umístìny pøed "AddUnit()" pøíkazy. Vlastní øízení randomizace pro vkládání jednotlivých jednotek pøíkazy "AddUnit()" nebo "AddSpecialUnit()" je øešeno pøílepkem pøíkazu "AddUnit(...),Randomize(...)". "Randomize(off)" vypne randomizaci pro danou jednotku (vypnutá je i pokud není pøítomen). "Randomize(auto)" se bude øídit pravidly definovanými "AutoRandomizeRule()". Pøípadnì lze úvést explicitní seznam typù jednotek "Randomize(rand_unit_type_list)". Pøíklad:</p>
+<pre>
+MissionData {
+    MissionMap(M01_01)
+    AutoRandomizeRule(37,37,41)
+    AutoRandomizeRule(41,37,41)
+    AddUnit(50,37,3304,1,100,WaitForContact,-),Randomize(auto)
+    AddUnit(51,37,2903,0,100,WaitForContact,-),Randomize(off)
+    AddUnit(52,37,3002,0,100,WaitForContact,-),Randomize(34,35,36)
+    ...
+}
+</pre>
+<p align="justify">
+&nbsp;&nbsp; Randomizace probìhne pøi každém buildu nebo spuštìní modifikované hry, pokud je zaškrtnuta volba <b>Allow randomize units</b>. Randomizace probìhne pro všechny mapy v COMMON.FS. 
+</p>
+
+<br>
+<div class="n2">9 - Historie verzí</div><p align="justify">
 <table  align="justify">
  <tr valign="top">
   <td width="130">
@@ -193,7 +240,7 @@ class UNITS.FSU
 
 
 <br>
-<div class="n2">6 - Licence</div><p align="justify">
+<div class="n2">10 - Licence</div><p align="justify">
 &nbsp;&nbsp; Nástroj je šíøen jako open source pod licencí MIT. Lze ho volnì šíøit v souladu s licencí. Hrubý pøeklad MIT licence:
 </p>
 <pre>
@@ -221,7 +268,7 @@ NEBO JINÝM NAKLÁDÁNÍM SE SOFTWAREM.
 </pre>
 
 <br>
-<div class="n2">7 - Kontakt</div><p align="justify">
+<div class="n2">11 - Kontakt</div><p align="justify">
 &nbsp;&nbsp; V pøípadì problémù s programem mì mùžete kontaktovat na e-mailu 
 <a href="mailto:s.maslan@seznam.cz">s.maslan@seznam.cz</a>. Nìjaké ty informace k programu a pøípadné 
 další verze lze nalézt na GitHubu projektu: <a href="https://github.com/smaslan/Spellcross-Mod-Launcher">https://github.com/smaslan/Spellcross-Mod-Launcher</a>.

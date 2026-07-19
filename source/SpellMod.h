@@ -13,6 +13,7 @@
 #include <filesystem>
 #include <string>
 #include <functional>
+#include <map>
 
 class SpellModCmd
 {
@@ -35,7 +36,6 @@ public:
     std::filesystem::path alt_path;
     bool isValid();
 };
-
 
 class FSarchive;
 class FSUarchive;
@@ -64,11 +64,26 @@ public:
     bool isEmpty();
     std::vector<std::string> GetItemNames();
     int GetFile(std::string name,std::vector<uint8_t>& data);
-    int AddFile(SpellArchive &src, std::string &name, bool allow_replace);
+    int AddFile(SpellArchive &src, std::string &name, bool allow_replace, std::string new_name="");
     int AddFile(std::string &string,std::string& name,bool allow_replace);
     bool Compare(SpellArchive& ref);
     int Save(std::filesystem::path path, bool allow_overwrite=false);
     std::string GetLastError();
+};
+
+class SpellModOption
+{
+public:
+    std::string label;
+    std::string description;
+    int min_value;
+    int max_value;
+    int def_value;
+    int value;
+    std::vector<std::string> enum_list;
+
+    bool isEnum();
+    std::map<int,std::string> GetEnumMap();
 };
 
 class SpellMod
@@ -86,6 +101,7 @@ public:
         bool move_saves;
         bool force_write;
         bool randomize;
+        std::vector<SpellModOption> options;
     };
 
     class ModArchivesList
@@ -121,6 +137,10 @@ public:
     static int GetSaveIni(std::filesystem::path save_dir,SaveInfo& info);
     static int MakeSaveIni(std::filesystem::path save_dir,std::string description);
 
+    std::vector<SpellModOption> m_options;
+    SpellModOption* GetOption(std::string label);
+    SpellModOption* AddOption(std::string label,std::string description,int min,int max,int def,std::vector<std::string>& enum_strings);
+
 private:
     std::vector<SpellModPath> m_paths;
     std::vector<SpellArchive*> m_sources;
@@ -135,6 +155,8 @@ private:
         
     SpellModPath ParsePath(std::filesystem::path path,std::filesystem::path alt_path="",std::string name="");
     SpellModPath* AddPath(std::string name,std::filesystem::path path,std::filesystem::path alt_path="",bool overwrite=false);
+
+    int ParseExpression(std::string expr,bool& result);
 
     int GetClass(std::string def,std::string class_name,SpellModCmdList& commands);     
     SpellArchive *GetArchive(SpellModPath &path);

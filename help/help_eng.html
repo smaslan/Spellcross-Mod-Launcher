@@ -43,7 +43,8 @@ It also contains simple SAVE games manager for making backups.
 If you have several Spellcross patch version EXE files in your Spellcross installation folder, so you may select desired <b>Spellcross executable</b> to launch (should be listed, default is "SPELCROS.EXE"). Next, specify <b>Virtual CD drive letter</b> to which Spellcross CD will be mounted (applies to both DOSbox mod and native Win32 modes).
 Next, define your <b>DOSbox path</b> (for DOSbox mode only). You can optionally disable "autoexec.bat" and start fullscreen in DOSbox.
 Next, select Spellcross <b>Run mode</b>. This tool was originally made in the era of 32bit WinXP which could still run 16bit DOS apps natively using its integrated NTDVM and DOSbox was a bit too slow back than. So, there is still legacy option "Win32" to run it natively e.g. in virtual machine. But now the only viable option is "DOSbox" mode.
-Finally, if you want to run mod, select <b>Mod path</b>. For each mod you can specify if it's allowed to modify CD game files (default: yes). Last option is to move SAVE games folder with the mod. The idea here is that your save games will be copied to selected mod folder when you finish playing. On the next startup they will be moved to the game location (originals are preserved/backuped) and will be moved to mod folder again when you finish playing. This way you can have multiple sets of save games not colliding with each other.
+Finally, if you want to run mod, select <b>Mod path</b>. For each mod you can specify if it's allowed to modify CD game files (default: yes) by <b>Allow CD mod</b>. Another option is to <b>move SAVE games</b> folder with the mod. The idea here is that your save games will be copied to selected mod folder when you finish playing. On the next startup they will be moved to the game location (originals are preserved/backuped) and will be moved to mod folder again when you finish playing. This way you can have multiple sets of save games not colliding with each other. Next, you can enable <b>Allow randomize units</b>. This will enable randomization of unit types in the map according to rules provided in the map DEF files (for details, see <a href="#randomizer">8 - Units randomizer</a>). If mod contains some mod options, the list will appear in the <b>Options</b> property grid. All options can be changed. For details see <a href="#options">7 - Making mods</a>.
+
 And that is it for basic setup.
 </p>
 
@@ -108,6 +109,7 @@ In page <b>Commanders</b> you can rename and edit some of properties of your com
 ./config.def
 </pre>
 
+<a name="options"></a>
 <p align="justify">
 &nbsp;&nbsp; The whole concept of modifications is based on maximum usage of original game data. It would not be practical to distribute all game files and it would be also questionable due to the copyright reasons. Therefore, modded game files are generated on runtime when the mod is launched from original game files as a basis and the mod contains only new or modified files to be implemented. Mod structure is defined in its "*.def" file which is C++ style-ish format. This file consists of few sections. Fist section is "class PATH" where we define necessary path variables for further operations. Example of such section: 
 </p>
@@ -129,11 +131,22 @@ class PATH
     // the mod data folders
     MOD_COMMON=%DMOD%\COMMON;
     MOD_UNITS=%DMOD%\UNITS;
+    
+    // mod options    
+    option(LEVEL,Level,1,10,1);
+    option(LANG,Language,1,2,1,{Czech;English});
+    option(BOOST,Elevate enemy stats with game levels,0,1,1,{No;Yes});
 }
 </pre>
 <p align="justify">
 The "MAKE" variable is mandatory and defines where the tool generates modified archives. In this case it is to the mod sub-folder "make". All other variable definitions are optional up to user needs. Any variable definition can contain reference(s) to previously defined variable in format %variable_name% that will be expanded during execution. The tool recognizes three predefined variables: %SPELL%, %SPELLCD% and %SPELLANY%. %SPELL% and %SPELLCD% are expanded to paths <b>Spellcross installation folder</b> and <b>Spellcross CD path</b> as set in the main tool panel. %SPELLANY% will automatically choose either of %SPELL% or %SPELLCD%, which is handy because different Spellcross versions can have the data files located differently between CD and installation folders. Note that the path definitions can be also placed to a separate "class SRC". This is deprecated method, but still supported because of old version of this tool.<br>   
-&nbsp;&nbsp; In the example above we define few more variables. Variables "COMMON" and "UNITS" point to the original game data archives. Variable "DMOD" points to sub-folder "data" in the mod folder. Finally, we define two more variables "MOD_COMMON" and "MOD_UNITS" pointing to the particular mod data folders.<br> 
+&nbsp;&nbsp; In the example above we define few more variables. Variables "COMMON" and "UNITS" point to the original game data archives. Variable "DMOD" points to sub-folder "data" in the mod folder. Finally, we define two more variables "MOD_COMMON" and "MOD_UNITS" pointing to the particular mod data folders.<br>
+&nbsp;&nbsp; The section can also contain definitions of mod options by command "option()". Syntax is following:</p>
+<pre>
+    option(option_label,option_description,min_value,max_value,default_value,{optional_string_values});
+</pre>
+<p align="justify">
+"option_label" is unique variable label that is used in following code. "option_description" is description that will appear in the mod launcher. "min_value", "max_value" and "default_value" define range and default value of the option. Last parameter is optional list of string values that will appear in mod launcher, one for each value separated by semicolons. The option label "LEVEL" will be preloaded by game level extracted from WORKDIR savegame so it should automatically reflect latest played game level.<br> 
 &nbsp;&nbsp; Finally, follow sections that define content of particular game archives to be built. Example for "COMMON.FS" archive is following:
 </p>
 <pre>
@@ -145,19 +158,33 @@ class COMMON.FS
     add(%MOD_COMMON%,M01_01A.DEF);  // add specific file from mod "data/COMMON" folder
     add(%MOD_COMMON%,*.CUR);        // add wildcard key matching files from mod "data/COMMON" folder
     add(%MOD_COMMON%);              // add all files from mod "data/COMMON" folder
+    // copy file JEDN_L4.DEF from mod "data/COMMON" folder and rename to JEDNOTKY.DEF
+    // executed conditionally if option LEVEL > 5
+    if(%LEVEL% > 5) copy(%MOD_COMMON%,JEDN_L4.DEF,JEDNOTKY.DEF);                                                                 
 }
 </pre>
 <p align="justify">
-&nbsp;&nbsp; The switch "replace=1" means every following "add()" command will replace already added files. "replace=0" means it will only add new ones. This can be also specified individually in the "add()" command itself:
+&nbsp;&nbsp; The switch "replace=1" means every following "add()" or "copy()" command will replace already existing files. "replace=0" means it will only add new ones. This can be also specified individually in the "add()" command itself:
 </p>
 <pre>
-add(source);                // add all files from "source"
-add(mode,source);           // same as above, "mode" defines addition method NEW (add only new files) or ALL (overwrite existing)
-add(source,wildcard);       // add files matching "wildcard" key (e.g. *.LZ or LEVEL_??.DEF)
-add(mode,source,wildcard);  // same as above with "mode" switch
+    add(source);                // add all files from "source"
+    add(mode,source);           // same as above, "mode" defines addition method NEW (add only new files) or ALL (overwrite existing)
+    add(source,wildcard);       // add files matching "wildcard" key (e.g. *.LZ or LEVEL_??.DEF)
+    add(mode,source,wildcard);  // same as above with "mode" switch
 </pre> 
 <p align="justify">
 Switch "optional=1" can mark archive as optional, so tool will not generate error if "source" data in "add()" command is not found. Default is "optional=0", which means the "source" must exist.<br>
+&nbsp;&nbsp; Another possible command is "copy()" which will copy single file and rename it to new name. Syntax is following:</p>
+<pre>
+    copy(source_archive,source_file_name,destination_file_name);
+</pre>
+<p align="justify">
+&nbsp;&nbsp; Any command in the archive sections can be made conditional using "if()" statement. Note the "if()" must be at the same line with conditional command like in example:</p>
+<pre>
+    if(%LEVEL% > 5) copy(%MOD_COMMON%,JEDN_L4.DEF,JEDNOTKY.DEF);
+</pre>
+<p align="justify">
+Condition can be built using previously defined mod option variables, such as in this case when LEVEL &gt 5.<br> 
 &nbsp;&nbsp; All other archives are the same with exception of "UNITS.FSU". This game archive contains unit sprite graphics and it is internally structured per-unit. Each unit has name up to 5 characters long and it contain sprites with names of exactly 3 characters with no extensions. These files are LZ compressed. When adding data to this archive from a folder (in the example above from a folder "data/units"), the folder must contain sub-folder with the name of the unit, in the example "MAMUT". Example is following:
 </p>
 <pre>
@@ -172,9 +199,28 @@ class UNITS.FSU
 &nbsp;&nbsp; For maximum simplicity I provide template of mod in folder of this tool (sub-folder "mod_template"). It is a skeleton with *.def file prepared so it will load all original game data and then adds and eventually overwrites it with mod content from the mod data folders. So all that needs to be done is to place new or modded files to the mod data folders.
 </p>
 
+<br>
+<a name="randomizer"></a>
+<div class="n2">8 - Units randomizer</div><p align="justify">
+&nbsp;&nbsp; The tool can randomize unit types in the particular maps based on rules defined in mission DEF files. This feature is intended to be used together with my <a href="https://github.com/smaslan/spellcross-map-edit">Spellcross Map Editor</a>. It adds extra commands to the mission DEF files. Original game engine will ignore these additional data, so it can run normally.<br>
+&nbsp;&nbsp; Firstly, the DEF section "MissionData" can contain commands "AutoRandomizeRule(ref_unit_type,rand_unit_type_list)", where "ref_unit_type" is type ID of unit to randomize and "rand_unit_type_list" is a list of unit type IDs to which to randomize. Any number of these commands can placed but they must be placed before "AddUnit()" commands. To control randomization of particular map units, the "AddUnit()" or "AddSpecialUnit()" commands must be followed by control switch "AddUnit(...),Randomize(...)". "Randomize(off)" will disable randomization for the unit, which is default when command not present. "Randomize(auto)" will use the "AutoRandomizeRule()" rules. It can also contain explicit randomization rules for the unit "Randomize(rand_unit_type_list)". Example:</p>  
+<pre>
+MissionData {
+    MissionMap(M01_01)
+    AutoRandomizeRule(37,37,41)
+    AutoRandomizeRule(41,37,41)
+    AddUnit(50,37,3304,1,100,WaitForContact,-),Randomize(auto)
+    AddUnit(51,37,2903,0,100,WaitForContact,-),Randomize(off)
+    AddUnit(52,37,3002,0,100,WaitForContact,-),Randomize(34,35,36)
+    ...
+}
+</pre>
+<p align="justify">
+&nbsp;&nbsp; Whenever the mod is build/run the tool will randomize all mission DEF files found in newly built COMMON.FS is the mod options <b>Allow randomize units</b> is checked. 
+</p>
 
 <br>
-<div class="n2">7 - Versions history</div><p align="justify">
+<div class="n2">9 - Versions history</div><p align="justify">
 <table  align="justify">
  <tr valign="top">
   <td width="200">
@@ -196,7 +242,7 @@ class UNITS.FSU
 </p>
 
 <br>
-<div class="n2">8 - License</div><p align="justify">
+<div class="n2">10 - License</div><p align="justify">
 &nbsp;&nbsp; The tool is provided without any warranty as open source project under MIT license.
 </p>
 <pre>
@@ -224,7 +270,7 @@ SOFTWARE.
 </pre>
 
 <br>
-<div class="n2">10 - Contact</div><p align="justify">
+<div class="n2">11 - Contact</div><p align="justify">
 &nbsp;&nbsp; In case of some problems with this SW you can contact me at <a href="mailto:s.maslan@seznam.cz">s.maslan@seznam.cz</a>.
 Additional informations and new versions can be found at project GitHub: 
 <a href="https://github.com/smaslan/Spellcross-Mod-Launcher">https://github.com/smaslan/Spellcross-Mod-Launcher</a>.

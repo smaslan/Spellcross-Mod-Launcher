@@ -497,6 +497,7 @@ public:
 	static const std::map<int,std::string> c_randomizer_modes;
 	RandomizeMode randomize_mode;
 	std::vector<int> randomize_units;
+	std::string GetRandomizerModeName();
 			
 	// unit idnetifier index within map
 	int id;

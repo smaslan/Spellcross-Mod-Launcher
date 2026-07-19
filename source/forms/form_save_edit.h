@@ -7,7 +7,7 @@
 
 #pragma once
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-06 16:20:46
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-07-17 16:21:19
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -28,19 +28,19 @@
 #include <wx/sizer.h>
 #include <wx/statline.h>
 #include <wx/checkbox.h>
+#include <wx/propgrid/propgrid.h>
+#include <wx/propgrid/advprops.h>
 #include <wx/textctrl.h>
 #include <wx/frame.h>
 #include <wx/statbmp.h>
 #include <wx/dialog.h>
 #include <wx/listbox.h>
 #include <wx/checklst.h>
-#include <wx/propgrid/propgrid.h>
-#include <wx/propgrid/advprops.h>
 #include <wx/grid.h>
 #include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-06 16:20:46
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-07-17 16:21:19
 #include <wx/tglbtn.h>
 
 #include <filesystem>
@@ -87,6 +87,8 @@ private:
 	void OnTerrPropChange(wxPropertyGridEvent& event);
 	void OnLevelPropChange(wxPropertyGridEvent& event);
 	void OnUnitPropChange(wxPropertyGridEvent& event);
+	void OnSyncResearch(wxCommandEvent& event);
+	void OnSyncUpgrades(wxCommandEvent& event);
 
 	wxString OnGetUnitItem(long item_id);
 	void OnUnitBeginDrag(wxListEvent& event);
@@ -119,7 +121,7 @@ protected:
 	const int wxID_CH_HIERARCH_COM3C_0 = 7300;
 	const int wxID_CH_HIERARCH_COM3U_0 = 7350;
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-06 16:20:46
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-07-17 16:21:19
 	enum
 	{
 		wxID_FORM_SAVE_EDIT = 6000,
@@ -133,10 +135,12 @@ protected:
 		wxID_PAGE_CTRL,
 		wxID_PAN_RESEARCH,
 		wxID_LBOX_RES,
+		wxID_BTN_RES_SYNC,
 		wxID_LBL_RES_NAME,
 		wxID_GRID_RES,
 		wxID_GRID_RAW_RESEARCH,
 		wxID_LBOX_UPG,
+		wxID_BTN_UPG_SYNC,
 		wxID_LBL_UPG_NAME,
 		wxID_GRID_UPG,
 		wxID_GRID_RAW_UPGRADES,
@@ -178,6 +182,7 @@ protected:
 	wxBoxSizer* szrUnitsA;
 	wxStaticText* m_staticText21;
 	wxListBox* listRes;
+	wxButton* btnResSync;
 	wxStaticText* lblResName;
 	wxPropertyGrid* gridResProp;
 	wxStaticText* m_staticText39;
@@ -185,6 +190,7 @@ protected:
 	wxStaticLine* m_staticline11;
 	wxStaticText* m_staticText211;
 	wxListBox* listUpg;
+	wxButton* btnUpgSync;
 	wxStaticText* lblUpgName;
 	wxPropertyGrid* gridUpgProp;
 	wxStaticText* m_staticText40;
@@ -235,7 +241,7 @@ protected:
 	wxStaticText* lblResName12;
 	wxPropertyGrid* gridLevelProp;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-06-06 16:20:46
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-07-17 16:21:19
 
 public:
 

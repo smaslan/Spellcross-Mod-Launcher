@@ -192,15 +192,45 @@ int UnitRandomizer::RemoveRule(int pos)
 	return(0);
 }
 
+// try add mirror rules (e.g. for orc->{orc,kaorc} add kaorc->{orc,kaorc})
+int UnitRandomizer::AddMirrorRules(int pos,int& new_pos)
+{
+	new_pos = pos;
+	if(pos < 0 || pos >= rules.size())
+		return(1);
+	auto rule = rules[pos];
+	for(auto &unit: rule.rand_units)
+	{
+		bool found = false;
+		for(auto &rr: rules)
+			if(rr.ref_unit == unit)
+				found = true;
+		if(!found)
+		{
+			UnitRandomizerRule nrule;
+			nrule.ref_unit = unit;
+			nrule.rand_units = rule.rand_units;
+			rules.push_back(nrule);			
+		}
+	}
+	new_pos = SortRules(pos);
+	return(0);
+}
+
 // sort rules by ref unit type
 int comp_rules(UnitRandomizerRule &a,UnitRandomizerRule& b)
 {
 	return(b.ref_unit >= a.ref_unit);
 }
-int UnitRandomizer::SortRules()
+int UnitRandomizer::SortRules(int old_pos)
 {
+	for(int k = 0; k < rules.size(); k++)
+		rules[k].id = k;
 	std::sort(rules.begin(), rules.end(),comp_rules);
-	return(0);
+	for(int k = 0; k < rules.size(); k++)
+		if(rules[k].id == old_pos)
+			return(k);
+	return(-1);
 }
 
 // get randomizer rule for unit type

@@ -187,6 +187,12 @@ int FSarchive::LoadFolder(std::wstring dir, std::string wild_filter, bool allow_
 		// make archive name from folder
 		m_fs_name = path.filename().concat(".FS").string();
 	}
+	if(m_file_path.empty())
+	{
+		// make archive path from folder
+		m_file_path = dir;
+	}
+	
 
 	bool do_wild = !(wild_filter == "*" || wild_filter.empty());
 

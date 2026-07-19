@@ -21,13 +21,18 @@
 #include "spell_units.h"
 #include "spell_randomizer.h"
 #include "SimpleIni.h"
+#include "cparse/shunting-yard.h"
+
 
 // check if command is asignement "left=right", return left, right
 int SpellModCmd::isAssign(std::string &left, std::string &right)
 {
+    auto tokens = regexp_get(m_cmd,"(.+?)\\((.*?)\\)");
+    if(!tokens.empty())
+        return(0);
     left.clear();
     right.clear();
-    auto tokens = regexp_get(m_cmd,"(.+?)\s*=\s*?(.*)");
+    tokens = regexp_get(m_cmd,"(.+?)\s*=\s*?(.*)");
     if(tokens.size() != 2)
         return(0);
     left = tokens[0];
@@ -271,7 +276,7 @@ int SpellArchive::GetFile(std::string name,std::vector<uint8_t>& data)
 }*/
 
 // add file from another archive
-int SpellArchive::AddFile(SpellArchive &src, std::string& name, bool allow_replace)
+int SpellArchive::AddFile(SpellArchive &src, std::string& name, bool allow_replace, std::string new_name)
 {   
     m_last_error = "";
 
@@ -297,9 +302,12 @@ int SpellArchive::AddFile(SpellArchive &src, std::string& name, bool allow_repla
         auto data = src.m_fs->GetFileData(name.c_str());
         if(!data)
         {
-            m_last_error = string_format("Adding file \"%s\" to FS archive failed! File not found in source archive \"%ls\".",name.c_str(),m_fs->m_file_path.c_str());
+            m_last_error = string_format("Adding file \"%s\" to FS archive failed! File not found in source archive \"%ls\".",name.c_str(),src.m_fs->m_file_path.c_str());
             return(1);
         }
+        // optional rename
+        if(!new_name.empty())
+            name = new_name;
         auto err = m_fs->AddFile(name,*data,allow_replace);
         m_last_error = m_fs->m_last_error;
         return(err);
@@ -312,13 +320,13 @@ int SpellArchive::AddFile(SpellArchive &src, std::string& name, bool allow_repla
             m_last_error = string_format("Cannot add FS data to FSU archive!");
             return(1);
         }
-        auto data = src.m_fsu->GetResource(name.c_str());
+        auto data = src.m_fsu->GetResource(name.c_str());        
         if(!data)
         {
             m_last_error = string_format("Adding file \"%s\" to FSU archive failed! File not found in source archive.",name.c_str());
             return(1);
-        }
-        auto err = m_fsu->AddResource(data,allow_replace);
+        }        
+        auto err = m_fsu->AddResource(data,allow_replace,new_name);
         m_last_error = m_fsu->m_last_error;
         return(err);
     }
@@ -447,7 +455,10 @@ int SpellMod::GetClass(std::string def, std::string class_name,SpellModCmdList &
 
     for(int cmd_line = start_line; cmd_line < end_line; cmd_line++)
     {
-        auto cmd = regexp_get(lines[cmd_line], "\\s*^(?!//)(.*?);");
+        auto cmd = regexp_get(lines[cmd_line],"\\s*^(?!//)(.*?(?=\\/\\/|$))");
+        if(cmd.empty())
+            continue;
+        cmd = regexp_get(cmd[0], "(.*);");
         if(cmd.empty())
             continue;
         commands.emplace_back();
@@ -466,6 +477,7 @@ void SpellMod::Clear()
     for(auto &item: m_sources)   
         delete item;
     m_sources.clear();
+    m_options.clear();
 }
 
 // try to get path variable or null
@@ -572,6 +584,57 @@ SpellArchive* SpellMod::LoadArchive(SpellModPath &path, SpellArchive::Type arch_
     return(arch);
 }
 
+
+// try get mod option
+SpellModOption *SpellMod::GetOption(std::string label)
+{
+    for(auto &opt: m_options)
+        if(opt.label == label)
+            return(&opt);
+    return(NULL);
+}
+
+// add mod options record
+SpellModOption *SpellMod::AddOption(std::string label,std::string description,int min,int max,int def,std::vector<std::string> &enum_strings)
+{
+    if(GetOption(label))
+    {
+        // already exist
+        m_last_error = string_format("Option with label \"%s\" already exists!",label.c_str());
+        return(NULL);
+    }
+
+    // add option
+    SpellModOption opt;
+    opt.label = label;
+    opt.description = description;
+    opt.min_value = min;
+    opt.max_value = max;
+    opt.def_value = def;
+    opt.value = opt.def_value;
+    opt.enum_list = enum_strings;
+    m_options.push_back(opt);
+
+    return(&m_options.back());
+}
+
+// is mod option enum type?
+bool SpellModOption::isEnum()
+{
+    return(!enum_list.empty());
+}
+
+// get map of options
+std::map<int,std::string> SpellModOption::GetEnumMap()
+{
+    std::map<int,std::string> list;
+    int val = min_value;
+    for(auto &item: enum_list)
+        list.insert({val++,item});
+    return(list);
+}
+
+
 // basic parse of mod DEF file
 int SpellMod::LoadDEF(Config& config)
 {
@@ -606,6 +669,8 @@ int SpellMod::LoadDEF(Config& config)
     {
         std::string var_name;
         std::string var_value;
+        std::string func_name;
+        std::vector<std::string> func_params;
         if(cmd.isAssign(var_name,var_value))
         {
             // likely path assign
@@ -622,6 +687,66 @@ int SpellMod::LoadDEF(Config& config)
             {
                 PrintConsole("failed! Line %d: adding path \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
                 return(1);
+            }
+        }
+        else if(cmd.isFunction(func_name,func_params))
+        {
+            // functions
+            if(func_name == "option")
+            {
+                // mod option definition
+                if(func_params.size() < 5)
+                {
+                    PrintConsole("failed! Line %d: not enough parameters for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    return(1);
+                }
+                auto opt_label = func_params[0];
+                int opt_min,opt_max,opt_default;
+                if(str2int(func_params[2],opt_min))
+                {
+                    PrintConsole("failed! Line %d: wrong value of paramter 3 (min value) for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    return(1);
+                }
+                if(str2int(func_params[3],opt_max) || opt_max < opt_min)
+                {
+                    PrintConsole("failed! Line %d: wrong value of paramter 4 (max value) for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    return(1);
+                }
+                if(str2int(func_params[4],opt_default) || opt_default < opt_min || opt_default > opt_max)
+                {
+                    PrintConsole("failed! Line %d: wrong value of paramter 5 (default value) for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    return(1);
+                }
+                std::vector<std::string> opt_enums;
+                if(func_params.size() >= 6)
+                {
+                    auto enum_str = regexp_get(func_params[5],"\\{(.*?)\\}");
+                    if(!enum_str.empty())
+                        opt_enums = get_text_lines(enum_str[0],true,';');
+                    if(!enum_str.empty() && opt_enums.size() != opt_max - opt_min + 1)
+                    {
+                        PrintConsole("failed! Line %d: wrong count of option strings in paramter 6 for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        return(1);
+                    }
+                }
+                auto option = AddOption(opt_label,func_params[1],opt_min,opt_max,opt_default,opt_enums);
+                if(!option)
+                {
+                    PrintConsole("failed! Line %d: failed addition mod option by command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    return(1);
+                }
+
+                // try assign option value if exist
+                for(auto &opt: config.options)
+                    if(opt.label == opt_label)
+                    {
+                        if(opt.value < opt_min || opt.value > opt_max)
+                        {
+                            PrintConsole("failed! Line %d: provided option value %d outside defined range %d to %d for command \"%s\".\n",cmd.m_line,opt.value,opt_min,opt_max,cmd.m_raw.c_str());
+                            return(1);
+                        }
+                        option->value = opt.value;
+                    }
             }
         }
         else
@@ -646,6 +771,95 @@ int SpellMod::LoadDEF(Config& config)
     std::filesystem::create_directories(make_dir);
 
     return(0);
+}
+
+// try parse expression for conditional commands
+int SpellMod::ParseExpression(std::string expr,bool &result)
+{
+    m_last_error = "";
+    result = false;
+
+    // replace %option% by _option_ and build expression parser variables list
+    cparse::TokenMap vars;    
+    for(auto &opt: m_options)
+    {
+        auto opt_name = string_format("%%%s%%",opt.label.c_str());
+        auto var_name = string_format("_%s_",opt.label.c_str());
+        vars[var_name] = opt.value;
+        expr = strrep(expr,opt_name,var_name);
+    }
+
+    // parse expression  
+    try{
+        auto token = cparse::calculator::calculate(expr.c_str(),&vars);
+        result = token.asBool();
+    }catch(...) {
+        m_last_error = string_format("Error parsing expression \"%s\"!",expr.c_str());
+        return(1);
+    }
+
+    return(0);
+
+    /*bool valid = false;
+    result = false;
+    std::vector<std::string> list = {"==","!=",">=","<=",">","<"};
+    for(auto &oper: list)
+    {
+        auto pos = expr.find(oper);
+        if(pos == std::string::npos)
+            continue;
+        std::vector<std::string> tokens;
+        tokens.push_back(trim_whites(expr.substr(0,pos)));
+        tokens.push_back(trim_whites(expr.substr(pos + oper.size())));
+        std::vector<int> values;
+        for(auto &tok: tokens)
+        {
+            auto rvar = regexp_get(tok,"%(.+)%");
+            if(!rvar.empty())
+            {
+                // option variable?
+                auto opt = GetOption(rvar[0]);
+                if(!opt)
+                {
+                    m_last_error = string_format("Expression variable \"%s\" not recognized.",tok.c_str());
+                    return(1);
+                }
+                values.push_back(opt->value);
+                continue;
+            }
+            // constant?
+            int val;
+            if(str2int(tok,val))
+            {
+                m_last_error = string_format("Expression term \"%s\" not recognized.",tok.c_str());
+                return(1);
+            }
+            values.push_back(val);
+        }
+        
+        if(oper == "==")
+            result = values[0] == values[1];
+        else if(oper == "!=")
+            result = values[0] != values[1];
+        else if(oper == ">")
+            result = values[0] > values[1];
+        else if(oper == "<")
+            result = values[0] < values[1];
+        else if(oper == ">=")
+            result = values[0] >= values[1];
+        else if(oper == "<=")
+            result = values[0] <= values[1];
+        else
+            return(1);
+        valid = true;
+        break;
+    }
+    if(!valid)
+    {
+        m_last_error = string_format("Expression term \"%s\" not recognized.",expr.c_str());
+        return(1);
+    }
+    return(0);*/
 }
 
 // try load mod DEF file
@@ -758,8 +972,101 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             }
             else if(cmd.isFunction(var_name, par_list))
             {
-                // function
-                if(var_name == "add")
+                // function command
+
+                if(var_name == "if")
+                {
+                    // process if() conditional
+                    if(par_list.size() != 1)
+                    {
+                        PrintConsole("failed! Line %d: wrong condition for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        return(1);
+                    }
+                    bool result;
+                    if(ParseExpression(par_list[0],result))
+                    {
+                        PrintConsole("failed! Line %d: parsing conditional failed for command \"%s\" (%s).\n",cmd.m_line,cmd.m_raw.c_str(),m_last_error.c_str());
+                        return(1);
+                    }
+                    if(!result)
+                        continue;
+                    auto toks = regexp_get(cmd.m_cmd,"\\)\\s*(.*)");
+                    if(toks.empty())
+                    {
+                        PrintConsole("failed! Line %d: missing or crippled conditional command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        return(1);
+                    }
+                    cmd.m_cmd = toks[0];
+                    if(!cmd.isFunction(var_name,par_list))
+                    {
+                        PrintConsole("failed! Line %d: missing or crippled conditional command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        return(1);
+                    }
+                }
+
+                if(var_name == "copy")
+                {
+                    // copy single file with renaming: 
+                    //   copy(source_archive,source_file_name,dest_file_name)
+                    //   copy(ADD,source_archive,source_file_name,dest_file_name)
+                    //   copy(NEW,source_archive,source_file_name,dest_file_name)
+
+                    std::string mode = (glob_replace)?"ALL":"NEW";
+                    if(par_list.size() > 4 || par_list.size() < 3)
+                    {
+                        // wrong parameters count for add() command
+                        PrintConsole("failed! Line %d: wrong params count is command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        return(1);
+                    }
+                    if(par_list.size() == 4)
+                    {
+                        if(par_list[0] == "NEW" || par_list[0] == "ADD")
+                            mode = par_list[0];
+                        else
+                        {
+                            // unknown mode parameter for add() command
+                            PrintConsole("failed! Line %d: unknown copy mode \"%s\" in command \"%s\".\n",cmd.m_line,mode.c_str(),cmd.m_raw.c_str());
+                            return(1);
+                        }
+                        par_list.erase(par_list.begin() + 0);
+                    }
+                    auto path = par_list[0];
+                    auto src_name = par_list[1];
+                    auto dest_name = par_list[2];
+                    bool replace = (mode == "ALL");
+
+                    // parse source path (expand vars)                    
+                    auto parsed_path = ParsePath(path);
+                    if(!parsed_path.isValid())
+                    {
+                        // parsing path for add() command failed
+                        PrintConsole("failed! Line %d: parsing source path failed in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        return(1);
+                    }
+                    
+                    // try load source archive
+                    SpellArchive::Type arch_type = SpellArchive::Type::AUTO;
+                    if(wildcmp("*.FSU",arch_name.c_str()))
+                        arch_type = SpellArchive::Type::FSU;
+                    if(!std::filesystem::exists(parsed_path.path) && !std::filesystem::exists(parsed_path.alt_path) && is_optional)
+                        continue; // optional mode: skip
+                    auto src = LoadArchive(parsed_path,arch_type);
+                    if(!src)
+                    {
+                        // loading source data for add() command failed
+                        PrintConsole("failed! Line %d: loading source data failed in command \"%s\".\n%s\n",cmd.m_line,cmd.m_raw.c_str(),m_last_error.c_str());
+                        return(1);
+                    }
+                                                           
+                    // try copy file
+                    if(arch.AddFile(*src,src_name,replace,dest_name))
+                    {
+                        // adding file to archive in add() command failed
+                        PrintConsole("failed! Line %d: copying file \"%s\" to \"%s\" in command \"%s\".\n%s\n",cmd.m_line,src_name.c_str(),dest_name.c_str(),cmd.m_raw.c_str(),arch.GetLastError().c_str());
+                        return(1);
+                    }
+                }
+                else if(var_name == "add")
                 {
                     // add stuff
                     std::string path = "";

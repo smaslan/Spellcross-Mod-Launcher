@@ -19,6 +19,12 @@
     <Filter Include="Zdrojové soubory\forms">
       <UniqueIdentifier>{1a14f6b0-2ade-4a77-92af-2aca6537e0fc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Hlavičkové soubory\cparse">
+      <UniqueIdentifier>{877050d9-f1fc-4f4e-b538-e42736403c21}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Zdrojové soubory\cparse">
+      <UniqueIdentifier>{f547ec7b-4075-46d2-b7ee-98292e994615}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -68,6 +74,21 @@
     </ClCompile>
     <ClCompile Include="spell_def.cpp">
       <Filter>Zdrojové soubory</Filter>
+    </ClCompile>
+    <ClCompile Include="cparse\containers.cpp">
+      <Filter>Zdrojové soubory\cparse</Filter>
+    </ClCompile>
+    <ClCompile Include="cparse\functions.cpp">
+      <Filter>Zdrojové soubory\cparse</Filter>
+    </ClCompile>
+    <ClCompile Include="cparse\packToken.cpp">
+      <Filter>Zdrojové soubory\cparse</Filter>
+    </ClCompile>
+    <ClCompile Include="cparse\shunting-yard.cpp">
+      <Filter>Zdrojové soubory\cparse</Filter>
+    </ClCompile>
+    <ClCompile Include="cparse\builtin-features.cpp">
+      <Filter>Zdrojové soubory\cparse</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -127,6 +148,9 @@
     </ClInclude>
     <ClInclude Include="spell_def.h">
       <Filter>Hlavičkové soubory</Filter>
+    </ClInclude>
+    <ClInclude Include="cparse\shunting-yard.h">
+      <Filter>Hlavičkové soubory\cparse</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

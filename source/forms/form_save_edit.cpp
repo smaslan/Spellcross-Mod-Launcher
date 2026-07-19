@@ -21,7 +21,7 @@
 
 FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
 {
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-06-06 16:20:46
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-07-17 16:21:19
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_MENU ) );
 	
@@ -88,7 +88,10 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	bSizer46->Add( m_staticText21, 0, wxTOP|wxRIGHT|wxLEFT, 5 );
 	
 	listRes = new wxListBox( panResearch, wxID_LBOX_RES, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_ALWAYS_SB );
-	bSizer46->Add( listRes, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	bSizer46->Add( listRes, 1, wxEXPAND|wxRIGHT|wxLEFT, 5 );
+	
+	btnResSync = new wxButton( panResearch, wxID_BTN_RES_SYNC, _("Sync with COMMON.FS"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer46->Add( btnResSync, 0, wxALL|wxEXPAND, 5 );
 	
 	
 	szrUnitsA->Add( bSizer46, 0, wxEXPAND, 5 );
@@ -168,7 +171,10 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	bSizer461->Add( m_staticText211, 0, wxTOP|wxRIGHT|wxLEFT, 5 );
 	
 	listUpg = new wxListBox( panResearch, wxID_LBOX_UPG, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_ALWAYS_SB );
-	bSizer461->Add( listUpg, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	bSizer461->Add( listUpg, 1, wxEXPAND|wxRIGHT|wxLEFT, 5 );
+	
+	btnUpgSync = new wxButton( panResearch, wxID_BTN_UPG_SYNC, _("Sync with COMMON.FS"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer461->Add( btnUpgSync, 0, wxALL|wxEXPAND, 5 );
 	
 	
 	bSizer751->Add( bSizer461, 0, wxEXPAND, 5 );
@@ -259,7 +265,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	btnUnitsNoGaps = new wxButton( panUnits, wxID_BTN_UNIT_REM_GAPS, _("Remove gaps"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer462->Add( btnUnitsNoGaps, 0, wxEXPAND|wxALL, 5 );
 	
-	btnUnitsSortPermaReinforces = new wxButton( panUnits, wxID_BTN_UNIT_SORT_PERM_REIN, _("Sort Permanent-Reinforces"), wxDefaultPosition, wxDefaultSize, 0 );
+	btnUnitsSortPermaReinforces = new wxButton( panUnits, wxID_BTN_UNIT_SORT_PERM_REIN, _("Split Permanent-Reinforces"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer462->Add( btnUnitsSortPermaReinforces, 0, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
 	
 	btnUnitsSortNames = new wxButton( panUnits, wxID_BTN_UNIT_SORT_NAMES, _("Sort by Names"), wxDefaultPosition, wxDefaultSize, 0 );
@@ -337,7 +343,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	panUnits->SetSizer( bSizer441 );
 	panUnits->Layout();
 	bSizer441->Fit( panUnits );
-	pageCtrl->AddPage( panUnits, _("Units"), false );
+	pageCtrl->AddPage( panUnits, _("Units"), true );
 	panCommanders = new wxPanel( pageCtrl, wxID_PAN_UNITS, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer4411;
 	bSizer4411 = new wxBoxSizer( wxHORIZONTAL );
@@ -609,7 +615,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	panBigmap->SetSizer( szrBigmap );
 	panBigmap->Layout();
 	szrBigmap->Fit( panBigmap );
-	pageCtrl->AddPage( panBigmap, _("Big Map"), true );
+	pageCtrl->AddPage( panBigmap, _("Big Map"), false );
 	panLevel = new wxPanel( pageCtrl, wxID_PAN_LEVEL, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer4412;
 	bSizer4412 = new wxBoxSizer( wxHORIZONTAL );
@@ -642,7 +648,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Centre( wxBOTH );
 	
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-06-06 16:20:46
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-07-17 16:21:19
 
 	// set icon
 	wxIcon appIcon;
@@ -678,6 +684,11 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnSortUnits,this,wxID_BTN_UNIT_SORT_NAMES);
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnResetUnitNames,this,wxID_BTN_UNIT_RESET_NAMES);
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnResetUnitNames,this,wxID_BTN_UNIT_RESET_NAME);
+
+	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnSyncResearch,this,wxID_BTN_RES_SYNC);
+	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnSyncUpgrades,this,wxID_BTN_UPG_SYNC);
+
+	
 
 	//Bind(wxEVT_PG_RIGHT_CLICK,&FormSaveEdit::OnEditProp,this,wxID_GRID_TERR_PROPS);
 	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnTerrPropChange,this,wxID_GRID_TERR_PROPS);
@@ -1030,6 +1041,24 @@ void FormSaveEdit::OnLevelPropChange(wxPropertyGridEvent& event)
 }
 
 
+// synchronize research with common.fs
+void FormSaveEdit::OnSyncResearch(wxCommandEvent& event)
+{
+	if(m_bigmap.SyncResearch())
+	{
+		wxMessageBox("Parsing research from COMMON.FS failed!","Error",wxICON_ERROR);
+	}
+	UpdateList();
+}
+// synchronize upgrades with common.fs
+void FormSaveEdit::OnSyncUpgrades(wxCommandEvent& event)
+{
+	if(m_bigmap.SyncUpgrades())
+	{
+		wxMessageBox("Parsing upgrades from COMMON.FS failed!","Error",wxICON_ERROR);
+	}
+	UpdateList();
+}
 
 // on sort units
 void FormSaveEdit::OnSortUnits(wxCommandEvent& event)
@@ -1471,6 +1500,7 @@ void FormSaveEdit::OnResSelect(wxCommandEvent& event)
 
 	int row = 0;
 	int col = 0;
+	gridRawResearch->ClearGrid();
 	for(auto& val: res.raw)
 	{
 		gridRawResearch->SetCellValue(row,col,string_format("%d",val));
@@ -1513,6 +1543,7 @@ void FormSaveEdit::OnUpgSelect(wxCommandEvent& event)
 
 	int row = 0;
 	int col = 0;
+	gridRawUpgrades->ClearGrid();
 	for(auto& val: upg.raw)
 	{
 		gridRawUpgrades->SetCellValue(row,col,string_format("%d",val));
@@ -1538,6 +1569,7 @@ void FormSaveEdit::OnUpgSelect(wxCommandEvent& event)
 	gridUpgProp->Append(new wxIntPropertyExt(wxT("Range"),wxT(""),&upg.range));
 	gridUpgProp->Append(new wxIntPropertyExt(wxT("Sight"),wxT(""),&upg.sight));
 	gridUpgProp->Append(new wxEnumPropertyExt(wxT("Flags"),wxT(""),MapToPGenumChoices(SpellSaveUpgrade::c_flags),(int*)&upg.type));	
+	gridUpgProp->Append(new wxIntPropertyExt(wxT("State"),wxT(""),&upg.state));
 	gridUpgProp->Append(new wxMultiChoicePropertyExt(wxT("Suitable types"),wxT(""),MapToPGenumChoices(m_bigmap.GetUnitNames(true)),&upg.suitable_types));
 		
 	
@@ -1626,6 +1658,7 @@ void FormSaveEdit::OnUnitSelect(wxCommandEvent& event)
 
 	int row = 0;
 	int col = 0;
+	gridRawUnit->ClearGrid();
 	for(auto &val: unit.raw)
 	{
 		gridRawUnit->SetCellValue(row,col,string_format("%d",val));
@@ -1691,6 +1724,7 @@ void FormSaveEdit::OnCommanderSelect(wxCommandEvent& event)
 
 	int row = 0;
 	int col = 0;
+	gridRawCommander->ClearGrid();
 	for(auto& val: com.raw)
 	{
 		gridRawCommander->SetCellValue(row,col,string_format("%d",val));
@@ -1751,6 +1785,7 @@ void FormSaveEdit::OnTerritorySelect(wxCommandEvent& event)
 	
 	int row = 0;
 	int col = 0;
+	gridRawBigmap->ClearGrid();
 	for(auto& val: terr.raw)
 	{
 		gridRawBigmap->SetCellValue(row,col,string_format("%d",val));

@@ -13,11 +13,11 @@
 
 class SpellUnits;
 
-class UnitRandomizerRule{
+class UnitRandomizerRule{    
 public:
+    int id;
     int ref_unit;
     std::vector<int> rand_units;
-
 };
 
 class UnitRandomizer{
@@ -28,10 +28,11 @@ public:
     UnitRandomizer();
     void Clear();
     int AddRule(SpellDefCmd* cmd, SpellUnits* units);
-    int AddRule(SpellUnits* units,int &new_pos);
+    int AddRule(SpellUnits* units,int &new_pos);    
     int RemoveRule(int pos);
+    int AddMirrorRules(int pos, int& new_pos);
     int CheckRules();
-    int SortRules();
+    int SortRules(int old_pos=-1);
     std::string MakeRulesDEF(std::string indent="");
     UnitRandomizerRule *GetRule(int type_id);
 

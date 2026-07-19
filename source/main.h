@@ -15,7 +15,7 @@
 #include "simpleini.h"
 #include "SpellMod.h"
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-07-08 19:07:01
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-07-16 21:59:38
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -36,19 +36,19 @@
 #include <wx/sizer.h>
 #include <wx/statline.h>
 #include <wx/checkbox.h>
+#include <wx/propgrid/propgrid.h>
+#include <wx/propgrid/advprops.h>
 #include <wx/textctrl.h>
 #include <wx/frame.h>
 #include <wx/statbmp.h>
 #include <wx/dialog.h>
 #include <wx/listbox.h>
 #include <wx/checklst.h>
-#include <wx/propgrid/propgrid.h>
-#include <wx/propgrid/advprops.h>
 #include <wx/grid.h>
 #include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-07-08 19:07:01
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-07-16 21:59:38
 
 
 // app entry point class
@@ -101,6 +101,7 @@ public:
 		bool move_saves;
 		bool force_build;
 		bool allow_unit_mod;
+		std::vector<SpellModOption> options;
 	};
 
 	ProcTh(wxFrame* parent,Params &config,ActionsList &actions);
@@ -141,9 +142,16 @@ private:
 	void OnBackupSave(wxCommandEvent& event);
 	void OnBackupSaveWD(wxCommandEvent& event);
 	void OnSaveEdit(wxCommandEvent& event);
+	void OnModSaveSource(wxCommandEvent& event);
+	void OnModOptionChange(wxPropertyGridEvent& event);
 
+	std::vector<std::string> m_console_buffer;
+	std::vector<SpellModOption> m_mod_options;
 	
 	bool CheckModSaves();
+	void ConsoleBuffer(std::string str);
+	void ClearModOptions();
+	void FillModOptions();
 	void EditFile(std::filesystem::path path);
 	void SetControlsState(bool busy);
 	void FillChoicePaths(wxChoice* choice,CSimpleIniA* ini,std::string section,std::string key);
@@ -175,7 +183,7 @@ protected:
 	int wxID_FORM_SAVE_BACK = 5998;
 	int wxID_FORM_EDIT = 5999;	
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-07-08 19:07:01
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-07-16 21:59:38
 	enum
 	{
 		wxID_FORM_MAIN = 6000,
@@ -222,6 +230,7 @@ protected:
 		wxID_CH_RUN_MODE,
 		wxID_CH_MOD_PATH,
 		wxID_BTN_MOD_PATH,
+		wxID_PG_MOD_OPTS,
 		wxID_CB_ALLOW_CD_MOD,
 		wxID_CB_MOD_SAVES,
 		wxID_CB_MOD_RANDOMIZE,
@@ -268,6 +277,8 @@ protected:
 	wxStaticText* m_staticText119;
 	wxChoice* chModPath;
 	wxBitmapButton* btnModPath;
+	wxStaticText* m_staticText42;
+	wxPropertyGrid* pgModOptions;
 	wxCheckBox* cbAllowCDmod;
 	wxCheckBox* cbModSaves;
 	wxCheckBox* cbModRandomize;
@@ -282,14 +293,14 @@ protected:
 	wxButton* btnRestoreWDmod;
 	wxButton* btnRunMod;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-07-08 19:07:01
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-07-16 21:59:38
 
 
 public:
 	
 	static const int wxID_PROC_THREAD = 7000;
 
-	FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id = wxID_FORM_MAIN, const wxString& title = _("Spellcross Mod Launcher"),const wxPoint& pos = wxDefaultPosition,const wxSize& size = wxSize(900,650),long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL);
+	FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id = wxID_FORM_MAIN, const wxString& title = _("Spellcross Mod Launcher"),const wxPoint& pos = wxDefaultPosition,const wxSize& size = wxSize(900,800),long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL);
 
 	~FormMain();
 

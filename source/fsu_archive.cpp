@@ -162,7 +162,7 @@ int FSUarchive::LoadFolder(std::filesystem::path dir, std::string wild_filter)
 }
 
 // add resource to archive
-int FSUarchive::AddResource(FSU_resource* res,bool allow_replace)
+int FSUarchive::AddResource(FSU_resource* res,bool allow_replace,std::string new_name)
 {
 	if(!res)
 		return(1);
@@ -170,6 +170,15 @@ int FSUarchive::AddResource(FSU_resource* res,bool allow_replace)
 	if(old_res && !allow_replace)
 		return(1);	
 	auto res_copy = new FSU_resource(*res);
+	if(!new_name.empty())
+	{
+		if(new_name.length() > 5)
+		{
+			delete res_copy;
+			return(1);
+		}
+		res_copy->name = toupper(new_name);
+	}
 	if(old_res)
 	{
 		auto target = std::find(m_list.begin(), m_list.end(), old_res);

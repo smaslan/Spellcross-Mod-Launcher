@@ -4,6 +4,8 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <memory>
+#include "fs_archive.h"
 
 
 
@@ -40,6 +42,7 @@ public:
     int data_id;
     int state;
     int available;
+    std::vector<int> or_connections;
 
     std::string GetGroupName()
     {
@@ -53,6 +56,22 @@ public:
             return(c_flags.at(flags));
         return("");
     };
+    int SetGroup(std::string name)
+    {
+        auto it = std::find_if(c_groups.begin(),c_groups.end(),[name](const auto& item) {return(item.second == name);});
+        if(it == c_groups.end())
+            return(1);
+        group = (Group)it->first;
+        return(0);
+    }
+    int SetFlags(std::string name)
+    {
+        auto it = std::find_if(c_flags.begin(),c_flags.end(),[name](const auto& item) {return(item.second == name);});
+        if(it == c_flags.end())
+            return(1);
+        flags = (Flags)it->first;
+        return(0);
+    }
 };
 
 class SpellSaveUpgrade {
@@ -86,6 +105,14 @@ public:
         if(c_flags.find(type) != c_flags.end())
             return(c_flags.at(type));
         return("");
+    }
+    int SetFlags(std::string name)
+    {
+        auto it = std::find_if(c_flags.begin(),c_flags.end(),[name](const auto& item) {return(item.second == name);});
+        if(it == c_flags.end())
+            return(1);
+        type = (UpgradeClass)it->first;
+        return(0);
     }
    
 };
@@ -130,7 +157,7 @@ public:
     int is_empty() {return(!valid);};
     int command_level() {return(flags >> 7);}; // id of hierarchy level {0, 1, 2}
     int command_pos() {return(flags & 0x0F);}; // id of position in hierarchy table
-    bool is_placed() {return{!!flags};}; // is placed in hierarchy table?
+    bool is_placed() {return{flags != 0x0000 && flags != 0xFFFF};}; // is placed in hierarchy table?
     // place commander to hierarchy slot
     void place(int level=-1, int pos=-1)
     {
@@ -249,10 +276,11 @@ public:
 };
 
 class SpellSaveBigMap{
+private:
+    std::shared_ptr<FSarchive> m_common_fs;
     std::vector<std::wstring> m_rank_names;
     std::vector<std::wstring> m_unit_names;
-    std::vector<std::wstring> m_commander_names;
-
+    std::vector<std::wstring> m_commander_names;    
 
 public:
     std::filesystem::path m_path;
@@ -272,6 +300,9 @@ public:
     int SortUnits(bool remove_gaps,bool separate,bool by_types,bool by_names);
     int SwapUnits(int id_a,int id_b);
     int ResetUnitName(int unit_id=-1,bool also_reinforces=false);
+
+    int SyncUpgrades();
+    int SyncResearch();
 
     std::map<int,std::wstring> GetUpgradeList(SpellSaveUpgrade::UpgradeClass type);
     std::map<int,std::wstring> GetUnitTypeList(bool add_empty=false,bool with_id=false);

@@ -119,10 +119,10 @@ std::vector<SpellDefCmd*>& SpellDefSection::GetData()
 
 
 // construct from file
-SpellDEF::SpellDEF(std::wstring &path)
+SpellDEF::SpellDEF(std::filesystem::path path)
 {
 	// try open file
-	if (loadstr(std::filesystem::path(path),data))
+	if (loadstr(path,data))
 		throw std::runtime_error("Cannot open DEF file!");
 }
 // construct from data buffer

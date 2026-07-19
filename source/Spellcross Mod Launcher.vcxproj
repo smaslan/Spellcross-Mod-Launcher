@@ -125,7 +125,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_HAS_STD_BYTE=0;_WINSOCKAPI_;_DEBUG;_WINDOWS;WXUSINGDLL;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;MINIMAL_SPELL_UNITS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_HAS_STD_BYTE=0;_WINSOCKAPI_;_DEBUG;_WINDOWS;WXUSINGDLL;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;MINIMAL_SPELL_UNITS;STATIC_CPARSE_STARTUP;CATCH_CPP14_OR_GREATER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(wxwin)include;$(wxwin)include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -159,6 +159,11 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="cparse\builtin-features.cpp" />
+    <ClCompile Include="cparse\containers.cpp" />
+    <ClCompile Include="cparse\functions.cpp" />
+    <ClCompile Include="cparse\packToken.cpp" />
+    <ClCompile Include="cparse\shunting-yard.cpp" />
     <ClCompile Include="forms\form_about.cpp" />
     <ClCompile Include="forms\form_edit.cpp" />
     <ClCompile Include="forms\form_save_backup.cpp" />
@@ -177,6 +182,7 @@
     <ClCompile Include="wx_other.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="cparse\shunting-yard.h" />
     <ClInclude Include="forms\form_about.h" />
     <ClInclude Include="forms\form_edit.h" />
     <ClInclude Include="forms\form_save_backup.h" />

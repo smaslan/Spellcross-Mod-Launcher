@@ -28,9 +28,10 @@ int savestr(std::wstring path,std::string& str);
 int loadstr(std::filesystem::path path,std::string& strbuf);
 int savedata(std::wstring path,std::vector<uint8_t>& data);
 int loaddata(std::filesystem::path path,std::vector<uint8_t>& data);
-std::string trim_whites(std::string str);
+std::string trim_whites(std::string str,bool also_below_32=false);
 std::string get_timestr_iso();
 std::string get_local_time_str();
+int str2int(std::string str,int& value,int min=-INT_MIN,int max=INT_MAX);
 
 template <typename TP>
 std::time_t to_time_t(TP tp)

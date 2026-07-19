@@ -132,6 +132,18 @@ std::string& strrep(std::string& str,std::string key,std::string rep)
     return(str);
 }
 
+// string to integer with string validity check
+int str2int(std::string str,int &value,int min,int max)
+{
+    char* send;
+    value = std::strtol(str.c_str(),&send,10);
+    if(send == str.c_str())
+        return(1);
+    if(value < min || value > max)
+        return(1);
+    return(0);
+}
+
 // is string wildcard?
 bool iswild(std::string wild)
 {
@@ -582,16 +594,16 @@ std::vector<std::string> regexp_get(std::string str,std::string regkey)
 }
 
 // trim white spaces from string (both ends)
-std::string trim_whites(std::string str)
+std::string trim_whites(std::string str,bool also_below_32)
 {
     for(auto it = str.rbegin(); it < str.rend(); it++)
-        if(*it != ' ' && *it != '\t' && *it != '\r' && *it != '\n')
+        if(!(*it == ' ' || *it == '\t' || *it == '\r' || *it == '\n' || (*it >= 0 && *it < 32 && also_below_32)))
         {
             str.resize(str.rend() - it);
             break;
         }
     for(auto it = str.begin(); it < str.end(); it++)
-        if(*it != ' ' && *it != '\t' && *it != '\r' && *it != '\n')
+        if(!(*it == ' ' || *it == '\t' || *it == '\r' || *it == '\n' || (*it >= 0 && *it < 32 && also_below_32)))
         {
             str = str.substr(it - str.begin());
             return(str);

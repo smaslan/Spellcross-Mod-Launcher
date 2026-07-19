@@ -9,6 +9,7 @@
 
 #include <vector>
 #include <string>
+#include <filesystem>
 
 //using namespace std;
 
@@ -54,7 +55,7 @@ class SpellDEF
 
 	public:
 		SpellDEF(std::string &str);
-		SpellDEF(std::wstring &path);
+		SpellDEF(std::filesystem::path path);
 		SpellDEF(uint8_t *data, int size);
 		~SpellDEF();
 

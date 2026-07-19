@@ -132,7 +132,7 @@ class FSUarchive{
 		~FSUarchive();
 		FSU_resource* GetResource(std::string& name);
 		FSU_resource* GetResource(const char* name);
-		int AddResource(FSU_resource* res, bool allow_replace=false);
+		int AddResource(FSU_resource* res, bool allow_replace=false, std::string new_name="");
 		int SaveAuxData(std::wstring path);
 		int LoadAuxData(std::wstring path);
 		bool Compare(FSUarchive *ref);

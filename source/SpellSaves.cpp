@@ -2,6 +2,7 @@
 #include "other.h"
 #include "LZ_spell.h"
 #include "fs_archive.h"
+#include "spell_def.h"
 #include <format>
 
 
@@ -110,8 +111,9 @@ const std::map<int,std::string> SpellSaveUpgrade::c_flags = {
     {UpgradeClass::WEAPON,"Weapon"},
     {UpgradeClass::ARMOR,"Armor"}};
 
-SpellSaveBigMap::SpellSaveBigMap()
-{
+SpellSaveBigMap::SpellSaveBigMap() :
+    m_common_fs((FSarchive*)NULL)
+{   
 }
 
 
@@ -278,23 +280,24 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
     bigmap.terr.clear();
 
 
-    // try load common.fs
-    std::unique_ptr<FSarchive> common_fs = NULL;
+    // try load common.fs    
+    m_common_fs.reset();
+    //m_common_fs = NULL;
     if(!common_fs_path.empty() && std::filesystem::exists(common_fs_path))
     {
         try{
-            common_fs = std::make_unique<FSarchive>(common_fs_path);
+            m_common_fs = std::make_unique<FSarchive>(common_fs_path.wstring());
         }catch(const std::runtime_error& error) {            
             return(1);
         }        
     }
-    if(common_fs)
+    if(m_common_fs)
     {
         // parse rank strings
         m_rank_names.clear();
-        auto rank_str = common_fs->GetFileStr("HODNOSTI.CZ");
+        auto rank_str = m_common_fs->GetFileStr("HODNOSTI.CZ");
         if(rank_str.empty())
-            rank_str = common_fs->GetFileStr("HODNOSTI.ENG");
+            rank_str = m_common_fs->GetFileStr("HODNOSTI.ENG");
         if(rank_str.empty())
             return(1);
         auto lines = get_text_lines(rank_str);
@@ -311,9 +314,9 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
         }
 
         // parse unit names
-        auto units_str = common_fs->GetFileStr("UNITS.CZ");
+        auto units_str = m_common_fs->GetFileStr("UNITS.CZ");
         if(units_str.empty())
-            units_str = common_fs->GetFileStr("UNITS.ENG");
+            units_str = m_common_fs->GetFileStr("UNITS.ENG");
         if(units_str.empty())
             return(1);
         m_unit_names.clear();
@@ -322,7 +325,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
             m_unit_names.push_back(char2wstringCP895(unit.c_str()));
 
         // parse commander names
-        auto c_names_str = common_fs->GetFileStr("C_NAMES.DEF");
+        auto c_names_str = m_common_fs->GetFileStr("C_NAMES.DEF");
         if(c_names_str.empty())
             return(1);
         m_commander_names.clear();
@@ -364,10 +367,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
         memcpy(res.raw.data(),ptr,47);
 
         // read name, convert to unicode
-        auto name_len = strnlen((const char*)&ptr[15],32);
-        if(ptr[15 + name_len])
-            return(1);
-        res.name = char2wstringCP895((char*)&ptr[15]);
+        res.name = char2wstringCP895(trim_whites(get_save_str(&ptr[15],pend,32),true).c_str());
         
         // linked data id
         res.data_id = *(int16_t*)&ptr[7];
@@ -401,7 +401,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
         upg.raw.resize(142);
         memcpy(upg.raw.data(),ptr,142);
 
-        upg.name = char2wstringCP895((char*)&ptr[0]);
+        upg.name = char2wstringCP895(trim_whites(get_save_str(&ptr[0],pend,30),true).c_str());
 
         upg.attack = *(int16_t*)&ptr[30];
         upg.attack_pt = *(int16_t*)&ptr[32];
@@ -559,23 +559,23 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
 
     // load bigmap territories
     std::vector<bool> used_territories(128,false);    
-    if(common_fs && bigmap.level >= 1)
+    if(m_common_fs && bigmap.level >= 1)
     {
         auto bigmap_img_name = string_format("LEVEL_%02d.LZ",bigmap.level);
-        auto bm_lz = common_fs->GetFileData(bigmap_img_name.c_str());
+        auto bm_lz = m_common_fs->GetFileData(bigmap_img_name.c_str());
         if(!bm_lz->size())
             return(1);
         bigmap.image = lzw.Decode(*bm_lz);
 
         auto bigmap_pal_name = string_format("LEVEL_%02d.PAL",bigmap.level);
-        auto bm_pal = common_fs->GetFileData(bigmap_pal_name.c_str());
+        auto bm_pal = m_common_fs->GetFileData(bigmap_pal_name.c_str());
         if(bm_pal->size() != 64*3)
             return(1);
         bigmap.pal.assign(3*256,0);
         memcpy(bigmap.pal.data() + 128*3,bm_pal->data(),64*3);
 
         auto bigmap_clk_name = string_format("LEVEL_%02d.CLK",bigmap.level);
-        auto clk_data = common_fs->GetFileData(bigmap_clk_name.c_str());
+        auto clk_data = m_common_fs->GetFileData(bigmap_clk_name.c_str());
         if(clk_data->empty())
             return(1);
 
@@ -1154,6 +1154,313 @@ int SpellSaveBigMap::SwapUnits(int id_a, int id_b)
             com.unit_id -= 1000;
     return(0);
 }
+
+
+// synchronize upgrade items
+int SpellSaveBigMap::SyncUpgrades()
+{
+    if(!m_common_fs)
+        return(1);
+
+    // get def file
+    auto defstr = m_common_fs->GetFile("UPGRADES.DEF");
+    if(defstr.empty())
+        return(1);
+
+    // get research names
+    auto namestr = m_common_fs->GetFile("UPGRADES.CZ");
+    if(namestr.empty())
+        namestr = m_common_fs->GetFile("UPGRADES.ENG");
+    if(namestr.empty())
+        return(1);
+    auto names = get_text_lines(namestr,true);
+    for(auto& name: names)
+        name = trim_whites(name,true);
+
+    // parse it to local list
+    std::vector<SpellSaveUpgrade> common_upg;
+    SpellDEF def(defstr);
+    for(int item_id = 0; item_id < 36; item_id++)
+    {
+        auto label = string_format("Upgrade(%d)",item_id);
+        std::unique_ptr<SpellDefSection> section(def.GetSection(label));
+        if(!section)
+            break;
+        auto params = section->GetData();
+
+        SpellSaveUpgrade upg;
+        for(auto& par: params)
+        {
+            if(par->parameters.empty())
+                return(1);
+            if(par->name == "Move")
+            {
+                int val;
+                if(str2int(par->parameters[0],val))
+                    return(1);
+                upg.move = val;
+            }
+            else if(par->name == "Attack")
+            {
+                int val;
+                if(str2int(par->parameters[0],val))
+                    return(1);
+                upg.attack = val;
+            }
+            else if(par->name == "AttackPT")
+            {
+                int val;
+                if(str2int(par->parameters[0],val,0))
+                    return(1);
+                upg.attack_pt = val;
+            }
+            else if(par->name == "Sight")
+            {
+                int val;
+                if(str2int(par->parameters[0],val))
+                    return(1);
+                upg.sight = val;
+            }
+            else if(par->name == "Defence")
+            {
+                int val;
+                if(str2int(par->parameters[0],val))
+                    return(1);
+                upg.defence = val;
+            }
+            else if(par->name == "Range")
+            {
+                int val;
+                if(str2int(par->parameters[0],val))
+                    return(1);
+                upg.range = val;
+            }
+            else if(par->name == "UpgradeTime")
+            {
+                int val;
+                if(str2int(par->parameters[0],val,0))
+                    return(1);
+                upg.upg_time = val;
+            }
+            else if(par->name == "UpgradePrice")
+            {
+                int val;
+                if(str2int(par->parameters[0],val,0))
+                    return(1);
+                upg.upg_price = val;
+            }
+            else if(par->name == "Flags")
+            {                
+                if(upg.SetFlags(par->parameters[0]))
+                    return(1);
+            }            
+            else if(par->name == "SuitableTypes")
+            {
+                for(auto& pp: par->parameters)
+                {
+                    int val;
+                    if(str2int(pp,val,0,89))
+                        return(1);
+                    upg.suitable_types.push_back(val);
+                }
+            }
+        }
+
+        // assign name
+        if(item_id >= names.size())
+            return(1);
+        upg.name = char2wstringCP895(names[item_id].c_str());
+
+        // generate empty raw record
+        upg.raw.assign(142,0);
+
+        common_upg.push_back(upg);
+    }
+    
+    // copy states of existing upgrade to the common.fs upgrade list
+    for(auto& upg: upgrade)
+    {
+        for(auto& cupg: common_upg)
+            if(upg.name == cupg.name)
+            {
+                cupg.raw = upg.raw;
+                cupg.state = upg.state;
+                break;
+            }
+    }
+
+    // reling unit upgrades to new upgrade items
+    auto com_units = units;
+    for(int k = 0; k < units.size(); k++)
+    {
+        auto& unit = units[k];
+        auto& com_unit = com_units[k];
+        
+        if(com_unit.upg_armor >= 0)
+        {
+            auto name = upgrade[com_unit.upg_armor].name;
+            unit.upg_armor = -1;
+            for(auto &upg: common_upg)
+                if(upg.name == name)
+                    unit.upg_armor = &upg - common_upg.data();
+        }
+        if(com_unit.upg_engine >= 0)
+        {
+            auto name = upgrade[com_unit.upg_engine].name;
+            unit.upg_engine = -1;
+            for(auto& upg: common_upg)
+                if(upg.name == name)
+                    unit.upg_engine = &upg - common_upg.data();
+        }
+        if(com_unit.upg_weapon >= 0)
+        {
+            auto name = upgrade[com_unit.upg_weapon].name;
+            unit.upg_weapon = -1;
+            for(auto& upg: common_upg)
+                if(upg.name == name)
+                    unit.upg_weapon = &upg - common_upg.data();
+        }
+    }
+
+    // reling research items to new upgrade list
+    for(auto &res: research)
+    {
+        if(res.group != SpellSaveResearch::Group::UPGRADE)
+            continue;
+        if(res.data_id < 0 || res.data_id >= upgrade.size())
+            return(1);
+        auto name = upgrade[res.data_id].name;
+        for(auto& upg: common_upg)
+            if(upg.name == name)
+                res.data_id = &upg - common_upg.data();
+    }
+    
+    // override upgrades research
+    upgrade = common_upg;
+
+    return(0);
+}
+
+
+// synchronize research items
+int SpellSaveBigMap::SyncResearch()
+{
+    if(!m_common_fs)
+        return(1);
+    
+    // get def file
+    auto defstr = m_common_fs->GetFile("RESEARCH.DEF");
+    if(defstr.empty())
+        return(1);
+
+    // get research names
+    auto namestr = m_common_fs->GetFile("RESEARCH.CZ");
+    if(namestr.empty())
+        namestr = m_common_fs->GetFile("RESEARCH.ENG");
+    if(namestr.empty())
+        return(1);
+    auto names = get_text_lines(namestr,true);
+    for(auto &name: names)
+        name = trim_whites(name,true);
+
+    // parse it to local list
+    std::vector<SpellSaveResearch> common_res;
+    SpellDEF def(defstr);
+    for(int item_id = 0; item_id < 200; item_id++)
+    {
+        auto label = string_format("Item(%d)",item_id);
+        std::unique_ptr<SpellDefSection> section(def.GetSection(label));
+        if(!section)
+            break;
+        auto params = section->GetData();
+
+        SpellSaveResearch res;
+        for(auto &par: params)
+        {
+            if(par->parameters.empty())
+                return(1);
+            if(par->name == "Flags")
+            {
+                if(res.SetFlags(par->parameters[0]))
+                    return(1);
+            }
+            else if(par->name == "Group")
+            {
+                if(res.SetGroup(par->parameters[0]))
+                    return(1);
+            }
+            else if(par->name == "Data")
+            {
+                int val;
+                if(str2int(par->parameters[0],val,0))
+                    return(1);
+                res.data_id = val;
+            }
+            else if(par->name == "Time")
+            {
+                int val;
+                if(str2int(par->parameters[0],val,0))
+                    return(1);
+                res.time = val;
+            }
+            else if(par->name == "Level")
+            {
+                int val;
+                if(str2int(par->parameters[0],val,0,10))
+                    return(1);
+                res.level = val;
+            }
+            else if(par->name == "UpgradePrice")
+            {
+                int val;
+                if(str2int(par->parameters[0],val,0))
+                    return(1);
+                res.cost = val;
+            }
+            else if(par->name == "ORconnections")
+            {
+                for(auto &pp: par->parameters)
+                {
+                    int val;
+                    if(str2int(pp,val,0,199))
+                        return(1);
+                    if(val == item_id)
+                        return(1);
+                    res.or_connections.push_back(val);
+                }                
+            }            
+        }
+
+        // assign name
+        if(item_id >= names.size())
+            return(1);
+        res.name = char2wstringCP895(names[item_id].c_str());
+
+        // generate empty raw record
+        res.raw.assign(47,0);
+
+        common_res.push_back(res);
+    }
+
+    // copy states of existing research to the common.fs research list
+    for(auto &res: research)
+    {
+        for(auto &cres: common_res)
+            if(res.name == cres.name)
+            {
+                cres.raw = res.raw;
+                cres.state = res.state;
+                cres.available = res.available;
+                break;
+            }
+    }
+    
+    // override save research
+    research = common_res;
+
+    return(0);
+}
+
 
 // decodder of CLK territory files
 //   note: from https://github.com/luboshorak/spellcross_restoration_tools/blob/main/spellcross-map-edit-main/source/forms/form_level.cpp
