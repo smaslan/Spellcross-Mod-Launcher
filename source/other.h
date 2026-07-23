@@ -31,7 +31,7 @@ int loaddata(std::filesystem::path path,std::vector<uint8_t>& data);
 std::string trim_whites(std::string str,bool also_below_32=false);
 std::string get_timestr_iso();
 std::string get_local_time_str();
-int str2int(std::string str,int& value,int min=-INT_MIN,int max=INT_MAX);
+int str2int(std::string str,int& value,int min=-INT_MIN,int max=INT_MAX,int base=10);
 
 template <typename TP>
 std::time_t to_time_t(TP tp)
@@ -77,6 +77,7 @@ std::vector<std::string> info_get_text_vector(std::vector<std::string>& lines,st
 std::vector<std::string> info_get_section(std::string &info,std::string section);
 std::vector<std::string> info_get_section(std::vector<std::string>& lines,std::string section);
 
+std::vector<std::string> str_split(std::string string,char separator,bool trim_white=false);
 std::vector<std::string> get_text_lines(std::string string,bool trim_white=true,char separator='\n');
 std::string merge_text_lines(std::vector<std::string>& lines,std::string separator="\r\n");
 std::vector<std::string> regexp_get(std::string str,std::string regkey);

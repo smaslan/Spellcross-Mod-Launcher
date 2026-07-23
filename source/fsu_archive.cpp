@@ -839,6 +839,21 @@ int FSU_sprite::SaveSprite(std::filesystem::path path, std::vector<uint8_t> &buf
 	return(savedata(path, lz_data));
 }
 
+// try remove resource
+int FSUarchive::RemoveResource(std::string& name,bool ignore_missing)
+{
+	auto res = GetResource(name);
+	if(!res && !ignore_missing)
+		return(1);
+	if(!res)
+		return(0);	
+	auto rid = std::find(m_list.begin(), m_list.end(), res);
+	if(rid == m_list.end())
+		return(1);
+	m_list.erase(rid);
+	delete res;
+	return(0);
+}
 
 // get graphic resource by name
 FSU_resource* FSUarchive::GetResource(std::string &name)

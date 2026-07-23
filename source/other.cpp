@@ -133,16 +133,18 @@ std::string& strrep(std::string& str,std::string key,std::string rep)
 }
 
 // string to integer with string validity check
-int str2int(std::string str,int &value,int min,int max)
+int str2int(std::string str,int &value,int min,int max,int base)
 {
     char* send;
-    value = std::strtol(str.c_str(),&send,10);
+    value = std::strtol(str.c_str(),&send,base);
     if(send == str.c_str())
         return(1);
     if(value < min || value > max)
         return(1);
     return(0);
 }
+
+
 
 // is string wildcard?
 bool iswild(std::string wild)
@@ -549,6 +551,49 @@ std::vector<std::string> info_get_section(std::vector<std::string> &lines,std::s
     if(match.size() < 2)
         return("");
     return(match[1]);*/
+}
+
+// split string by separators with optional text quotes (removes them)
+std::vector<std::string> str_split(std::string string,char separator,bool trim_white)
+{
+    std::vector<std::string> chunks;
+    std::string par;
+    std::string::iterator par_start = string.begin();
+    bool is_string = false;
+    bool was_quote = false;
+    for(auto p = string.begin(); p < string.end(); p++)
+    {
+        if(*p == '\"')
+        {
+            // string section
+            is_string = !is_string;
+            if(is_string)
+            {
+                par.clear();
+                par_start = p + 1;
+                was_quote = true;
+            }
+            else
+                par = string.substr(par_start - string.begin(),p - par_start);
+            continue;
+        }
+        if(is_string)
+            continue;
+                        
+        bool is_last = p + 1 >= string.end();
+        if(*p == separator || is_last)
+        {
+            if(!was_quote)
+                par = string.substr(par_start - string.begin(),p - par_start + is_last);
+            if(trim_white)
+                par = trim_whites(par);
+            chunks.push_back(par);
+            par.clear();
+            par_start = p + 1;
+            was_quote = false;
+        }
+    }
+    return(chunks);
 }
 
 // split string by lines (or other separators), by default also trims white chars both ends

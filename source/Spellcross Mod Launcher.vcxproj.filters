@@ -90,6 +90,9 @@
     <ClCompile Include="cparse\builtin-features.cpp">
       <Filter>Zdrojové soubory\cparse</Filter>
     </ClCompile>
+    <ClCompile Include="spell_font.cpp">
+      <Filter>Zdrojové soubory</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -151,6 +154,9 @@
     </ClInclude>
     <ClInclude Include="cparse\shunting-yard.h">
       <Filter>Hlavičkové soubory\cparse</Filter>
+    </ClInclude>
+    <ClInclude Include="spell_font.h">
+      <Filter>Hlavičkové soubory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -177,6 +177,7 @@
     <ClCompile Include="SpellLaunch.cpp" />
     <ClCompile Include="SpellMod.cpp" />
     <ClCompile Include="spell_def.cpp" />
+    <ClCompile Include="spell_font.cpp" />
     <ClCompile Include="spell_randomizer.cpp" />
     <ClCompile Include="spell_units.cpp" />
     <ClCompile Include="wx_other.cpp" />
@@ -199,6 +200,7 @@
     <ClInclude Include="SpellMod.h" />
     <ClInclude Include="SpellSaves.h" />
     <ClInclude Include="spell_def.h" />
+    <ClInclude Include="spell_font.h" />
     <ClInclude Include="spell_randomizer.h" />
     <ClInclude Include="spell_units.h" />
     <ClInclude Include="wx_other.h" />

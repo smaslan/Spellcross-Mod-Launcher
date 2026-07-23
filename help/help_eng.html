@@ -158,9 +158,15 @@ class COMMON.FS
     add(%MOD_COMMON%,M01_01A.DEF);  // add specific file from mod "data/COMMON" folder
     add(%MOD_COMMON%,*.CUR);        // add wildcard key matching files from mod "data/COMMON" folder
     add(%MOD_COMMON%);              // add all files from mod "data/COMMON" folder
+    rem(CD.LZ);                     // remove some file
     // copy file JEDN_L4.DEF from mod "data/COMMON" folder and rename to JEDNOTKY.DEF
     // executed conditionally if option LEVEL > 5
-    if(%LEVEL% > 5) copy(%MOD_COMMON%,JEDN_L4.DEF,JEDNOTKY.DEF);                                                                 
+    if(%LEVEL% > 5) copy(%MOD_COMMON%,JEDN_L4.DEF,JEDNOTKY.DEF);
+    // copy selected units by base definitions	
+    ALLIANCE_LIST={0;1;2;3;4;5;6;7;8;9;10};
+    copyunits(%MOD_COMMON%,JEDNOTKY.DEF,%ALLIANCE_LIST%);
+    // add title string to main menu
+    title(320,472,Center,00FF55,111111,"Mod build: %DATE%");
 }
 </pre>
 <p align="justify">
@@ -173,13 +179,33 @@ class COMMON.FS
     add(mode,source,wildcard);  // same as above with "mode" switch
 </pre> 
 <p align="justify">
-Switch "optional=1" can mark archive as optional, so tool will not generate error if "source" data in "add()" command is not found. Default is "optional=0", which means the "source" must exist.<br>
+Switch "optional=1" can mark archive as optional, so tool will not generate error if "source" data in "add()" command is not found. Default is "optional=0", which means the "source" must exist. It is also possible to define local variables which are accessible in the section using percent notation %VAR_NAME%.<br>
 &nbsp;&nbsp; Another possible command is "copy()" which will copy single file and rename it to new name. Syntax is following:</p>
 <pre>
     copy(source_archive,source_file_name,destination_file_name);
 </pre>
 <p align="justify">
-&nbsp;&nbsp; Any command in the archive sections can be made conditional using "if()" statement. Note the "if()" must be at the same line with conditional command like in example:</p>
+&nbsp;&nbsp; Another command is "rem()" which will remove wildcard matching files from current archive. Format:</p>
+<pre>
+    rem(wildcard_filter);
+</pre>
+<p align="justify">
+&nbsp;&nbsp; Another command is "copyunits()" which will copy all or selected units from source JEDNOTKY.DEF to destination. Command must be placed in COMMON.FS only. Format:</p>
+<pre>
+    copyunits(source_archive,source_file_name);
+    copyunits(source_archive,source_file_name,list_of_unit_indices);
+</pre>
+<p align="justify">"list_of_unit_indices" is optional list of unit indices in format "{0;1;5;...}". Example:
+<pre>
+    copyunits(%MOD_COMMON%,JEDN_L4.DEF,{0;1;2;3}); // copy unit 0-3 from source file JEDN_L4.DEF
+</pre>
+<p align="justify">
+&nbsp;&nbsp; Another special command for COMMON.FS archive is "title()" which will render text string to main menu image. Format:</p>
+<pre>
+    title(x_pos,y_pos,text_align,text_color,shadow_color,text);
+</pre>
+<p align="justify">"x_pos" and "y_pos" are positions of string (center of string for centered mode). "text_align" can be "center" or "left". "text_color" and "shadow_color" are hexa colors RRGGBB. Note it is just desired color, but it will choose nearest available in existing palette file. "text" is the string to print. It is possible to insert variable using percent notation %MY_VAR% and date string %DATE%.<br>
+&nbsp;&nbsp; Any command in the archive sections can be made conditional using "if()" statement. Note the "if()" command must be at the same line with conditional command like in example:</p>
 <pre>
     if(%LEVEL% > 5) copy(%MOD_COMMON%,JEDN_L4.DEF,JEDNOTKY.DEF);
 </pre>

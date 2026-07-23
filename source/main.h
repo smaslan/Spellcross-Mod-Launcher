@@ -160,6 +160,9 @@ private:
 	std::wstring GetPathChoiceLastPath(wxChoice* choice,std::wstring default_path=L"");	
 	void ListSpellExecutables(std::filesystem::path spell_dir, wxChoice* choice);
 
+	int LoadOptionsIni(std::vector<SpellModOption>& options);
+	int SaveOptionsIni();
+
 	void MakeSpellLaunchFiles();
 	
 	CSimpleIniA *m_ini;	

@@ -130,6 +130,7 @@ class FSUarchive{
 		int LoadFolder(std::filesystem::path dir,std::string wild_filter="*");
 		int Save(std::filesystem::path path,bool allow_overwrite=false);
 		~FSUarchive();
+		int RemoveResource(std::string& name,bool ignore_missing=false);
 		FSU_resource* GetResource(std::string& name);
 		FSU_resource* GetResource(const char* name);
 		int AddResource(FSU_resource* res, bool allow_replace=false, std::string new_name="");

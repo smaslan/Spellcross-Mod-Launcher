@@ -755,7 +755,7 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 		}
 	}
 
-	FillModOptions();
+	FillModOptions();	
 }
 
 FormMain::~FormMain()
@@ -1340,6 +1340,23 @@ void FormMain::SetControlsState(bool busy)
 	}
 }
 
+// load options from mod ini file
+int FormMain::LoadOptionsIni(std::vector<SpellModOption> &options)
+{
+	auto mod_path = GetPathChoiceLastPath(chModPath);
+	auto ini_path = std::filesystem::path(mod_path).parent_path() / "options.ini";
+	SpellMod::LoadOptionsIni(ini_path,options);
+	return(0);
+}
+
+// save current options to ini file
+int FormMain::SaveOptionsIni()
+{
+	auto mod_path = GetPathChoiceLastPath(chModPath);
+	auto ini_path = std::filesystem::path(mod_path).parent_path() / "options.ini";
+	SpellMod::MakeOptionsIni(ini_path,m_mod_options);
+	return(0);
+}
 
 // cleanup mod
 void FormMain::OnCleanupMod(wxCommandEvent& event)
@@ -1387,7 +1404,10 @@ void FormMain::OnBuildMod(wxCommandEvent& event)
 	if(config.mod_path.empty())
 		return;
 	if(config.spell_dir.empty())
-		return;		
+		return;
+
+	// store mod options state
+	SaveOptionsIni();
 	
 	// what to do?
 	ProcTh::ActionsList actions;	
@@ -1434,6 +1454,9 @@ void FormMain::OnRunGame(wxCommandEvent& event)
 	config.run_mode = chRunMode->GetStringSelection();
 	config.force_build = false;
 	config.options = m_mod_options;
+
+	// store mod options state
+	SaveOptionsIni();
 
 	// first make launch files
 	MakeSpellLaunchFiles();
@@ -1559,7 +1582,7 @@ void FormMain::FillModOptions()
 		return;
 	}
 
-	// assign exising option values to new parsed option
+	// assign existing option values to new parsed options
 	for(auto &opt: options)
 	{
 		auto oo = mod.GetOption(opt.label);
@@ -1567,6 +1590,8 @@ void FormMain::FillModOptions()
 			continue;
 		oo->value = opt.value;
 	}
+	
+	LoadOptionsIni(mod.m_options);
 
 	// try load default last game level from WORKDIR save
 	std::filesystem::path save_file = mod_config.spell_dir / "save" / "workdir" / "big_map.sav";
@@ -1861,7 +1886,7 @@ void FormMain::OnSelectModPath(wxCommandEvent& event)
 	if(CheckModSaves())
 		cbModSaves->SetValue(true);
 
-	// fill mod options
+	// fill mod options	
 	FillModOptions();
 }
 

@@ -20,38 +20,10 @@
 #include "fsu_archive.h"
 #include "spell_units.h"
 #include "spell_randomizer.h"
+#include "spell_font.h"
 #include "SimpleIni.h"
 #include "cparse/shunting-yard.h"
 
-
-// check if command is asignement "left=right", return left, right
-int SpellModCmd::isAssign(std::string &left, std::string &right)
-{
-    auto tokens = regexp_get(m_cmd,"(.+?)\\((.*?)\\)");
-    if(!tokens.empty())
-        return(0);
-    left.clear();
-    right.clear();
-    tokens = regexp_get(m_cmd,"(.+?)\s*=\s*?(.*)");
-    if(tokens.size() != 2)
-        return(0);
-    left = tokens[0];
-    right = tokens[1];
-    return(1);
-}
-
-// check if command is function, separete name an parameters list
-int SpellModCmd::isFunction(std::string& func_name, std::vector<std::string> &func_params)
-{
-    func_params.clear();
-    func_name.clear();
-    auto tokens = regexp_get(m_cmd,"(.+?)\\((.*?)\\)");
-    if(tokens.size() != 2)
-        return(0);
-    func_name = tokens[0];
-    func_params = get_text_lines(tokens[1],true,',');
-    return(1);
-}
 
 // is path valid?
 bool SpellModPath::isValid()
@@ -275,6 +247,39 @@ int SpellArchive::GetFile(std::string name,std::vector<uint8_t>& data)
     return(m_fs->GetFileData(name.c_str()));
 }*/
 
+// remove file from archive (no error if not found)
+int SpellArchive::RemoveFile(std::string& name,bool ignore_error)
+{
+    m_last_error = "";
+
+    if(!m_fs && !m_fsu && !ignore_error)
+    {
+        m_last_error = string_format("Cannot remove file \"%s\" from archive! Empty archive.",name.c_str());
+        return(1);
+    }
+
+    if(m_fs)
+    {
+        // FS archive:
+        int err = m_fs->RemoveFile(name);
+        if(err && !ignore_error)
+        {
+            m_last_error = m_fs->m_last_error;
+            return(1);
+        }
+    }
+    else if(m_fsu)
+    {
+        // FSU archive:
+        if(m_fsu->RemoveResource(name,ignore_error))
+        {
+            m_last_error = string_format("Cannot remove resource \"%s\" from FSU archive! Resource not found.",name.c_str());
+            return(1);
+        }        
+    }
+    return(0);
+}
+
 // add file from another archive
 int SpellArchive::AddFile(SpellArchive &src, std::string& name, bool allow_replace, std::string new_name)
 {   
@@ -363,6 +368,35 @@ int SpellArchive::AddFile(std::string &string,std::string& name,bool allow_repla
     return(1);
 }
 
+// add file data from raw vector
+int SpellArchive::AddFile(std::vector<uint8_t>& data,std::string& name,bool allow_replace)
+{
+    m_last_error = "";
+
+    if(m_fsu)
+    {
+        m_last_error = string_format("Cannot add raw data to FSU archive!");
+        return(1);
+    }
+    if(!m_fs)
+    {
+        // first file to add: make blank FS
+        m_fs = new FSarchive();
+    }
+    if(m_fs)
+    {
+        // FS archive:
+        auto err = m_fs->AddFile(name,data,allow_replace);
+        m_last_error = m_fs->m_last_error;
+        return(err);
+    }
+    if(m_fsu)
+    {
+        // FSU archive:        
+    }
+    return(1);
+}
+
 // compare two archive by content
 bool SpellArchive::Compare(SpellArchive& ref)
 {
@@ -411,6 +445,7 @@ template<typename... Args> void SpellMod::PrintConsole(const std::string fmt, Ar
         m_stdout_cb(string_format(fmt,args...));
 }
 
+// get DEF section
 int SpellMod::GetClass(std::string def, std::string class_name,SpellModCmdList &commands)
 {
     commands.clear();
@@ -423,7 +458,7 @@ int SpellMod::GetClass(std::string def, std::string class_name,SpellModCmdList &
         auto tokens = regexp_get(lines[cmd_line], "^\\s*(class\\s+" + class_name + ")\\s*\\{?");
         if(tokens.empty())
             continue;
-        start_line = cmd_line;
+        start_line = cmd_line + 1;
         break;
     }
     if(start_line < 0)
@@ -455,20 +490,148 @@ int SpellMod::GetClass(std::string def, std::string class_name,SpellModCmdList &
 
     for(int cmd_line = start_line; cmd_line < end_line; cmd_line++)
     {
-        auto cmd = regexp_get(lines[cmd_line],"\\s*^(?!//)(.*?(?=\\/\\/|$))");
+        
+        /*auto cmd = regexp_get(lines[cmd_line],"\\s*^(?!//)(.*?(?=\\/\\/|$))");
         if(cmd.empty())
             continue;
         cmd = regexp_get(cmd[0], "(.*);");
         if(cmd.empty())
+            continue;*/
+
+        // try extract command portion of line
+        auto line = lines[cmd_line];
+        bool is_string = false;
+        auto pend = line.begin();
+        for(auto p = line.begin(); p < line.end(); p++)
+        {
+            if(*p == '\"')
+            {
+                // string section
+                is_string = !is_string;
+                continue;
+            }
+            
+            // potential end of command mark
+            if(!is_string && *p == ';')
+                pend = p;
+
+            if(!is_string && (p + 1) < line.end() && p[0] == '/' && p[1] == '/')
+            {
+                // comment
+                break;
+            }
+        }
+        line = line.substr(0,pend - line.begin());
+        if(line.empty())
             continue;
+
         commands.emplace_back();
-        commands.back().m_cmd = cmd[0];
+        commands.back().m_cmd = line;
         commands.back().m_raw = lines[cmd_line];
         commands.back().m_line = cmd_line + 1;
     }
     
     return(0);
 }
+
+// check if command is asignement "left=right", return left, right
+int SpellModCmd::isAssign(std::string& left,std::string& right)
+{
+    /*auto tokens = regexp_get(m_cmd,"(.+?)\\((.*?)\\)");
+    if(!tokens.empty())
+        return(0);
+    left.clear();
+    right.clear();
+    tokens = regexp_get(m_cmd,"(.+?)\s*=\s*?(.*)");
+    if(tokens.size() != 2)
+        return(0);
+    left = tokens[0];
+    right = tokens[1];*/
+
+    std::vector<std::string> func_params;
+    std::string rest;
+    auto is_func = isFunction(left,func_params,rest);
+    if(is_func)
+        return(0);
+    if(func_params.size() != 1)
+        return(0);
+    right = func_params[0];
+    return(1);
+}
+
+// check if command is function, separete name an parameters list
+int SpellModCmd::isFunction(std::string& func_name,std::vector<std::string>& func_params,std::string& rest)
+{
+    func_params.clear();
+    func_name.clear();
+    rest.clear();
+    
+    std::string par;
+    std::string::iterator par_start;
+    bool is_func = false;
+    bool is_string = false;
+    bool was_quote = false;
+    for(auto p = m_cmd.begin(); p < m_cmd.end(); p++)
+    {
+        if(*p == '\"')
+        {
+            // string section
+            is_string = !is_string;
+            if(is_string)
+            {
+                par.clear();
+                par_start = p + 1;
+                was_quote = true;
+            }
+            else
+                par = m_cmd.substr(par_start - m_cmd.begin(),p - par_start);
+            continue;
+        }
+        if(is_string)
+            continue;
+        
+        if(!is_func && *p == '=')
+        {
+            func_name = trim_whites(m_cmd.substr(0,p - m_cmd.begin()));
+            par = trim_whites(m_cmd.substr(p - m_cmd.begin() + 1));
+            auto toks = regexp_get(par,"^\"(.*)\"$");
+            if(!toks.empty())
+                par = toks[0];
+            func_params.push_back(par);
+            break;
+        }
+        if(*p == '(')
+        {
+            func_name = m_cmd.substr(0,p - m_cmd.begin());
+            par_start = p + 1;
+            is_func = true;
+            continue;
+        }
+        if(*p == ')' || *p == ',')
+        {
+            if(!was_quote)
+                par = trim_whites(m_cmd.substr(par_start - m_cmd.begin(),p - par_start));
+            func_params.push_back(par);
+            par.clear();
+            par_start = p + 1;            
+            was_quote = false;
+        }
+        if(is_func && *p == ')')
+        {
+            rest = trim_whites(m_cmd.substr(p - m_cmd.begin() + 1));
+            break;
+        }
+    }
+
+    /*auto tokens = regexp_get(m_cmd,"(.+?)\\((.*?)\\)");
+    if(tokens.size() != 2)
+        return(0);
+    func_name = tokens[0];
+    func_params = get_text_lines(tokens[1],true,',');*/
+
+    return(is_func);
+}
+
 
 // clead mod record
 void SpellMod::Clear()
@@ -530,10 +693,22 @@ SpellModPath SpellMod::ParsePath(std::filesystem::path path,std::filesystem::pat
 // add path, returns pointer or null if duplicate exists or error
 SpellModPath* SpellMod::AddPath(std::string name,std::filesystem::path path,std::filesystem::path alt_path,bool overwrite)
 {
+    m_last_error.clear();
+
     // check duplicates
     auto cur_path = GetPath(name);
     if(cur_path && !overwrite)
-        return(NULL); 
+    {
+        m_last_error = string_format("Cannot define path variable \"%s\". It already exist.",name.c_str());
+        return(NULL);
+    }
+
+    std::string var_value;
+    if(!GetVar(name,var_value))
+    {
+        m_last_error = string_format("Cannot define path variable \"%s\". It already exist as local variable.",name.c_str());
+        return(NULL);
+    }
 
     auto new_path = ParsePath(path, alt_path, name);
     if(!new_path.isValid())
@@ -547,6 +722,61 @@ SpellModPath* SpellMod::AddPath(std::string name,std::filesystem::path path,std:
     // add new
     m_paths.push_back(new_path);
     return(&m_paths.back());
+}
+
+// clear local variable
+void SpellMod::ClearVars()
+{
+    m_vars.clear();
+}
+
+// try get variable
+int SpellMod::GetVar(std::string name,std::string& value)
+{
+    for(auto it = m_vars.begin(); it != m_vars.end(); it++)
+    {
+        if(it->first != name)
+            continue;
+        value = it->second;
+        return(0);
+    }
+    return(1);
+}
+
+// try add variable to list
+int SpellMod::AddVar(std::string name,std::string value,bool allow_update)
+{    
+    m_last_error.clear();
+    auto path = GetPath(name);
+    if(path)
+    {
+        m_last_error = string_format("Cannot define variable \"%s\". It exist as path variable.",name.c_str());
+        return(1);
+    }
+    for(auto it = m_vars.begin(); it != m_vars.end(); it++)
+    {
+        if(it->first != name)
+            continue;
+        if(!allow_update)
+        {
+            m_last_error = string_format("Cannot define variable \"%s\". It already exists.",name.c_str());
+            return(1);
+        }
+        it->second = value;
+        return(0);
+    }    
+    m_vars.insert({name,value});
+    return(0);
+}
+
+// replace variable(s) in string
+void SpellMod::ReplaceVars(std::string &string)
+{
+    for(auto it = m_vars.begin(); it != m_vars.end(); it++)
+    {
+        auto key = string_format("%%%s%%",it->first.c_str());
+        string = strrep(string,key,it->second);
+    }
 }
 
 // get source archive from memory (or null if not loaded)
@@ -634,6 +864,14 @@ std::map<int,std::string> SpellModOption::GetEnumMap()
     return(list);
 }
 
+// get enym string value of option
+std::string SpellModOption::GetEnumValue()
+{
+    if(value < min_value || value > max_value || (value - min_value) >= enum_list.size())
+        return(string_format("<%d>",value));
+    return(enum_list[value - min_value]);
+}
+
 
 // basic parse of mod DEF file
 int SpellMod::LoadDEF(Config& config)
@@ -670,6 +908,7 @@ int SpellMod::LoadDEF(Config& config)
         std::string var_name;
         std::string var_value;
         std::string func_name;
+        std::string func_rest;
         std::vector<std::string> func_params;
         if(cmd.isAssign(var_name,var_value))
         {
@@ -689,7 +928,7 @@ int SpellMod::LoadDEF(Config& config)
                 return(1);
             }
         }
-        else if(cmd.isFunction(func_name,func_params))
+        else if(cmd.isFunction(func_name,func_params,func_rest))
         {
             // functions
             if(func_name == "option")
@@ -720,9 +959,9 @@ int SpellMod::LoadDEF(Config& config)
                 std::vector<std::string> opt_enums;
                 if(func_params.size() >= 6)
                 {
-                    auto enum_str = regexp_get(func_params[5],"\\{(.*?)\\}");
+                    auto enum_str = regexp_get(func_params[5],"\\{(.*)\\}$");
                     if(!enum_str.empty())
-                        opt_enums = get_text_lines(enum_str[0],true,';');
+                        opt_enums = str_split(enum_str[0],';',true);
                     if(!enum_str.empty() && opt_enums.size() != opt_max - opt_min + 1)
                     {
                         PrintConsole("failed! Line %d: wrong count of option strings in paramter 6 for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
@@ -862,6 +1101,239 @@ int SpellMod::ParseExpression(std::string expr,bool &result)
     return(0);*/
 }
 
+// make initial screen with mod text
+// params: title(pos_x,pos_y,align,color_text,shadow_text,text)
+int SpellMod::MakeTitle(SpellArchive &arch, std::vector<std::string> &params)
+{
+    if(params.size() < 6)
+    {
+        m_last_error = string_format("Wrong params count for command title()!");
+        return(1);
+    }
+    
+    std::string img_name = "MAINMENU.LZ";
+    std::string pal_name = "MAINMENU.PAL";
+    std::string font_name = "FONT_001.FNT";
+
+    // get existing image
+    std::vector<uint8_t> lzdata;
+    if(arch.GetFile(img_name,lzdata))
+    {
+        m_last_error = string_format("Missing file %s in source archive!",img_name.c_str());
+        return(1);
+    }
+    LZWexpand lze(1000000);
+    auto img = lze.Decode(lzdata);
+    if(img.empty())
+    {
+        m_last_error = string_format("Decompressing file %s failed!",img_name.c_str());
+        return(1);
+    }
+    int x_size = 640;
+    int y_size = 480;
+    if(img.size() != x_size*y_size)
+    {
+        m_last_error = string_format("Wring size of title image! Must be 640x480.");
+        return(1);
+    }
+
+    // load palette
+    std::vector<uint8_t> pal_data;
+    if(arch.GetFile(pal_name,pal_data) || pal_data.size() != 3*256)
+    {
+        m_last_error = string_format("Missing file %s in source archive!",pal_name.c_str());
+        return(1);
+    }
+    if(pal_data.size() != 3*256)
+    {
+        m_last_error = string_format("Invalid size of palette file %s!",pal_name.c_str());
+        return(1);
+    }
+    uint8_t(*pal)[3] = (uint8_t(*)[3])pal_data.data();
+
+    // load font
+    std::vector<uint8_t> fontdata;
+    if(arch.GetFile(font_name,fontdata))
+    {
+        m_last_error = string_format("Missing file %s in source archive!",font_name.c_str());
+        return(1);
+    }
+    std::unique_ptr<SpellFont> font;
+    try{
+        font = std::make_unique<SpellFont>(fontdata.data(), fontdata.size());
+    }catch(const std::runtime_error& error) {
+        m_last_error = string_format("Failed loading font file %s!",font_name.c_str());
+        return(1);
+    }
+
+    // parse command parameters
+    int x_pos, y_pos;
+    if(str2int(params[0],x_pos))
+    {
+        m_last_error = string_format("Invalid value of x_pos parameter \"%s\"!",params[0].c_str());
+        return(1);
+    }
+    if(str2int(params[1],y_pos))
+    {
+        m_last_error = string_format("Invalid value of y_pos parameter \"%s\"!",params[1].c_str());
+        return(1);    
+    }
+    auto align = params[2];
+    bool is_center = false;
+    if(iequals(align,"center"))
+        is_center = true;
+    else if(!iequals(align,"left"))
+    {
+        m_last_error = string_format("Invalid value of align parameter \"%s\"!",align.c_str());
+        return(1);
+    }
+    std::vector<int> rgb_list(2);
+    if(str2int(params[3],rgb_list[0],0,256*256*256-1,16))
+    {
+        m_last_error = string_format("Invalid value of color parameter \"%s\"! Must be hex number format RRGGBB.",params[2].c_str());
+        return(1);
+    }
+    if(str2int(params[4],rgb_list[1],0,256*256*256-1,16))
+    {
+        m_last_error = string_format("Invalid value of color parameter \"%s\"! Must be hex number format RRGGBB.",params[2].c_str());
+        return(1);
+    }
+    auto text = params[5];
+
+    // replace option variables
+    for(auto &opt: m_options)
+    {
+        auto key = string_format("%%%s%%",opt.label.c_str());
+        std::string val = string_format("%d",opt.value);
+        if(opt.isEnum())
+            val = opt.GetEnumValue();
+        text = strrep(text, key, val);
+    }
+    text = strrep(text,"%DATE%",get_local_time_str().c_str());
+
+    // find nearest color index in palette
+    std::vector<int> color_list;
+    for(auto &rgb: rgb_list)
+    {
+        int rr = (rgb >> 16) & 0xFF;
+        int gg = (rgb >> 8) & 0xFF;
+        int bb = rgb & 0xFF;
+        int min_dist = 256*256*3;
+        int color = 0;
+        for(int k = 0; k < 256; k++)
+        {        
+            int dist = ((int)pal[k][0] - rr)*((int)pal[k][0] - rr) + ((int)pal[k][1] - gg)*((int)pal[k][1] - gg) + ((int)pal[k][2] - bb)*((int)pal[k][2] - bb);
+            if(dist < min_dist)
+            {
+                min_dist = dist;
+                color = k;
+            }
+        }
+        color_list.push_back(color);
+    }
+
+    // calc position
+    int x_width = font->GetTextWidth(text);
+    int y_font = font->GetHeight();
+    if(is_center)
+        x_pos = x_pos - x_width/2;
+    if(x_pos < 0 || x_pos + x_width >= x_size)
+    {
+        m_last_error = string_format("Title text wont fit to given x-position!");
+        return(1);
+    }
+    y_pos = y_pos - y_font/2;
+    if(y_pos < 0 || y_pos + y_font >= y_size)
+    {
+        m_last_error = string_format("Title text wont fit to given y-position!");
+        return(1);
+    }
+    
+    // try render text
+    font->Render(img.data(), img.data() + img.size(), x_size, x_pos, y_pos, text,color_list[0],color_list[1],SpellFont::FontShadow::DIAG2);
+    
+    // compress image back to LZ
+    try{
+        LZspell(img.data(), img.size(), lzdata);
+    }catch(const std::runtime_error& error) {
+        m_last_error = string_format("Failed compressing image %s!",img_name.c_str());
+        return(1);
+    }
+    
+    // replace original image
+    if(arch.AddFile(lzdata, img_name, true))
+    {
+        m_last_error = string_format("Failed replacing image %s in archive!",img_name.c_str());
+        return(1);
+    }
+    
+    return(0);
+}
+
+// replace particular units from source
+int SpellMod::ReplaceUnits(SpellArchive* dest,SpellArchive *src, std::string name, std::vector<int> &list)
+{
+    // try load source units
+    std::vector<uint8_t> src_units;
+    if(src->GetFile(name,src_units))
+    {
+        m_last_error = string_format("Source file %s not found in source archive!",name.c_str());
+        return(1);
+    }
+
+    // try load destination units
+    std::string dest_name = "JEDNOTKY.DEF";
+    std::vector<uint8_t> dest_units;
+    if(dest->GetFile(dest_name,dest_units))
+    {
+        m_last_error = string_format("Destination file %s not found in destination archive!",dest_name.c_str());
+        return(1);
+    }
+
+    // identify CZ/EN version
+    int size = -1;
+    if(src_units.size() % 206 && dest_units.size() % 206)
+        size = 206;
+    else if(src_units.size() % 207 && dest_units.size() % 207)
+        size = 207;
+    else
+    {
+        m_last_error = string_format("Source/destination files %s have wrong size(s)!",name.c_str());
+        return(1);
+    }
+
+    if(list.empty())
+    {
+        // copy all units
+        dest_units = src_units;
+    }
+    else
+    {
+        // sopy selection
+        for(auto id: list)
+        {
+            int ofs = id*size;
+            int end = ofs + size;
+            if(end > src_units.size() || end > dest_units.size())
+            {
+                m_last_error = string_format("Unit ID #%d out of range of source or destination data!",id);
+                return(1);
+            }
+            std::memcpy(dest_units.data() + ofs, src_units.data() + ofs, size);
+        }
+    }
+    
+    // replace original image
+    if(dest->AddFile(dest_units,dest_name,true))
+    {
+        m_last_error = string_format("Failed replacing file %s in archive!",dest_name.c_str());
+        return(1);
+    }
+
+    return(0);
+}
+
+
 // try load mod DEF file
 int SpellMod::BuildMod(Config& config, bool allow_restore)
 {
@@ -945,6 +1417,9 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
 
         PrintConsole(" - Building archive %s ... ",arch_name.c_str());
 
+        // cleanup local variables
+        ClearVars();
+
         // make blank archive
         SpellArchive arch;
         bool glob_replace = 0;
@@ -955,24 +1430,34 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
         {
             std::string var_name;
             std::string var_value;
+            std::string cmd_rest;
             std::vector<std::string> par_list;
             if(cmd.isAssign(var_name,var_value))
             {
                 // var assign
+                ReplaceVars(var_value);
+
                 if(var_name == "replace")
                     glob_replace = std::atoi(var_value.c_str());
                 else if(var_name == "optional")
-                    is_optional = std::atoi(var_value.c_str());
+                    is_optional = std::atoi(var_value.c_str());                
                 else
                 {
-                    // unknown variable                    
-                    PrintConsole("failed! Line %d: unknown command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
-                    return(1);
+                    // define local variable
+                    if(AddVar(var_name, var_value))
+                    {
+                        PrintConsole("failed! Line %d: cannot add local variable in command \"%s\". %s\n",cmd.m_line,cmd.m_raw.c_str(),m_last_error.c_str());
+                        return(1);
+                    }
                 }
             }
-            else if(cmd.isFunction(var_name, par_list))
+            else if(cmd.isFunction(var_name, par_list,cmd_rest))
             {
                 // function command
+
+                // replace local variable
+                for(auto &par: par_list)
+                    ReplaceVars(par);
 
                 if(var_name == "if")
                 {
@@ -989,22 +1474,119 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                         return(1);
                     }
                     if(!result)
-                        continue;
-                    auto toks = regexp_get(cmd.m_cmd,"\\)\\s*(.*)");
-                    if(toks.empty())
-                    {
-                        PrintConsole("failed! Line %d: missing or crippled conditional command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
-                        return(1);
-                    }
-                    cmd.m_cmd = toks[0];
-                    if(!cmd.isFunction(var_name,par_list))
+                        continue;                    
+                    cmd.m_cmd = cmd_rest;
+                    if(!cmd.isFunction(var_name,par_list,cmd_rest))
                     {
                         PrintConsole("failed! Line %d: missing or crippled conditional command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
                         return(1);
                     }
                 }
 
-                if(var_name == "copy")
+                if(var_name == "title")
+                {
+                    // make main menu title:
+                    //   title(x_pos,y_pos,text_color,shadow_color,text)
+                    if(arch_name != "COMMON.FS")
+                    {
+                        PrintConsole("failed! Line %d: title() command must be placed in COMMON.FS archive.\n",cmd.m_line);
+                        return(1);
+                    }
+                    if(MakeTitle(arch, par_list))
+                    {
+                        PrintConsole("failed! Line %d: command \"%s\" failed with error: %s\n",cmd.m_line,cmd.m_raw.c_str(),m_last_error.c_str());
+                        return(1);
+                    }
+                }
+                else if(var_name == "rem")
+                {
+                    // remove file(s) from archive:
+                    //   rem(wild_card)
+                    if(par_list.size() != 1)
+                    {
+                        PrintConsole("failed! Line %d: wrong parameters count for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        return(1);
+                    }
+
+                    // list to remove
+                    std::vector<std::string> list;
+                    for(auto &file: arch.GetItemNames())
+                        if(wildcmp(par_list[0],file))
+                            list.push_back(file);
+
+                    // now try remove
+                    for(auto &name: list)
+                        if(arch.RemoveFile(name,true))
+                        {
+                            PrintConsole("failed! Line %d: removing archive resource \"%s\" for command \"%s\".\n",cmd.m_line,name.c_str(),cmd.m_raw.c_str());
+                            return(1);
+                        }
+                }
+                else if(var_name == "copyunits")
+                {
+                    // copy units from source file to JEDNOTKY.DEF with optional filter
+                    //   copyunits(source_archive,source_file_name,optional_list)
+                    if(arch_name != "COMMON.FS")
+                    {
+                        PrintConsole("failed! Line %d: copyunits() command must be placed in COMMON.FS archive.\n",cmd.m_line);
+                        return(1);
+                    }                    
+                    if(par_list.size() < 2 || par_list.size() > 3)
+                    {
+                        PrintConsole("failed! Line %d: wrong params count is command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        return(1);
+                    }
+                    auto src_path = par_list[0];
+                    auto src_name = par_list[1];
+                    std::vector<int> unit_list;
+                    if(par_list.size() == 3)
+                    {
+                        auto toks = regexp_get(par_list[2],"^\\{(.*)\\}$");
+                        if(toks.size() != 1)
+                        {
+                            PrintConsole("failed! Line %d: wrong format of units list is command \"%s\". Must be semicolon list in {}.\n",cmd.m_line,cmd.m_raw.c_str());
+                            return(1);
+                        }
+                        toks = str_split(toks[0],';',true);
+                        for(auto &vv: toks)
+                        {
+                            int val;
+                            if(str2int(vv,val,0))
+                            {
+                                PrintConsole("failed! Line %d: wrong format of units list is command \"%s\". Must be semicolon list in {}.\n",cmd.m_line,cmd.m_raw.c_str());
+                                return(1);
+                            }
+                            unit_list.push_back(val);
+                        }                        
+                    }
+
+                    // parse source path (expand vars)                    
+                    auto parsed_path = ParsePath(src_path);
+                    if(!parsed_path.isValid())
+                    {
+                        // parsing path for add() command failed
+                        PrintConsole("failed! Line %d: parsing source path failed in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        return(1);
+                    }
+
+                    // try load source archive
+                    auto src = LoadArchive(parsed_path,SpellArchive::Type::FS);
+                    if(!src)
+                    {
+                        // loading source data for add() command failed
+                        PrintConsole("failed! Line %d: loading source data failed in command \"%s\".\n %s\n",cmd.m_line,cmd.m_raw.c_str(),m_last_error.c_str());
+                        return(1);
+                    }                                                       
+
+                    // try replace units
+                    if(ReplaceUnits(&arch,src,src_name,unit_list))
+                    {
+                        PrintConsole("failed! Line %d: copying units data in command \"%s\".\n %s\n",cmd.m_line,cmd.m_raw.c_str(),m_last_error.c_str());
+                        return(1);
+                    }
+                    
+                }
+                else if(var_name == "copy")
                 {
                     // copy single file with renaming: 
                     //   copy(source_archive,source_file_name,dest_file_name)
@@ -1676,6 +2258,25 @@ int SpellMod::GetSaveIni(std::filesystem::path save_dir,SaveInfo& info)
     return(0);
 }
 
+// make ini with mod options values
+int SpellMod::MakeOptionsIni(std::filesystem::path ini_path,std::vector<SpellModOption>& options)
+{    
+    CSimpleIniA ini;
+    for(auto &opt: options)
+        ini.SetLongValue("OPTIONS",opt.label.c_str(),opt.value,string_format("; %s",opt.description.c_str()).c_str());
+    return(ini.SaveFile(ini_path.wstring().c_str()));
+}
+
+// load option values from ini (if exist)
+int SpellMod::LoadOptionsIni(std::filesystem::path ini_path,std::vector<SpellModOption>& options)
+{
+    CSimpleIniA ini;
+    ini.LoadFile(ini_path.wstring().c_str());
+    CSimpleIniA save_ini;
+    for(auto& opt: options)
+        opt.value = ini.GetLongValue("OPTIONS",opt.label.c_str(),opt.value);        
+    return(0);
+}
 
 
 

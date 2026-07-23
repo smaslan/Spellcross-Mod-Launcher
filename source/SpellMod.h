@@ -23,7 +23,7 @@ public:
     std::string m_raw;
 
     int isAssign(std::string &left,std::string &right);
-    int isFunction(std::string& func_name,std::vector<std::string>& func_params);
+    int isFunction(std::string& func_name,std::vector<std::string>& func_params,std::string& rest);
 };
 
 typedef std::vector<SpellModCmd> SpellModCmdList;
@@ -64,8 +64,10 @@ public:
     bool isEmpty();
     std::vector<std::string> GetItemNames();
     int GetFile(std::string name,std::vector<uint8_t>& data);
+    int RemoveFile(std::string& name,bool ignore_error=false);
     int AddFile(SpellArchive &src, std::string &name, bool allow_replace, std::string new_name="");
     int AddFile(std::string &string,std::string& name,bool allow_replace);
+    int AddFile(std::vector<uint8_t> &data,std::string& name,bool allow_replace);
     bool Compare(SpellArchive& ref);
     int Save(std::filesystem::path path, bool allow_overwrite=false);
     std::string GetLastError();
@@ -84,6 +86,7 @@ public:
 
     bool isEnum();
     std::map<int,std::string> GetEnumMap();
+    std::string GetEnumValue();
 };
 
 class SpellMod
@@ -137,6 +140,9 @@ public:
     static int GetSaveIni(std::filesystem::path save_dir,SaveInfo& info);
     static int MakeSaveIni(std::filesystem::path save_dir,std::string description);
 
+    static int MakeOptionsIni(std::filesystem::path ini_path, std::vector<SpellModOption> &options);
+    static int LoadOptionsIni(std::filesystem::path ini_path,std::vector<SpellModOption>& options);
+
     std::vector<SpellModOption> m_options;
     SpellModOption* GetOption(std::string label);
     SpellModOption* AddOption(std::string label,std::string description,int min,int max,int def,std::vector<std::string>& enum_strings);
@@ -147,16 +153,22 @@ private:
     std::function<void(std::string)> m_stdout_cb;
     std::string m_def;
     std::string m_last_error;
+    std::map<std::string,std::string> m_vars;
 
     //void PrintConsole(const std::string fmt,...);
     template<typename... Args> void PrintConsole(const std::string fmt,Args... args);
 
-    
+    void ClearVars();
+    int AddVar(std::string name, std::string value, bool allow_update=false);
+    int GetVar(std::string name,std::string &value);
+    void ReplaceVars(std::string& string);
         
     SpellModPath ParsePath(std::filesystem::path path,std::filesystem::path alt_path="",std::string name="");
     SpellModPath* AddPath(std::string name,std::filesystem::path path,std::filesystem::path alt_path="",bool overwrite=false);
 
     int ParseExpression(std::string expr,bool& result);
+    int MakeTitle(SpellArchive& arch,std::vector<std::string>& params);
+    int ReplaceUnits(SpellArchive* dest,SpellArchive* src,std::string name,std::vector<int>& list);
 
     int GetClass(std::string def,std::string class_name,SpellModCmdList& commands);     
     SpellArchive *GetArchive(SpellModPath &path);

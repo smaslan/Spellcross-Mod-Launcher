@@ -42,6 +42,7 @@ class FSarchive
 		~FSarchive();
 		FSarchive(std::string name="");
 		FSarchive(std::wstring path, int options=Options::NONE);
+		int RemoveFile(std::string name);
 		void Append(std::wstring path,int options=Options::NONE);
 		int AddFile(std::string name, std::vector<uint8_t> &data, bool allow_replace=false);
 		int LoadFolder(std::wstring dir, std::string wild_filter="*", bool allow_replace=false);
@@ -54,7 +55,7 @@ class FSarchive
 		inline std::string GetFile(const char* name);
 		std::string GetFile(std::string& name);
 		int GetFile(const char* name,std::vector<uint8_t> &data);
-		FSfile *GetFileRec(const char* name);
+		FSfile *GetFileRec(const char* name,int *id=NULL);
 		std::vector<uint8_t>* GetFileData(const char* name);
 		std::string GetFileStr(const char* name);
 		int FreeFileData(const char* name);

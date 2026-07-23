@@ -241,6 +241,23 @@ int FSarchive::LoadFolder(std::wstring dir, std::string wild_filter, bool allow_
 	return(0);
 }
 
+// remove file from list
+int FSarchive::RemoveFile(std::string name)
+{
+	m_last_error = "";
+
+	int pos;
+	auto file = GetFileRec(name.c_str(),&pos);
+	if(!file)
+	{
+		m_last_error = string_format("Cannot remove file \"%s\" because it is not present in archive.",name.c_str());
+		return(1);
+	}
+	delete file;
+	m_files.erase(m_files.begin() + pos);
+	return(0);
+}
+
 // add file to archive, optional replace existing
 int FSarchive::AddFile(std::string name,std::vector<uint8_t> &data,bool allow_replace)
 {
@@ -440,11 +457,15 @@ std::vector<FSarchive::FSfile*> &FSarchive::GetFiles()
 }
 
 // get file item by name
-FSarchive::FSfile* FSarchive::GetFileRec(const char* name)
+FSarchive::FSfile* FSarchive::GetFileRec(const char* name,int* id)
 {
 	for(auto &file: m_files)
 		if(_strcmpi(file->name.c_str(), name) == 0)
+		{
+			if(id)
+				*id = &file - m_files.data();
 			return(file);
+		}
 	return(NULL);
 }
 
