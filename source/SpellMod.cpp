@@ -21,6 +21,7 @@
 #include "spell_units.h"
 #include "spell_randomizer.h"
 #include "spell_font.h"
+#include "spell_def.h"
 #include "SimpleIni.h"
 #include "cparse/shunting-yard.h"
 
@@ -568,6 +569,7 @@ int SpellModCmd::isFunction(std::string& func_name,std::vector<std::string>& fun
     
     std::string par;
     std::string::iterator par_start;
+    std::string::iterator qu_end;
     bool is_func = false;
     bool is_string = false;
     bool was_quote = false;
@@ -578,13 +580,20 @@ int SpellModCmd::isFunction(std::string& func_name,std::vector<std::string>& fun
             // string section
             is_string = !is_string;
             if(is_string)
-            {
-                par.clear();
-                par_start = p + 1;
-                was_quote = true;
+            {                
+                par = trim_whites(m_cmd.substr(par_start - m_cmd.begin(),p - par_start));
+                if(par.empty())
+                {
+                    par_start = p + 1;
+                    was_quote = true;
+                }
             }
             else
-                par = m_cmd.substr(par_start - m_cmd.begin(),p - par_start);
+            {
+                if(was_quote)
+                    par = m_cmd.substr(par_start - m_cmd.begin(),p - par_start);
+                qu_end = p + 1;
+            }
             continue;
         }
         if(is_string)
@@ -611,6 +620,13 @@ int SpellModCmd::isFunction(std::string& func_name,std::vector<std::string>& fun
         {
             if(!was_quote)
                 par = trim_whites(m_cmd.substr(par_start - m_cmd.begin(),p - par_start));
+            else
+            {
+                // append rest of parameter range if it is not empty, e.g. (...,{"quoted string";some extra stuff},...)
+                auto rest = m_cmd.substr(qu_end - m_cmd.begin(),p - qu_end);
+                if(!trim_whites(rest).empty())
+                    par += rest;
+            }
             func_params.push_back(par);
             par.clear();
             par_start = p + 1;            
@@ -1292,9 +1308,9 @@ int SpellMod::ReplaceUnits(SpellArchive* dest,SpellArchive *src, std::string nam
 
     // identify CZ/EN version
     int size = -1;
-    if(src_units.size() % 206 && dest_units.size() % 206)
+    if(src_units.size() % 206 == 0 && dest_units.size() % 206 == 0)
         size = 206;
-    else if(src_units.size() % 207 && dest_units.size() % 207)
+    else if(src_units.size() % 207 == 0 && dest_units.size() % 207 == 0)
         size = 207;
     else
     {
@@ -1329,6 +1345,141 @@ int SpellMod::ReplaceUnits(SpellArchive* dest,SpellArchive *src, std::string nam
         m_last_error = string_format("Failed replacing file %s in archive!",dest_name.c_str());
         return(1);
     }
+
+    return(0);
+}
+
+// replace particular units from source
+int SpellMod::SwapUnits(SpellArchive* arch,std::pair<int,int> pair)
+{
+    // try load DEF file units
+    std::string dest_name = "JEDNOTKY.DEF";
+    std::vector<uint8_t> dest_units;
+    if(arch->GetFile(dest_name,dest_units))
+    {
+        m_last_error = string_format("Definition file %s not found in destination archive!",dest_name.c_str());
+        return(1);
+    }
+
+    // identify CZ/EN version
+    int size = -1;
+    if(dest_units.size() % 206 == 0)
+        size = 206;
+    else if(dest_units.size() % 207 == 0)
+        size = 207;
+    else
+    {
+        m_last_error = string_format("Definition file %s have wrong size(s)!",dest_name.c_str());
+        return(1);
+    }
+
+    if(pair.first >= dest_units.size())
+    {
+        m_last_error = string_format("Unit A #%d out of range of definition data!",pair.first);
+        return(1);
+    }
+    if(pair.second >= dest_units.size())
+    {
+        m_last_error = string_format("Unit B #%d out of range of definition data!",pair.second);
+        return(1);
+    }
+
+    // swap records
+    int ofs_a = pair.first*size;
+    int ofs_b = pair.second*size;
+    std::vector<uint8_t> temp_a(dest_units.begin() + ofs_a,dest_units.begin() + ofs_a + size);
+    std::vector<uint8_t> temp_b(dest_units.begin() + ofs_b,dest_units.begin() + ofs_b + size);
+    dest_units.erase(dest_units.begin() + ofs_a,dest_units.begin() + ofs_a + size);
+    dest_units.insert(dest_units.begin()+ ofs_a, temp_b.begin(), temp_b.end());
+    dest_units.erase(dest_units.begin() + ofs_b,dest_units.begin() + ofs_b + size);
+    dest_units.insert(dest_units.begin()+ ofs_b,temp_a.begin(),temp_a.end());
+
+    // replace original image
+    if(arch->AddFile(dest_units,dest_name,true))
+    {
+        m_last_error = string_format("Failed replacing file %s in archive!",dest_name.c_str());
+        return(1);
+    }
+
+    return(0);
+}
+
+// swap unit IDs within map definition files
+int SpellMod::SwapMapUnits(std::string &def, SpellUnits *units, std::map<int,int> &swap_map_units_list)
+{
+    // parse to lines
+    auto lines = get_text_lines(def);
+
+    // leave because it's not mission DEF but no error
+    if(lines.empty() || !lines[0].starts_with("MissionData"))
+        return(0);
+    
+    // process all lines
+    for(auto& line: lines)
+    {
+        if(line.starts_with("AddUnit") || line.starts_with("AddSpecialUnit"))
+        {
+            SpellDefCmd cmd(line);
+            if(!cmd.valid)
+            {
+                // invalid command
+                m_last_error = "Possibly somehow incomplete command AddUnit() or AddSpecialUnit()?";
+                return(1);
+            }
+            if((cmd.name == "AddUnit" && cmd.parameters.size() != 7) || (cmd.name == "AddSpecialUnit" && cmd.parameters.size() != 6))
+            {
+                // invalid params count
+                m_last_error = "Wrong parameters count for command AddUnit() or AddSpecialUnit().";
+                return(1);
+            }                 
+
+            // check original unit type
+            int orig_unit_type = std::atoi(cmd.parameters[1].c_str());
+            auto orig_unit = units->GetUnit(orig_unit_type);
+            if(!orig_unit)
+            {
+                // unknown unit type
+                m_last_error = string_format("Unknown unit type for command \"%s\".",cmd.full_command.c_str());
+                return(1);
+            }
+
+            // get original health
+            double health = (double)std::atoi(cmd.parameters[4].c_str()) / (double)orig_unit->cnt;
+            
+            // try get new unit type based on provided swap pairs
+            int new_unit_type = -1;
+            auto it = swap_map_units_list.find(orig_unit_type);
+            if(it == swap_map_units_list.end())
+                it = std::find_if(swap_map_units_list.begin(),swap_map_units_list.end(),[orig_unit_type](const auto& item) {return(item.second == orig_unit_type);});
+            if(it == swap_map_units_list.end())
+                continue;
+            if(it->first == orig_unit_type)
+                new_unit_type = it->second;
+            else
+                new_unit_type = it->first;
+            
+            // randomize unit type			            
+            auto unit = units->GetUnit(new_unit_type);
+            if(!unit)
+            {
+                // random unit ID not found
+                m_last_error = string_format("Unknown new unit type %d in unit swap function for command \"%s\".",new_unit_type,cmd.sub_full_command.c_str());
+                return(1);
+            }
+            // fix health
+            int unit_health = std::max((int)(std::min(health,1.0)*(double)unit->cnt),1);
+
+            // rebuild unit command
+            cmd.parameters[1] = string_format("%d",new_unit_type);
+            cmd.parameters[4] = string_format("%d",unit_health);
+            line = cmd.name + "(" + merge_text_lines(cmd.parameters,",") + ")";
+
+            continue;
+        }
+    }
+
+    // merge modified lines
+    def = merge_text_lines(lines);
 
     return(0);
 }
@@ -1424,6 +1575,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
         SpellArchive arch;
         bool glob_replace = 0;
         bool is_optional = false;
+        std::map<int,int> swap_map_units_list;
 
         // section exists
         for(auto& cmd: cmd_list)
@@ -1487,7 +1639,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 {
                     // make main menu title:
                     //   title(x_pos,y_pos,text_color,shadow_color,text)
-                    if(arch_name != "COMMON.FS")
+                    if(!is_common)
                     {
                         PrintConsole("failed! Line %d: title() command must be placed in COMMON.FS archive.\n",cmd.m_line);
                         return(1);
@@ -1526,14 +1678,14 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 {
                     // copy units from source file to JEDNOTKY.DEF with optional filter
                     //   copyunits(source_archive,source_file_name,optional_list)
-                    if(arch_name != "COMMON.FS")
+                    if(!is_common)
                     {
                         PrintConsole("failed! Line %d: copyunits() command must be placed in COMMON.FS archive.\n",cmd.m_line);
                         return(1);
                     }                    
                     if(par_list.size() < 2 || par_list.size() > 3)
                     {
-                        PrintConsole("failed! Line %d: wrong params count is command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: wrong params count in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
                         return(1);
                     }
                     auto src_path = par_list[0];
@@ -1544,7 +1696,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                         auto toks = regexp_get(par_list[2],"^\\{(.*)\\}$");
                         if(toks.size() != 1)
                         {
-                            PrintConsole("failed! Line %d: wrong format of units list is command \"%s\". Must be semicolon list in {}.\n",cmd.m_line,cmd.m_raw.c_str());
+                            PrintConsole("failed! Line %d: wrong format of units list in command \"%s\". Must be semicolon list in {}.\n",cmd.m_line,cmd.m_raw.c_str());
                             return(1);
                         }
                         toks = str_split(toks[0],';',true);
@@ -1553,7 +1705,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                             int val;
                             if(str2int(vv,val,0))
                             {
-                                PrintConsole("failed! Line %d: wrong format of units list is command \"%s\". Must be semicolon list in {}.\n",cmd.m_line,cmd.m_raw.c_str());
+                                PrintConsole("failed! Line %d: wrong format of units list in command \"%s\". Must be semicolon list in {}.\n",cmd.m_line,cmd.m_raw.c_str());
                                 return(1);
                             }
                             unit_list.push_back(val);
@@ -1585,6 +1737,57 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                         return(1);
                     }
                     
+                }
+                else if(var_name == "swapmapunits")
+                {
+                    // swap units IDs in all maps
+                    //   swapmapunits(unit_a,unit_b)
+                    if(!is_common)
+                    {
+                        PrintConsole("failed! Line %d: swapmapunits() command must be placed in COMMON.FS archive.\n",cmd.m_line);
+                        return(1);
+                    }
+                    if(par_list.size() != 2)
+                    {
+                        PrintConsole("failed! Line %d: wrong params count in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        return(1);
+                    }
+                    std::pair<int,int> pair;
+                    if(str2int(par_list[0],pair.first,0,89) || str2int(par_list[1],pair.second,0,89))
+                    {
+                        PrintConsole("failed! Line %d: wrong param values in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        return(1);
+                    }
+                    // just place swap pairs to the list
+                    swap_map_units_list.insert(pair);                    
+
+                }
+                else if(var_name == "swapunits")
+                {
+                    // swap units records within JEDNOTKY.DEF file
+                    //   swapunits(unit_a,unit_b)
+                    if(!is_common)
+                    {
+                        PrintConsole("failed! Line %d: swapunits() command must be placed in COMMON.FS archive.\n",cmd.m_line);
+                        return(1);
+                    }
+                    if(par_list.size() != 2)
+                    {
+                        PrintConsole("failed! Line %d: wrong params count in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        return(1);
+                    }
+                    std::pair<int,int> pair;
+                    if(str2int(par_list[0],pair.first,0,89) || str2int(par_list[1],pair.second,0,89))
+                    {
+                        PrintConsole("failed! Line %d: wrong param values in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        return(1);
+                    }
+                    if(SwapUnits(&arch, pair))
+                    {
+                        PrintConsole("failed! Line %d: swaping unit recirds data in command \"%s\".\n %s\n",cmd.m_line,cmd.m_raw.c_str(),m_last_error.c_str());
+                        return(1);
+                    }
+
                 }
                 else if(var_name == "copy")
                 {
@@ -1755,8 +1958,8 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             }
         }
 
-        // units randomizer?        
-        if(config.randomize && is_common)
+        // units randomizer and/or swapper?
+        if(is_common && (config.randomize || !swap_map_units_list.empty()))
         {
             // parse units definition
             std::vector<uint8_t> data;
@@ -1786,14 +1989,27 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     PrintConsole("failed! Unit randomizer cannot load file \"%s\" in COMMON.FS.\n",name.c_str());
                     return(1);
                 }
-
-                // try randomize
                 std::string def(data.begin(),data.end());
-                std::string errstr;
-                if(UnitRandomizer::RandomizeMap(def,units.get(),errstr))
+
+                // try randomize?
+                if(config.randomize)
                 {
-                    PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name.c_str(),errstr.c_str());
-                    return(1);
+                    std::string errstr;
+                    if(UnitRandomizer::RandomizeMap(def,units.get(),errstr))
+                    {
+                        PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name.c_str(),errstr.c_str());
+                        return(1);
+                    }
+                }
+
+                // swap units?
+                if(!swap_map_units_list.empty())
+                {
+                    if(SwapMapUnits(def,units.get(),swap_map_units_list))
+                    {
+                        PrintConsole("failed! Unit swap in \"%s\" failed: %s\n",name.c_str(),m_last_error.c_str());
+                        return(1);
+                    }
                 }
 
                 // replace
@@ -1802,13 +2018,13 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name.c_str(),arch.GetLastError().c_str());
                     return(1);
                 }
-            }
-            
+            }            
         }
+
+
         
 
         // --- save archive:
-
         // check if target archive differs from newly built one
         bool must_write = config.force_write && !arch.isEmpty();
         if(!must_write && !arch.isEmpty() && std::filesystem::exists(arch_path))

@@ -125,7 +125,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_HAS_STD_BYTE=0;_WINSOCKAPI_;_DEBUG;_WINDOWS;WXUSINGDLL;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;MINIMAL_SPELL_UNITS;STATIC_CPARSE_STARTUP;CATCH_CPP14_OR_GREATER;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_HAS_STD_BYTE=0;_WINSOCKAPI_;_DEBUG;_WINDOWS;WXUSINGDLL;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;MINIMAL_SPELL_UNITS;STATIC_CPARSE_STARTUP;CATCH_CPP14_OR_GREATER;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(wxwin)include;$(wxwin)include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>

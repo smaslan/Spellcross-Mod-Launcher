@@ -7,7 +7,7 @@
 
 #pragma once
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-07-17 16:21:19
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-07-26 13:14:05
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -40,7 +40,7 @@
 #include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-07-17 16:21:19
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-07-26 13:14:05
 #include <wx/tglbtn.h>
 
 #include <filesystem>
@@ -82,6 +82,7 @@ private:
 	void OnTerritorySelect(wxCommandEvent& event);
 	void OnSortUnits(wxCommandEvent& event);
 	void OnResetUnitNames(wxCommandEvent& event);
+	void OnHealUnits(wxCommandEvent& event);
 	void OnEditProp(wxPropertyGridEvent& event);
 	void OnEditPupup(wxCommandEvent& event);
 	void OnTerrPropChange(wxPropertyGridEvent& event);
@@ -89,6 +90,7 @@ private:
 	void OnUnitPropChange(wxPropertyGridEvent& event);
 	void OnSyncResearch(wxCommandEvent& event);
 	void OnSyncUpgrades(wxCommandEvent& event);
+	void OnSyncLevel(wxCommandEvent& event);
 
 	wxString OnGetUnitItem(long item_id);
 	void OnUnitBeginDrag(wxListEvent& event);
@@ -121,7 +123,7 @@ protected:
 	const int wxID_CH_HIERARCH_COM3C_0 = 7300;
 	const int wxID_CH_HIERARCH_COM3U_0 = 7350;
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-07-17 16:21:19
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-07-26 13:14:05
 	enum
 	{
 		wxID_FORM_SAVE_EDIT = 6000,
@@ -147,6 +149,7 @@ protected:
 		wxID_PAN_UNITS,
 		wxID_LIST_UNITS,
 		wxID_BTN_UNIT_RESET_NAMES,
+		wxID_BTN_HEAL_UNITS,
 		wxID_BTN_UNIT_REM_GAPS,
 		wxID_BTN_UNIT_SORT_PERM_REIN,
 		wxID_BTN_UNIT_SORT_NAMES,
@@ -167,6 +170,7 @@ protected:
 		wxID_GRID_BIGMAP_RAW,
 		wxID_PAN_LEVEL,
 		wxID_GRID_LEVEL,
+		wxID_BTN_SYNC_LEVEL,
 	};
 	
 	wxMenuBar* m_menubar4;
@@ -199,6 +203,7 @@ protected:
 	wxStaticText* m_staticText212;
 	wxListCtrlVirtual* listUnits;
 	wxButton* btnUnitsResetNames;
+	wxButton* btnHealUnits;
 	wxStaticLine* m_staticline17;
 	wxButton* btnUnitsNoGaps;
 	wxButton* btnUnitsSortPermaReinforces;
@@ -240,8 +245,9 @@ protected:
 	wxPanel* panLevel;
 	wxStaticText* lblResName12;
 	wxPropertyGrid* gridLevelProp;
+	wxButton* btnSyncLevel;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-07-17 16:21:19
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-07-26 13:14:05
 
 public:
 

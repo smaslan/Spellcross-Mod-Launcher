@@ -155,26 +155,51 @@ class COMMON.FS
     add(%MOD_COMMON%,M01_01A.DEF);  // add specific file from mod "data/COMMON" folder
     add(%MOD_COMMON%,*.CUR);        // add wildcard key matching files from mod "data/COMMON" folder
     add(%MOD_COMMON%);              // add all files from mod "data/COMMON" folder
+    rem(CD.LZ);                     // remove some file
     // copy file JEDN_L4.DEF from mod "data/COMMON" folder and rename to JEDNOTKY.DEF
     // executed conditionally if option LEVEL > 5
-    if(%LEVEL% > 5) copy(%MOD_COMMON%,JEDN_L4.DEF,JEDNOTKY.DEF);                   
+    if(%LEVEL% > 5) copy(%MOD_COMMON%,JEDN_L4.DEF,JEDNOTKY.DEF);
+    // copy selected units by base definitions	
+    ALLIANCE_LIST={0;1;2;3;4;5;6;7;8;9;10};
+    copyunits(%MOD_COMMON%,JEDNOTKY.DEF,%ALLIANCE_LIST%);
+    // add title string to main menu
+    title(320,472,Center,00FF55,111111,"Mod build: %DATE%");
 }
 </pre>
 <p align="justify">
-&nbsp;&nbsp; Pøepínaè "replace=1" znamená, že každý další pøíkaz "add()" nebo "copy()" pøepíše soubory pøidané pøedchozími pøíkazy. "replace=0" znamená, že jsou pøidány pouze nové soubory a již existující jsou pøeskoèeny. Tato volba mùže být provedena i jednotlivì pro každý pøíkaz "add()". Varianty parametrù pøíkazu "add()":</p>
+&nbsp;&nbsp; Pøepínaè "replace=1" znamená, že každý další pøíkaz "add()" nebo "copy()" pøepíše soubory pøidané pøedchozími pøíkazy. 
+"replace=0" znamená, že jsou pøidány pouze nové soubory a již existující jsou pøeskoèeny. 
+Tato volba mùže být provedena i jednotlivì pro každý pøíkaz "add()". Varianty parametrù pøíkazu "add()":</p>
 <pre>
-add(zdroj);               // pøidá všechny soubory ze "zdroj"
-add(mód,zdroj);           // viz výše, "mód" mùže být NEW (pøidá pouze nové soubory) nebo ALL (pøepisuje existující)
-add(zdroj,wildcard);      // pøidá soubory odpovídající klíèi ve formátu "wildcard" (napø *.LZ nebo LEVEL_??.DEF)
-add(mód,zdroj,wildcard);  // viz výše s definicí režimu "mód"
+    add(zdroj);               // pøidá všechny soubory ze "zdroj"
+    add(mód,zdroj);           // viz výše, "mód" mùže být NEW (pøidá pouze nové soubory) nebo ALL (pøepisuje existující)
+    add(zdroj,wildcard);      // pøidá soubory odpovídající klíèi ve formátu "wildcard" (napø *.LZ nebo LEVEL_??.DEF)
+    add(mód,zdroj,wildcard);  // viz výše s definicí režimu "mód"
 </pre>
 <p align="justify">
-Pøepínaè "optional=1" oznaèí archiv jako volitený, takže nástroj negeneruje chybu pokud "zdroj" nebude nalezen. Defaultní hodnota je "optional=0", tj. "zdroj" mustí existovat.<br>
+Pøepínaè "optional=1" oznaèí archiv jako volitený, takže nástroj negeneruje chybu pokud "zdroj" nebude nalezen. Defaultní hodnota je "optional=0", tj. "zdroj" mustí existovat.
+Lze také definovat lokální promìnné, které jsou pak pøístupné jako %MY_VARIABLE% kdekoliv v rámci sekce.<br>
 &nbsp;&nbsp; Další možný pøíkaz je "copy()", který kopíruje jeden soubor s pøejmenováním. Syntaxe je následující:</p>
 <pre>
     copy(source_archive,source_file_name,destination_file_name);
 </pre>
-<p align="justify">, kde "source_archive" je zdrojový archiv, "source_file_name" název zdrojového souboru a "destination_file_name" cílový název souboru.<br>  
+<p align="justify">kde "source_archive" je zdrojový archiv, "source_file_name" název zdrojového souboru a "destination_file_name" cílový název souboru.<br>  
+&nbsp;&nbsp; Další možný pøíkaz je "rem()", který odstraní soubor(y) odpovídající wildcard filtru. Syntaxe je následující:</p>
+<pre>
+    rem(wildcard_filter);
+</pre>
+<p align="justify">
+&nbsp;&nbsp; Další možný pøíkaz je "copyunits()", který kopíruje všechny nebo vybrané jednotky ze zdroje. Pøíkaz lze použít jen v COMMON.FS. Syntaxe je následující:</p>
+<pre>
+    copyunits(source_archive,source_file_name);
+    copyunits(source_archive,source_file_name,list_of_unit_indices);
+</pre>
+<p align="justify">kde "source_archive" je zdrojový archiv, "source_file_name" název zdrojového souboru a "list_of_unit_indices" je volitelný parameter se seznamem indexù jednotek ve formátu "{0;1;3;...}".<br>  
+&nbsp;&nbsp; Další speciální pøíkaz je "title()", který vyrenderuje text na pozadí hlavního menu hry. Pøíkaz lze použít jen v COMMON.FS. Syntaxe je následující:</p>
+<pre>
+    title(x_pos,y_pos,text_align,text_color,shadow_color,text);
+</pre>
+<p align="justify">kde "x_pos" a "y_pos" je pozice textu (jeho støed pro centrovný režim). "text_align" zarovnání "center" nebo "left". Barvy textu "text_color" a pozadí "shadow_color" jsou ve formátu hexa RRGGBB. Vlatní "text" mùže obsahovat pøedem definované promìnné ve formátu %MY_VARIABLE% nebo pøeddefinované datum %DATE%.<br>
 &nbsp;&nbsp; Každý pøíkaz mùže být dále podmínìn pøíkazem "if()". Mùsí ovšem být na jednom øádku s podmínkou:</p>
 <pre>
     if(%LEVEL% > 5) copy(%MOD_COMMON%,JEDN_L4.DEF,JEDNOTKY.DEF);

@@ -144,6 +144,22 @@ int str2int(std::string str,int &value,int min,int max,int base)
     return(0);
 }
 
+// vector or strings to integers with string validity check
+int str2int(std::vector<std::string> &str,std::vector<int>& value,int min,int max,int base)
+{
+    for(auto &ss: str)
+    {
+        int val;
+        if(str2int(ss,val,min,max,base))
+        {
+            value.clear();
+            return(1);
+        }
+        value.push_back(val);
+    }
+    return(0);
+}
+
 
 
 // is string wildcard?

@@ -6,6 +6,7 @@
 #include <map>
 #include <memory>
 #include "fs_archive.h"
+#include "spell_font.h"
 
 
 
@@ -208,6 +209,8 @@ public:
     bool valid;
     uint32_t ssd_flags;
     std::vector<uint8_t> raw;
+    int x_center;
+    int y_center;
     
     bool isAliance() {return(flags == 0x0F);};
     bool isAccessible() { return(flags == 0x0D);};
@@ -300,9 +303,11 @@ public:
     int SortUnits(bool remove_gaps,bool separate,bool by_types,bool by_names);
     int SwapUnits(int id_a,int id_b);
     int ResetUnitName(int unit_id=-1,bool also_reinforces=false);
+    int HealUnits();
 
     int SyncUpgrades();
     int SyncResearch();
+    int SyncLevel();
 
     std::map<int,std::wstring> GetUpgradeList(SpellSaveUpgrade::UpgradeClass type);
     std::map<int,std::wstring> GetUnitTypeList(bool add_empty=false,bool with_id=false);

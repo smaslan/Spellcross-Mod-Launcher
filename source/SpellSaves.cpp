@@ -332,6 +332,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
         auto c_names = get_text_lines(c_names_str);
         for(auto &name: c_names)
             m_commander_names.push_back(char2wstringCP895(name.c_str()));
+
     }        
     
     // load BIG_MAP
@@ -725,6 +726,21 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
         terr.freq_random_attacks_b = *(int16_t*)&ptr[0x32];
 
         terr.ssd_flags = *(uint32_t*)&ptr[0x34];
+
+        // calculate center of each territory
+        int x_mean = 0;
+        int y_mean = 0;
+        int c_mean = 0;
+        for(int y = 0; y < bigmap.y_size; y++)
+            for(int x = 0; x < bigmap.x_size; x++)
+                if(bigmap.terr_mask[x + y*bigmap.x_size] == k + 1)
+                {
+                    x_mean += x;
+                    y_mean += y;
+                    c_mean++;
+                }
+        terr.x_center = x_mean / c_mean;
+        terr.y_center = y_mean / c_mean;
 
         ptr += 56;
     }
@@ -1154,6 +1170,13 @@ int SpellSaveBigMap::SwapUnits(int id_a, int id_b)
             com.unit_id -= 1000;
     return(0);
 }
+// heal all units
+int SpellSaveBigMap::HealUnits()
+{
+    for(auto &unit: units)
+        unit.hp = unit.hp_max;
+    return(0);
+}
 
 
 // synchronize upgrade items
@@ -1457,6 +1480,84 @@ int SpellSaveBigMap::SyncResearch()
     
     // override save research
     research = common_res;
+
+    return(0);
+}
+
+// synchronize level setup with current common.fs level DEF file
+int SpellSaveBigMap::SyncLevel()
+{
+    if(!m_common_fs)
+        return(1);
+
+    // try get current level def file
+    auto def_name = string_format("LEVEL_%02d.DEF",bigmap.level);
+    auto defstr = m_common_fs->GetFile(def_name);
+    if(defstr.empty())
+        return(1);
+    
+    // parse commands
+    SpellDEF def(defstr);
+    std::unique_ptr<SpellDefSection> section(def.GetSection("LevelInit"));
+    if(!section)
+        return(1);
+    for(auto &cmd: section->GetData())
+    {
+        if(cmd->name == "LevelMusic")
+        {
+            // level music name
+            if(cmd->parameters.size() != 1)
+                return(1);
+            level.level_music = cmd->parameters[0];
+        }
+        else if(cmd->name == "AttackUnits")
+        {
+            // normal attack units
+            std::vector<int> list;
+            if(str2int(cmd->parameters, list, 0, m_unit_names.size() - 1))
+                return(1);
+            level.attack_units = list;
+        }
+        else if(cmd->name == "AttackSpecialUnits")
+        {
+            // special attack units
+            std::vector<int> list;
+            if(str2int(cmd->parameters,list,0,m_unit_names.size() - 1))
+                return(1);
+            level.attack_spec_units = list;
+        }
+        else if(cmd->name == "AttackFlags")
+        {
+            // attack flags
+            if(cmd->parameters.size() != 6)
+                return(1);
+            std::vector<int> list;
+            if(str2int(cmd->parameters,list,0))
+                return(1);
+            if(list[1] > 50)
+                return(1);
+            if(list[0] > list[1])
+                return(1);
+            if(list[2] > 12)
+                return(1);
+            if(list[3] > 12)
+                return(1);
+            level.attack_flags_non_spec = list[0];
+            level.attack_flags_total = list[1];
+            level.attack_flags_xp_level = list[2];
+            level.attack_flags_xp_level2 = list[3];
+            level.attack_flags_xp_f_attack_b = list[4];
+            level.attack_flags_xp_f_attack_a = list[5];
+        }
+        else if(cmd->name == "End")
+        {
+            // end level
+            int val;
+            if(str2int(cmd->parameters[0],val,0))
+                return(1);
+            bigmap.final_terr = val;
+        }
+    }
 
     return(0);
 }

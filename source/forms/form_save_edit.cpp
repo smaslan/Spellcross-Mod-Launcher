@@ -21,7 +21,7 @@
 
 FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
 {
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-07-17 16:21:19
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-07-26 13:14:05
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_MENU ) );
 	
@@ -258,6 +258,9 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	
 	btnUnitsResetNames = new wxButton( panUnits, wxID_BTN_UNIT_RESET_NAMES, _("Reset names"), wxDefaultPosition, wxDefaultSize, 0 );
 	bSizer462->Add( btnUnitsResetNames, 0, wxALL|wxEXPAND, 5 );
+	
+	btnHealUnits = new wxButton( panUnits, wxID_BTN_HEAL_UNITS, _("Heal units"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer462->Add( btnHealUnits, 0, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
 	
 	m_staticline17 = new wxStaticLine( panUnits, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
 	bSizer462->Add( m_staticline17, 0, wxEXPAND|wxRIGHT|wxLEFT, 5 );
@@ -630,6 +633,9 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	gridLevelProp = new wxPropertyGrid(panLevel, wxID_GRID_LEVEL, wxDefaultPosition, wxDefaultSize, wxPG_DEFAULT_STYLE);
 	bSizer4722->Add( gridLevelProp, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
 	
+	btnSyncLevel = new wxButton( panLevel, wxID_BTN_SYNC_LEVEL, _("Sync with LEVEL?.DEF"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer4722->Add( btnSyncLevel, 0, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	
 	
 	bSizer4412->Add( bSizer4722, 1, wxEXPAND, 5 );
 	
@@ -648,7 +654,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Centre( wxBOTH );
 	
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-07-17 16:21:19
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-07-26 13:14:05
 
 	// set icon
 	wxIcon appIcon;
@@ -684,9 +690,11 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnSortUnits,this,wxID_BTN_UNIT_SORT_NAMES);
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnResetUnitNames,this,wxID_BTN_UNIT_RESET_NAMES);
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnResetUnitNames,this,wxID_BTN_UNIT_RESET_NAME);
+	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnHealUnits,this,wxID_BTN_HEAL_UNITS);
 
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnSyncResearch,this,wxID_BTN_RES_SYNC);
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnSyncUpgrades,this,wxID_BTN_UPG_SYNC);
+	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnSyncLevel,this,wxID_BTN_SYNC_LEVEL);
 
 	
 
@@ -934,11 +942,16 @@ void FormSaveEdit::UpdateList()
 	if(sel_id >=0 && sel_id < listUnits->GetCount())
 		listUnits->Select(sel_id);
 	listUnits->Thaw();*/
+
+
+	auto uid = listUnits->GetNextItem(-1,wxLIST_NEXT_ALL,wxLIST_STATE_SELECTED);		
 	listUnits->ClearAll();
 	listUnits->AppendColumn("list",wxLIST_FORMAT_LEFT,wxLIST_AUTOSIZE);
 	listUnits->SetItemCount(m_bigmap.units.size());
 	listUnits->SetColumnWidth(0,wxLIST_AUTOSIZE_USEHEADER);
 	listUnits->Refresh();
+	if(uid >= 0 || uid < m_bigmap.units.size())
+		listUnits->SetItemState(uid,wxLIST_STATE_SELECTED,wxLIST_STATE_SELECTED);
 
 	listComanders->Freeze();
 	sel_id = listComanders->GetSelection();
@@ -1046,7 +1059,7 @@ void FormSaveEdit::OnSyncResearch(wxCommandEvent& event)
 {
 	if(m_bigmap.SyncResearch())
 	{
-		wxMessageBox("Parsing research from COMMON.FS failed!","Error",wxICON_ERROR);
+		wxMessageBox("Parsing research from COMMON.FS failed! Cannot sync.","Error",wxICON_ERROR);
 	}
 	UpdateList();
 }
@@ -1055,7 +1068,16 @@ void FormSaveEdit::OnSyncUpgrades(wxCommandEvent& event)
 {
 	if(m_bigmap.SyncUpgrades())
 	{
-		wxMessageBox("Parsing upgrades from COMMON.FS failed!","Error",wxICON_ERROR);
+		wxMessageBox("Parsing upgrades from COMMON.FS failed! Cannot sync.","Error",wxICON_ERROR);
+	}
+	UpdateList();
+}
+// synchronize level with common.fs
+void FormSaveEdit::OnSyncLevel(wxCommandEvent& event)
+{
+	if(m_bigmap.SyncLevel())
+	{
+		wxMessageBox("Parsing level DEF from COMMON.FS failed! Cannot sync.","Error",wxICON_ERROR);
 	}
 	UpdateList();
 }
@@ -1083,7 +1105,12 @@ void FormSaveEdit::OnResetUnitNames(wxCommandEvent& event)
 	UpdateList();
 	OnUnitSelect(event);
 }
-
+// on heal units
+void FormSaveEdit::OnHealUnits(wxCommandEvent& event)
+{
+	m_bigmap.HealUnits();
+	UpdateList();
+}
 
 // on property edit
 void FormSaveEdit::OnEditProp(wxPropertyGridEvent& event)
@@ -1878,6 +1905,16 @@ void FormSaveEdit::OnPaintBigmapCanvas(wxPaintEvent& event)
 		col = pow((double)col/255.0, 1.0/2.5)*255.0;
 	uint8_t(*pal_high)[3] = (uint8_t(*)[3])pal_high_buf.data();
 
+
+	/*std::vector<uint8_t> timers(x_size*y_size,0);
+	for(auto tid = 0; tid < m_bigmap.bigmap.terr_count; tid++)
+	{
+		if(m_bigmap.bigmap.terr[tid].remain_time >= 0)
+		{
+			m_bigmap.
+		}
+	}*/
+
 	int mouse_hover_id = m_territory_mouse + 0;
 			
 	// render 32bit RGBA data to raw bmp buffer
@@ -1936,9 +1973,49 @@ void FormSaveEdit::OnPaintBigmapCanvas(wxPaintEvent& event)
 		p.OffsetY(data,1);
 	}		
 
-	// blit to screen
+	// blit to screen buffer
 	wxPaintDC pdc(canvasBigmap);
 	pdc.DrawBitmap(*bmp,wxPoint(0,0));
+
+	// render territory timers	
+	for(auto tid = 0; tid < m_bigmap.bigmap.terr_count; tid++)
+	{
+		auto terr = &m_bigmap.bigmap.terr[tid];
+		int x_text,y_text;
+		
+		std::string name = string_format("%s",terr->dta_name.c_str());
+		pdc.SetFont(wxFont(wxFontInfo(10).Bold()));
+		pdc.GetTextExtent(name,&x_text,&y_text);
+		int x_pos_name = x_ofs + terr->x_center - x_text/2;
+		int y_pos_name = y_ofs + terr->y_center - y_text/2;
+		pdc.SetTextForeground(wxColor(0x111111));
+		pdc.DrawText(name,x_pos_name+1,y_pos_name+1);
+		pdc.DrawText(name,x_pos_name-1,y_pos_name-1);
+		pdc.DrawText(name,x_pos_name+1,y_pos_name-1);
+		pdc.DrawText(name,x_pos_name-1,y_pos_name+1);
+		pdc.SetTextForeground(wxColor(0xEECC33));
+		pdc.DrawText(name,x_pos_name,y_pos_name);
+
+		if(terr->remain_time >= 0)
+		{
+			std::string timer = string_format("%d",terr->remain_time);
+			pdc.SetFont(wxFont(wxFontInfo(19).Bold()));
+			pdc.GetTextExtent(timer, &x_text, &y_text);			
+			int x_pos = x_ofs + terr->x_center - x_text/2;
+			int y_pos = y_ofs + terr->y_center - y_text/2;			
+			pdc.SetTextForeground(wxColor(0x111111));
+			pdc.DrawText(timer,x_pos+2,y_pos+2);
+			pdc.DrawText(timer,x_pos-2,y_pos-2);
+			pdc.DrawText(timer,x_pos+2,y_pos-2);
+			pdc.DrawText(timer,x_pos-2,y_pos+2);
+			pdc.SetTextForeground(wxColor(0xEEEEEE));
+			pdc.DrawText(timer,x_pos-0,y_pos-0);
+		}
+
+	}
+	
+
+
 	delete bmp;
 }
 
