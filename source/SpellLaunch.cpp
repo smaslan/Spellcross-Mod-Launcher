@@ -111,9 +111,13 @@ int SpellLaunch::MakeSpellDOSboxSetupBat(std::filesystem::path spell_dir)
 
     bat += string_format("rem --- run Spellcross SETUP ---\n");
     bat += string_format("@ECHO Starting Spellcross SETUP ...\n");
-    bat += string_format("CALL SETUP.BAT\n\n");
+    bat += string_format("IF NOT EXIST SETUP.BAT GOTO ENG\n");
+    bat += string_format("CALL SETUP.BAT\n");
+    bat += string_format("exit\n");
+    bat += string_format(":ENG\n");
+    bat += string_format("CALL SETSOUND.BAT\n\n");
 
-    bat += string_format("rem--- finito---\n");
+    bat += string_format("rem --- finito---\n");
     bat += string_format("exit\n");
 
     std::string bat_old;
