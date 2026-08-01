@@ -25,6 +25,14 @@ public:
     static int MakeSpellDOSboxRunSetupBat(std::filesystem::path spell_dir,std::filesystem::path dosbox_path);
     static int MakeSpellWin32RunBat(std::filesystem::path spell_dir,std::filesystem::path spellcd_dir,std::string drive,std::string spell_exe);
 
+    enum class EngineVersion {
+        NONE,
+        CZE,
+        ENG
+    };
+
+    static EngineVersion GameEngineVersion(std::filesystem::path spell_dir,std::string spell_exe);
+
 
 };
 

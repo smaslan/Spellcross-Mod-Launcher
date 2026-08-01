@@ -22,6 +22,7 @@
 #include "spell_randomizer.h"
 #include "spell_font.h"
 #include "spell_def.h"
+#include "SpellLaunch.h"
 #include "SimpleIni.h"
 #include "cparse/shunting-yard.h"
 
@@ -947,7 +948,33 @@ int SpellMod::LoadDEF(Config& config)
         else if(cmd.isFunction(func_name,func_params,func_rest))
         {
             // functions
-            if(func_name == "option")
+            if(func_name == "version")
+            {
+                // lock mod to certain game version:
+                //   version(version_name); // where version name is CZE or ENG
+                if(func_params.size() != 1)
+                {
+                    PrintConsole("failed! Line %d: wrong params count in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    return(1);
+                }
+                SpellLaunch::EngineVersion target_ver = SpellLaunch::EngineVersion::NONE;
+                auto ver_str = toupper(func_params[0]);
+                if(ver_str == "EN" || ver_str == "ENG")
+                    target_ver = SpellLaunch::EngineVersion::ENG;
+                else if(ver_str == "CZ" || ver_str == "CZE")
+                    target_ver = SpellLaunch::EngineVersion::CZE;
+                else
+                {
+                    PrintConsole("failed! Line %d: wrong value of version name in command \"%s\". Must be CZE or ENG\n",cmd.m_line,cmd.m_raw.c_str());
+                    return(1);
+                }
+                if(config.ver != target_ver)
+                {
+                    PrintConsole("failed! Line %d: requested game version %s not matching selected game enegine version in command \"%s\". \n",cmd.m_line,ver_str.c_str(),cmd.m_raw.c_str());
+                    return(1);
+                }                
+            }
+            else if(func_name == "option")
             {
                 // mod option definition
                 if(func_params.size() < 5)
@@ -959,7 +986,7 @@ int SpellMod::LoadDEF(Config& config)
                 int opt_min,opt_max,opt_default;
                 if(str2int(func_params[2],opt_min))
                 {
-                    PrintConsole("failed! Line %d: wrong value of paramter 3 (min value) for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    PrintConsole("failed! Line %d: wrong value of parameter 3 (min value) for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
                     return(1);
                 }
                 if(str2int(func_params[3],opt_max) || opt_max < opt_min)
@@ -1054,67 +1081,6 @@ int SpellMod::ParseExpression(std::string expr,bool &result)
     }
 
     return(0);
-
-    /*bool valid = false;
-    result = false;
-    std::vector<std::string> list = {"==","!=",">=","<=",">","<"};
-    for(auto &oper: list)
-    {
-        auto pos = expr.find(oper);
-        if(pos == std::string::npos)
-            continue;
-        std::vector<std::string> tokens;
-        tokens.push_back(trim_whites(expr.substr(0,pos)));
-        tokens.push_back(trim_whites(expr.substr(pos + oper.size())));
-        std::vector<int> values;
-        for(auto &tok: tokens)
-        {
-            auto rvar = regexp_get(tok,"%(.+)%");
-            if(!rvar.empty())
-            {
-                // option variable?
-                auto opt = GetOption(rvar[0]);
-                if(!opt)
-                {
-                    m_last_error = string_format("Expression variable \"%s\" not recognized.",tok.c_str());
-                    return(1);
-                }
-                values.push_back(opt->value);
-                continue;
-            }
-            // constant?
-            int val;
-            if(str2int(tok,val))
-            {
-                m_last_error = string_format("Expression term \"%s\" not recognized.",tok.c_str());
-                return(1);
-            }
-            values.push_back(val);
-        }
-        
-        if(oper == "==")
-            result = values[0] == values[1];
-        else if(oper == "!=")
-            result = values[0] != values[1];
-        else if(oper == ">")
-            result = values[0] > values[1];
-        else if(oper == "<")
-            result = values[0] < values[1];
-        else if(oper == ">=")
-            result = values[0] >= values[1];
-        else if(oper == "<=")
-            result = values[0] <= values[1];
-        else
-            return(1);
-        valid = true;
-        break;
-    }
-    if(!valid)
-    {
-        m_last_error = string_format("Expression term \"%s\" not recognized.",expr.c_str());
-        return(1);
-    }
-    return(0);*/
 }
 
 // make initial screen with mod text

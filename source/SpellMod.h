@@ -14,6 +14,7 @@
 #include <string>
 #include <functional>
 #include <map>
+#include "SpellLaunch.h"
 
 class SpellModCmd
 {
@@ -108,6 +109,7 @@ public:
         bool force_write;
         bool randomize;
         std::vector<SpellModOption> options;
+        SpellLaunch::EngineVersion ver;
     };
 
     class ModArchivesList

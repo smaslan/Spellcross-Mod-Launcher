@@ -14,8 +14,9 @@
 
 #include "simpleini.h"
 #include "SpellMod.h"
+#include "SpellLaunch.h"
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-07-16 21:59:38
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-01 14:31:16
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -34,11 +35,11 @@
 #include <wx/bmpbuttn.h>
 #include <wx/button.h>
 #include <wx/sizer.h>
+#include <wx/textctrl.h>
 #include <wx/statline.h>
 #include <wx/checkbox.h>
 #include <wx/propgrid/propgrid.h>
 #include <wx/propgrid/advprops.h>
-#include <wx/textctrl.h>
 #include <wx/frame.h>
 #include <wx/statbmp.h>
 #include <wx/dialog.h>
@@ -48,7 +49,7 @@
 #include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-07-16 21:59:38
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-01 14:31:16
 
 
 // app entry point class
@@ -102,6 +103,7 @@ public:
 		bool force_build;
 		bool allow_unit_mod;
 		std::vector<SpellModOption> options;
+		SpellLaunch::EngineVersion ver;
 	};
 
 	ProcTh(wxFrame* parent,Params &config,ActionsList &actions);
@@ -144,6 +146,7 @@ private:
 	void OnSaveEdit(wxCommandEvent& event);
 	void OnModSaveSource(wxCommandEvent& event);
 	void OnModOptionChange(wxPropertyGridEvent& event);
+	void OnChangeExe(wxCommandEvent& event);
 
 	std::vector<std::string> m_console_buffer;
 	std::vector<SpellModOption> m_mod_options;
@@ -159,6 +162,7 @@ private:
 	void ChoiceCheckPaths(wxChoice *choice);
 	std::wstring GetPathChoiceLastPath(wxChoice* choice,std::wstring default_path=L"");	
 	void ListSpellExecutables(std::filesystem::path spell_dir, wxChoice* choice);
+	SpellLaunch::EngineVersion CheckExeVersion();
 
 	int LoadOptionsIni(std::vector<SpellModOption>& options);
 	int SaveOptionsIni();
@@ -186,7 +190,7 @@ protected:
 	int wxID_FORM_SAVE_BACK = 5998;
 	int wxID_FORM_EDIT = 5999;	
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-07-16 21:59:38
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-01 14:31:16
 	enum
 	{
 		wxID_FORM_MAIN = 6000,
@@ -226,6 +230,7 @@ protected:
 		wxID_CH_SPELLCD_PATH,
 		wxID_BTN_SPELLCD_PATH,
 		wxID_CH_CD_LETTER,
+		wxID_TXT_GAME_ENG_VER,
 		wxID_CH_DOSBOX_PATH,
 		wxID_BTN_DB_PATH,
 		wxID_CB_NO_AUTOEXEC,
@@ -267,6 +272,8 @@ protected:
 	wxBitmapButton* btnSpellcdPath;
 	wxStaticText* m_staticText117;
 	wxChoice* chVirtCD;
+	wxStaticText* m_staticText46;
+	wxTextCtrl* txtGameEngVersion;
 	wxStaticLine* m_staticline42;
 	wxStaticText* m_staticText118;
 	wxChoice* chDOSboxPath;
@@ -296,7 +303,7 @@ protected:
 	wxButton* btnRestoreWDmod;
 	wxButton* btnRunMod;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-07-16 21:59:38
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-01 14:31:16
 
 
 public:

@@ -1980,9 +1980,11 @@ void FormSaveEdit::OnPaintBigmapCanvas(wxPaintEvent& event)
 	// render territory timers	
 	for(auto tid = 0; tid < m_bigmap.bigmap.terr_count; tid++)
 	{
-		auto terr = &m_bigmap.bigmap.terr[tid];
+		auto terr = &m_bigmap.bigmap.terr[tid];		
+		if(!terr->valid)
+			continue;
+
 		int x_text,y_text;
-		
 		std::string name = string_format("%s",terr->dta_name.c_str());
 		pdc.SetFont(wxFont(wxFontInfo(10).Bold()));
 		pdc.GetTextExtent(name,&x_text,&y_text);

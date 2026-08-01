@@ -264,3 +264,21 @@ int SpellLaunch::MakeSpellWin32RunBat(std::filesystem::path spell_dir,std::files
 
     return(0);
 }
+
+// try idnetify game engine version from EXE file
+SpellLaunch::EngineVersion SpellLaunch::GameEngineVersion(std::filesystem::path spell_dir,std::string spell_exe)
+{
+    auto exe_path = spell_dir / spell_exe;
+    if(!std::filesystem::exists(exe_path))
+        return(SpellLaunch::EngineVersion::NONE);
+    
+    std::vector<uint8_t> data;
+    if(loaddata(exe_path,data))
+        return(SpellLaunch::EngineVersion::NONE);
+
+    std::string key = "Smacker Video Technology.";
+    std::vector<uint8_t> bin(key.begin(), key.end());    
+    if(std::search(data.begin(), data.end(), key.begin(), key.end()) != data.end())
+        return(SpellLaunch::EngineVersion::ENG);
+    return(SpellLaunch::EngineVersion::CZE);
+}

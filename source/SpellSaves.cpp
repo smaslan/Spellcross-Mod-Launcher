@@ -739,6 +739,8 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
                     y_mean += y;
                     c_mean++;
                 }
+        if(!c_mean)
+            c_mean = 1;
         terr.x_center = x_mean / c_mean;
         terr.y_center = y_mean / c_mean;
 
