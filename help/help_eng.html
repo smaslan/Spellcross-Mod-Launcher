@@ -131,6 +131,9 @@ class PATH
     // the mod data folders
     MOD_COMMON=%DMOD%\COMMON;
     MOD_UNITS=%DMOD%\UNITS;
+
+    // optional restriction to game engine version
+    version(ENG);
     
     // mod options    
     option(LEVEL,Level,1,10,1);
@@ -146,7 +149,8 @@ The "MAKE" variable is mandatory and defines where the tool generates modified a
     option(option_label,option_description,min_value,max_value,default_value,{optional_string_values});
 </pre>
 <p align="justify">
-"option_label" is unique variable label that is used in following code. "option_description" is description that will appear in the mod launcher. "min_value", "max_value" and "default_value" define range and default value of the option. Last parameter is optional list of string values that will appear in mod launcher, one for each value separated by semicolons. The option label "LEVEL" will be preloaded by game level extracted from WORKDIR savegame so it should automatically reflect latest played game level.<br> 
+"option_label" is unique variable label that is used in following code. "option_description" is description that will appear in the mod launcher. "min_value", "max_value" and "default_value" define range and default value of the option. Last parameter is optional list of string values that will appear in mod launcher, one for each value separated by semicolons. The option label "LEVEL" will be preloaded by game level extracted from WORKDIR savegame so it should automatically reflect latest played game level. 
+Command "version()" is optional and restricts use of the mod for either original Czech game engine (CZE) or more modern English or other language mutation (ENG).<br> 
 &nbsp;&nbsp; Finally, follow sections that define content of particular game archives to be built. Example for "COMMON.FS" archive is following:
 </p>
 <pre>
@@ -159,6 +163,8 @@ class COMMON.FS
     add(%MOD_COMMON%,*.CUR);        // add wildcard key matching files from mod "data/COMMON" folder
     add(%MOD_COMMON%);              // add all files from mod "data/COMMON" folder
     rem(CD.LZ);                     // remove some file
+    swapunits(68,69);               // swap units types 68-69 in JEDNOTKY.DEF
+    swapmapunits(40,50);            // swap units types 40-50 in all mission DEF files
     // copy file JEDN_L4.DEF from mod "data/COMMON" folder and rename to JEDNOTKY.DEF
     // executed conditionally if option LEVEL > 5
     if(%LEVEL% > 5) copy(%MOD_COMMON%,JEDN_L4.DEF,JEDNOTKY.DEF);
@@ -198,6 +204,16 @@ Switch "optional=1" can mark archive as optional, so tool will not generate erro
 <p align="justify">"list_of_unit_indices" is optional list of unit indices in format "{0;1;5;...}". Example:
 <pre>
     copyunits(%MOD_COMMON%,JEDN_L4.DEF,{0;1;2;3}); // copy unit 0-3 from source file JEDN_L4.DEF
+</pre>
+<p align="justify">
+&nbsp;&nbsp; Another command is "swapunits()" which will swap two unit records in JEDNOTKY.DEF. Command must be placed in COMMON.FS only. Format:</p>
+<pre>
+    swapunits(unit_id_a,unit_id_b);
+</pre>
+<p align="justify">where "unit_id_a" and "unit_id_b" are unit indices within JEDNOTKY.DEF to be swapped.<br>
+&nbsp;&nbsp; Another command is "swapmapunits()". It swaps unit indices in all mission DEF files in COMMON.FS. Format:</p>
+<pre>
+    swapmapunits(unit_id_a,unit_id_b);
 </pre>
 <p align="justify">
 &nbsp;&nbsp; Another special command for COMMON.FS archive is "title()" which will render text string to main menu image. Format:</p>

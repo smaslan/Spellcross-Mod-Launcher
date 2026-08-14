@@ -127,6 +127,9 @@ class PATH
     // the mod data folders
     MOD_COMMON=%DMOD%\COMMON;
     MOD_UNITS=%DMOD%\UNITS;
+
+    // optional restriction to game engine version
+    version(ENG);
     
     // mod options    
     option(LEVEL,Level,1,10,1);
@@ -143,7 +146,8 @@ Promìnná "MAKE" je povinná a urèuje cílovou složku, kam nástroj generuje modifik
     option(option_label,option_description,min_value,max_value,default_value,{optional_string_values});
 </pre>
 <p align="justify">
-"option_label" je unikátní identifikátor promìnné, který je použitelný v dalším kódu. "option_description" je textový popis volby, který se zobrazí na hlavním panelu nástroje. "min_value", "max_value" a "default_value" definují rozsah hodnot volby a jeho výchozí hodnotu. Poslední parametr je volitelný výèet textových hodnot oddìlený støedníky. Volba "LEVEL" je vyhrazený název a nástroj se pokusí získat její výchozí hodnotu z poslední uložené pozice WORKDIR, takže by jeho hodnota mìla automaticky odpovídat aktuální pozici hráèe.<br> 
+"option_label" je unikátní identifikátor promìnné, který je použitelný v dalším kódu. "option_description" je textový popis volby, který se zobrazí na hlavním panelu nástroje. "min_value", "max_value" a "default_value" definují rozsah hodnot volby a jeho výchozí hodnotu. Poslední parametr je volitelný výèet textových hodnot oddìlený støedníky. Volba "LEVEL" je vyhrazený název a nástroj se pokusí získat její výchozí hodnotu z poslední uložené pozice WORKDIR, takže by jeho hodnota mìla automaticky odpovídat aktuální pozici hráèe.
+Volitelný pøíkaz "version()" umožòuje omezit použití modu na verzi herního enginu. Parametr CZE pøedpokládá originální èeskou verzi. Parametr ENG pøedpokládá anglickou nebo jinou jazykovou mutaci.<br> 
 &nbsp;&nbsp; V "*.def" souboru následují sekce pro každý datový archiv hry, který má být modifikován. Pøíklad pro archiv "COMMON.FS" je následující:
 </p>
 <pre>
@@ -194,7 +198,13 @@ Lze také definovat lokální promìnné, které jsou pak pøístupné jako %MY_VARIABLE%
     copyunits(source_archive,source_file_name);
     copyunits(source_archive,source_file_name,list_of_unit_indices);
 </pre>
-<p align="justify">kde "source_archive" je zdrojový archiv, "source_file_name" název zdrojového souboru a "list_of_unit_indices" je volitelný parameter se seznamem indexù jednotek ve formátu "{0;1;3;...}".<br>  
+<p align="justify">kde "source_archive" je zdrojový archiv, "source_file_name" název zdrojového souboru a "list_of_unit_indices" je volitelný parameter se seznamem indexù jednotek ve formátu "{0;1;3;...}".<br>
+&nbsp;&nbsp; Další možné pøíkazy jsou "swapunits()" a "swapmapunit()". "swapunits()" prohodí dva typy jednotek v JEDNOTKY.DEF. "swapmapunit()" prohodí typy jednotek ve všech DEF souborech misí v COMMON.FS. Syntaxe:</p>
+<pre>
+    swapunits(unit_id_a,unit_id_b);
+    swapmapunits(unit_id_a,unit_id_b);
+</pre>
+<p align="justify">kde "unit_id_a" a "unit_id_b" jsou indexy typù jednotek k prohození.<br>
 &nbsp;&nbsp; Další speciální pøíkaz je "title()", který vyrenderuje text na pozadí hlavního menu hry. Pøíkaz lze použít jen v COMMON.FS. Syntaxe je následující:</p>
 <pre>
     title(x_pos,y_pos,text_align,text_color,shadow_color,text);

@@ -1241,6 +1241,14 @@ std::string MapUnit::GetRandomizerModeName()
 	return("");
 }
 
+// get unit configuration summary as a string
+std::string MapUnit::GetUnitConfigString()
+{
+	if(!is_event)
+		return(string_format("static enemy, %s",behave.GetString().c_str()));	
+	return(string_format("%s, %s",spec_type.GetString().c_str(),behave.GetString().c_str()));
+}
+
 // morph unit type to target (used e.g. for land/take off action)
 int MapUnit::MorphUnit(SpellUnitRec* target, int health)
 {

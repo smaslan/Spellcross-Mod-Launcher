@@ -498,6 +498,8 @@ public:
 	RandomizeMode randomize_mode;
 	std::vector<int> randomize_units;
 	std::string GetRandomizerModeName();
+	
+	std::string GetUnitConfigString();
 			
 	// unit idnetifier index within map
 	int id;

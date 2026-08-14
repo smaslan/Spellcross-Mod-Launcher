@@ -1995,7 +1995,7 @@ void FormSaveEdit::OnPaintBigmapCanvas(wxPaintEvent& event)
 		pdc.DrawText(name,x_pos_name-1,y_pos_name-1);
 		pdc.DrawText(name,x_pos_name+1,y_pos_name-1);
 		pdc.DrawText(name,x_pos_name-1,y_pos_name+1);
-		pdc.SetTextForeground(wxColor(0xEECC33));
+		pdc.SetTextForeground(wxColor(0xEECC88));
 		pdc.DrawText(name,x_pos_name,y_pos_name);
 
 		if(terr->remain_time >= 0)
@@ -2006,10 +2006,10 @@ void FormSaveEdit::OnPaintBigmapCanvas(wxPaintEvent& event)
 			int x_pos = x_ofs + terr->x_center - x_text/2;
 			int y_pos = y_ofs + terr->y_center - y_text/2;			
 			pdc.SetTextForeground(wxColor(0x111111));
-			pdc.DrawText(timer,x_pos+2,y_pos+2);
-			pdc.DrawText(timer,x_pos-2,y_pos-2);
-			pdc.DrawText(timer,x_pos+2,y_pos-2);
-			pdc.DrawText(timer,x_pos-2,y_pos+2);
+			pdc.DrawText(timer,x_pos+1,y_pos+1);
+			pdc.DrawText(timer,x_pos-1,y_pos-1);
+			pdc.DrawText(timer,x_pos+1,y_pos-1);
+			pdc.DrawText(timer,x_pos-1,y_pos+1);
 			pdc.SetTextForeground(wxColor(0xEEEEEE));
 			pdc.DrawText(timer,x_pos-0,y_pos-0);
 		}

@@ -1450,6 +1450,84 @@ int SpellMod::SwapMapUnits(std::string &def, SpellUnits *units, std::map<int,int
     return(0);
 }
 
+// swap unit IDs within level definition files
+int SpellMod::SwapLevelUnits(std::string& def,SpellUnits* units,std::map<int,int>& swap_map_units_list)
+{
+    // parse to lines
+    auto lines = get_text_lines(def);
+
+    // leave because it's not level DEF but no error
+    if(lines.empty() || !lines[0].starts_with("LevelInit"))
+        return(0);
+
+    // process all lines
+    for(auto& line: lines)
+    {
+        if(line.starts_with("Army"))
+        {
+            SpellDefCmd cmd(line);
+            if(!cmd.valid)
+            {
+                // invalid command
+                m_last_error = "Possibly somehow incomplete command Army()?";
+                return(1);
+            }
+           
+            // for each listed unit:
+            std::vector<int> army_ids;
+            if(str2int(cmd.parameters,army_ids,0,units->Count()-1))
+            {
+                // invalid command
+                m_last_error = string_format("Some of the units in Army() command not recognized in command \"%s\".",line.c_str());
+                return(1);
+            }
+            for(auto &orig_unit_type: army_ids)
+            {
+                // check original unit type
+                auto orig_unit = units->GetUnit(orig_unit_type);
+                if(!orig_unit)
+                {
+                    // unknown unit type
+                    m_last_error = string_format("Unknown unit type #%d for command \"%s\".",orig_unit_type,cmd.full_command.c_str());
+                    return(1);
+                }
+
+                // try get new unit type based on provided swap pairs
+                int new_unit_type = -1;
+                auto it = swap_map_units_list.find(orig_unit_type);
+                if(it == swap_map_units_list.end())
+                    it = std::find_if(swap_map_units_list.begin(),swap_map_units_list.end(),[orig_unit_type](const auto& item) {return(item.second == orig_unit_type);});
+                if(it == swap_map_units_list.end())
+                    continue;
+                if(it->first == orig_unit_type)
+                    new_unit_type = it->second;
+                else
+                    new_unit_type = it->first;
+
+                // swap unit type
+                auto unit = units->GetUnit(new_unit_type);
+                if(!unit)
+                {
+                    // random unit ID not found
+                    m_last_error = string_format("Unknown new unit type #%d in unit swap function for command \"%s\".",new_unit_type,cmd.sub_full_command.c_str());
+                    return(1);
+                }
+                orig_unit_type = new_unit_type;
+            }
+            // replace command data
+            std::vector<std::string> army_list;
+            for(auto id: army_ids)
+                army_list.push_back(string_format("%d",id));
+            line = cmd.name + "(" + merge_text_lines(army_list,",") + ")";            
+        }
+    }
+
+    // merge modified lines
+    def = merge_text_lines(lines);
+
+    return(0);
+}
+
 
 // try load mod DEF file
 int SpellMod::BuildMod(Config& config, bool allow_restore)
@@ -1984,7 +2062,40 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name.c_str(),arch.GetLastError().c_str());
                     return(1);
                 }
-            }            
+            }
+
+            // for each possible level script:
+            for(auto& name: arch.GetItemNames())
+            {
+                std::string key = "LEVEL_*.DEF";
+                if(!wildcmp(key,name))
+                    continue;
+                if(arch.GetFile(name,data))
+                {
+                    // unknown command
+                    PrintConsole("failed! Unit map swapper cannot load file \"%s\" in COMMON.FS.\n",name.c_str());
+                    return(1);
+                }
+                std::string def(data.begin(),data.end());                          
+
+                // swap units?
+                if(!swap_map_units_list.empty())
+                {
+                    if(SwapLevelUnits(def,units.get(),swap_map_units_list))
+                    {
+                        PrintConsole("failed! Unit swap in \"%s\" failed: %s\n",name.c_str(),m_last_error.c_str());
+                        return(1);
+                    }
+                }
+
+                // replace
+                if(arch.AddFile(def,name,true))
+                {
+                    PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name.c_str(),arch.GetLastError().c_str());
+                    return(1);
+                }
+            }
+
         }
 
 
