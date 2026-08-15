@@ -16,9 +16,11 @@ Original tool was very messy and made in Borland VCL C++ which is obsolete. So I
 
 ![Modded gameplay](fig/scr02.png)
 
+
 ## What can it do?
 
 - Current version is able to build all game archives based on definition file same as the old tool.
+- It can randomized unit types based on rules provided by my [Spellcross Map Editor](https://github.com/smaslan/spellcross-map-edit).
 - It can swap the game archives with modded ones and restore them back.
 - It can also move SAVE games folder along with the modded archives, so you can have separate set of saves for each mod not colliding with each other.
 - It generates game launch batch files for either DOSbox mode or native Win32 mode. The Win32 is now obsolete but if compiled for x86 it can be run in e.g. 32bit WinXP which still has NTDVM emulator integrated.
@@ -27,18 +29,25 @@ Original tool was very messy and made in Borland VCL C++ which is obsolete. So I
 - It has simple SAVE game backup manager to make and restore backups of whole save games set just in case...
 - It has experimental SAVE game editor for inspecting and editing saves (can fix some of known game bugs).
 
+![Save game editor](fig/save_editor_1.png)
+
+
 ## Builds
 
-Here are available release builds for Windows. It was tested in Windows 10, but should work in Win11 as well. There is not installation, just download ZIP file, unpack it where you like it and run. 
+Here are available release builds for Windows. It was tested in Windows 10, but should work in Win11 as well. There is no installation, just download ZIP file, unpack it where you like it and run. 
 
 - [V1.0, 5th May 2026 (zip file)](./builds/Spellcross-Mod-Launcher-V1.0.zip)
   - First release (careful, not fully tested, make backups!).  
 - [V1.1, 11th June 2026 (zip file)](./builds/Spellcross-Mod-Launcher-V1.1.zip)
   - Added save game editor (careful, not fully tested, make backups!).
+- [V1.2, 15th August 2026 (zip file)](./builds/Spellcross-Mod-Launcher-V1.2.zip)
+  - Added unit randomizer, mod options, fixed some bugs (careful, not fully tested, make backups!).
+
 
 ## Uasge
 
-The tool has help in the application folder. It should be able to launch the HTML help via menu (it may fail due to Windows security policies). If not, open it manually using your browser. 
+The tool has help in the application folder. It should be able to launch the HTML help via menu (it may fail due to Windows security policies). If not, open it manually using your browser.
+ 
                                  
 ## License
 The tool is distributed under [MIT license](./LICENSE). 
