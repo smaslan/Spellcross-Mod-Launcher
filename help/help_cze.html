@@ -60,7 +60,7 @@ Déle lze zapnout <b>Allow randomize units</b>. Tato volba umožní automatickou ra
 </p>
 
 <div class="n2">4 - Pokroèilé operace</div><p align="justify">
-&nbsp;&nbsp; Mimo základního spouštìní umožòuje pár další operací. V menu <b>Setup</b> lze spustit "SETUP.BAT" hry pro nastavení zvuku. Dále lze editovat konfiguraèní soubor Spellcrossu a DOSboxu. V menu <b>Mod</b> lze vybrat <b>Build mod</b>. Tato funkce sestaví datové archivy modu. Volba <b>Force rebuild mod</b> sestaví soubory modu a vynutí zápis na disk i pokud se data proti minulému sestavení nezmìní. Volba <b>Build and swap</b>  sestaví soubory modu a prohodí je s archivy hry. V tomto stavu zùstanou až do provedení operace <b>Restore mod</b>. Operace <b>Restore mod</b> vrátí soubory modu zpìt do složky modu a obnoví pùvodní data hry. Tato funkce je volána automaticky pøed každou operací, aby se zajistil konzistentní stav dat hry. Nástroj uchovává stav modifikaci v konfiguraèním souboru "mod_state.ini", takže by mìl být schopen obnovit stav pøi pádu hry nebo sytému.<br>
+&nbsp;&nbsp; Mimo základního spouštìní umožòuje pár další operací. V menu <b>Setup</b> je pøednì k dispozici instalátor hry <b>Install Game</b>. Tato funkce rozbalí data z DATA/INSTALL.DTA na CD hry stejnì jako by to udìlal originální instalátor, ale není kvùli tomu tøeba to provádìt složitì pøes DOSbox. V menu <b>Setup</b> lze také spustit "SETUP.BAT" hry pro nastavení zvuku. Dále lze editovat konfiguraèní soubor Spellcrossu a DOSboxu. V menu <b>Mod</b> lze vybrat <b>Build mod</b>. Tato funkce sestaví datové archivy modu. Volba <b>Force rebuild mod</b> sestaví soubory modu a vynutí zápis na disk i pokud se data proti minulému sestavení nezmìní. Volba <b>Build and swap</b>  sestaví soubory modu a prohodí je s archivy hry. V tomto stavu zùstanou až do provedení operace <b>Restore mod</b>. Operace <b>Restore mod</b> vrátí soubory modu zpìt do složky modu a obnoví pùvodní data hry. Tato funkce je volána automaticky pøed každou operací, aby se zajistil konzistentní stav dat hry. Nástroj uchovává stav modifikaci v konfiguraèním souboru "mod_state.ini", takže by mìl být schopen obnovit stav pøi pádu hry nebo sytému.<br>
 &nbsp;&nbsp; Ve velmi nepravdìpodobném pøípadì, kdy by došlo k pádu systému v mezièase mezi pøesuny dat a zápisem do "mod_state.ini" by operace <b>Restore mod</b> mohla opakovanì selhávat. V takovém pøípadì lze použít operaci <b>Cleanup mod</b>, která vymaže obsah stavového souboru "mod_state.ini". To je ovšem poslední možnost a témìø jistì povede k nekonzistentním souborùm hry a bude pravdìpodobnì tøeba je ruènì obnovit ze zálohy. Pøed touto operací je vhodné se ujistit, že neselhává napø. z dùvodu prohlížení obsahu nìkteré složky nebo souboru, který má být pøesouván (file sharing violation).<br>
 &nbsp;&nbsp; V menu <b>Run</b> lze zvolit <b>Build launch files</b>, což vygeneruje spouštìcí BAT soubory hry. Ty jsou generovány automaticky pøi spouštìní pøes <b>Run Original</b> a <b>Run Mod</b>.
 </p>
@@ -210,7 +210,13 @@ Lze také definovat lokální promìnné, které jsou pak pøístupné jako %MY_VARIABLE%
     title(x_pos,y_pos,text_align,text_color,shadow_color,text);
 </pre>
 <p align="justify">kde "x_pos" a "y_pos" je pozice textu (jeho støed pro centrovný režim). "text_align" zarovnání "center" nebo "left". Barvy textu "text_color" a pozadí "shadow_color" jsou ve formátu hexa RRGGBB. Vlatní "text" mùže obsahovat pøedem definované promìnné ve formátu %MY_VARIABLE% nebo pøeddefinované datum %DATE%.<br>
-&nbsp;&nbsp; Každý pøíkaz mùže být dále podmínìn pøíkazem "if()". Mùsí ovšem být na jednom øádku s podmínkou:</p>
+
+&nbsp;&nbsp; Další speciální pøíkaz je "convert()", který umožòuje provést konverzi vybraných dat z EN enginu do CZ nebo opaènì. Nahradí pøípony video souborù v DEF souborech misí a levelù a také pøevede formát JEDNOTKY.DEF. Syntaxe je následující:</p>
+<pre>
+    convert(CZE); // convert from EN to CZ engine
+    convert(ENG); // convert from CZ to EN engine
+</pre>
+<p align="justify">&nbsp;&nbsp; Každý pøíkaz mùže být dále podmínìn pøíkazem "if()". Mùsí ovšem být na jednom øádku s podmínkou:</p>
 <pre>
     if(%LEVEL% > 5) copy(%MOD_COMMON%,JEDN_L4.DEF,JEDNOTKY.DEF);
 </pre>

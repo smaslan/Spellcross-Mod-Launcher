@@ -20,7 +20,7 @@ Original tool was very messy and made in Borland VCL C++ which is obsolete. So I
 ## What can it do?
 
 - Current version is able to build all game archives based on definition file same as the old tool.
-- It can randomized unit types based on rules provided by my [Spellcross Map Editor](https://github.com/smaslan/spellcross-map-edit).
+- It can randomize unit types based on rules provided by my [Spellcross Map Editor](https://github.com/smaslan/spellcross-map-edit).
 - It can swap the game archives with modded ones and restore them back.
 - It can also move SAVE games folder along with the modded archives, so you can have separate set of saves for each mod not colliding with each other.
 - It generates game launch batch files for either DOSbox mode or native Win32 mode. The Win32 is now obsolete but if compiled for x86 it can be run in e.g. 32bit WinXP which still has NTDVM emulator integrated.
@@ -28,6 +28,7 @@ Original tool was very messy and made in Borland VCL C++ which is obsolete. So I
 - It can make fast backup and restore of temporary WORKDIR save that is useful when you play some of the bloody mission where loss of special unit terminates mission without option to load (we all know those convoy missions right? :-).
 - It has simple SAVE game backup manager to make and restore backups of whole save games set just in case...
 - It has experimental SAVE game editor for inspecting and editing saves (can fix some of known game bugs).
+- It has also simple game installer to bypass original 16-bit installer that requires manula mounting of game CD to DOSbox.
 
 ![Save game editor](fig/save_editor_1.png)
 
