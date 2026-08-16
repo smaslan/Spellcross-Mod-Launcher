@@ -16,7 +16,7 @@
 #include "SpellMod.h"
 #include "SpellLaunch.h"
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-01 14:31:16
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-16 11:32:55
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -49,7 +49,7 @@
 #include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-01 14:31:16
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-16 11:32:55
 
 
 // app entry point class
@@ -147,6 +147,7 @@ private:
 	void OnModSaveSource(wxCommandEvent& event);
 	void OnModOptionChange(wxPropertyGridEvent& event);
 	void OnChangeExe(wxCommandEvent& event);
+	void OnInstallGame(wxCommandEvent& event);
 
 	std::vector<std::string> m_console_buffer;
 	std::vector<SpellModOption> m_mod_options;
@@ -190,7 +191,7 @@ protected:
 	int wxID_FORM_SAVE_BACK = 5998;
 	int wxID_FORM_EDIT = 5999;	
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-01 14:31:16
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-16 11:32:55
 	enum
 	{
 		wxID_FORM_MAIN = 6000,
@@ -200,6 +201,7 @@ protected:
 		wxID_MM_SPELLCD_PATH,
 		wxID_MM_DOSBOX_PATH,
 		wxID_MM_EXIT,
+		wxID_MM_INSTALL,
 		wxID_MM_EDIT_SPELLCFG,
 		wxID_MM_EDIT_DOSBOX_CFG,
 		wxID_MM_RUN_SETUPBAT,
@@ -303,7 +305,7 @@ protected:
 	wxButton* btnRestoreWDmod;
 	wxButton* btnRunMod;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-01 14:31:16
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-16 11:32:55
 
 
 public:

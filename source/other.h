@@ -194,9 +194,17 @@ public:
         : std::ifstream(name,options) {};
     ~ifstreamext() = default;
 
+    // check last operation was ok
+    bool is_ok()
+    {
+        return(this->rdstate() == goodbit);
+    }
+
     uint32_t read_u32(){
         uint32_t val;
         std::ifstream::read((char*)&val,sizeof(uint32_t));
+        /*if(this->rdstate() != goodbit)
+            throw std::exception("Read out of bounds!");*/
         return(val);
     };
 
@@ -230,14 +238,22 @@ public:
         return(val);
     };
 
-    std::vector<uint8_t> read_vector() {
-        seekg(0,SEEK_END);
-        auto flen = tellg();
-        seekg(0);
+    // read binary data of size or rest of file if size=0
+    std::vector<uint8_t> read_vector(int size=0) {
+        std::streampos flen = size;
+        if(!size)
+        {
+            // read rest of file
+            auto pos = tellg();
+            seekg(0,SEEK_END);
+            flen = tellg();
+            seekg(pos);
+        }        
         std::vector<uint8_t> data(flen);
         read((char*)data.data(),flen);
         return(data);
     }
+       
   
     // read string item with size prefix (16bit)
     std::string read_str_p16()
@@ -246,6 +262,33 @@ public:
         std::string str(len,'\0');
         std::ifstream::read((char*)str.data(),len);
         str.resize(len-1);
+        return(str);
+    }
+
+    // read null terminated string including the null
+    std::string read_str_null()
+    {
+        std::string str;
+        while(1)
+        {
+            auto c = read_i8();
+            if(!is_ok())
+                return("");
+            if(!c)
+                break;
+            str.push_back(c);
+        }        
+        return(str);
+    }
+
+    // read fixed size string including the null
+    std::string read_str_fixed(int len)
+    {
+        std::string str(len,'\0');
+        read(str.data(), len);
+        if(!is_ok())
+            return("");
+        str.resize(strlen(str.c_str()));
         return(str);
     }
 

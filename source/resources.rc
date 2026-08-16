@@ -147,6 +147,7 @@ IDR_EXIT                RCDATA                     "ico/exit.svg"
 IDR_CLOSE                RCDATA                     "ico/close.svg"
 IDR_START                RCDATA                     "ico/start.svg"
 IDR_SETUP                RCDATA                     "ico/setup.svg"
+IDR_INSTALL              RCDATA                     "ico/install.svg"
 
 
 /////////////////////////////////////////////////////////////////////////////
