@@ -318,8 +318,15 @@ private:
 	std::vector<std::unique_ptr<SpellUnitRec>> units;
 
 public:	
+	enum class Format{
+		DEFAULT,
+		ENG,
+		CZE
+	};
+	
 	SpellUnits(uint8_t* data, int dlen, FSUarchive *fsu=NULL, FSarchive* fs_info=NULL, SpellGraphics *graphics=NULL,SpellGraphics* info_graphics=NULL,SpellSounds* sounds=NULL,UnitBonuses *bonuses=NULL);
 	~SpellUnits();
+	int GenerateDEF(std::vector<uint8_t>& def,Format format=Format::DEFAULT);
 	int Count();
 	SpellUnitRec* GetUnit(int uid);
 	std::vector<std::unique_ptr<SpellUnitRec>>& GetUnits();

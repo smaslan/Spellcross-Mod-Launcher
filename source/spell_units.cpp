@@ -525,6 +525,277 @@ SpellUnits::~SpellUnits()
 	units.clear();
 }
 
+// put string to record
+int put_char_str(uint8_t *data, uint8_t* end, std::string str, int field_size, char trail='\0')
+{
+	if(data + field_size > end)
+		return(1);
+	if(str.empty())
+		trail = '\0';
+	memset(data,trail,field_size-1);
+	data[field_size-1] = '\0';	
+	int num = 0;
+	for(auto c: str)
+	{
+		if(data >= end)
+			return(1);
+		if(num >= field_size - 1)
+			return(1);
+		*data++ = c;
+		num++;
+	}
+	return(0);
+}
+
+// generate JEDNOTKY.DEF binary file
+int SpellUnits::GenerateDEF(std::vector<uint8_t> &def,Format format)
+{
+	if(format == Format::CZE)
+		is_eng = false;
+	if(format == Format::ENG)
+		is_eng = true;
+	int size = 206;
+	if(is_eng)
+		size = 207;
+
+	def.clear();
+	
+	// --- for each unit:
+	for(auto &unit: units)
+	{
+		std::vector<uint8_t> rec(size);
+		uint8_t *ptr = rec.data();
+		uint8_t *end = rec.data() + rec.size();
+
+		// unit name
+		if(put_char_str(ptr,end,wstring2stringCP895(unit->name),28))
+			return(1);
+
+		// unit info resource
+		if(put_char_str(ptr + 0x1C,end,unit->info,9))
+			return(1);
+
+		// unit graphics resource
+		if(put_char_str(ptr + 0x25,end,unit->gra,6,'_'))
+			return(1);
+
+		// unit aditional graphics resource (tank turrets or so)
+		if(put_char_str(ptr + 0x2B,end,unit->grb,6,'_'))
+			return(1);
+
+		// unit icon
+		if(put_char_str(ptr + 0x31,end,unit->icon,9))
+			return(1);
+
+		// unit class flags
+		// 0x01 - has turret
+		// 0x02 - walk movement
+		// 0x04 - flight movement
+		// 0x08 - hover movement (can move on water)
+		// 0x30 - {0-air, 1-light, 2-armored unit}
+		// 0x40 - flesh and bones
+		// 0x80 - only Demon
+		ptr[0x3A] = (unsigned)unit->utype;
+
+		// ap count
+		ptr[0x3B] =	(unsigned)unit->ap;
+
+		// ap per move in forrest
+		ptr[0x3C] = (unsigned)unit->apfw;
+
+		// ap per move normal
+		ptr[0x3D] = (unsigned)unit->apw;
+
+		// man count (or tanks count)
+		ptr[0x3E] = (unsigned)unit->cnt;
+
+		// attack to light units
+		ptr[0x3F] = (unsigned)unit->attack_light;
+
+		// attack to armored units
+		ptr[0x40] = (unsigned)unit->attack_armored;
+
+		// attack to air units
+		ptr[0x41] = (unsigned)unit->attack_air;
+
+		// attack to objects
+		ptr[0x42] = (unsigned)unit->attack_objects;
+
+		// unit defence
+		ptr[0x43] = (unsigned)unit->defence;
+
+		// some probability???
+		ptr[0x44] = (unsigned)unit->res2;
+
+		// ???
+		ptr[0x45] = (unsigned)unit->res3;
+
+		// max fire range
+		ptr[0x46] = (unsigned)unit->fire_range;
+
+		// special shot flags
+		// 0x01 - high turret origin (probably???)
+		// 0x02 - indirect fire (artilery)
+		// 0x04 - steals action points
+		// 0x08 - inefficient to armored targets (probably???)
+		// 0x10 - can't fire from slopes
+		// 0x20 - indirect missile (MLRS only???)
+		// 0x40 - fire projectile
+		// 0x80 - fire sensitivity (increased fire sensitivity???)
+		ptr[0x47] = (unsigned)(unit->fire_flags & 0x00FF);
+		// aditional ENG version item
+		// 0x100 - unit is healed by fire
+		if(is_eng)
+		{
+			ptr[0x48] = (unsigned)(unit->fire_flags >> 8);
+			ptr++;
+		}
+
+		// ap per shot
+		ptr[0x48] = (unsigned)unit->aps;
+
+
+		// light attack hit animation (*.pnm animation)
+		if(put_char_str(ptr + 0x49,end,unit->pnm_light_hit_name,9))
+			return(1);
+
+		// light attack unit animation resource (*.fsu resource)
+		if(put_char_str(ptr + 0x52,end,unit->anim_atack_light_name,6,'_'))
+			return(1);
+
+		// used frames count
+		ptr[0x61] = (unsigned)unit->anim_atack_light_frames;
+
+		// light attack shot animation (*.pnm resource)
+		if(put_char_str(ptr + 0x58,end,unit->pnm_light_shot_name,9))
+			return(1);
+
+		// armored attack hit animation (*.pnm animation)
+		if(put_char_str(ptr + 0x62,end,unit->pnm_armored_hit_name,9))
+			return(1);
+
+		// armored attack unit animation resource (*.fsu resource)
+		if(put_char_str(ptr + 0x6B,end,unit->anim_atack_armor_name,6,'_'))
+			return(1);
+		// used frames count
+		ptr[0x7A] = (unsigned)unit->anim_atack_armor_frames;
+
+		// armored attack shot animation (*.pnm resource)
+		if(put_char_str(ptr + 0x71,end,unit->pnm_armored_shot_name,9))
+			return(1);
+
+		// air attack hit animation (*.pnm animation)
+		if(put_char_str(ptr + 0x7B,end,unit->pnm_air_hit_name,9))
+			return(1);
+
+		// air attack unit animation resource (*.fsu content)
+		if(put_char_str(ptr + 0x84,end,unit->anim_atack_air_name,6,'_'))
+			return(1);
+		// used frames count
+		ptr[0x93] = (unsigned)unit->anim_atack_air_frames;
+
+		// air attack shot animation (*.pnm resource)
+		if(put_char_str(ptr + 0x8A,end,unit->pnm_air_shot_name,9))
+			return(1);
+
+		// projectile visibility flags (0x01-light, 0x02-armored, 0x04-air attacks)
+		ptr[0x94] = (unsigned)unit->projectile_visible;
+
+		// projectile resource (*.grf files)
+		if(put_char_str(ptr + 0x95,end,unit->projetile_name,13))
+			return(1);
+
+		// special action id
+		// 1  - enable/disable radar (par3-radar indirect sight range)
+		// 2  - show tank turret (UDES) (par3-unit to transform to)
+		// 3  - hide tank turret (UDES) (par3-unit to transform to)
+		// 4  - fire teleport movement (hell cavalery/demon)
+		// 5  - create unit (par3-unit to create)
+		// 6  - lower enemy morale (undead) (par1-range, par2-level, par3-range)
+		// 7  - aircraft up (par3-unit to transform to)
+		// 8  - aircraft land (par3-unit to transform to)
+		// 9  - paralyze enemy (harpya) (par1-range, par2-???, par3-???)
+		// 11 - freeze enemy units (par1-range, par2-???, par3-???)
+		// 12 - dragons fear (par1-range, par2-???, par3-???)
+		// 13 - autodestruction (par1-range, par2-intensity, par3-???)
+		// 14 - breorns scream (par1-range, par2-???, par3-???)
+		// 15 - kamize attack
+		// 16 - transform to fortres (par3-unit to transform to)
+		// 17 - transform from fortres (par3-unit to transfrom to)
+		ptr[0xA2] = (unsigned)unit->action_id;
+
+		// special action animation resource (*.fsu content)
+		if(put_char_str(ptr + 0xA4,end,unit->action_fsu_name,6,'_'))
+			return(1);
+		// frames count
+		ptr[0xAA] = (unsigned)unit->action_fsu_frames;
+
+		// ap per special action
+		ptr[0xAB] = (unsigned)unit->action_ap;
+
+		// special action parameters
+		ptr[0xAC] = (unsigned)unit->action_params[0];
+		ptr[0xAD] = (unsigned)unit->action_params[1];
+		ptr[0xAE] = (unsigned)unit->action_params[2];
+
+		// die action
+		ptr[0xBB] = (unsigned)unit->die_action_id;
+
+		// die action parameters
+		ptr[0xB9] = (unsigned)unit->die_action_params[0];
+		ptr[0xBA] = (unsigned)unit->die_action_params[1];
+		ptr[0xBD] = (unsigned)unit->die_action_params[2];
+
+		// die action animation resource (*.fsu content)
+		if(put_char_str(ptr + 0xB2,end,unit->die_anim_name,6,'_'))
+			return(1);
+		// frames count
+		ptr[0xB8] = (unsigned)unit->die_anim_frames;
+
+
+		// direct sight
+		ptr[0xAF] = (unsigned)unit->sdir;
+
+		// visible men/vehicles count
+		ptr[0xB0] = (unsigned)unit->vis;
+
+		// rounds per dig level
+		ptr[0xB1] = (unsigned)unit->dig_turns;
+
+		// unit movement sound class
+		ptr[0xBF] = (unsigned)unit->smov;
+
+		// unit light attack class
+		ptr[0xC0] = (unsigned)unit->slig;
+
+		// unit armored attack class
+		ptr[0xC1] = (unsigned)unit->sarm;
+
+		// unit air attack class
+		ptr[0xC2] = (unsigned)unit->sair;
+
+		// unit hit sound class
+		ptr[0xC3] = (unsigned)unit->shit;
+
+		// unit special sound class
+		ptr[0xC4] = (unsigned)unit->snd_action_id;
+
+		// unit selection/report sound class
+		ptr[0xC5] = (unsigned)unit->ssel;
+
+		// unit min rank points
+		*(uint32_t*)(ptr + 0xC6) = unit->exp_min;
+		// unit max rank points x200
+		*(uint32_t*)(ptr + 0xCA) = unit->exp_max;
+
+		// append to DEF file
+		def.insert(def.end(),rec.begin(),rec.end());
+	}
+
+	return(0);
+}
+
+
 
 // unit type
 int SpellUnitRec::isAir()

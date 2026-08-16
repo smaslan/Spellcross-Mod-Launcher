@@ -65,10 +65,11 @@ public:
     bool isEmpty();
     std::vector<std::string> GetItemNames();
     int GetFile(std::string name,std::vector<uint8_t>& data);
+    bool ExistFile(std::string name);
     int RemoveFile(std::string& name,bool ignore_error=false);
-    int AddFile(SpellArchive &src, std::string &name, bool allow_replace, std::string new_name="");
-    int AddFile(std::string &string,std::string& name,bool allow_replace);
-    int AddFile(std::vector<uint8_t> &data,std::string& name,bool allow_replace);
+    int AddFile(SpellArchive &src, std::string name, bool allow_replace, std::string new_name="");
+    int AddFile(std::string &string,std::string name,bool allow_replace);
+    int AddFile(std::vector<uint8_t> &data,std::string name,bool allow_replace);
     bool Compare(SpellArchive& ref);
     int Save(std::filesystem::path path, bool allow_overwrite=false);
     std::string GetLastError();
@@ -110,7 +111,7 @@ public:
         bool randomize;
         std::vector<SpellModOption> options;
         SpellLaunch::EngineVersion ver;
-    };
+    };    
 
     class ModArchivesList
     {
@@ -159,6 +160,7 @@ private:
     std::string m_def;
     std::string m_last_error;
     std::map<std::string,std::string> m_vars;
+    SpellLaunch::EngineVersion m_ver;
 
     //void PrintConsole(const std::string fmt,...);
     template<typename... Args> void PrintConsole(const std::string fmt,Args... args);
@@ -177,6 +179,8 @@ private:
     int SwapUnits(SpellArchive* arch,std::pair<int,int> pair);
     int SwapMapUnits(std::string &def,SpellUnits* units,std::map<int,int>& swap_map_units_list);
     int SwapLevelUnits(std::string& def,SpellUnits* units,std::map<int,int>& swap_map_units_list);
+    int FilterUnitsResources(SpellUnits* units,SpellArchive* fsu);
+    int ConvertVideoNames(std::string& def,bool eng_to_cz=true);
 
     int GetClass(std::string def,std::string class_name,SpellModCmdList& commands);     
     SpellArchive *GetArchive(SpellModPath &path);

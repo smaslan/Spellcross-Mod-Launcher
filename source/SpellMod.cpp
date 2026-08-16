@@ -241,6 +241,20 @@ int SpellArchive::GetFile(std::string name,std::vector<uint8_t>& data)
 }
 
 // try get file from archive
+bool SpellArchive::ExistFile(std::string name)
+{
+    if(m_fs)
+    {
+        return(!m_fs->GetFileRec(name.c_str()) != NULL);
+    }
+    else if(m_fsu)
+    {
+        return(m_fsu->GetResource(name.c_str()) != NULL);
+    }
+    return(false);
+}
+
+// try get file from archive
 /*std::vector<uint8_t> *SpellArchive::GetFile(std::string& name)
 {
     m_last_error = "";
@@ -283,7 +297,7 @@ int SpellArchive::RemoveFile(std::string& name,bool ignore_error)
 }
 
 // add file from another archive
-int SpellArchive::AddFile(SpellArchive &src, std::string& name, bool allow_replace, std::string new_name)
+int SpellArchive::AddFile(SpellArchive &src, std::string name, bool allow_replace, std::string new_name)
 {   
     m_last_error = "";
 
@@ -341,7 +355,7 @@ int SpellArchive::AddFile(SpellArchive &src, std::string& name, bool allow_repla
 }
 
 // add file data from raw string
-int SpellArchive::AddFile(std::string &string,std::string& name,bool allow_replace)
+int SpellArchive::AddFile(std::string &string,std::string name,bool allow_replace)
 {
     m_last_error = "";
 
@@ -371,7 +385,7 @@ int SpellArchive::AddFile(std::string &string,std::string& name,bool allow_repla
 }
 
 // add file data from raw vector
-int SpellArchive::AddFile(std::vector<uint8_t>& data,std::string& name,bool allow_replace)
+int SpellArchive::AddFile(std::vector<uint8_t>& data,std::string name,bool allow_replace)
 {
     m_last_error = "";
 
@@ -628,7 +642,8 @@ int SpellModCmd::isFunction(std::string& func_name,std::vector<std::string>& fun
                 if(!trim_whites(rest).empty())
                     par += rest;
             }
-            func_params.push_back(par);
+            if(*p != ')' || !par.empty())
+                func_params.push_back(par);
             par.clear();
             par_start = p + 1;            
             was_quote = false;
@@ -745,6 +760,10 @@ SpellModPath* SpellMod::AddPath(std::string name,std::filesystem::path path,std:
 void SpellMod::ClearVars()
 {
     m_vars.clear();
+    
+    // add default variables
+    AddVar("DATE",get_local_time_str(),true);
+    AddVar("VER",(m_ver == SpellLaunch::EngineVersion::ENG)?"\"ENG\"":"\"CZE\"",true);
 }
 
 // try get variable
@@ -768,6 +787,11 @@ int SpellMod::AddVar(std::string name,std::string value,bool allow_update)
     if(path)
     {
         m_last_error = string_format("Cannot define variable \"%s\". It exist as path variable.",name.c_str());
+        return(1);
+    }
+    if(GetOption(name))
+    {
+        m_last_error = string_format("Cannot define variable \"%s\". It exist as option variable.",name.c_str());
         return(1);
     }
     for(auto it = m_vars.begin(); it != m_vars.end(); it++)
@@ -894,6 +918,7 @@ std::string SpellModOption::GetEnumValue()
 int SpellMod::LoadDEF(Config& config)
 {
     auto mod_dir = config.mod_path.parent_path();
+    m_ver = config.ver;
 
     // define basic paths if not done yet
     AddPath("SPELL",config.spell_dir);
@@ -1070,6 +1095,16 @@ int SpellMod::ParseExpression(std::string expr,bool &result)
         vars[var_name] = opt.value;
         expr = strrep(expr,opt_name,var_name);
     }
+    // the same for variables
+    for(auto &var: m_vars)
+    {
+        auto opt_name = string_format("%%%s%%",var.first.c_str());
+        auto var_name = string_format("_%s_",var.first.c_str());
+        vars[var_name] = var.second;
+        expr = strrep(expr,opt_name,var_name);
+    }    
+    /*vars["_VER_"] = (m_ver == SpellLaunch::EngineVersion::ENG)?"ENG":"CZE";
+    expr = strrep(expr,"%VER%","_VER_");*/
 
     // parse expression  
     try{
@@ -1183,6 +1218,8 @@ int SpellMod::MakeTitle(SpellArchive &arch, std::vector<std::string> &params)
     auto text = params[5];
 
     // replace option variables
+    ReplaceVars(text);
+    //text = strrep(text,"%DATE%",get_local_time_str().c_str());
     for(auto &opt: m_options)
     {
         auto key = string_format("%%%s%%",opt.label.c_str());
@@ -1191,7 +1228,8 @@ int SpellMod::MakeTitle(SpellArchive &arch, std::vector<std::string> &params)
             val = opt.GetEnumValue();
         text = strrep(text, key, val);
     }
-    text = strrep(text,"%DATE%",get_local_time_str().c_str());
+    
+    
 
     // find nearest color index in palette
     std::vector<int> color_list;
@@ -1230,6 +1268,10 @@ int SpellMod::MakeTitle(SpellArchive &arch, std::vector<std::string> &params)
         m_last_error = string_format("Title text wont fit to given y-position!");
         return(1);
     }
+
+    // make solid background
+    for(int y = y_pos; y < y_pos + y_font; y++)
+        std::fill(img.data() + y*x_size + x_pos,img.data() + y*x_size + x_pos + x_width, color_list[1]);
     
     // try render text
     font->Render(img.data(), img.data() + img.size(), x_size, x_pos, y_pos, text,color_list[0],color_list[1],SpellFont::FontShadow::DIAG2);
@@ -1529,10 +1571,88 @@ int SpellMod::SwapLevelUnits(std::string& def,SpellUnits* units,std::map<int,int
 }
 
 
+// filter graphical resouce links based on available fsu archive content
+int SpellMod::FilterUnitsResources(SpellUnits* units, SpellArchive *fsu)
+{
+    for(auto &unit: units->GetUnits())
+    {
+        if(!unit->die_anim_name.empty() && !fsu->ExistFile(unit->die_anim_name))
+            unit->die_anim_name.clear();
+        if(!unit->action_fsu_name.empty() && !fsu->ExistFile(unit->action_fsu_name))
+            unit->action_fsu_name.clear();
+        if(!unit->anim_atack_light_name.empty() && !fsu->ExistFile(unit->anim_atack_light_name))
+            unit->anim_atack_light_name.clear();
+        if(!unit->anim_atack_armor_name.empty() && !fsu->ExistFile(unit->anim_atack_armor_name))
+            unit->anim_atack_armor_name.clear();
+        if(!unit->anim_atack_air_name.empty() && !fsu->ExistFile(unit->anim_atack_air_name))
+            unit->anim_atack_air_name.clear();
+    }
+    return(0);
+}
+
+
+// runtime conversion of video files extensions in video commands in both level and mission DEF files
+int SpellMod::ConvertVideoNames(std::string& def,bool eng_to_cz)
+{
+    // parse to lines
+    auto lines = get_text_lines(def);
+
+    // leave because it's not valid DEF but no error
+    if(lines.empty() || (!lines[0].starts_with("LevelInit") && !lines[0].starts_with("MissionData")))
+        return(0);
+
+    // process all lines
+    for(auto& line: lines)
+    {
+        // for each video related command
+        if(line.starts_with("PlayStartCANAnim") || line.starts_with("PlayEndCANAnim") 
+            || line.starts_with("PlayStartDeltaAnim") || line.starts_with("PlayEndDeltaAnim") 
+            || line.starts_with("PlayCANAnimation"))
+        {
+            // try parse command
+            SpellDefCmd cmd(line);
+            if(!cmd.valid)
+            {
+                // invalid command
+                m_last_error = string_format("Possibly somehow incomplete command \"%s\"?",line.c_str());
+                return(1);
+            }
+            if(cmd.parameters.size() != 1)
+            {
+                m_last_error = string_format("Wrong params count for command \"%s\"?",line.c_str());
+                return(1);
+            }
+            auto video_name = cmd.parameters[0];
+
+            // can anim?
+            bool is_can = cmd.name == "PlayStartCANAnim" || cmd.name == "PlayEndCANAnim" || cmd.name == "PlayCANAnimation";
+                    
+            // swap video file extensions
+            if(eng_to_cz && is_can)
+                video_name = std::filesystem::path(video_name).stem().concat(".CAN").string();
+            if(eng_to_cz && !is_can)
+                video_name = std::filesystem::path(video_name).stem().concat(".DPK").string();
+            if(!eng_to_cz)
+                video_name = std::filesystem::path(video_name).stem().concat(".SMK").string();
+
+            // rebuild command
+            line = cmd.name + "(" + video_name + ")";
+        }
+    }
+
+    // merge modified lines
+    def = merge_text_lines(lines);
+
+    return(0);
+}
+
+
+
 // try load mod DEF file
 int SpellMod::BuildMod(Config& config, bool allow_restore)
 {
     auto mod_dir = config.mod_path.parent_path();
+    m_ver = config.ver;
 
     // first check if there is unrestored stuff and restore it
     bool something_to_restore;
@@ -1588,7 +1708,8 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
     PrintConsole("done.\n");
 
     // parse archive section(s)
-    std::vector<std::string> archive_names = {"COMMON.FS", "T11.FS", "PUST.FS", "DEVAST.FS", "TEXTS.FS", "SAMPLES.FS", "MUSIC.FS", "RESEARCH.FS", "INFO.FS", "SPEAKER.FS", "MOVIE.FS", "UNITS.FSU"};
+    std::filesystem::path fsu_path;
+    std::vector<std::string> archive_names = {"UNITS.FSU","COMMON.FS", "T11.FS", "PUST.FS", "DEVAST.FS", "TEXTS.FS", "SAMPLES.FS", "MUSIC.FS", "RESEARCH.FS", "INFO.FS", "SPEAKER.FS", "MOVIE.FS"};
     for(auto &arch_name: archive_names)
     {
         // target archive absolute path
@@ -1605,6 +1726,8 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             else if(std::filesystem::exists(org_p_path.alt_path))
                 org_path = org_p_path.alt_path;
         }
+        if(arch_name == "UNITS.FSU")
+            fsu_path = org_path;
 
         // try load archive definition class        
         if(GetClass(m_def,arch_name,cmd_list))
@@ -1620,6 +1743,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
         bool glob_replace = 0;
         bool is_optional = false;
         std::map<int,int> swap_map_units_list;
+        std::string convert_target = "";
 
         // section exists
         for(auto& cmd: cmd_list)
@@ -1679,7 +1803,19 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     }
                 }
 
-                if(var_name == "title")
+                if(var_name == "error")
+                {
+                    // error message:
+                    //   error(error_text)
+                    if(par_list.size() != 1)
+                    {
+                        PrintConsole("failed! Line %d: wrong parameters count in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        return(1);
+                    }
+                    PrintConsole("failed! Line %d: error() command: %s\n",cmd.m_line,par_list[0].c_str());
+                    return(1);                    
+                }
+                else if(var_name == "title")
                 {
                     // make main menu title:
                     //   title(x_pos,y_pos,text_color,shadow_color,text)
@@ -1831,6 +1967,28 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                         PrintConsole("failed! Line %d: swaping unit recirds data in command \"%s\".\n %s\n",cmd.m_line,cmd.m_raw.c_str(),m_last_error.c_str());
                         return(1);
                     }
+
+                }
+                else if(var_name == "convert")
+                {
+                    // convert engine format:
+                    //   convert(target_lang)
+                    if(!is_common)
+                    {
+                        PrintConsole("failed! Line %d: convert() command must be placed in COMMON.FS archive.\n",cmd.m_line);
+                        return(1);
+                    }
+                    if(par_list.size() != 1)
+                    {
+                        PrintConsole("failed! Line %d: wrong params count in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        return(1);
+                    }
+                    if(par_list[0] != "EN" && par_list[0] != "ENG" && par_list[0] != "CZ" && par_list[0] != "CZE")
+                    {
+                        PrintConsole("failed! Line %d: wrong parameter value in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        return(1);
+                    }                    
+                    convert_target = par_list[0];
 
                 }
                 else if(var_name == "copy")
@@ -2003,7 +2161,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
         }
 
         // units randomizer and/or swapper?
-        if(is_common && (config.randomize || !swap_map_units_list.empty()))
+        if(is_common && (config.randomize || !swap_map_units_list.empty() || !convert_target.empty()))
         {
             // parse units definition
             std::vector<uint8_t> data;
@@ -2020,7 +2178,42 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 PrintConsole(string_format("failed! Unit randomizer cannot decode file JEDNOTKY.DEF in COMMON.FS.\n"));
                 return(1);
             }
-            
+
+            // format convert?
+            bool to_eng = convert_target == "EN" || convert_target == "ENG";
+            if(!convert_target.empty())
+            {
+                // load UNITS.FSU
+                SpellArchive fsu;
+                if(fsu.Load(fsu_path))
+                {
+                    // loading source data for add() command failed
+                    PrintConsole("failed! Loading UNITS.FSU source data failed in convert() command!\n");
+                    return(1);
+                }
+                // filter units graphics resources
+                if(FilterUnitsResources(units.get(), &fsu))
+                {
+                    PrintConsole("failed! Filtering UNITS.FSU for unknown graphic resources failed in convert() command!\n");
+                    return(1);
+                }
+                
+                // convert JEDNOTKY.DEF
+                SpellUnits::Format units_format = (to_eng)?(SpellUnits::Format::ENG):(SpellUnits::Format::CZE);
+                if(units->GenerateDEF(data,units_format))                    
+                {
+                    // failed
+                    PrintConsole("failed! Conversion of JEDNOTKY.DEF to desired language format %s in COMMON.FS.\n",convert_target.c_str());
+                    return(1);
+                }
+                // replace it
+                if(arch.AddFile(data,"JEDNOTKY.DEF",true))
+                {
+                    PrintConsole("failed! Conversion of JEDNOTKY.DEF to desired language format %s in COMMON.FS.\n",convert_target.c_str());
+                    return(1);
+                }
+            }
+                       
             // for each possible map script:
             for(auto& name: arch.GetItemNames())
             {
@@ -2052,6 +2245,16 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     if(SwapMapUnits(def,units.get(),swap_map_units_list))
                     {
                         PrintConsole("failed! Unit swap in \"%s\" failed: %s\n",name.c_str(),m_last_error.c_str());
+                        return(1);
+                    }
+                }
+
+                // convert video file extensions?
+                if(!convert_target.empty())
+                {
+                    if(ConvertVideoNames(def, !to_eng))
+                    {
+                        PrintConsole("failed! Converting mod video names to target language %s failed in file \"%s\"\n",convert_target.c_str(), name.c_str());
                         return(1);
                     }
                 }
@@ -2088,6 +2291,16 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     }
                 }
 
+                // convert video file extensions?
+                if(!convert_target.empty())
+                {
+                    if(ConvertVideoNames(def,!to_eng))
+                    {
+                        PrintConsole("failed! Converting mod video names to target language %s failed in file \"%s\"\n",convert_target.c_str(),name.c_str());
+                        return(1);
+                    }
+                }
+
                 // replace
                 if(arch.AddFile(def,name,true))
                 {
@@ -2095,6 +2308,8 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     return(1);
                 }
             }
+
+
 
         }
 
@@ -2154,6 +2369,9 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             PrintConsole("failed! Saving target archive \"%ls\".\n%s\n",arch_path.wstring().c_str(),arch.GetLastError().c_str());
             return(1);
         }
+        if(arch_name == "UNITS.FSU")
+            fsu_path = arch_path;
+
         PrintConsole("saved to \"%ls\".\n",arch_path.wstring().c_str());
     }
 
