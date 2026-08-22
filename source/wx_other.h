@@ -3,6 +3,7 @@
 #include <wx/listctrl.h>
 #include <wx/treectrl.h>
 #include <wx/dialog.h>
+#include <wx/propgrid/propgrid.h>
 #include <wx/propgrid/advprops.h>
 
 #include <filesystem>
@@ -106,6 +107,8 @@ public:
 	{
 		UINT,
 		INT,
+		BOOL,
+		REAL,
 		STRING,
 		WSTRING,
 		ENUM,
@@ -124,6 +127,10 @@ public:
 			*(int*)m_data = prop->GetValue().GetLong();
 		else if(m_type == wxPGobj::DataType::UINT)
 			*(unsigned int*)m_data = prop->GetValue().GetLong();
+		else if(m_type == wxPGobj::DataType::BOOL)
+			*(bool*)m_data = prop->GetValue().GetBool();
+		else if(m_type == wxPGobj::DataType::REAL)
+			*(double*)m_data = prop->GetValue().GetReal();
 		else if(m_type == wxPGobj::DataType::STRING)
 			*(std::string*)m_data = prop->GetValue().GetString();
 		else if(m_type == wxPGobj::DataType::WSTRING)
@@ -154,10 +161,39 @@ public:
 class wxIntPropertyExt : public wxIntProperty
 {
 public:
-	wxIntPropertyExt(const wxString& label,const wxString& name,int* value)
+	wxIntPropertyExt(const wxString& label,const wxString& name,int* value,int min_range=-INT_MIN,int max_range=INT_MAX)
 		: wxIntProperty(label,name,*value)
 	{
+		SetAttribute(wxPG_ATTR_MIN,min_range);
+		SetAttribute(wxPG_ATTR_MAX,max_range);
 		SetClientObject(new wxPGobj(wxPGobj::DataType::INT,value));
+	}
+};
+
+// PropGrid real property using pointer to linked variable
+class wxRealPropertyExt : public wxFloatProperty
+{
+public:
+	wxRealPropertyExt(const wxString& label,const wxString& name,double* value,int display_prec=1,double min_range=NAN,double max_range=NAN)
+		: wxFloatProperty(label,name,*value)
+	{
+		if(!isnan(min_range))
+			SetAttribute(wxPG_ATTR_MIN,min_range);
+		if(!isnan(max_range))
+			SetAttribute(wxPG_ATTR_MAX,max_range);
+		SetAttribute(wxPG_FLOAT_PRECISION,display_prec);
+		SetClientObject(new wxPGobj(wxPGobj::DataType::REAL,value));
+	}
+};
+
+// PropGrid boolean property using pointer to linked variable
+class wxBoolPropertyExt : public wxBoolProperty
+{
+public:
+	wxBoolPropertyExt(const wxString& label,const wxString& name,bool* value)
+		: wxBoolProperty(label,name,*value)
+	{
+		SetClientObject(new wxPGobj(wxPGobj::DataType::BOOL,value));
 	}
 };
 
@@ -233,3 +269,5 @@ int AssignSVGresourceToMenu(wxMenuItem* item,const char* resource_name);
 int RescaleWindowDPI(wxWindow *win);
 wxPGChoices& MapToPGenumChoices(const std::map<int,std::string>& map);
 wxPGChoices& MapToPGenumChoices(const std::map<int,std::wstring>& map);
+int getPGcount(wxPropertyGrid* pg);
+int setPGsize(wxPropertyGrid* pg);

@@ -3,6 +3,7 @@
 #include <wx/stdpaths.h>
 #include <wx/menu.h>
 #include <wx/menuitem.h>
+#include <wx/propgrid/propgrid.h>
 
 
 // get executable directory via wxWidgets (should be multiplatform)
@@ -97,4 +98,25 @@ wxPGChoices& MapToPGenumChoices(const std::map<int,std::wstring>& map)
 	for(auto& item: map)
 		ch.Add(item.second,item.first);
 	return(ch);
+}
+
+// get property grid props count
+int getPGcount(wxPropertyGrid *pg)
+{
+	if(!pg)
+		return(0);
+	auto last = pg->GetLastItem(wxPG_ITERATE_ALL);
+	if(!last)
+		return(0);
+	return(last->GetIndexInParent() + 1);
+}
+
+// set property grid vertical size to props count
+int setPGsize(wxPropertyGrid* pg)
+{
+	auto count = getPGcount(pg);
+	if(!count)
+		return(1);
+	pg->SetMinSize(wxSize(-1,pg->GetRowHeight()*count + pg->GetSpacingY()));
+	return(0);
 }

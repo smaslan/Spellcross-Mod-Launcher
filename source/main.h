@@ -13,10 +13,14 @@
 #define MAIN_H
 
 #include "simpleini.h"
-#include "SpellMod.h"
-#include "SpellLaunch.h"
+//#include "SpellMod.h"
+//#include "SpellLaunch.h"
+/*#include "forms/form_edit.h"
+#include "forms/form_units_rand.h"
+#include "forms/form_save_edit.h"
+#include "forms/form_save_backup.h"*/
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-16 11:32:55
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-16 18:06:03
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -49,7 +53,7 @@
 #include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-16 11:32:55
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-16 18:06:03
 
 
 // app entry point class
@@ -101,7 +105,8 @@ public:
 		bool dosbox_fullscreen;
 		bool move_saves;
 		bool force_build;
-		bool allow_unit_mod;
+		SpellMod::RandomizerMode unit_randomizer;
+		UnitRandomizerSetup randomize_rules;
 		std::vector<SpellModOption> options;
 		SpellLaunch::EngineVersion ver;
 	};
@@ -148,6 +153,7 @@ private:
 	void OnModOptionChange(wxPropertyGridEvent& event);
 	void OnChangeExe(wxCommandEvent& event);
 	void OnInstallGame(wxCommandEvent& event);
+	void OnUnitRandomizeConfig(wxCommandEvent& event);
 
 	std::vector<std::string> m_console_buffer;
 	std::vector<SpellModOption> m_mod_options;
@@ -175,6 +181,8 @@ private:
 	void StartProcTh(ProcTh::Params& params, ProcTh::ActionsList actions);
 	ProcTh *m_th_proc;
 
+	UnitRandomizerSetup m_randomizer;
+
 	const std::string str_choice_browse=">>> Browse <<<";
 	const std::string str_choice_none=">>> None found <<<";
 	const std::string str_choice_no_select=">>> Empty path <<<";
@@ -184,14 +192,16 @@ private:
 	FormEdit *form_edit;
 	FormSaveBack *form_save_back;
 	FormSaveEdit* form_save_edit;
+	FormUnitRand* form_unit_rand;
 
 protected:
 	
+	int wxID_FORM_UNIT_RAND = 5996;
 	int wxID_FORM_SAVE_EDIT = 5997;
 	int wxID_FORM_SAVE_BACK = 5998;
 	int wxID_FORM_EDIT = 5999;	
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-16 11:32:55
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-16 18:06:03
 	enum
 	{
 		wxID_FORM_MAIN = 6000,
@@ -212,6 +222,7 @@ protected:
 		wxID_MM_MOD_RESTORE,
 		wxID_MM_MOD_CLEAN,
 		wxID_MM_EDIT_MOD_DEF,
+		wxID_MM_CFG_RANDOMIZER,
 		wxID_MM_SAVE_WD_ORG,
 		wxID_MM_RESTORE_WD_ORG,
 		wxID_MM_SAVE_ORIG,
@@ -243,7 +254,7 @@ protected:
 		wxID_PG_MOD_OPTS,
 		wxID_CB_ALLOW_CD_MOD,
 		wxID_CB_MOD_SAVES,
-		wxID_CB_MOD_RANDOMIZE,
+		wxID_CH_RAND_MODE,
 		wxID_TEXT_OUTPUT,
 		wxID_BTN_RUN_ORIG,
 		wxID_BTN_SAVE_WD_ORIG,
@@ -293,7 +304,8 @@ protected:
 	wxPropertyGrid* pgModOptions;
 	wxCheckBox* cbAllowCDmod;
 	wxCheckBox* cbModSaves;
-	wxCheckBox* cbModRandomize;
+	wxStaticText* m_staticText43;
+	wxChoice* chRandomizeMode;
 	wxStaticLine* m_staticline44;
 	wxStaticText* m_staticText120;
 	wxTextCtrl* textOutput;
@@ -305,7 +317,7 @@ protected:
 	wxButton* btnRestoreWDmod;
 	wxButton* btnRunMod;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-16 11:32:55
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-16 18:06:03
 
 
 public:

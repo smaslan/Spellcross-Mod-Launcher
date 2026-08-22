@@ -96,6 +96,9 @@
     <ClCompile Include="spell_install.cpp">
       <Filter>Zdrojové soubory</Filter>
     </ClCompile>
+    <ClCompile Include="forms\form_units_rand.cpp">
+      <Filter>Zdrojové soubory\forms</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -163,6 +166,9 @@
     </ClInclude>
     <ClInclude Include="spell_install.h">
       <Filter>Hlavičkové soubory</Filter>
+    </ClInclude>
+    <ClInclude Include="forms\form_units_rand.h">
+      <Filter>Hlavičkové soubory\forms</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -867,6 +867,35 @@ int SpellUnitRec::isSingleMan()
 {
 	return(cnt == 1);
 }
+// is OS unit? (based on known graphics and names)
+int SpellUnitRec::isOS()
+{
+	const static std::vector<std::string> c_os_gra_names = 
+		{"ORC","KAORC","WORCS","TORC","VLK","UNDED","ARACH","GOLEM","DUCH","MRI","MGRP","MGRV","DANJL","HARPY",
+		"KVTAK","BALON","VEZA","MAMUT","SIPMT","BALST","ELF1","ELFM","TRUBA","SLIZ","VLJ","PJAZD","RRS","DRAGN","KOLOS","BREON","DEMON",
+		"WIZRD","NEKRO","MAG","CONJU","PREDT","KAORC","QUEEN"};
+	if(std::find(c_os_gra_names.begin(),c_os_gra_names.end(),gra) != c_os_gra_names.end())
+		return(true);
+	return(false);
+}
+// is Alliance unit? (based on known graphics and names)
+int SpellUnitRec::isAlliance()
+{
+	const static std::vector<std::string> c_alliance_gra_names =
+	{"LPECH","TPECH","RANGR","COMND","PARAN","MINMT","HITEC","MOBP1","MOBP2","PLAMN","TAM","ABRMS","LEOPD",
+	"LEOPD","STRV","ROLND","DEST1","M106","MARDR","PIRAN","AMX30","GEPRD","DELO","M109","MLRS","HUMER",
+	"RADAR","MI24","UDES1","UDES2","DEST2","VELIT"};
+	if(std::find(c_alliance_gra_names.begin(),c_alliance_gra_names.end(),gra) != c_alliance_gra_names.end())
+		return(true);
+	return(false);
+}
+// is able to move?
+int SpellUnitRec::isMobile()
+{
+	return(!!apw);
+}
+
+
 int SpellUnitRec::GetMaxHealth()
 {
 	if(isSingleMan())
@@ -972,6 +1001,8 @@ SpellGraphicItem *SpellUnitRec::GetActionBtnGlyph(int alt)
 // can unit attack target?
 int SpellUnitRec::canAttack(SpellUnitRec* target)
 {
+	if(!target)
+		return(attack_light || attack_armored || attack_air);
 	if(target->isLight() && !attack_light)
 		return(false);
 	if(target->isArmored() && !attack_armored)

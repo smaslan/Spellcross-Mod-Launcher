@@ -239,8 +239,10 @@ class SpellUnitRec
 		int CalcExperiencePts(int level=1);
 		int GetExperiencePts(int level=1);
 		int GetNextExperiencePts(int level=1);
-
-		int canAttack(SpellUnitRec* target);
+		int isOS();
+		int isAlliance();
+		int isMobile();
+		int canAttack(SpellUnitRec* target=NULL);
 		int canAttackObject();
 		int GetMaxDig();		
 		

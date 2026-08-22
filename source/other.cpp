@@ -627,7 +627,7 @@ std::vector<std::string> get_text_lines(std::string string, bool trim_white, cha
     return(rows);
 }
 
-// split string by lines (or other separators), by default also trims white chars both ends
+// merge string lines with separators
 std::string merge_text_lines(std::vector<std::string> &lines,std::string separator)
 {
     std::string str;
@@ -635,6 +635,19 @@ std::string merge_text_lines(std::vector<std::string> &lines,std::string separat
     {
         str += lines[k];
         if(k < lines.size() - 1)
+            str += separator;
+    }
+    return(str);
+}
+
+// merge vector to string with separators
+std::string merge_vector(std::vector<int>& vec,std::string separator)
+{
+    std::string str;
+    for(int k = 0; k < vec.size(); k++)
+    {
+        str += string_format("%d",vec[k]);
+        if(k < vec.size() - 1)
             str += separator;
     }
     return(str);

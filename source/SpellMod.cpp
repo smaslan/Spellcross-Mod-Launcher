@@ -8,8 +8,6 @@
 // url: https://github.com/smaslan/Spellcross-Mod-Launcher
 // Distributed under MIT license, https://opensource.org/licenses/MIT.
 //=============================================================================
-#include "SpellMod.h"
-
 #include <regex>
 #include <stdexcept>
 #include <filesystem>
@@ -26,6 +24,7 @@
 #include "SimpleIni.h"
 #include "cparse/shunting-yard.h"
 
+#include "SpellMod.h"
 
 // is path valid?
 bool SpellModPath::isValid()
@@ -2213,6 +2212,11 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     return(1);
                 }
             }
+
+            // use local randomized rules?
+            UnitRandomizerSetup *rand_rules = NULL;
+            if(config.randomize == RandomizerMode::LOCAL)
+                rand_rules = &config.rand_rules;
                        
             // for each possible map script:
             for(auto& name: arch.GetItemNames())
@@ -2231,10 +2235,9 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 // try randomize?
                 if(config.randomize)
                 {
-                    std::string errstr;
-                    if(UnitRandomizer::RandomizeMap(def,units.get(),errstr))
+                    if(UnitRandomizer::RandomizeMap(def,units.get(),rand_rules))
                     {
-                        PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name.c_str(),errstr.c_str());
+                        PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name.c_str(),UnitRandomizer::m_last_error.c_str());
                         return(1);
                     }
                 }

@@ -15,6 +15,7 @@
 #include <functional>
 #include <map>
 #include "SpellLaunch.h"
+#include "spell_randomizer.h"
 
 class SpellModCmd
 {
@@ -93,10 +94,17 @@ public:
 
 class SpellDEF;
 class SpellUnits;
+class UnitRandomizerSetup;
 
 class SpellMod
 {
-public:       
+public:
+
+    enum RandomizerMode : int {
+        OFF,
+        MAP,
+        LOCAL
+    };
 
     class Config
     {
@@ -108,7 +116,8 @@ public:
         bool allow_cd_mod;
         bool move_saves;
         bool force_write;
-        bool randomize;
+        RandomizerMode randomize;
+        UnitRandomizerSetup rand_rules;
         std::vector<SpellModOption> options;
         SpellLaunch::EngineVersion ver;
     };    
