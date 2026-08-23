@@ -28,7 +28,10 @@ public:
 
     bool isSrcUnit(int uid);
     bool isTargetUnit(int uid);
-    int Randomize(int& uid);
+    int Validate(SpellUnits* units,bool fix=true);
+    void Normalize();
+    int Randomize(int src_unit_id,int& uid);
+    
 };
 
 class UnitRandomizerSetup{
@@ -39,8 +42,12 @@ public:
     bool apply_tough_def;
     bool apply_static;
     bool apply_events;
+    bool apply_level_army;
+    bool apply_level_rand_attack_units;
+    bool apply_level_rand_spec_units;
     bool override_explicit_rule;
     bool override_off_rule;
+    bool filter_by_save_research;
 
     std::filesystem::path m_path;
 
@@ -49,6 +56,7 @@ public:
     UnitRandomizerGlobRule rules_air;
 
     bool canOverrideLocalRule();
+    int Validate(SpellUnits* units,bool fix=true);
     int Randomize(SpellUnits *units, int src_unit_id, int &unit);
     int LoadIni(std::filesystem::path path,SpellUnits* units=NULL);
     int SaveIni(std::filesystem::path path,SpellUnits* units=NULL);
@@ -74,6 +82,7 @@ public:
 
     // map randomizer
     static int RandomizeMap(std::string &def, SpellUnits *units, UnitRandomizerSetup *glob_rules=NULL);
+    static int RandomizeLevel(std::string& def,SpellUnits* units,UnitRandomizerSetup* glob_rules);
 };
 
 

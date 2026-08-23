@@ -1446,7 +1446,7 @@ int SpellMod::SwapMapUnits(std::string &def, SpellUnits *units, std::map<int,int
             if(!orig_unit)
             {
                 // unknown unit type
-                m_last_error = string_format("Unknown unit type for command \"%s\".",cmd.full_command.c_str());
+                m_last_error = string_format("Unknown unit type in command \"%s\".",cmd.full_command.c_str());
                 return(1);
             }
 
@@ -1556,10 +1556,7 @@ int SpellMod::SwapLevelUnits(std::string& def,SpellUnits* units,std::map<int,int
                 orig_unit_type = new_unit_type;
             }
             // replace command data
-            std::vector<std::string> army_list;
-            for(auto id: army_ids)
-                army_list.push_back(string_format("%d",id));
-            line = cmd.name + "(" + merge_text_lines(army_list,",") + ")";            
+            line = cmd.name + "(" + merge_vector(army_ids,",") + ")";
         }
     }
 
@@ -2160,7 +2157,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
         }
 
         // units randomizer and/or swapper?
-        if(is_common && (config.randomize || !swap_map_units_list.empty() || !convert_target.empty()))
+        if(is_common && (config.randomize != RandomizerMode::OFF || !swap_map_units_list.empty() || !convert_target.empty()))
         {
             // parse units definition
             std::vector<uint8_t> data;
@@ -2213,10 +2210,14 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 }
             }
 
-            // use local randomized rules?
+            // use local randomizer rules?
             UnitRandomizerSetup *rand_rules = NULL;
             if(config.randomize == RandomizerMode::LOCAL)
-                rand_rules = &config.rand_rules;
+            {
+                // make sure there are no out of range units and probabilities are ok
+                rand_rules = &config.rand_rules;                
+                rand_rules->Validate(units.get(),true);
+            }
                        
             // for each possible map script:
             for(auto& name: arch.GetItemNames())
@@ -2233,7 +2234,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 std::string def(data.begin(),data.end());
 
                 // try randomize?
-                if(config.randomize)
+                if(config.randomize != RandomizerMode::OFF)
                 {
                     if(UnitRandomizer::RandomizeMap(def,units.get(),rand_rules))
                     {
@@ -2284,6 +2285,16 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 }
                 std::string def(data.begin(),data.end());                          
 
+                // randomize?
+                if(config.randomize == RandomizerMode::LOCAL)
+                {
+                    if(UnitRandomizer::RandomizeLevel(def,units.get(),rand_rules))
+                    {
+                        PrintConsole("failed! Unit randomization of \"%s\" failed: %s\n",name.c_str(),UnitRandomizer::m_last_error.c_str());
+                        return(1);
+                    }
+                }
+                
                 // swap units?
                 if(!swap_map_units_list.empty())
                 {

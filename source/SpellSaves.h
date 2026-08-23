@@ -278,6 +278,8 @@ public:
     int attack_flags_xp_f_attack_b;
 };
 
+class SpellUnitRec;
+
 class SpellSaveBigMap{
 private:
     std::shared_ptr<FSarchive> m_common_fs;
@@ -287,6 +289,7 @@ private:
 
 public:
     std::filesystem::path m_path;
+    bool is_loaded;
 
     std::vector<uint8_t> raw;
     std::vector<SpellSaveResearch> research;
@@ -308,6 +311,8 @@ public:
     int SyncUpgrades();
     int SyncResearch();
     int SyncLevel();
+
+    bool wasUnitEncountered(SpellUnitRec *unit);
 
     std::map<int,std::wstring> GetUpgradeList(SpellSaveUpgrade::UpgradeClass type);
     std::map<int,std::wstring> GetUnitTypeList(bool add_empty=false,bool with_id=false);

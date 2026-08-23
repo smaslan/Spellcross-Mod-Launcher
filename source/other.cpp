@@ -694,8 +694,8 @@ std::string get_timestr_iso()
     std::tm* gmt = std::gmtime(&tt);
     std::stringstream buffer;
     buffer << std::put_time(gmt,"%Y-%m-%dT%H:%M:%S%z");
-    return(buffer.str());
-    
+    return(buffer.str());    
+
     // ###note: this causes memory leaks! (bad MSVC implementation)
     /*std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
     return(std::format("{0:%F}T{0:%T%z}.",now));*/
@@ -710,6 +710,15 @@ std::string get_local_time_str()
     std::stringstream buffer;
     buffer << std::put_time(gmt,"%Y-%m-%d %H:%M:%S");
     return(buffer.str());
+}
+
+// initialize random number generator by time
+void srand_init()
+{
+    auto usec = std::chrono::duration_cast<std::chrono::microseconds>(
+        std::chrono::system_clock::now().time_since_epoch()
+        ).count();
+    std::srand(usec % 10000);
 }
 
 

@@ -264,7 +264,7 @@ int UnitRandomizer::RandomizeMap(std::string& def, SpellUnits* units,UnitRandomi
 		return(0);
 	
 	// randomize seed
-	std::srand(time(0));
+	srand_init();
 
 	// local randomizer rules
 	UnitRandomizer rules;
@@ -439,8 +439,8 @@ int UnitRandomizer::RandomizeMap(std::string& def, SpellUnits* units,UnitRandomi
 			
 			// rebuild unit command
 			cmd.parameters[1] = string_format("%d",unit_id);
-			cmd.parameters[4] = string_format("%d",unit_health);
-			cmd.parameters[5] = string_format("%d",xp_level);
+			cmd.parameters[3] = string_format("%d",xp_level);
+			cmd.parameters[4] = string_format("%d",unit_health);			
 			line = cmd.name + "(" + merge_text_lines(cmd.parameters,",") + ")";
 
 			continue;
@@ -454,6 +454,95 @@ int UnitRandomizer::RandomizeMap(std::string& def, SpellUnits* units,UnitRandomi
 	return(0);
 }
 
+
+// randomize units in level?.def files
+int UnitRandomizer::RandomizeLevel(std::string& def,SpellUnits* units,UnitRandomizerSetup* glob_rules)
+{
+	m_last_error = "";
+	if(!units)
+		return(1);
+	if(!glob_rules)
+		return(1);
+
+	// parse to lines
+	auto lines = get_text_lines(def);
+
+	// leave because it's not level DEF but no error
+	if(lines.empty() || !lines[0].starts_with("LevelInit"))
+		return(0);
+
+	// randomize seed
+	srand_init();
+	
+
+	// process all lines
+	for(auto& line: lines)
+	{
+		if(line.starts_with("Army") && glob_rules->apply_level_army || 
+			line.starts_with("AttackUnits") && glob_rules->apply_level_rand_attack_units ||
+			line.starts_with("AttackSpecialUnits") && glob_rules->apply_level_rand_spec_units)
+		{
+			SpellDefCmd cmd(line);
+			if(!cmd.valid)
+			{
+				// invalid command
+				m_last_error = string_format("Possibly somehow incomplete command \"%s\"?",line);
+				return(1);
+			}
+
+			// for each listed unit:
+			std::vector<int> army_ids;
+			if(str2int(cmd.parameters,army_ids,0,units->Count()-1))
+			{
+				// invalid command
+				m_last_error = string_format("Some of the units in command \"%s\" not recognized in command \"%s\".",cmd.name.c_str(),cmd.full_command.c_str());
+				return(1);
+			}
+			for(auto& orig_unit_type: army_ids)
+			{
+				// check original unit type
+				auto orig_unit = units->GetUnit(orig_unit_type);
+				if(!orig_unit)
+				{
+					// unknown unit type
+					m_last_error = string_format("Unknown unit type #%d in command \"%s\".",orig_unit_type,cmd.full_command.c_str());
+					return(1);
+				}
+
+				// try randomize using global rule if enabled
+				int unit_id = -1;
+				if(glob_rules->Randomize(units,orig_unit_type,unit_id))
+				{
+					m_last_error = string_format("Failed randomization using local rules in command \"%s\".",cmd.full_command.c_str());
+					return(1);
+				}
+				if(glob_rules && unit_id >= 0 &&
+					(glob_rules->apply_level_army))
+				{
+					// swap unit type
+					auto unit = units->GetUnit(unit_id);
+					if(!unit)
+					{
+						// random unit ID not found
+						m_last_error = string_format("Unknown new randomizer unit type #%d in command \"%s\".",unit_id,cmd.sub_full_command.c_str());
+						return(1);
+					}
+					orig_unit_type = unit_id;
+				}
+			}
+			
+			// replace command data
+			line = cmd.name + "(" + merge_vector(army_ids,",") + ")";
+		}
+	}
+
+	// merge modified lines
+	def = merge_text_lines(lines);
+
+	return(0);
+}
+
+
 // is source unit?
 bool UnitRandomizerGlobRule::isSrcUnit(int uid)
 {
@@ -465,14 +554,63 @@ bool UnitRandomizerGlobRule::isTargetUnit(int uid)
 	return(std::find(unit_list.begin(),unit_list.end(),uid) != unit_list.end());
 }
 
+// check rules are applicable for given units list or fix to valid range
+int UnitRandomizerGlobRule::Validate(SpellUnits* units,bool fix)
+{
+	if(!units)
+		return(1);
+	int max_unit_id = units->Count() - 1;
+	std::vector<int> temp_units;
+	std::vector<double> temp_prob;
+	for(int k = 0; k < unit_list.size(); k++)
+	{
+		auto uid = unit_list[k];
+		if(uid > max_unit_id && !fix)
+			return(1); // failed
+		if(uid > max_unit_id)
+			continue;
+		temp_units.push_back(uid);
+		temp_prob.push_back(probab_list[k]);
+	}
+	unit_list = temp_units;
+	probab_list = temp_prob;
+	Normalize();
+	return(0);
+}
+
+// normalize weights to 100% sum
+void UnitRandomizerGlobRule::Normalize()
+{
+	if(probab_list.empty())
+		return;
+	
+	int count = probab_list.size();
+	if(count == 1)
+	{
+		probab_list[0] = 100.0;
+		return;
+	}
+	
+	double sum = std::accumulate(probab_list.begin(), probab_list.end(),0.0);
+	if(sum == 0.0)
+	{
+		probab_list.assign(count,100.0/count);
+		return;
+	}
+	for(auto &it: probab_list)
+		it *= (100.0/sum);
+	
+	return;
+}
+
 // generate randomized unit
-int UnitRandomizerGlobRule::Randomize(int &uid)
+int UnitRandomizerGlobRule::Randomize(int src_unit_id, int &uid)
 {	
 	if(probab_list.size() != unit_list.size())
 		return(1); // wrong rule?
 	if(probab_list.empty())
 		return(0); // no rules - skip
-	if(!isSrcUnit(uid))
+	if(!isSrcUnit(src_unit_id))
 		return(0); // not source unit - skip
 
 	// generate cumsum
@@ -480,7 +618,7 @@ int UnitRandomizerGlobRule::Randomize(int &uid)
 	std::partial_sum(probab_list.begin(),probab_list.end(),prob.begin());
 	
 	double rng = (double)std::rand()/(float)(RAND_MAX)*100.0;
-	uid = std::min((int)(std::upper_bound(prob.begin(), prob.end(), rng) - prob.begin()), (int)prob.size() - 1);
+	uid = unit_list[std::min((int)(std::upper_bound(prob.begin(), prob.end(), rng) - prob.begin()), (int)prob.size() - 1)];
 	return(0);
 }
 
@@ -488,6 +626,18 @@ int UnitRandomizerGlobRule::Randomize(int &uid)
 bool UnitRandomizerSetup::canOverrideLocalRule()
 {
 	return(override_explicit_rule || override_off_rule);
+}
+
+// check rules are applicable for given units list or fix to valid range
+int UnitRandomizerSetup::Validate(SpellUnits* units,bool fix)
+{
+	if(rules_light.Validate(units,fix))
+		return(1);
+	if(rules_armor.Validate(units,fix))
+		return(1);
+	if(rules_air.Validate(units,fix))
+		return(1);
+	return(0);
 }
 
 // randomize unit based on rules
@@ -506,10 +656,12 @@ int UnitRandomizerSetup::Randomize(SpellUnits* units,int src_unit_id,int& unit)
 		rule = &rules_air;
 	else
 		return(1);
-
-	unit = src_unit_id;
-	if(rule->Randomize(unit))
-		return(1);		
+	
+	int rand_unit = -1;
+	if(rule->Randomize(src_unit_id,rand_unit))
+		return(1);
+	if(rand_unit >= 0)
+		unit = rand_unit;
 	
 	return(0);
 }
@@ -529,9 +681,13 @@ int UnitRandomizerSetup::LoadIni(std::filesystem::path path, SpellUnits *units)
 	if(!type_str || strcmp(type_str,"Spellcross Unit Randomizer Preset") != 0)
 		return(1);
 
+	filter_by_save_research = ini.GetBoolValue("SETUP","filter_by_save_research",false);
 	apply_tough_def = ini.GetBoolValue("SETUP","apply_tough_def",true);
 	apply_static = ini.GetBoolValue("SETUP","apply_static",true);
 	apply_events = ini.GetBoolValue("SETUP","apply_events",true);
+	apply_level_army = ini.GetBoolValue("SETUP","apply_level_army",true);
+	apply_level_rand_attack_units = ini.GetBoolValue("SETUP","apply_level_rand_attack_units",true);
+	apply_level_rand_spec_units = ini.GetBoolValue("SETUP","apply_level_rand_spec_units",true);
 	override_explicit_rule = ini.GetBoolValue("SETUP","override_explicit_rule",true);
 	override_off_rule = ini.GetBoolValue("SETUP","override_off_rule",true);
 	randomize_xp = ini.GetBoolValue("SETUP","randomize_xp",false);
@@ -583,10 +739,14 @@ int UnitRandomizerSetup::SaveIni(std::filesystem::path path,SpellUnits* units)
 
 	ini.SetValue("INFO","what_is_it","Spellcross Unit Randomizer Preset");
 	ini.SetValue("INFO","created",get_local_time_str().c_str());
-		
+	
+	ini.SetBoolValue("SETUP","filter_by_save_research",filter_by_save_research,"; Filter target units list by available research in latest save game?");
 	ini.SetBoolValue("SETUP","apply_tough_def",apply_tough_def,"; Apply to ToughDefence class units?");
 	ini.SetBoolValue("SETUP","apply_static",apply_static,"; Apply to static enemies?");
 	ini.SetBoolValue("SETUP","apply_events",apply_events,"; Apply to event-spawned enemies?");
+	ini.SetBoolValue("SETUP","apply_level_army",apply_level_army,"; Apply to event-driven counter attack enemies?");
+	ini.SetBoolValue("SETUP","apply_level_rand_attack_units",apply_level_rand_attack_units,"; Apply to random counter attack enemies?");
+	ini.SetBoolValue("SETUP","apply_level_rand_spec_units",apply_level_rand_spec_units,"; Apply to random counter attack special enemies?");
 	ini.SetBoolValue("SETUP","override_explicit_rule",override_explicit_rule,"; Override explicit randomization map rule?");
 	ini.SetBoolValue("SETUP","override_off_rule",override_off_rule,"; Override map randomizer rule set to OFF?");
 	ini.SetBoolValue("SETUP","randomize_xp",randomize_xp,"; Randomizer unit XP level?");

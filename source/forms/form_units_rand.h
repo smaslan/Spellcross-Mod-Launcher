@@ -56,6 +56,7 @@ class FSarchive;
 class SpellUnits;
 class UnitRandomizerSetup;
 class UnitRandomizerGlobRule;
+class SpellSaveBigMap;
 
 class FormUnitRand : public wxFrame
 {
@@ -78,12 +79,14 @@ private:
 
 	void LoadOptions();
 	void LoadUnitList(wxCheckListBox* lbox);
-	void UpdateWList();
+	void UpdateWList(bool normalize=true);
 	void FixProbs(int ref_id);
 
+	SpellSaveBigMap m_save;
 	std::unique_ptr<FSarchive> m_common_fs;
 	std::unique_ptr<SpellUnits> m_units;
 	std::vector<double> m_probab;
+	bool m_auto_normalize;
 
 	enum class UnitsPopup : int{
 		CLEAR,
@@ -104,6 +107,8 @@ private:
 	};
 
 	enum class ProbabPopup : int {
+		AUTO,
+		NORMALIZE,
 		CLEAR,
 		UNIFORM,
 		RANDOM
@@ -158,7 +163,7 @@ public:
 	FormUnitRand(wxWindow* parent,UnitRandomizerSetup& randomizer,wxWindowID id = wxID_FORM_UNIT_RAND,const wxString& title = _("Units randomizer rules"),const wxPoint& pos = wxDefaultPosition,const wxSize& size = wxSize(825,643),long style = wxDEFAULT_FRAME_STYLE|wxFRAME_FLOAT_ON_PARENT|wxTAB_TRAVERSAL);
 	~FormUnitRand();
 	
-	int SetCommon(std::filesystem::path common_path);
+	int SetData(std::filesystem::path common_path,std::filesystem::path save_path_dir);
 
 };
 

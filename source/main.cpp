@@ -845,6 +845,7 @@ void FormMain::OnClose(wxCloseEvent& ev)
 	
 	if(m_randomizer.m_path.empty())
 	{
+		// auto save randomizer setup if not previously loaded preset
 		auto rand_path = GetExecutableDir() / "randomizer.ini";
 		m_randomizer.SaveIni(rand_path);
 	}
@@ -1243,12 +1244,7 @@ void FormMain::OnUnitRandomizeConfig(wxCommandEvent& event)
 {
 	if(FindWindowById(wxID_FORM_UNIT_RAND))
 		return;
-	form_unit_rand = new FormUnitRand(this,m_randomizer,wxID_FORM_SAVE_EDIT);
-	if(!form_unit_rand)
-		return;
-
-
-	
+		
 	// modded game data
 	auto mod_path = GetPathChoiceLastPath(chModPath);
 	if(mod_path.empty())
@@ -1277,16 +1273,31 @@ void FormMain::OnUnitRandomizeConfig(wxCommandEvent& event)
 	auto common_fs_path = make_dir_path->path / "common.fs";
 	if(!std::filesystem::exists(common_fs_path))
 	{
-		auto spell_dir = GetPathChoiceLastPath(chSpellPath);
-		common_fs_path = std::filesystem::path(spell_dir) / "data" / "common.fs";
+		//auto spell_dir = GetPathChoiceLastPath(chSpellPath);
+		common_fs_path = std::filesystem::path(mod_config.spell_dir) / "data" / "common.fs";
 		if(!std::filesystem::exists(common_fs_path))
 		{
 			wxMessageBox(string_format("Spellcross COMMON.FS archive not found at path \"%ls\"! Cannot continue.",common_fs_path.wstring().c_str()),"Error",wxICON_ERROR);
 			return;
 		}
 	}
+
+	// set saves directory
+	auto save_dir = std::filesystem::path(mod_config.spell_dir) / "SAVE" / "WORKDIR";
+	if(cbModSaves->GetValue())
+	{		
+		auto mod_save_dir = std::filesystem::path(mod_config.mod_path).parent_path() / "save" / "WORKDIR";
+		if(std::filesystem::exists(mod_save_dir))
+			save_dir = mod_save_dir;
+	}
 	
-	if(form_unit_rand->SetCommon(common_fs_path))
+	// make editor gui
+	form_unit_rand = new FormUnitRand(this,m_randomizer,wxID_FORM_SAVE_EDIT);
+	if(!form_unit_rand)
+		return;
+	
+	// pass data to gui
+	if(form_unit_rand->SetData(common_fs_path, save_dir))
 	{
 		wxMessageBox(string_format("Running randomizer config failed with error: %s",form_unit_rand->m_last_error.c_str()),"Error",wxICON_ERROR);
 		delete form_unit_rand;

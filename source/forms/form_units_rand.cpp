@@ -15,6 +15,7 @@
 #include "../fs_archive.h"
 #include "../spell_units.h"
 #include "../spell_randomizer.h"
+#include "../SpellSaves.h"
 
 #include "form_units_rand.h"
 
@@ -166,8 +167,8 @@ FormUnitRand::FormUnitRand(wxWindow* parent,UnitRandomizerSetup& randomizer,wxWi
 	chFilter->Append("Alliance");
 	chFilter->Select(0);
 
-	
-	
+	// auto normalize probability sum
+	m_auto_normalize = true;	
 
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormUnitRand::OnCloseClick,this,wxID_MM_EXIT);
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormUnitRand::OnSave,this,wxID_MM_SAVE_PRESET);
@@ -180,6 +181,8 @@ FormUnitRand::FormUnitRand(wxWindow* parent,UnitRandomizerSetup& randomizer,wxWi
 	Bind(wxEVT_COMMAND_CHECKLISTBOX_TOGGLED,&FormUnitRand::OnUpdateSrcUnits,this,wxID_LBOX_SRC_UNITS);
 	Bind(wxEVT_PG_CHANGED,&FormUnitRand::OnPGprobChange,this,wxID_PG_PROB);
 	Bind(wxEVT_PG_CHANGED,&FormUnitRand::OnPGoptionsChange,this,wxID_PG_CONFIG);
+
+	Bind(wxEVT_COMMAND_CHECKBOX_CLICKED,&FormUnitRand::OnChangeFilter,this,wxID_CB_FILTER_SAVE);
 		
 
 	lboxUnits->Connect(wxEVT_RIGHT_DOWN,wxMouseEventHandler(FormUnitRand::OnUnitsPupupOpen),NULL,this);
@@ -201,7 +204,7 @@ FormUnitRand::~FormUnitRand()
 }
 
 // load common.fs
-int FormUnitRand::SetCommon(std::filesystem::path common_path)
+int FormUnitRand::SetData(std::filesystem::path common_path,std::filesystem::path save_path_dir)
 {
 	// load common.fs
 	m_last_error.clear();
@@ -226,6 +229,15 @@ int FormUnitRand::SetCommon(std::filesystem::path common_path)
 		return(1);
 	}
 	m_probab.assign(m_units->Count(),0);
+	
+	// try load last save game
+	auto save_path = save_path_dir / "BIG_MAP.SAV";
+	if(std::filesystem::exists(save_path))
+	{
+		if(m_save.Load(save_path,common_path))
+			return(1);
+	}
+
 
 	LoadOptions();
 	wxCommandEvent event;
@@ -302,15 +314,20 @@ void FormUnitRand::OnOpen(wxCommandEvent& event)
 
 // reload options menu
 void FormUnitRand::LoadOptions()
-{
-	// fill options
+{	
+	cbLimitSave->SetValue(m_randomizer.filter_by_save_research);
+	
+	// fill options PG
 	pgConfig->Freeze();
 	pgConfig->Clear();
 	pgConfig->Append(new wxBoolPropertyExt("Apply to ToughDefence units",wxT(""),&m_randomizer.apply_tough_def));
-	pgConfig->Append(new wxBoolPropertyExt("Apply to static enemies",wxT(""),&m_randomizer.apply_static));
-	pgConfig->Append(new wxBoolPropertyExt("Apply to event-spawned enemies",wxT(""),&m_randomizer.apply_events));
-	pgConfig->Append(new wxBoolPropertyExt("Override explicit rules",wxT(""),&m_randomizer.override_explicit_rule));
-	pgConfig->Append(new wxBoolPropertyExt("Override disabled rules",wxT(""),&m_randomizer.override_off_rule));
+	pgConfig->Append(new wxBoolPropertyExt("Apply to static enemies (command AddUnit)",wxT(""),&m_randomizer.apply_static));
+	pgConfig->Append(new wxBoolPropertyExt("Apply to event-spawned enemies (command AddSpecialUnit)",wxT(""),&m_randomizer.apply_events));
+	pgConfig->Append(new wxBoolPropertyExt("Apply to event-driven counter attack enemies (command Army)",wxT(""),&m_randomizer.apply_level_army));
+	pgConfig->Append(new wxBoolPropertyExt("Apply to random counter attack enemies (command AttackUnits)",wxT(""),&m_randomizer.apply_level_rand_attack_units));
+	pgConfig->Append(new wxBoolPropertyExt("Apply to random counter attack special enemies (command AttackSpecialUnits)",wxT(""),&m_randomizer.apply_level_rand_spec_units));
+	pgConfig->Append(new wxBoolPropertyExt("Override explicit map randomization rule",wxT(""),&m_randomizer.override_explicit_rule));
+	pgConfig->Append(new wxBoolPropertyExt("Override disabled map randomization rule",wxT(""),&m_randomizer.override_off_rule));
 	pgConfig->Append(new wxBoolPropertyExt("Enable XP level randomization",wxT(""),&m_randomizer.randomize_xp));
 	pgConfig->Append(new wxIntPropertyExt("Min XP level",wxT(""),&m_randomizer.xp_min,1,12));
 	pgConfig->Append(new wxIntPropertyExt("Max XP level",wxT(""),&m_randomizer.xp_max,1,12));
@@ -354,6 +371,10 @@ void FormUnitRand::OnChangeUnitClass(wxCommandEvent& event)
 void FormUnitRand::OnProbabPupupOpen(wxMouseEvent& event)
 {
 	wxMenu menu;
+	menu.AppendCheckItem((int)ProbabPopup::AUTO,"Auto normalize?");
+	menu.Check((int)ProbabPopup::AUTO,m_auto_normalize);
+	menu.Append((int)ProbabPopup::NORMALIZE,"Normalize");
+	menu.AppendSeparator();
 	menu.Append((int)ProbabPopup::CLEAR,"Clear all");
 	menu.Append((int)ProbabPopup::UNIFORM,"Set all equal");
 	menu.Append((int)ProbabPopup::RANDOM,"Set random");
@@ -366,9 +387,30 @@ void FormUnitRand::OnProbabPupup(wxCommandEvent& event)
 	auto menu = (wxMenu*)event.GetEventObject();
 	if(!menu)
 		return;
+
+	if(menu_id == ProbabPopup::AUTO)
+	{
+		m_auto_normalize = event.IsChecked();
+		if(m_auto_normalize)
+		{
+			//FixProbs();
+			UpdateWList();
+			return;
+		}		
+	}
 	
-	if(menu_id == ProbabPopup::CLEAR)
+	
+	if(menu_id == ProbabPopup::NORMALIZE)
+	{
+		UpdateWList(true);
+		return;
+	}
+	else if(menu_id == ProbabPopup::CLEAR)
+	{
 		m_probab.assign(m_units->Count(),0);
+		UpdateWList(false);
+		return;
+	}
 	else if(menu_id == ProbabPopup::UNIFORM)
 	{
 		int count = getPGcount(pgProbab);
@@ -381,7 +423,7 @@ void FormUnitRand::OnProbabPupup(wxCommandEvent& event)
 				continue;
 			if(!lboxUnits->IsChecked(k))
 				continue;
-			m_probab[k] = 100.0/count;
+			m_probab[unit->type_id] = 100.0/count;
 		}
 	}
 	else if(menu_id == ProbabPopup::RANDOM)
@@ -390,6 +432,7 @@ void FormUnitRand::OnProbabPupup(wxCommandEvent& event)
 		if(!count)
 			return;
 
+		srand_init();
 		std::vector<double> rng(count);
 		std::generate(rng.begin(),rng.end(),std::rand);
 		double sum = std::accumulate(rng.begin(),rng.end(),0.0)/100.0;
@@ -401,11 +444,12 @@ void FormUnitRand::OnProbabPupup(wxCommandEvent& event)
 				continue;
 			if(!lboxUnits->IsChecked(k))
 				continue;
-			m_probab[k] = rng.back()/sum;
+			m_probab[unit->type_id] = rng.back()/sum;
 			rng.pop_back();
 		}
 	}
-	UpdateWList();
+
+	UpdateWList(m_auto_normalize);
 }
 
 // show popup menu on units list
@@ -415,18 +459,25 @@ void FormUnitRand::OnUnitsPupupOpen(wxMouseEvent& event)
 	menu.SetClientData(event.GetEventObject());
 
 	menu.Append((int)UnitsPopup::CLEAR,"Clear ALL");
-	menu.Append((int)UnitsPopup::CLEAR_LIGHT,"Clear light");
-	menu.Append((int)UnitsPopup::CLEAR_ARMOR,"Clear armored");
-	menu.Append((int)UnitsPopup::CLEAR_AIR,"Clear air");
-	menu.AppendSeparator();
 	menu.Append((int)UnitsPopup::SET,"Select ALL");
-	menu.Append((int)UnitsPopup::SET_LIGHT,"Select light");
-	menu.Append((int)UnitsPopup::SET_ARMOR,"Select armored");
-	menu.Append((int)UnitsPopup::SET_AIR,"Select air");
 	menu.AppendSeparator();
+	menu.Append((int)UnitsPopup::SET_LIGHT,"Select light");
+	menu.Append((int)UnitsPopup::CLEAR_LIGHT,"Clear light");
 	menu.Append((int)UnitsPopup::TOGGLE_LIGHT,"Toggle light");
+	menu.AppendSeparator();
+	menu.Append((int)UnitsPopup::SET_ARMOR,"Select armored");
+	menu.Append((int)UnitsPopup::CLEAR_ARMOR,"Clear armored");
 	menu.Append((int)UnitsPopup::TOGGLE_ARMOR,"Toggle armored");
+	menu.AppendSeparator();
+	menu.Append((int)UnitsPopup::CLEAR_AIR,"Clear air");
+	menu.Append((int)UnitsPopup::SET_AIR,"Select air");
 	menu.Append((int)UnitsPopup::TOGGLE_AIR,"Toggle air");
+	menu.AppendSeparator();
+	menu.Append((int)UnitsPopup::SET_ALLIANCE,"Select Alliance");
+	menu.Append((int)UnitsPopup::CLEAR_ALLIANCE,"Clear Alliance");
+	menu.AppendSeparator();
+	menu.Append((int)UnitsPopup::SET_OS,"Select Other Side");
+	menu.Append((int)UnitsPopup::CLEAR_OS,"Clear Other Side");
 	
 	menu.Connect(wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler(FormUnitRand::OnUnitsPupup),NULL,this);
 	PopupMenu(&menu);
@@ -499,6 +550,7 @@ void FormUnitRand::LoadUnitList(wxCheckListBox *lbox)
 	auto filt = chFilter->GetStringSelection();
 	bool filt_os = filt == "All" || filt == "Other Side" || is_src_unit;
 	bool filt_alliance = filt == "All" || filt == "Alliance" || is_src_unit;
+	bool filt_save = cbLimitSave->GetValue();
 
 	// unit class
 	auto sel = chUnitClass->GetStringSelection();
@@ -516,6 +568,9 @@ void FormUnitRand::LoadUnitList(wxCheckListBox *lbox)
 		if(unit->isAlliance() && !filt_alliance)
 			continue;
 		if(is_src_unit && !(sel == "Light" && unit->isLight() || (sel == "Armored" && unit->isArmored()) || (sel == "Air" && unit->isAir())))
+			continue;
+
+		if(filt_save && !is_src_unit && m_save.is_loaded && !m_save.wasUnitEncountered(unit.get()))
 			continue;
 		
 		auto label = wstring_format(L"%ls",unit->name.c_str());
@@ -541,10 +596,11 @@ void FormUnitRand::OnSelectUnit(wxCommandEvent& event)
 }
 
 // update w-list of selected units
-void FormUnitRand::UpdateWList()
+void FormUnitRand::UpdateWList(bool normalize)
 {
 	pgProbab->Freeze();
 	pgProbab->Clear();
+
 	m_rand_rule->unit_list.clear();
 	m_rand_rule->probab_list.clear();
 	for(int k = 0; k < lboxUnits->GetCount(); k++)
@@ -554,10 +610,23 @@ void FormUnitRand::UpdateWList()
 			continue;
 		if(!lboxUnits->IsChecked(k))
 			continue;
-		auto name = lboxUnits->GetString(k);		
-		pgProbab->Append(new wxRealPropertyExt(name,wxT(""),&m_probab[k],1,0.0,100.0));
 		m_rand_rule->unit_list.push_back(unit->type_id);
-		m_rand_rule->probab_list.push_back(m_probab[k]);
+		m_rand_rule->probab_list.push_back(m_probab[unit->type_id]);
+	}
+	if(normalize)
+		m_rand_rule->Normalize();
+
+	int uid = 0;
+	for(int k = 0; k < lboxUnits->GetCount(); k++)
+	{
+		auto* unit = (SpellUnitRec*)lboxUnits->GetClientData(k);
+		if(!unit)
+			continue;
+		if(!lboxUnits->IsChecked(k))
+			continue;
+		auto name = lboxUnits->GetString(k);				
+		m_probab[unit->type_id] = m_rand_rule->probab_list[uid++];
+		pgProbab->Append(new wxRealPropertyExt(name,wxT(""),&m_probab[unit->type_id],1,0.0,100.0));
 	}
 	pgProbab->Thaw();
 	pgProbab->FitColumns();
@@ -603,8 +672,9 @@ void FormUnitRand::OnPGprobChange(wxPropertyGridEvent& event)
 	{
 		obj->Update(prop);		
 		int ref_id = (double*)obj->m_data - m_probab.data();
-		FixProbs(ref_id);
-		UpdateWList();
+		if(m_auto_normalize)
+			FixProbs(ref_id);
+		UpdateWList(m_auto_normalize);
 	}
 }
 
@@ -612,7 +682,7 @@ void FormUnitRand::FixProbs(int ref_id)
 {
 	double ref_prob = m_probab[ref_id];
 	
-	for(int m = 0; m < 10; m++)
+	for(int m = 0; m < 90; m++)
 	{
 		double other_prob = 0.0;
 		int count = 0;

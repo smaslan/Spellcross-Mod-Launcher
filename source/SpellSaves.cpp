@@ -3,6 +3,7 @@
 #include "LZ_spell.h"
 #include "fs_archive.h"
 #include "spell_def.h"
+#include "spell_units.h"
 #include <format>
 
 
@@ -322,7 +323,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
         m_unit_names.clear();
         auto unit_names = get_text_lines(units_str);
         for(auto &unit: unit_names)
-            m_unit_names.push_back(char2wstringCP895(unit.c_str()));
+            m_unit_names.push_back(char2wstringCP895(trim_whites(unit,true).c_str()));
 
         // parse commander names
         auto c_names_str = m_common_fs->GetFileStr("C_NAMES.DEF");
@@ -746,6 +747,8 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
 
         ptr += 56;
     }
+
+    is_loaded = true;
 
     return(0);
 }
@@ -1562,6 +1565,30 @@ int SpellSaveBigMap::SyncLevel()
     }
 
     return(0);
+}
+
+// check if unit was already encountered based on research states
+bool SpellSaveBigMap::wasUnitEncountered(SpellUnitRec* unit)
+{
+    if(!unit)
+        return(false);
+    
+    for(auto &res: research)
+    {
+        if(res.flags != SpellSaveResearch::Flags::UnitType && res.flags != SpellSaveResearch::Flags::NewUnit)
+            continue;
+        if(!res.state)
+            continue;
+        // check basic name
+        if(res.name == unit->name)
+            return(true);
+        // check string list name
+        if(unit->type_id >= m_unit_names.size())
+            continue;
+        if(res.name == m_unit_names[unit->type_id])
+            return(true);                
+    }
+    return(false);
 }
 
 
