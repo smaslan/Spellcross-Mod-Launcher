@@ -4,6 +4,7 @@
 #include "fs_archive.h"
 #include "spell_def.h"
 #include "spell_units.h"
+#include "log.h"
 #include <format>
 
 
@@ -279,28 +280,40 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
     bigmap.terr_mask.clear();
     bigmap.pal.clear();
     bigmap.terr.clear();
-
+    
+    LogFile::Write("SpellSaveBigMap::Load():\n");
+    LogFile::SetIndent(+1);
 
     // try load common.fs    
     m_common_fs.reset();
-    //m_common_fs = NULL;
     if(!common_fs_path.empty() && std::filesystem::exists(common_fs_path))
     {
+        LogFile::Write("- loading COMMON.FS ... ");
         try{
             m_common_fs = std::make_unique<FSarchive>(common_fs_path.wstring());
-        }catch(const std::runtime_error& error) {            
+        }catch(const std::runtime_error& error) {
+            LogFile::Write("failed\n");
+            LogFile::SetIndent(-1);
             return(1);
         }        
     }
+    LogFile::Write("done\n");
     if(m_common_fs)
     {
         // parse rank strings
+
+        LogFile::Write("- parsing rank strings HODNOSTI.* ... ");
+
         m_rank_names.clear();
         auto rank_str = m_common_fs->GetFileStr("HODNOSTI.CZ");
         if(rank_str.empty())
             rank_str = m_common_fs->GetFileStr("HODNOSTI.ENG");
         if(rank_str.empty())
+        {
+            LogFile::Write("failed\n");
+            LogFile::SetIndent(-1);
             return(1);
+        }
         auto lines = get_text_lines(rank_str);
         bool is_short = false;
         for(auto &line: lines)
@@ -313,55 +326,88 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
                 is_short ^= true;
             }
         }
+        LogFile::Write("done\n");
 
         // parse unit names
+        LogFile::Write("- parsing unit name strings UNITS.* ... ");
         auto units_str = m_common_fs->GetFileStr("UNITS.CZ");
         if(units_str.empty())
             units_str = m_common_fs->GetFileStr("UNITS.ENG");
         if(units_str.empty())
+        {
+            LogFile::Write("failed\n");
+            LogFile::SetIndent(-1);
             return(1);
+        }
         m_unit_names.clear();
         auto unit_names = get_text_lines(units_str);
         for(auto &unit: unit_names)
             m_unit_names.push_back(char2wstringCP895(trim_whites(unit,true).c_str()));
+        LogFile::Write("done\n");
 
         // parse commander names
+        LogFile::Write("- parsing commander name strings C_NAMES.DEF ... ");
         auto c_names_str = m_common_fs->GetFileStr("C_NAMES.DEF");
         if(c_names_str.empty())
+        {
+            LogFile::Write("failed\n");
+            LogFile::SetIndent(-1);
             return(1);
+        }
         m_commander_names.clear();
         auto c_names = get_text_lines(c_names_str);
         for(auto &name: c_names)
             m_commander_names.push_back(char2wstringCP895(name.c_str()));
-
+        LogFile::Write("done\n");
     }        
     
     // load BIG_MAP
+    LogFile::Write("- loading save file: %ls ... ",path.wstring().c_str());
     std::vector<uint8_t> data;
     if(loaddata(path,data))
+    {
+        LogFile::Write("failed\n");
+        LogFile::SetIndent(-1);
         return(1);
+    }
     m_path = path;
+    LogFile::Write("done\n");
 
     // decompress
+    LogFile::Write("- delz save file ... ");
     LZWexpand lzw(100000);
     raw = lzw.Decode(data);
     if(raw.empty())
+    {
+        LogFile::Write("failed\n");
+        LogFile::SetIndent(-1);
         return(1);
+    }
+    LogFile::Write("done\n");
 
     //int min_size = 8 + 47*200 + 35*142 + 2*90 + 48*66 + 14*44;
     int min_size = 21165;
     uint8_t *ptr = raw.data();
     if(raw.size() < min_size)
+    {
+        LogFile::Write("- error: save game file has wrong size %d instead of 21165\n",raw.size());
+        LogFile::SetIndent(-1);
         return(1);
+    }
     uint8_t *pend = ptr + raw.size();
 
     // research entries count (max 200)
     int res_count = *(uint32_t*)&ptr[0];
     ptr += 8;
     if(res_count > 200)
+    {
+        LogFile::Write("- error: wrong research count %d\n",res_count);
+        LogFile::SetIndent(-1);
         return(1);
+    }
 
     // load research entries
+    LogFile::Write("- loading research items ... ");
     for(int k = 0; k < res_count; k++)
     {
         auto &res = research.emplace_back();
@@ -385,8 +431,10 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
 
         ptr += 47;
     }
+    LogFile::Write("done\n");
 
     // load upgrade entries
+    LogFile::Write("- loading upgread items ... ");
     ptr = &raw[0x24C0];
     for(int k = 0; k < 36; k++)
     {                        
@@ -397,7 +445,11 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
         if(std::all_of(&ptr[30],&ptr[141],[](uint8_t i) { return i==0; }))
             break;
         if(ptr[0 + name_len])
+        {
+            LogFile::Write("failed at item %d (wrong name)\n",k);
+            LogFile::SetIndent(-1);
             return(1);        
+        }
 
         auto& upg = upgrade.emplace_back();
         upg.raw.resize(142);
@@ -419,7 +471,11 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
         // upgrade type class id
         upg.type = (SpellSaveUpgrade::UpgradeClass)*(int16_t*)&ptr[42];
         if(upg.GetUpgradeClassStr().empty())
+        {
+            LogFile::Write("failed at item %d (unknown UpgradeClass value)\n",k);
+            LogFile::SetIndent(-1);
             return(1);
+        }
 
         // list of suitable unit ids
         int types_count = *(int16_t*)&ptr[50];
@@ -428,8 +484,10 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
 
         ptr += 142;
     }
+    LogFile::Write("done\n");
 
     // unit available flags (this is independent of research flags for whatever reason)
+    LogFile::Write("- loading units availability list ... ");
     ptr = &raw[0x38B8];
     for(int k = 0; k < 90; k++)
     {
@@ -448,8 +506,10 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
 
         ptr += sizeof(int16_t);
     }
+    LogFile::Write("done\n");
 
     // list of player units
+    LogFile::Write("- loading player units ... ");
     ptr = &raw[0x396C];
     for(int k = 0; k < 48; k++)
     {        
@@ -490,8 +550,10 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
 
         ptr += 66;
     }
+    LogFile::Write("done\n");
 
     // list of player commanders
+    LogFile::Write("- loading player commanders ... ");
     std::vector<std::wstring> used_com_names;
     ptr = &raw[0x45CC];
     for(int k = 0; k < 14; k++)
@@ -533,7 +595,10 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
 
         ptr += 44;
     }
+    LogFile::Write("done\n");
+   
     // assigned screwed up names
+    LogFile::Write("- fixing corrupted commander names ... ");
     for(auto &com: commanders)
     {
         if(com.is_empty())
@@ -549,6 +614,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
             used_com_names.push_back(com.name);
         }
     }
+    LogFile::Write("done\n");
 
 
     ptr = &raw[0x4834];
@@ -561,32 +627,57 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
 
     // load bigmap territories
     std::vector<bool> used_territories(128,false);    
-    if(m_common_fs && bigmap.level >= 1)
+    if(m_common_fs && bigmap.level > 1)
     {
+        LogFile::Write("- loading LEVEL_%02d.LZ ... ",bigmap.level);
         auto bigmap_img_name = string_format("LEVEL_%02d.LZ",bigmap.level);
         auto bm_lz = m_common_fs->GetFileData(bigmap_img_name.c_str());
-        if(!bm_lz->size())
+        if(!bm_lz)
+        {
+            LogFile::Write("failed\n");
+            LogFile::SetIndent(-1);
             return(1);
+        }
         bigmap.image = lzw.Decode(*bm_lz);
+        LogFile::Write("done\n");
 
+        LogFile::Write("- loading LEVEL_%02d.PAL ... ",bigmap.level);
         auto bigmap_pal_name = string_format("LEVEL_%02d.PAL",bigmap.level);
         auto bm_pal = m_common_fs->GetFileData(bigmap_pal_name.c_str());
         if(bm_pal->size() != 64*3)
+        {
+            LogFile::Write("failed\n");
+            LogFile::SetIndent(-1);
             return(1);
+        }
         bigmap.pal.assign(3*256,0);
         memcpy(bigmap.pal.data() + 128*3,bm_pal->data(),64*3);
+        LogFile::Write("done\n");
 
+        LogFile::Write("- loading LEVEL_%02d.CLK ... ",bigmap.level);
         auto bigmap_clk_name = string_format("LEVEL_%02d.CLK",bigmap.level);
         auto clk_data = m_common_fs->GetFileData(bigmap_clk_name.c_str());
         if(clk_data->empty())
+        {
+            LogFile::Write("failed\n");
+            LogFile::SetIndent(-1);
             return(1);
+        }
+        LogFile::Write("done\n");
 
         // decode CLK territory mask
+        LogFile::Write("- decoding territory CLK file ... ",bigmap.level);
         DecodeCLK(*clk_data,bigmap.x_size,bigmap.y_size,bigmap.terr_mask);
         if(bigmap.terr_mask.size() != bigmap.image.size())
+        {
+            LogFile::Write("failed\n");
+            LogFile::SetIndent(-1);
             return(1);
+        }
+        LogFile::Write("done\n");
 
         // detect available territory masks
+        LogFile::Write("- detecting available territories ... ");
         auto clk_mask = bigmap.terr_mask;
         std::sort(clk_mask.begin(),clk_mask.end());
         auto un_end = std::unique(clk_mask.begin(),clk_mask.end());        
@@ -597,8 +688,10 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
                 used_territories[*it - 1] = true;
                 bigmap.terr_count = *it;
             }
+        LogFile::Write("done\n");
 
         // generate territory hatches
+        LogFile::Write("- generating territory masks ... ");
         bigmap.terr_hatch.assign(bigmap.x_size*bigmap.y_size,0);
         for(int col = 1; col <= bigmap.terr_count; col++)
         {
@@ -648,8 +741,12 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
                 }
             }
         }
+        LogFile::Write("done\n");
     }
+    LogFile::SetIndent(-1);
+    LogFile::Write("- territories loaded\n");
 
+    LogFile::Write("- loading general level data ... ");
     // level music
     level.level_music = get_save_str(&raw[0x4838],pend,13);
     
@@ -666,7 +763,6 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
     level.attack_flags_xp_level2 = *(int16_t*)&raw[0x4899 + 6];
     level.attack_flags_xp_f_attack_a = *(int16_t*)&raw[0x4899 + 8];
     level.attack_flags_xp_f_attack_b = *(int16_t*)&raw[0x4899 + 10];
-
 
     // round
     level.round = *(int16_t*)&raw[0x4835];
@@ -695,10 +791,16 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
     level.stat_loss_armor = *(int32_t*)&raw[0x512D];
     level.stat_loss_air = *(int32_t*)&raw[0x5131];
     level.stat_loss_com = *(int32_t*)&raw[0x5135];
-    
+
+    LogFile::Write("done\n");
+
+    LogFile::Write("- loading territory records:\n");
+    LogFile::SetIndent(+1);
     ptr = &raw[0x48E3];
     for(int k = 0; k < bigmap.terr_count; k++)
     {
+        LogFile::Write("- loading territory %d ... ",k);
+
         auto& terr = bigmap.terr.emplace_back();
         terr.raw.resize(56);
         memcpy(terr.raw.data(),ptr,56);
@@ -745,9 +847,12 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
         terr.x_center = x_mean / c_mean;
         terr.y_center = y_mean / c_mean;
 
-        ptr += 56;
-    }
+        LogFile::Write("done\n");
 
+        ptr += 56;        
+    }
+    LogFile::SetIndent(-1);
+    
     is_loaded = true;
 
     return(0);

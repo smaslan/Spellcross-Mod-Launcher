@@ -42,7 +42,7 @@ i s tìmi na CD (pokud je CD emulováno ze složky, namísto z ISO). Následnì spustí
 <div class="n2">1 - Základní nastavení</div><p align="justify">
 &nbsp;&nbsp; Všechna hlavní nastavení lze provést na hlavním panelu. Pøednì je tøeba nastavit cestu k instalaci hry <b>Spellcross installation folder</b> napø. "C:/hry/SPELCROS". Dále je tøeba nastavit cestu ke kopii CD hry <b>Spellcross CD path</b>. Sice lze nastavit i cestu k namontovanému ISO, ale ISO image pochopitelnì nelze modifikovat, takže doporuèuji udìlat kopii napø. do "C:/hry/SPELLCD". Pokud máte ve složce hry nìkolik EXE souborù, napø. rùzné verze patchù hry, mùžete si vybrat cílový EXE pro spuštìní <b>Spellcross executable</b>. Dále zvolte písmeno jednotky <b>Virtual CD drive letter</b> kam bude namontováno CD hry. Toto nastavení platí jak pro DOSbox, tak i pro Win32 režim. Pokud hry budete spouštìt pøes DOSbox, pak je tøeba také zadat cestu k instalaci DOSboxu <b>DOSbox path</b>. Dále zvolte metodu spuštìní hry <b>Run mode</b>. Nástroj byl pùvodnì vyvinut v dobì 32bit WinXP, kde se daly 16bitové DOSové aplikace provozovat nativnì pøes integrovaný emulátor NTDVM, takže obsahuje možnost spustit nativnì "Win32". Toto nastavení je ovšem dnes již trochu mimo a aplikace ani není kompilovaná pro 32bit systém. Ale teoreticky by to mohlo jít spustit ve virtuálním stroji. Každopádnì dnes je jediná rozumná metoda režim "DOSbox". Pro režim "DOSbox" lze volitelnì vypnout "autoexec.bat" a nastavit spouštìní ve fullscreen režimu.
 Další nastavení je cesta k modu <b>Mod path</b>. Pro spouštìní modu lze eventuálnì vypnout <b>Allow CD mod</b>, pokud by cesta k CD hry vedla na namontované ISO, které pochopitelnì nelze pøepisovat. Poslední volba je <b>Move SAVE games</b>. Pokud je vybráno, vytvoøí Spellcross Mod Launcher po prvním hraní modu kopii uložených pozic do složky modu "save". Pøi dalším spuštìní modu pøesune tyto uložené pozice do herní složky "SAVE" (a pochopitelnì zálohuje pùvodní pozice v "SAVE") a po skonèení hraní je zase pøesune zpìt do složky modu a obnoví pùvodní "SAVE". Takto lze mít nezávislé uložené pozice pro každý mod i originální hru a nepletou se dohromady, protože jsou nekompatibilní a hra pøi naètení vìtšinou padne. 
-Déle lze zapnout <b>Allow randomize units</b>. Tato volba umožní automatickou randomizaci typù jednotek podle pravidel v DEF souborech misí (viz detaily <a href="#randomizer">8 - Randomizér jednotek</a>). Pokud mod obsahuje nìjaké uživatelské volby, zobrazí se v seznamu <b>Options</b>. Detaily viz <a href="#options">7 - Vytváøení modù</a>.     
+Déle lze nastavit režim randomizace jednotek <b>Units randomizatoin mode</b>. Hodnota "off" randomizaci vypne, hodnota "map rules" zapne automatickou randomizaci typù jednotek podle pravidel v DEF souborech misí (viz detaily <a href="#randomizer">8 - Randomizér jednotek</a>) a hodnota "local rules" zapne randomizaci podle nastavení v menu <b>Mod-&gt;Config Units Randomizer</b>. Pokud mod obsahuje nìjaké uživatelské volby, zobrazí se v seznamu <b>Options</b>. Detaily viz <a href="#options">7 - Vytváøení modù</a>.     
 </p>
 
 <table align="center"><tr><td>
@@ -240,7 +240,7 @@ class UNITS.FSU
 <br>
 <a name="randomizer"></a>
 <div class="n2">8 - Randomizér jednotek</div><p align="justify">
-&nbsp;&nbsp; Nástroj umožòuje randomizovat typy jednotek v jednotlivých misích na základì definovaných pravidel. Tato funkce je umožnìna souèinností s mým <a href="https://github.com/smaslan/spellcross-map-edit">Spellcross Map Editorem</a>. Ten pøidává do DEF souborù misí pomocné pøíkazy. Originální hra je ignoruje, takže data zùstávají kompatibilní.<br>
+&nbsp;&nbsp; Nástroj umožòuje randomizovat typy jednotek v jednotlivých misích na základì definovaných pravidel. Pøi nastavení <b>Units randomizer mode</b> na "map rules" použije randomizér pravidla definovaná mým <a href="https://github.com/smaslan/spellcross-map-edit">Spellcross Map Editorem</a>. Ten pøidává do DEF souborù misí pomocné pøíkazy. Originální hra je ignoruje, takže data zùstávají kompatibilní.<br>
 &nbsp;&nbsp; Pøednì v sekci "MissionData" DEF souboru mise mohou být pøidány pøíkazy "AutoRandomizeRule(ref_unit_type,rand_unit_type_list)", kde "ref_unit_type" je ID typu jednotky, ktery má být randomizován a "rand_unit_type_list" je seznam typù jednotek na které má být pùvodní typ randomizován. Tìchto pøíkazù mùže být libovolné množství, ale mùsí být umístìny pøed "AddUnit()" pøíkazy. Vlastní øízení randomizace pro vkládání jednotlivých jednotek pøíkazy "AddUnit()" nebo "AddSpecialUnit()" je øešeno pøílepkem pøíkazu "AddUnit(...),Randomize(...)". "Randomize(off)" vypne randomizaci pro danou jednotku (vypnutá je i pokud není pøítomen). "Randomize(auto)" se bude øídit pravidly definovanými "AutoRandomizeRule()". Pøípadnì lze úvést explicitní seznam typù jednotek "Randomize(rand_unit_type_list)". Pøíklad:</p>
 <pre>
 MissionData {
@@ -254,8 +254,19 @@ MissionData {
 }
 </pre>
 <p align="justify">
-&nbsp;&nbsp; Randomizace probìhne pøi každém buildu nebo spuštìní modifikované hry, pokud je zaškrtnuta volba <b>Allow randomize units</b>. Randomizace probìhne pro všechny mapy v COMMON.FS. 
+&nbsp;&nbsp; Randomizace probìhne pøi každém buildu nebo spuštìní modifikované hry, pokud je zaškrtnuta volba <b>Allow randomize units</b>. Randomizace probìhne pro všechny mapy v COMMON.FS.<br>
+&nbsp;&nbsp; Pøi nastavení <b>Units randomizer mode</b> na "Local rules" použije nástroj pravidla definované v menu <b>Mod-&gt;Config Units Randomizer</b>. 
 </p>
+
+<table align="center"><tr><td>
+<img src="obr/randomizer_1.png" alt="Local units randomizer rules" title="Local units randomizer rules">
+</td></tr></table><br>
+
+<p align="justify">
+&nbsp;&nbsp; Lokální pravidla jsou rozdìlena podle tøídy jednotek na lehké, tìžké a letecké v menu <b>Source untis class</b>. Pro každou tøídu je tøeba vybrat jednotky, které budou randomizovány v menu <b>Source (applicable) units</b>. Dále je tøeba vybrat typy jednotek, na které se bude randomizovat v menu <b>Target units</b>. Zde lze zapnout filtr podle posledního uložené pozice ve SAVE/WORKDIR (tato možnost nemusí vždy správnì fungovat, takže ji lze vypnout). Následnì pro každou z jednotek lze nastavit pravdìpodobnost náhodného výbìru v menu <b>Probabilities</b>.
+&nbsp;&nbsp; Pro všechny tøídy jednotek spoleènì je tøeba nastavit pravidla randomizace v menu <b>Randomizer global config</b>. Zde se pøedevším nastavuje kde se mají pravidla aplikovat. Vytvoøené pravidla lze uložit a naèítat pøes menu <b>File-&gt;Save preset</b> a <b>File-&gt;Load preset</b>.   
+</p>
+
 
 <br>
 <div class="n2">9 - Historie verzí</div><p align="justify">
@@ -274,6 +285,22 @@ MissionData {
   </td>
   <td>
    Pøidán editor uložených pozic.
+  </td> 
+ <tr>
+ <tr valign="top">
+  <td width="200">
+   <span class="d1">V1.20 - 15.8.2026</span>:
+  </td>
+  <td>
+   Pøidán randomizér jednotek, mod options a opraveno pár chyb.
+  </td>
+ <tr>
+ <tr valign="top">
+  <td width="130">
+   <span class="d1">V1.30 - 24.8.2026</span>:
+  </td>
+  <td>
+   Pøidán lokální randomizér jednotek, pøidán instalátor hry a opraveno pár chyb.
   </td> 
  <tr>
 </table>

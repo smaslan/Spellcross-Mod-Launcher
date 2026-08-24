@@ -173,6 +173,7 @@ private:
 
     //void PrintConsole(const std::string fmt,...);
     template<typename... Args> void PrintConsole(const std::string fmt,Args... args);
+    template<typename... Args> void PrintConsoleWithLog(const std::string fmt,Args... args);
 
     void ClearVars();
     int AddVar(std::string name, std::string value, bool allow_update=false);

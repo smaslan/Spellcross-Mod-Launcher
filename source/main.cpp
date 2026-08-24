@@ -31,6 +31,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")*/
 #include <string>
 
 #include "other.h"
+#include "log.h"
 #include "wx_other.h"
 #include "simpleini.h"
 #include "spell_install.h"
@@ -56,7 +57,15 @@ bool MyApp::OnInit()
 	
     // load config.ini
     //ini.SetUnicode();
-    ini.LoadFile("config.ini");      
+    ini.LoadFile("config.ini");
+
+	// logger?
+	bool log_state = ini.GetBoolValue("SETUP","enable_log_file",false);
+	LogFile::SetPath(GetExecutableDir() / "log.txt");
+	LogFile::SetState(log_state);
+	if(log_state)
+		LogFile::ClearLog();
+	LogFile::Write("App start at %s\n",get_local_time_str().c_str());
 
     // default window size
     int win_x_size = ini.GetLongValue("STATE","win_x_size",900);
@@ -826,7 +835,11 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	}
 
 	FillModOptions();
+	LogFile::SetIndent(+1);
 	CheckExeVersion();
+	LogFile::SetIndent(-1);
+
+	LogFile::Write("FormMain constructor done\n");
 
 
 	/*UnitRandomizerGlobRule rule;
@@ -1785,6 +1798,9 @@ void FormMain::ClearModOptions()
 // fill mod options prop grid
 void FormMain::FillModOptions()
 {
+	LogFile::Write("FillModOptions():\n");
+	LogFile::SetIndent(+1);
+	
 	// mod options
 	SpellMod::Config mod_config;
 	mod_config.allow_cd_mod = cbAllowCDmod->GetValue();
@@ -1793,11 +1809,13 @@ void FormMain::FillModOptions()
 	mod_config.mod_path = GetPathChoiceLastPath(chModPath);
 	mod_config.spell_dir = GetPathChoiceLastPath(chSpellPath);
 	mod_config.spellcd_dir = GetPathChoiceLastPath(chSpellCdPath);
-	mod_config.state_ini_path = std::filesystem::path(GetExecutableDir()) / str_mod_state_ini_none;
+	mod_config.state_ini_path = GetExecutableDir() / str_mod_state_ini_none;
 	mod_config.ver = CheckExeVersion();
 	if(mod_config.ver == SpellLaunch::EngineVersion::NONE)
 	{
 		//wxMessageBox("Unrecognized game engine version! Maybe wrong path selection?","Error",wxICON_ERROR);
+		LogFile::Write(" - error: invalid EXE version?\n");
+		LogFile::SetIndent(-1);
 		return;
 	}
 
@@ -1806,7 +1824,11 @@ void FormMain::FillModOptions()
 
 	ClearModOptions();
 	if(mod_config.mod_path.empty())
+	{
+		LogFile::Write(" - no mod path\n");
+		LogFile::SetIndent(-1);
 		return;
+	}
 
 	// parse mod DEF file
 	m_console_buffer.clear();
@@ -1817,6 +1839,8 @@ void FormMain::FillModOptions()
 		textOutput->Clear();
 		for(auto &line: m_console_buffer)
 			textOutput->AppendText(line);
+		LogFile::Write("failed\n");
+		LogFile::SetIndent(-1);
 		return;
 	}
 
@@ -1829,7 +1853,9 @@ void FormMain::FillModOptions()
 		oo->value = opt.value;
 	}
 	
+	LogFile::Write(" - loading option INI file ... ");
 	LoadOptionsIni(mod.m_options);
+	LogFile::Write("done\n");
 
 	// try load default last game level from WORKDIR save
 	std::filesystem::path save_file = mod_config.spell_dir / "save" / "workdir" / "big_map.sav";
@@ -1839,23 +1865,18 @@ void FormMain::FillModOptions()
 		save_file = mod_config.mod_path.parent_path() / "save" / "workdir" / "big_map.sav";
 	}
 	if(std::filesystem::exists(save_file))
-	{
-		std::filesystem::path common_fs_file;
-		auto make_dir_path = mod.GetPath("MAKE");
-		if(make_dir_path)
-			common_fs_file = make_dir_path->path / "common.fs";
-		if(!std::filesystem::exists(common_fs_file))
-			common_fs_file = mod_config.spell_dir / "data" / "common.fs";
-
+	{		
 		// try load save
+		LogFile::Write(" - loading WORKDIR save:\n");
 		SpellSaveBigMap save;
-		if(!save.Load(save_file,common_fs_file))
+		if(!save.Load(save_file))
 		{
 			int level = save.bigmap.level;
 			auto level_var = mod.GetOption("LEVEL");
 			if(level_var && level >= level_var->min_value && level <= level_var->max_value)
 				level_var->value = level;
-		}
+		}		
+		
 	}
 	
 	// make local copy of options
@@ -1876,6 +1897,8 @@ void FormMain::FillModOptions()
 	pgModOptions->SetAutoLayout(true);
 	setPGsize(pgModOptions);
 
+	LogFile::Write(" - done\n");
+	LogFile::SetIndent(-1);
 }
 // edit mod options
 void FormMain::OnModOptionChange(wxPropertyGridEvent& event)
@@ -2003,6 +2026,8 @@ void FormMain::ListSpellExecutables(std::filesystem::path spell_dir, wxChoice* c
 // check game exe version
 SpellLaunch::EngineVersion FormMain::CheckExeVersion()
 {
+	LogFile::Write("Check EXE version ... ");
+
 	auto spell_dir = GetPathChoiceLastPath(chSpellPath);
 	auto spell_exe = chSpellExec->GetStringSelection();
 	auto ver = SpellLaunch::GameEngineVersion(spell_dir, spell_exe.ToStdString());
@@ -2012,6 +2037,9 @@ SpellLaunch::EngineVersion FormMain::CheckExeVersion()
 		txtGameEngVersion->SetValue("English (or other non-Czech)");
 	else
 		txtGameEngVersion->SetValue("Unknown/error!");
+
+	LogFile::Write("done\n");
+
 	return(ver);
 }
 

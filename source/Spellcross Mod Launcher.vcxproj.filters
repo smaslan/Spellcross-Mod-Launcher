@@ -99,6 +99,9 @@
     <ClCompile Include="forms\form_units_rand.cpp">
       <Filter>Zdrojové soubory\forms</Filter>
     </ClCompile>
+    <ClCompile Include="log.cpp">
+      <Filter>Zdrojové soubory</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -169,6 +172,9 @@
     </ClInclude>
     <ClInclude Include="forms\form_units_rand.h">
       <Filter>Hlavičkové soubory\forms</Filter>
+    </ClInclude>
+    <ClInclude Include="log.h">
+      <Filter>Hlavičkové soubory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

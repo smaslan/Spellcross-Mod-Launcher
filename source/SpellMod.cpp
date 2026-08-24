@@ -14,6 +14,7 @@
 #include <sys/stat.h>
 
 #include "other.h"
+#include "log.h"
 #include "fs_archive.h"
 #include "fsu_archive.h"
 #include "spell_units.h"
@@ -456,6 +457,12 @@ void SpellMod::SetConsoleOutCb(std::function<void(std::string)> status_cb)
 // write stuff to console
 template<typename... Args> void SpellMod::PrintConsole(const std::string fmt, Args... args)
 {
+    if(m_stdout_cb)
+        m_stdout_cb(string_format(fmt,args...));
+}
+template<typename... Args> void SpellMod::PrintConsoleWithLog(const std::string fmt,Args... args)
+{
+    LogFile::Write(fmt,args...);
     if(m_stdout_cb)
         m_stdout_cb(string_format(fmt,args...));
 }
@@ -916,32 +923,38 @@ std::string SpellModOption::GetEnumValue()
 // basic parse of mod DEF file
 int SpellMod::LoadDEF(Config& config)
 {
+    LogFile::Write("SpellMod::LoadDEF():\n");
+    LogFile::SetIndent(+1);
+
     auto mod_dir = config.mod_path.parent_path();
     m_ver = config.ver;
 
     // define basic paths if not done yet
+    LogFile::Write(" - defining basic paths\n");
     AddPath("SPELL",config.spell_dir);
     if(!config.spellcd_dir.empty())
         AddPath("SPELLCD",config.spellcd_dir);
     AddPath("SPELLANY",config.spell_dir,config.spellcd_dir);
 
     // load DEF file
-    PrintConsole(" - Loading mod DEF file (%ls) ... ",config.mod_path.wstring().c_str());
+    PrintConsoleWithLog(" - Loading mod DEF file (%ls) ... ",config.mod_path.wstring().c_str());
     if(loadstr(config.mod_path,m_def))
     {
-        PrintConsole("failed!\n");
+        PrintConsoleWithLog("failed!\n");
+        LogFile::SetIndent(-1);
         return(1);
     }
-    PrintConsole("done.\n");
+    PrintConsoleWithLog("done.\n");
     // normalize line breaks
     m_def = strrep(m_def,"\r\n","\n");
 
     // parse PATH section
-    PrintConsole(" - Parsing PATH section ... ");
+    PrintConsoleWithLog(" - Parsing PATH section ... ");
     SpellModCmdList cmd_list;
     if(GetClass(m_def,"PATH",cmd_list))
     {
-        PrintConsole("failed! Missing PATH section.\n");
+        PrintConsoleWithLog("failed! Missing PATH section.\n");
+        LogFile::SetIndent(-1);
         return(1);
     }
     for(auto& cmd: cmd_list)
@@ -958,14 +971,16 @@ int SpellMod::LoadDEF(Config& config)
             auto p_path = ParsePath(path);
             if(!p_path.isValid())
             {
-                PrintConsole("failed! Line %d: adding path \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                PrintConsoleWithLog("failed! Line %d: adding path \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                LogFile::SetIndent(-1);
                 return(1);
             }            
             if(std::filesystem::path(p_path.path).is_relative())
                 path = mod_dir / path;
             if(!AddPath(var_name,path,"",true))
             {
-                PrintConsole("failed! Line %d: adding path \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                PrintConsoleWithLog("failed! Line %d: adding path \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                LogFile::SetIndent(-1);
                 return(1);
             }
         }
@@ -978,7 +993,8 @@ int SpellMod::LoadDEF(Config& config)
                 //   version(version_name); // where version name is CZE or ENG
                 if(func_params.size() != 1)
                 {
-                    PrintConsole("failed! Line %d: wrong params count in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    PrintConsoleWithLog("failed! Line %d: wrong params count in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    LogFile::SetIndent(-1);
                     return(1);
                 }
                 SpellLaunch::EngineVersion target_ver = SpellLaunch::EngineVersion::NONE;
@@ -989,12 +1005,14 @@ int SpellMod::LoadDEF(Config& config)
                     target_ver = SpellLaunch::EngineVersion::CZE;
                 else
                 {
-                    PrintConsole("failed! Line %d: wrong value of version name in command \"%s\". Must be CZE or ENG\n",cmd.m_line,cmd.m_raw.c_str());
+                    PrintConsoleWithLog("failed! Line %d: wrong value of version name in command \"%s\". Must be CZE or ENG\n",cmd.m_line,cmd.m_raw.c_str());
+                    LogFile::SetIndent(-1);
                     return(1);
                 }
                 if(config.ver != target_ver)
                 {
-                    PrintConsole("failed! Line %d: requested game version %s not matching selected game enegine version in command \"%s\". \n",cmd.m_line,ver_str.c_str(),cmd.m_raw.c_str());
+                    PrintConsoleWithLog("failed! Line %d: requested game version %s not matching selected game enegine version in command \"%s\". \n",cmd.m_line,ver_str.c_str(),cmd.m_raw.c_str());
+                    LogFile::SetIndent(-1);
                     return(1);
                 }                
             }
@@ -1003,24 +1021,28 @@ int SpellMod::LoadDEF(Config& config)
                 // mod option definition
                 if(func_params.size() < 5)
                 {
-                    PrintConsole("failed! Line %d: not enough parameters for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    PrintConsoleWithLog("failed! Line %d: not enough parameters for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    LogFile::SetIndent(-1);
                     return(1);
                 }
                 auto opt_label = func_params[0];
                 int opt_min,opt_max,opt_default;
                 if(str2int(func_params[2],opt_min))
                 {
-                    PrintConsole("failed! Line %d: wrong value of parameter 3 (min value) for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    PrintConsoleWithLog("failed! Line %d: wrong value of parameter 3 (min value) for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    LogFile::SetIndent(-1);
                     return(1);
                 }
                 if(str2int(func_params[3],opt_max) || opt_max < opt_min)
                 {
-                    PrintConsole("failed! Line %d: wrong value of paramter 4 (max value) for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    PrintConsoleWithLog("failed! Line %d: wrong value of paramter 4 (max value) for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    LogFile::SetIndent(-1);
                     return(1);
                 }
                 if(str2int(func_params[4],opt_default) || opt_default < opt_min || opt_default > opt_max)
                 {
-                    PrintConsole("failed! Line %d: wrong value of paramter 5 (default value) for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    PrintConsoleWithLog("failed! Line %d: wrong value of paramter 5 (default value) for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    LogFile::SetIndent(-1);
                     return(1);
                 }
                 std::vector<std::string> opt_enums;
@@ -1031,14 +1053,16 @@ int SpellMod::LoadDEF(Config& config)
                         opt_enums = str_split(enum_str[0],';',true);
                     if(!enum_str.empty() && opt_enums.size() != opt_max - opt_min + 1)
                     {
-                        PrintConsole("failed! Line %d: wrong count of option strings in paramter 6 for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsoleWithLog("failed! Line %d: wrong count of option strings in paramter 6 for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        LogFile::SetIndent(-1);
                         return(1);
                     }
                 }
                 auto option = AddOption(opt_label,func_params[1],opt_min,opt_max,opt_default,opt_enums);
                 if(!option)
                 {
-                    PrintConsole("failed! Line %d: failed addition mod option by command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    PrintConsoleWithLog("failed! Line %d: failed addition mod option by command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    LogFile::SetIndent(-1);
                     return(1);
                 }
 
@@ -1048,7 +1072,8 @@ int SpellMod::LoadDEF(Config& config)
                     {
                         if(opt.value < opt_min || opt.value > opt_max)
                         {
-                            PrintConsole("failed! Line %d: provided option value %d outside defined range %d to %d for command \"%s\".\n",cmd.m_line,opt.value,opt_min,opt_max,cmd.m_raw.c_str());
+                            PrintConsoleWithLog("failed! Line %d: provided option value %d outside defined range %d to %d for command \"%s\".\n",cmd.m_line,opt.value,opt_min,opt_max,cmd.m_raw.c_str());
+                            LogFile::SetIndent(-1);
                             return(1);
                         }
                         option->value = opt.value;
@@ -1057,24 +1082,32 @@ int SpellMod::LoadDEF(Config& config)
         }
         else
         {
-            PrintConsole("failed! Line %d: uknown command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+            PrintConsoleWithLog("failed! Line %d: uknown command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+            LogFile::SetIndent(-1);
             return(1);
         }
     }
+    PrintConsoleWithLog("done\n");
+    
 
     // check MAKE folder
+    LogFile::Write("- checking MAKE folder ... ");
     auto path = GetPath("MAKE");
     if(!path->isValid())
     {
         // missing MAKE folder definition
-        PrintConsole("failed! Missing MAKE variable defintion.");
+        PrintConsoleWithLog("failed! Missing MAKE variable defintion.");
+        LogFile::SetIndent(-1);
         return(1);
     }
     auto make_dir = path->path;
-    PrintConsole("done.\n");
+    LogFile::Write("done.\n");
 
     // make sure MAKE folder exist
+    LogFile::Write("- creating MAKE folder ... ");
     std::filesystem::create_directories(make_dir);
+    LogFile::Write("done\n");
+    LogFile::SetIndent(-1);
 
     return(0);
 }

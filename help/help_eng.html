@@ -43,7 +43,7 @@ It also contains simple SAVE games manager for making backups.
 If you have several Spellcross patch version EXE files in your Spellcross installation folder, so you may select desired <b>Spellcross executable</b> to launch (should be listed, default is "SPELCROS.EXE"). Next, specify <b>Virtual CD drive letter</b> to which Spellcross CD will be mounted (applies to both DOSbox mod and native Win32 modes).
 Next, define your <b>DOSbox path</b> (for DOSbox mode only). You can optionally disable "autoexec.bat" and start fullscreen in DOSbox.
 Next, select Spellcross <b>Run mode</b>. This tool was originally made in the era of 32bit WinXP which could still run 16bit DOS apps natively using its integrated NTDVM and DOSbox was a bit too slow back than. So, there is still legacy option "Win32" to run it natively e.g. in virtual machine. But now the only viable option is "DOSbox" mode.
-Finally, if you want to run mod, select <b>Mod path</b>. For each mod you can specify if it's allowed to modify CD game files (default: yes) by <b>Allow CD mod</b>. Another option is to <b>move SAVE games</b> folder with the mod. The idea here is that your save games will be copied to selected mod folder when you finish playing. On the next startup they will be moved to the game location (originals are preserved/backuped) and will be moved to mod folder again when you finish playing. This way you can have multiple sets of save games not colliding with each other. Next, you can enable <b>Allow randomize units</b>. This will enable randomization of unit types in the map according to rules provided in the map DEF files (for details, see <a href="#randomizer">8 - Units randomizer</a>). If mod contains some mod options, the list will appear in the <b>Options</b> property grid. All options can be changed. For details see <a href="#options">7 - Making mods</a>.
+Finally, if you want to run mod, select <b>Mod path</b>. For each mod you can specify if it's allowed to modify CD game files (default: yes) by <b>Allow CD mod</b>. Another option is to <b>move SAVE games</b> folder with the mod. The idea here is that your save games will be copied to selected mod folder when you finish playing. On the next startup they will be moved to the game location (originals are preserved/backuped) and will be moved to mod folder again when you finish playing. This way you can have multiple sets of save games not colliding with each other. Next, you set <b>Units randomizer mode</b>. Value "off" will disable it. Value "map rules" will enable randomization of unit types in the map according to the rules provided in the map DEF files (for details, see <a href="#randomizer">8 - Units randomizer</a>). Value "local rules" will force randomization using local rules that can be configured in menu <b>Mod-&gt;Config Units Randomizer</b>. If mod contains some mod options, the list will appear in the <b>Options</b> property grid. All options can be changed. For details see <a href="#options">7 - Making mods</a>.
 
 And that is it for basic setup.
 </p>
@@ -249,7 +249,7 @@ class UNITS.FSU
 <br>
 <a name="randomizer"></a>
 <div class="n2">8 - Units randomizer</div><p align="justify">
-&nbsp;&nbsp; The tool can randomize unit types in the particular maps based on rules defined in mission DEF files. This feature is intended to be used together with my <a href="https://github.com/smaslan/spellcross-map-edit">Spellcross Map Editor</a>. It adds extra commands to the mission DEF files. Original game engine will ignore these additional data, so it can run normally.<br>
+&nbsp;&nbsp; The tool can randomize unit types in the particular maps either based on rules defined in mission DEF files or using local rules. The randomization using map defined rules feature is intended to be used together with my <a href="https://github.com/smaslan/spellcross-map-edit">Spellcross Map Editor</a>. It adds extra commands to the mission DEF files. Original game engine will ignore these additional data, so it can run normally.<br>
 &nbsp;&nbsp; Firstly, the DEF section "MissionData" can contain commands "AutoRandomizeRule(ref_unit_type,rand_unit_type_list)", where "ref_unit_type" is type ID of unit to randomize and "rand_unit_type_list" is a list of unit type IDs to which to randomize. Any number of these commands can placed but they must be placed before "AddUnit()" commands. To control randomization of particular map units, the "AddUnit()" or "AddSpecialUnit()" commands must be followed by control switch "AddUnit(...),Randomize(...)". "Randomize(off)" will disable randomization for the unit, which is default when command not present. "Randomize(auto)" will use the "AutoRandomizeRule()" rules. It can also contain explicit randomization rules for the unit "Randomize(rand_unit_type_list)". Example:</p>  
 <pre>
 MissionData {
@@ -263,8 +263,19 @@ MissionData {
 }
 </pre>
 <p align="justify">
-&nbsp;&nbsp; Whenever the mod is build/run the tool will randomize all mission DEF files found in newly built COMMON.FS is the mod options <b>Allow randomize units</b> is checked. 
+&nbsp;&nbsp; Whenever the mod is build/run the tool will randomize all mission DEF files found in newly built COMMON.FS is the mod options <b>Allow randomize units</b> is checked.<br>
+&nbsp;&nbsp; When the tool option <b>Units randomizer rules</b> is configured to "Local rules", the tool will use local rules that can be setup in menu <b>Mod-&gt;Config Units Randomizer</b>.  
 </p>
+
+<table align="center"><tr><td>
+<img src="obr/randomizer_1.png" alt="Local units randomizer rules" title="Local units randomizer rules">
+</td></tr></table><br>
+
+<p align="justify">
+&nbsp;&nbsp; The rules are divided for each class of units (light, armored or air) that is selected in <b>Source untis class</b>. For each class you can define which units can be randomized in list <b>Source (applicable) units</b>. Next, you define to which units it should randomize them in the list <b>Target units</b>. This list can be filtered and limited by units available in the latest save game WORKDIR (this might not work properly). Finally, you set probabilities for each type of random units in the list <b>Probabilities</b>. <br>
+&nbsp;&nbsp; For all classes of units you can define <b>Randomizer global config</b> rules which mostly tells randomizer where it should be applied. Created rules can be saved via menu <b>File-&gt;Save preset</b> and loaded by <b>File-&gt;Load preset</b>.      
+</p>
+
 
 <br>
 <div class="n2">9 - Versions history</div><p align="justify">
@@ -283,6 +294,22 @@ MissionData {
   </td>
   <td>
    Added save game editor.
+  </td>
+ <tr>
+ <tr valign="top">
+  <td width="200">
+   <span class="d1">V1.20 - August 15th, 2026</span>:
+  </td>
+  <td>
+   Added unit randomizer, mod options, fixed some bugs.
+  </td>
+ <tr>
+ <tr valign="top">
+  <td width="200">
+   <span class="d1">V1.30 - August 24th, 2026</span>:
+  </td>
+  <td>
+   Added local units randomizer, added game installed, fixed some bugs.
   </td>
  <tr>
 </table>
