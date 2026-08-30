@@ -2011,7 +2011,7 @@ void FormMain::ListSpellExecutables(std::filesystem::path spell_dir, wxChoice* c
 			name = toupper(name);
 			if(!wildcmp("*.EXE",name.c_str()))
 				continue;
-			if(name == "DOS4GW.EXE" || name == "INSTALUJ.EXE" || name == "INSTALL95.EXE" || name == "SETUP.EXE")
+			if(name == "DOS4GW.EXE" || name == "INSTALUJ.EXE" || name == "INSTALL.EXE" || name == "INSTALL95.EXE" || name == "SETUP.EXE")
 				continue;
 			choice->Append(name);
 		}

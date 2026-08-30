@@ -21,7 +21,7 @@
 
 FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
 {
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-07-26 13:14:05
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-08-30 16:47:30
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_MENU ) );
 	
@@ -248,34 +248,13 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	wxBoxSizer* bSizer462;
 	bSizer462 = new wxBoxSizer( wxVERTICAL );
 	
-	bSizer462->SetMinSize( wxSize( 200,-1 ) );
-	m_staticText212 = new wxStaticText( panUnits, wxID_ANY, _("Units list (drag && drop):"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer462->SetMinSize( wxSize( 270,-1 ) );
+	m_staticText212 = new wxStaticText( panUnits, wxID_ANY, _("Units list (drag&&drop, pop-up menu):"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText212->Wrap( -1 );
 	bSizer462->Add( m_staticText212, 0, wxTOP|wxRIGHT|wxLEFT, 5 );
 	
 	listUnits = new wxListCtrlVirtual(panUnits,wxID_LIST_UNITS,wxDefaultPosition,wxSize(200,-1),wxLC_NO_HEADER|wxLC_REPORT|wxLC_SINGLE_SEL|wxLC_VIRTUAL|wxALWAYS_SHOW_SB|wxVSCROLL);
 	bSizer462->Add( listUnits, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
-	
-	btnUnitsResetNames = new wxButton( panUnits, wxID_BTN_UNIT_RESET_NAMES, _("Reset names"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer462->Add( btnUnitsResetNames, 0, wxALL|wxEXPAND, 5 );
-	
-	btnHealUnits = new wxButton( panUnits, wxID_BTN_HEAL_UNITS, _("Heal units"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer462->Add( btnHealUnits, 0, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
-	
-	m_staticline17 = new wxStaticLine( panUnits, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
-	bSizer462->Add( m_staticline17, 0, wxEXPAND|wxRIGHT|wxLEFT, 5 );
-	
-	btnUnitsNoGaps = new wxButton( panUnits, wxID_BTN_UNIT_REM_GAPS, _("Remove gaps"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer462->Add( btnUnitsNoGaps, 0, wxEXPAND|wxALL, 5 );
-	
-	btnUnitsSortPermaReinforces = new wxButton( panUnits, wxID_BTN_UNIT_SORT_PERM_REIN, _("Split Permanent-Reinforces"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer462->Add( btnUnitsSortPermaReinforces, 0, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
-	
-	btnUnitsSortNames = new wxButton( panUnits, wxID_BTN_UNIT_SORT_NAMES, _("Sort by Names"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer462->Add( btnUnitsSortNames, 0, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
-	
-	btnUnitsSortTypes = new wxButton( panUnits, wxID_BTN_UNIT_SORT_TYPES, _("Sort by Types"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer462->Add( btnUnitsSortTypes, 0, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
 	
 	
 	bSizer441->Add( bSizer462, 0, wxEXPAND, 5 );
@@ -289,10 +268,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	bSizer472->Add( lblResName1, 0, wxTOP|wxRIGHT|wxLEFT, 5 );
 	
 	gridUnitProp = new wxPropertyGrid(panUnits, wxID_GRID_UNITS, wxDefaultPosition, wxDefaultSize, wxPG_DEFAULT_STYLE);
-	bSizer472->Add( gridUnitProp, 1, wxEXPAND|wxRIGHT|wxLEFT, 5 );
-	
-	btnUnitsResetName = new wxButton( panUnits, wxID_BTN_UNIT_RESET_NAME, _("Reset Unit Name"), wxDefaultPosition, wxDefaultSize, 0 );
-	bSizer472->Add( btnUnitsResetName, 0, wxALL|wxEXPAND, 5 );
+	bSizer472->Add( gridUnitProp, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
 	
 	
 	bSizer441->Add( bSizer472, 0, wxEXPAND, 5 );
@@ -354,8 +330,8 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	wxBoxSizer* bSizer4621;
 	bSizer4621 = new wxBoxSizer( wxVERTICAL );
 	
-	bSizer4621->SetMinSize( wxSize( 200,-1 ) );
-	m_staticText2121 = new wxStaticText( panCommanders, wxID_ANY, _("Commanders list:"), wxDefaultPosition, wxDefaultSize, 0 );
+	bSizer4621->SetMinSize( wxSize( 250,-1 ) );
+	m_staticText2121 = new wxStaticText( panCommanders, wxID_ANY, _("Commanders list (pop-up menu):"), wxDefaultPosition, wxDefaultSize, 0 );
 	m_staticText2121->Wrap( -1 );
 	bSizer4621->Add( m_staticText2121, 0, wxTOP|wxRIGHT|wxLEFT, 5 );
 	
@@ -619,6 +595,42 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	panBigmap->Layout();
 	szrBigmap->Fit( panBigmap );
 	pageCtrl->AddPage( panBigmap, _("Big Map"), false );
+	panEvent = new wxPanel( pageCtrl, wxID_PAN_EVENTS, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
+	wxBoxSizer* bSizer87;
+	bSizer87 = new wxBoxSizer( wxHORIZONTAL );
+	
+	wxBoxSizer* bSizer88;
+	bSizer88 = new wxBoxSizer( wxVERTICAL );
+	
+	bSizer88->SetMinSize( wxSize( 200,-1 ) );
+	m_staticText50 = new wxStaticText( panEvent, wxID_ANY, _("Events list:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText50->Wrap( -1 );
+	bSizer88->Add( m_staticText50, 0, wxTOP|wxRIGHT|wxLEFT, 5 );
+	
+	listEvents = new wxListBox( panEvent, wxID_LBOX_EVENTS, wxDefaultPosition, wxDefaultSize, 0, NULL, wxLB_ALWAYS_SB );
+	bSizer88->Add( listEvents, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	
+	
+	bSizer87->Add( bSizer88, 0, wxEXPAND, 5 );
+	
+	wxBoxSizer* bSizer89;
+	bSizer89 = new wxBoxSizer( wxVERTICAL );
+	
+	m_staticText51 = new wxStaticText( panEvent, wxID_ANY, _("Event parameters:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText51->Wrap( -1 );
+	bSizer89->Add( m_staticText51, 0, wxTOP|wxRIGHT|wxLEFT, 5 );
+	
+	gridEventProp = new wxPropertyGrid(panEvent, wxID_GRID_EVENT, wxDefaultPosition, wxDefaultSize, wxPG_DEFAULT_STYLE);
+	bSizer89->Add( gridEventProp, 1, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	
+	
+	bSizer87->Add( bSizer89, 1, wxEXPAND, 5 );
+	
+	
+	panEvent->SetSizer( bSizer87 );
+	panEvent->Layout();
+	bSizer87->Fit( panEvent );
+	pageCtrl->AddPage( panEvent, _("Events"), false );
 	panLevel = new wxPanel( pageCtrl, wxID_PAN_LEVEL, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer4412;
 	bSizer4412 = new wxBoxSizer( wxHORIZONTAL );
@@ -654,7 +666,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Centre( wxBOTH );
 	
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-07-26 13:14:05
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-08-30 16:47:30
 
 	// set icon
 	wxIcon appIcon;
@@ -683,14 +695,11 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	Bind(wxEVT_COMMAND_LISTBOX_SELECTED,&FormSaveEdit::OnCommanderSelect,this,wxID_LBOX_COMANDERS);
 	Bind(wxEVT_COMMAND_LISTBOX_SELECTED,&FormSaveEdit::OnTerritorySelect,this,wxID_LBOX_TERRITORY);
 	Bind(wxEVT_COMMAND_CHOICE_SELECTED,&FormSaveEdit::OnHierPartSelect,this,wxID_CH_HEIR_PART);
+	Bind(wxEVT_COMMAND_LISTBOX_SELECTED,&FormSaveEdit::OnEventSelect,this,wxID_LBOX_EVENTS);
+	
+	listUnits->Connect(wxEVT_RIGHT_DOWN,wxMouseEventHandler(FormSaveEdit::OnUnitsPupupOpen),NULL,this);
+	listComanders->Connect(wxEVT_RIGHT_DOWN,wxMouseEventHandler(FormSaveEdit::OnCommanderPupupOpen),NULL,this);
 
-	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnSortUnits,this,wxID_BTN_UNIT_REM_GAPS);
-	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnSortUnits,this,wxID_BTN_UNIT_SORT_PERM_REIN);
-	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnSortUnits,this,wxID_BTN_UNIT_SORT_TYPES);
-	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnSortUnits,this,wxID_BTN_UNIT_SORT_NAMES);
-	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnResetUnitNames,this,wxID_BTN_UNIT_RESET_NAMES);
-	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnResetUnitNames,this,wxID_BTN_UNIT_RESET_NAME);
-	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnHealUnits,this,wxID_BTN_HEAL_UNITS);
 
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnSyncResearch,this,wxID_BTN_RES_SYNC);
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnSyncUpgrades,this,wxID_BTN_UPG_SYNC);
@@ -705,6 +714,8 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnUnitPropChange,this,wxID_GRID_COMANDERS);
 	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnUnitPropChange,this,wxID_GRID_RES);
 	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnUnitPropChange,this,wxID_GRID_UPG);
+	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnUnitPropChange,this,wxID_GRID_EVENT);
+
 	
 	
 	listUnits->SetGetItemTextCb(std::bind(&FormSaveEdit::OnGetUnitItem,this,std::placeholders::_1));
@@ -951,7 +962,11 @@ void FormSaveEdit::UpdateList()
 	listUnits->SetColumnWidth(0,wxLIST_AUTOSIZE_USEHEADER);
 	listUnits->Refresh();
 	if(uid >= 0 || uid < m_bigmap.units.size())
+	{			
 		listUnits->SetItemState(uid,wxLIST_STATE_SELECTED,wxLIST_STATE_SELECTED);
+		listUnits->EnsureVisible(uid);
+	}
+	
 
 	listComanders->Freeze();
 	sel_id = listComanders->GetSelection();
@@ -959,7 +974,10 @@ void FormSaveEdit::UpdateList()
 	for(auto& com: m_bigmap.commanders)
 		listComanders->Append(string_format("#%02d: ",&com - m_bigmap.commanders.data()) + com.full_name());
 	if(sel_id >=0 && sel_id < listComanders->GetCount())
+	{
 		listComanders->Select(sel_id);
+		listComanders->EnsureVisible(sel_id);
+	}
 	listComanders->Thaw();
 
 	
@@ -978,7 +996,20 @@ void FormSaveEdit::UpdateList()
 			listTerritory->Append(string_format("Map %d: <empty slot>",&terr - m_bigmap.bigmap.terr.data()));
 	}
 	listTerritory->Thaw();
-	
+
+	// list of events
+	listEvents->Freeze();
+	sel_id = listUpg->GetSelection();
+	listEvents->Clear();
+	for(auto &evt: m_bigmap.events)
+	{
+		int id = &evt - m_bigmap.events.data();
+		listEvents->Append(string_format("Event #%d",id));
+	}
+	if(sel_id >=0 && sel_id < listEvents->GetCount())
+		listEvents->Select(sel_id);
+	listEvents->Thaw();
+		
 
 	listHierUnits->ClearAll();
 	listHierUnits->AppendColumn("list",wxLIST_FORMAT_LEFT,wxLIST_AUTOSIZE);
@@ -995,6 +1026,7 @@ void FormSaveEdit::UpdateList()
 	auto& level = m_bigmap.level;
 	gridLevelProp->Freeze();
 	gridLevelProp->Clear();
+	gridLevelProp->Append(new wxIntPropertyExt(wxT("Difficulty"),wxT(""),&level.difficulty));
 	gridLevelProp->Append(new wxIntPropertyExt(wxT("Level"),wxT(""),&m_bigmap.bigmap.level));
 	gridLevelProp->Append(new wxEnumPropertyExt(wxT("Final territory"),wxT(""),MapToPGenumChoices(terr_enum),&m_bigmap.bigmap.final_terr));
 
@@ -1037,6 +1069,27 @@ void FormSaveEdit::UpdateList()
 	FillHierarchy();
 	canvasBigmap->Refresh();	
 }
+
+
+// on select event item
+void FormSaveEdit::OnEventSelect(wxCommandEvent& event)
+{
+	gridEventProp->Clear();
+
+	auto rid = listEvents->GetSelection();
+	if(rid >= m_bigmap.events.size())
+		return;
+	auto& evt = m_bigmap.events[rid];
+	
+	gridEventProp->Freeze();
+	gridEventProp->Clear();
+	gridEventProp->Append(new wxIntPropertyExt(wxT("Event Time() or AbsTime()"),wxT(""),&evt.time));
+	gridEventProp->Append(new wxIntPropertyExt(wxT("Event flags"),wxT(""),&evt.flags));
+	gridEventProp->Thaw();
+	gridEventProp->FitColumns();
+}
+
+
 
 // edit level properties
 void FormSaveEdit::OnLevelPropChange(wxPropertyGridEvent& event)
@@ -1082,36 +1135,6 @@ void FormSaveEdit::OnSyncLevel(wxCommandEvent& event)
 	UpdateList();
 }
 
-// on sort units
-void FormSaveEdit::OnSortUnits(wxCommandEvent& event)
-{		
-	auto id = event.GetId();
-	m_bigmap.SortUnits(id == wxID_BTN_UNIT_REM_GAPS, id == wxID_BTN_UNIT_SORT_PERM_REIN, id == wxID_BTN_UNIT_SORT_TYPES, id == wxID_BTN_UNIT_SORT_NAMES);
-	UpdateList();
-	
-}
-// reset unit names
-void FormSaveEdit::OnResetUnitNames(wxCommandEvent& event)
-{
-	if(event.GetId() == wxID_BTN_UNIT_RESET_NAME)
-	{		
-		//auto sel_id = listUnits->GetSelection();
-		auto sel_id = listUnits->GetNextItem(-1,wxLIST_NEXT_ALL,wxLIST_STATE_SELECTED);
-		if(sel_id >= 0)
-			m_bigmap.ResetUnitName(sel_id);
-	}
-	else
-		m_bigmap.ResetUnitName();
-	UpdateList();
-	OnUnitSelect(event);
-}
-// on heal units
-void FormSaveEdit::OnHealUnits(wxCommandEvent& event)
-{
-	m_bigmap.HealUnits();
-	UpdateList();
-}
-
 // on property edit
 void FormSaveEdit::OnEditProp(wxPropertyGridEvent& event)
 {
@@ -1122,6 +1145,155 @@ void FormSaveEdit::OnEditProp(wxPropertyGridEvent& event)
 }
 void FormSaveEdit::OnEditPupup(wxCommandEvent& event)
 {
+}
+
+
+// show popup menu on units list
+void FormSaveEdit::OnUnitsPupupOpen(wxMouseEvent& event)
+{
+	wxMenu menu;	
+	int flags;
+	auto pos = event.GetPosition();
+	static auto sel_id = -1;
+	sel_id = -1; // must be cleared before HitTest()!
+	sel_id = listUnits->HitTest(pos,flags);	
+	if(sel_id >= 0)
+		listUnits->SetItemState(sel_id,wxLIST_STATE_SELECTED,wxLIST_STATE_SELECTED);
+	if(sel_id >= m_bigmap.units.size() || m_bigmap.units[sel_id].is_empty())
+		sel_id = -1;
+	auto &unit = m_bigmap.units[sel_id];
+	bool is_sel = (sel_id >= 0);
+	menu.SetClientData(&sel_id);
+					
+	if(is_sel)
+		menu.Append((int)PopupActions::UNIT_RST_NAMES,"Reset name");
+	menu.Append((int)PopupActions::UNIT_RST_NAMES,"Reset all names");
+	menu.Append((int)PopupActions::UNIT_HEAL,"Heal units");
+	menu.AppendSeparator();
+	menu.Append((int)PopupActions::UNIT_REM_GAPS,"Remove gaps in list");
+	menu.Append((int)PopupActions::UNIT_SORT_NAMES,"Sort by names");
+	menu.Append((int)PopupActions::UNIT_SORT_TYPES,"Sort by types");
+	menu.Append((int)PopupActions::UNIT_SPLIT_REINFORCE,"Split permanent and reinforcements");
+	menu.AppendSeparator();
+	menu.Append((int)PopupActions::UNIT_ADD,"Add unit");
+	if(is_sel)
+		menu.Append((int)PopupActions::UNIT_REM,"Remove unit");	
+	menu.AppendCheckItem((int)PopupActions::UNIT_REINFORCE,"Is reinforcement?");
+	if(is_sel)
+		menu.Check((int)PopupActions::UNIT_REINFORCE,unit.is_reinforce());
+
+	menu.Connect(wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler(FormSaveEdit::OnUnitsPupup),NULL,this);
+	PopupMenu(&menu);
+}
+void FormSaveEdit::OnUnitsPupup(wxCommandEvent& event)
+{
+	auto menu_id = (PopupActions)event.GetId();
+	auto menu = (wxMenu*)event.GetEventObject();
+	if(!menu)
+		return;
+	auto sel_id = *(int*)menu->GetClientData();
+
+	if(menu_id == PopupActions::UNIT_RST_NAME)
+	{
+		if(sel_id < 0)
+			return;
+		m_bigmap.ResetUnitName(sel_id);
+	}
+	else if(menu_id == PopupActions::UNIT_RST_NAMES)
+	{
+		m_bigmap.ResetUnitName(-1,true);	
+	}
+	else if(menu_id == PopupActions::UNIT_HEAL)
+	{
+		m_bigmap.HealUnits();
+	}
+	else if(menu_id == PopupActions::UNIT_REM_GAPS)
+	{
+		m_bigmap.SortUnits(true,false,false,false);
+	}
+	else if(menu_id == PopupActions::UNIT_SORT_NAMES)
+	{
+		m_bigmap.SortUnits(false,false,false,true);
+	}
+	else if(menu_id == PopupActions::UNIT_SORT_TYPES)
+	{
+		m_bigmap.SortUnits(false,false,true,false);
+	}
+	else if(menu_id == PopupActions::UNIT_SPLIT_REINFORCE)
+	{
+		m_bigmap.SortUnits(false,true,false,false);
+	}
+	else if(menu_id == PopupActions::UNIT_ADD)
+	{		
+		auto uid = -1;
+		if(!m_bigmap.AddUnit(uid))
+		{
+			listUnits->SetItemState(uid,wxLIST_STATE_SELECTED,wxLIST_STATE_SELECTED);
+			listUnits->EnsureVisible(uid);
+		}
+	}
+	else if(menu_id == PopupActions::UNIT_REM)
+	{
+		m_bigmap.RemUnit(sel_id);
+	}
+	else if(menu_id == PopupActions::UNIT_REINFORCE)
+	{
+		if(sel_id < 0 || sel_id >= m_bigmap.units.size())
+			return;
+		m_bigmap.SetUnitReinforcement(sel_id,event.IsChecked());
+	}
+
+	UpdateList();
+	OnUnitSelect(event);
+}
+
+
+
+// show popup menu on units list
+void FormSaveEdit::OnCommanderPupupOpen(wxMouseEvent& event)
+{
+	wxMenu menu;
+	
+	static auto sel_id = -1;
+	auto pos = event.GetPosition();
+	sel_id = -1;
+	sel_id = listComanders->HitTest(pos);
+	if(sel_id >= 0)
+		listComanders->Select(sel_id);	
+	else
+		sel_id = listComanders->GetSelection();
+	menu.SetClientData(&sel_id);
+	bool is_sel = sel_id >= 0;
+	
+	menu.Append((int)PopupActions::COMM_REM,"Remove commander");
+	menu.Append((int)PopupActions::COMM_ADD,"Add commander");
+	
+	menu.Connect(wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler(FormSaveEdit::OnCommanderPupup),NULL,this);
+	PopupMenu(&menu);
+}
+void FormSaveEdit::OnCommanderPupup(wxCommandEvent& event)
+{
+	auto menu_id = (PopupActions)event.GetId();
+	auto menu = (wxMenu*)event.GetEventObject();
+	if(!menu)
+		return;
+	auto sel_id = *(int*)menu->GetClientData();
+
+	if(menu_id == PopupActions::COMM_REM)
+	{
+		if(sel_id < 0)
+			return;
+		m_bigmap.RemCommander(sel_id);
+	}
+	else if(menu_id == PopupActions::COMM_ADD)
+	{
+		int cid;
+		if(!m_bigmap.AddCommander(cid) && cid >= 0 && cid < listComanders->GetCount())
+			listComanders->Select(cid);
+	}
+
+	UpdateList();
+	OnCommanderSelect(event);
 }
 
 
@@ -1705,9 +1877,9 @@ void FormSaveEdit::OnUnitSelect(wxCommandEvent& event)
 	gridUnitProp->Append(new wxStringPropertyExt(wxT("Name"),wxT(""),&unit.name,29));
 	gridUnitProp->Append(new wxStringProperty(wxT("Flags"),wxT(""),string_format("0x%02X",unit.flags)));
 	//gridUnitProp->Append(new wxStringProperty(wxT("Action timeout"),wxT(""),string_format("%d",unit.action_timeout)));
-	gridUnitProp->Append(new wxEnumPropertyExt(wxT("Unit type"),wxT(""),MapToPGenumChoices(m_bigmap.GetUnitTypeList(false,true)),&unit.unit_type_id));
-	gridUnitProp->Append(new wxIntPropertyExt(wxT("XP"),wxT(""),&unit.xp));
-	gridUnitProp->Append(new wxIntPropertyExt(wxT("XP level"),wxT(""),&unit.xp_level));
+	gridUnitProp->Append(new wxEnumPropertyExt(wxT("Unit type"),wxT("type"),MapToPGenumChoices(m_bigmap.GetUnitTypeList(false,true)),&unit.unit_type_id));
+	gridUnitProp->Append(new wxIntPropertyExt(wxT("XP"),wxT("xp"),&unit.xp));
+	gridUnitProp->Append(new wxIntPropertyExt(wxT("XP level"),wxT("level"),&unit.xp_level));
 	gridUnitProp->Append(new wxIntPropertyExt(wxT("HP"),wxT(""),&unit.hp));
 	gridUnitProp->Append(new wxIntPropertyExt(wxT("HP max"),wxT(""),&unit.hp_max));
 	gridUnitProp->Append(new wxStringProperty(wxT("Hierarchy pos"),wxT(""),string_format("%d",unit.hierarch_pos)));		
@@ -1716,7 +1888,8 @@ void FormSaveEdit::OnUnitSelect(wxCommandEvent& event)
 	gridUnitProp->Append(new wxEnumPropertyExt(wxT("Upgrade engine"),wxT(""),MapToPGenumChoices(m_bigmap.GetUpgradeList(SpellSaveUpgrade::UpgradeClass::ENGINE)),&unit.upg_engine));	
 	gridUnitProp->Append(new wxIntPropertyExt(wxT("Upgrade timeout"),wxT(""),&unit.upg_timeout));
 	gridUnitProp->Append(new wxEnumPropertyExt(wxT("Upgrade unit type ID"),wxT(""),MapToPGenumChoices(m_bigmap.GetUnitTypeList(true,true)),&unit.upg_unit_type));
-	
+
+	gridUnitProp->SetClientData(&unit);
 
 	gridUnitProp->Thaw();
 	gridUnitProp->FitColumns();
@@ -1728,12 +1901,22 @@ void FormSaveEdit::OnUnitPropChange(wxPropertyGridEvent& event)
 	auto pgrid = (wxPropertyGrid*)event.GetEventObject();
 	if(!pgrid)
 		return;
+	auto unit = (SpellSaveUnits*)pgrid->GetClientData();
+	if(!unit)
+		return;
 
 	auto prop = event.GetProperty();
 	auto obj = (wxPGobj*)prop->GetClientObject();
 	if(obj)
 	{
 		obj->Update(prop);
+
+		if(prop->GetName() == "type" || prop->GetName() == "level" || prop->GetName() == "xp")
+		{
+			auto uid = unit - m_bigmap.units.data();
+			m_bigmap.FixUnit(uid,prop->GetName() == "level");
+		}
+
 		UpdateList();
 	}
 }

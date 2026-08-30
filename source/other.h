@@ -23,6 +23,7 @@ std::wstring wstring_format(const std::wstring fmt,...);
 std::string format_bin(uint32_t dword,int digits=32,bool gaps=false);
 bool iequals(const std::string& a,const std::string& b);
 bool iequals(const std::wstring& a,const std::wstring& b);
+bool match_substr(std::wstring& str,std::wstring& substr,bool case_sensitive=true);
 std::string& strrep(std::string& str,std::string key,std::string rep);
 int savestr(std::wstring path,std::string& str);
 int loadstr(std::filesystem::path path,std::string& strbuf);

@@ -161,7 +161,7 @@ FormAbout::FormAbout( wxWindow* parent, wxWindowID id, const wxString& title, co
 	std::time_t currentTime = std::chrono::system_clock::to_time_t(now);
 	std::stringstream ver;
 	ver << std::put_time(std::localtime(&currentTime),"%Y-%m-%d %H:%M:%S");	*/	
-	txtVersion->SetValue("V1.30, build: " __DATE__);
+	txtVersion->SetValue("V1.40, build: " __DATE__);
 
 	auto desc = "Simple experimental tool for runtime build of mods of Spellcross game archives.\nIt can also be used as game launcher via DOSbox.";
 	txtDesc->SetValue(desc);

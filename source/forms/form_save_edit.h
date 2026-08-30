@@ -7,7 +7,7 @@
 
 #pragma once
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-07-26 13:14:05
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-08-30 16:47:30
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -26,11 +26,11 @@
 #include <wx/bmpbuttn.h>
 #include <wx/button.h>
 #include <wx/sizer.h>
+#include <wx/textctrl.h>
 #include <wx/statline.h>
 #include <wx/checkbox.h>
 #include <wx/propgrid/propgrid.h>
 #include <wx/propgrid/advprops.h>
-#include <wx/textctrl.h>
 #include <wx/frame.h>
 #include <wx/statbmp.h>
 #include <wx/dialog.h>
@@ -40,7 +40,7 @@
 #include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-07-26 13:14:05
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-08-30 16:47:30
 #include <wx/tglbtn.h>
 
 #include <filesystem>
@@ -80,9 +80,6 @@ private:
 	void OnPaintBigmapCanvas(wxPaintEvent& event);
 	void OnBigmapMouse(wxMouseEvent& event);
 	void OnTerritorySelect(wxCommandEvent& event);
-	void OnSortUnits(wxCommandEvent& event);
-	void OnResetUnitNames(wxCommandEvent& event);
-	void OnHealUnits(wxCommandEvent& event);
 	void OnEditProp(wxPropertyGridEvent& event);
 	void OnEditPupup(wxCommandEvent& event);
 	void OnTerrPropChange(wxPropertyGridEvent& event);
@@ -91,6 +88,12 @@ private:
 	void OnSyncResearch(wxCommandEvent& event);
 	void OnSyncUpgrades(wxCommandEvent& event);
 	void OnSyncLevel(wxCommandEvent& event);
+	void OnEventSelect(wxCommandEvent& event);
+
+	void OnUnitsPupupOpen(wxMouseEvent& event);
+	void OnUnitsPupup(wxCommandEvent& event);
+	void OnCommanderPupupOpen(wxMouseEvent& event);
+	void OnCommanderPupup(wxCommandEvent& event);
 
 	wxString OnGetUnitItem(long item_id);
 	void OnUnitBeginDrag(wxListEvent& event);
@@ -113,6 +116,23 @@ private:
 	SpellSaveBigMap m_bigmap;
 	int m_territory_mouse;
 
+
+	enum class PopupActions : int
+	{
+		UNIT_RST_NAMES = 0,
+		UNIT_RST_NAME,
+		UNIT_HEAL,
+		UNIT_REM_GAPS,
+		UNIT_SPLIT_REINFORCE,
+		UNIT_SORT_NAMES,
+		UNIT_SORT_TYPES,
+		UNIT_ADD,
+		UNIT_REM,
+		UNIT_REINFORCE,
+		COMM_ADD,
+		COMM_REM
+	};
+
 protected:
 	
 	const int wxID_CH_HIERARCH_UNIT_0 = 7000;
@@ -123,7 +143,7 @@ protected:
 	const int wxID_CH_HIERARCH_COM3C_0 = 7300;
 	const int wxID_CH_HIERARCH_COM3U_0 = 7350;
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-07-26 13:14:05
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-08-30 16:47:30
 	enum
 	{
 		wxID_FORM_SAVE_EDIT = 6000,
@@ -148,14 +168,7 @@ protected:
 		wxID_GRID_RAW_UPGRADES,
 		wxID_PAN_UNITS,
 		wxID_LIST_UNITS,
-		wxID_BTN_UNIT_RESET_NAMES,
-		wxID_BTN_HEAL_UNITS,
-		wxID_BTN_UNIT_REM_GAPS,
-		wxID_BTN_UNIT_SORT_PERM_REIN,
-		wxID_BTN_UNIT_SORT_NAMES,
-		wxID_BTN_UNIT_SORT_TYPES,
 		wxID_GRID_UNITS,
-		wxID_BTN_UNIT_RESET_NAME,
 		wxID_GRID_UNIT_RAW,
 		wxID_LBOX_COMANDERS,
 		wxID_GRID_COMANDERS,
@@ -168,6 +181,9 @@ protected:
 		wxID_CANVAS_BIGMAP,
 		wxID_GRID_TERR_PROPS,
 		wxID_GRID_BIGMAP_RAW,
+		wxID_PAN_EVENTS,
+		wxID_LBOX_EVENTS,
+		wxID_GRID_EVENT,
 		wxID_PAN_LEVEL,
 		wxID_GRID_LEVEL,
 		wxID_BTN_SYNC_LEVEL,
@@ -202,16 +218,8 @@ protected:
 	wxPanel* panUnits;
 	wxStaticText* m_staticText212;
 	wxListCtrlVirtual* listUnits;
-	wxButton* btnUnitsResetNames;
-	wxButton* btnHealUnits;
-	wxStaticLine* m_staticline17;
-	wxButton* btnUnitsNoGaps;
-	wxButton* btnUnitsSortPermaReinforces;
-	wxButton* btnUnitsSortNames;
-	wxButton* btnUnitsSortTypes;
 	wxStaticText* lblResName1;
 	wxPropertyGrid* gridUnitProp;
-	wxButton* btnUnitsResetName;
 	wxStaticLine* m_staticline111;
 	wxStaticText* m_staticText27;
 	wxGrid* gridRawUnit;
@@ -242,12 +250,17 @@ protected:
 	wxStaticLine* m_staticline16;
 	wxStaticText* m_staticText2711;
 	wxGrid* gridRawBigmap;
+	wxPanel* panEvent;
+	wxStaticText* m_staticText50;
+	wxListBox* listEvents;
+	wxStaticText* m_staticText51;
+	wxPropertyGrid* gridEventProp;
 	wxPanel* panLevel;
 	wxStaticText* lblResName12;
 	wxPropertyGrid* gridLevelProp;
 	wxButton* btnSyncLevel;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-07-26 13:14:05
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-08-30 16:47:30
 
 public:
 

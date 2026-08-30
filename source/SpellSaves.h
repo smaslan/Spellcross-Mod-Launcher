@@ -8,8 +8,6 @@
 #include "fs_archive.h"
 #include "spell_font.h"
 
-
-
 class SpellSaveResearch{
 public:
     static const std::map<int,std::string> c_groups;
@@ -140,6 +138,28 @@ public:
     bool is_empty() { return(flags == 0);};
     bool is_permanent() {return(!!(flags & 0x01));};
     bool is_reinforce() { return(!!(flags & 0x02));};
+    void SetReinforce(bool is_reinforcement)
+    {
+        flags = (flags & ~0x03) | 1 << ((int)!!is_reinforcement);
+    };
+    void clear()
+    {
+        raw.assign(66,0);
+        name = L"<empty slot>";
+        unit_type_id = 0;
+        xp = 0;
+        xp_level = 0;
+        flags = 0;
+        hp = 0;
+        hp_max = 0;
+        hierarch_pos = -1;
+        upg_armor = -1;
+        upg_weapon = -1;
+        upg_engine = -1;
+        upg_timeout = 0;
+        upg_unit_type = 0;
+        action_timeout = 0;
+    };
 };
 
 class SpellSaveCommanders {
@@ -159,6 +179,17 @@ public:
     int command_level() {return(flags >> 7);}; // id of hierarchy level {0, 1, 2}
     int command_pos() {return(flags & 0x0F);}; // id of position in hierarchy table
     bool is_placed() {return{flags != 0x0000 && flags != 0xFFFF};}; // is placed in hierarchy table?
+    void clear()
+    {
+        raw.assign(44,0);
+        name = L"<empty slot>";
+        rank = 0;
+        battles = 0;
+        unit_id = -1;
+        flags = 0x0000;
+        x38 = 0;
+        valid = 0;
+    }
     // place commander to hierarchy slot
     void place(int level=-1, int pos=-1)
     {
@@ -190,6 +221,13 @@ public:
         return(rank_str + name);
     }
 
+};
+
+class SpellSaveEvents
+{
+public:
+    int time;
+    int flags;
 };
 
 class SpellSaveTerritories
@@ -276,16 +314,22 @@ public:
     int attack_flags_xp_level2;
     int attack_flags_xp_f_attack_a;
     int attack_flags_xp_f_attack_b;
+
+    int difficulty;
 };
 
 class SpellUnitRec;
+class SpellUnits;
 
 class SpellSaveBigMap{
 private:
     std::shared_ptr<FSarchive> m_common_fs;
     std::vector<std::wstring> m_rank_names;
     std::vector<std::wstring> m_unit_names;
-    std::vector<std::wstring> m_commander_names;    
+    std::vector<std::wstring> m_commander_names;
+    std::shared_ptr<SpellUnits> m_jednotky_def;
+
+    static int c_default_id;
 
 public:
     std::filesystem::path m_path;
@@ -296,6 +340,7 @@ public:
     std::vector<SpellSaveUpgrade> upgrade;
     std::vector<SpellSaveUnits> units;
     std::vector<SpellSaveCommanders> commanders;
+    std::vector<SpellSaveEvents> events;
     SpellSaveBigmap bigmap;
     SpellSaveLevel level;
     
@@ -307,6 +352,12 @@ public:
     int SwapUnits(int id_a,int id_b);
     int ResetUnitName(int unit_id=-1,bool also_reinforces=false);
     int HealUnits();
+    int FixUnit(int uid,bool force_xp_level_update=false);
+    int AddUnit(int &uid=c_default_id);
+    int RemUnit(int uid);
+    int SetUnitReinforcement(int uid,bool is_reinforcement);
+    int RemCommander(int cid);
+    int AddCommander(int& cid);
 
     int SyncUpgrades();
     int SyncResearch();

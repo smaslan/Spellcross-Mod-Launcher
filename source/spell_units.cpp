@@ -346,7 +346,7 @@ SpellUnits::SpellUnits(uint8_t* data,int dlen,FSUarchive* fsu,FSarchive* fs_info
 		// unit min rank points
 		unit->exp_min = rdu32(rec + 0xC6);
 		// unit max rank points x200
-		unit->exp_max = rdu32(rec + 0xCA);
+		unit->exp_max = 2*rdu32(rec + 0xCA);
 		// precalculate experience points limits
 		for(int e = 0; e < 12; e++)
 			unit->exp_limits[e] = unit->CalcExperiencePts(e);
@@ -786,7 +786,7 @@ int SpellUnits::GenerateDEF(std::vector<uint8_t> &def,Format format)
 		// unit min rank points
 		*(uint32_t*)(ptr + 0xC6) = unit->exp_min;
 		// unit max rank points x200
-		*(uint32_t*)(ptr + 0xCA) = unit->exp_max;
+		*(uint32_t*)(ptr + 0xCA) = unit->exp_max/2;
 
 		// append to DEF file
 		def.insert(def.end(),rec.begin(),rec.end());
@@ -895,7 +895,7 @@ int SpellUnitRec::isMobile()
 	return(!!apw);
 }
 
-
+// get maximum health
 int SpellUnitRec::GetMaxHealth()
 {
 	if(isSingleMan())
@@ -910,7 +910,7 @@ int SpellUnitRec::CalcExperiencePts(int level)
 	if(!exp_min || !exp_max)
 		return(0);
 	double a = (double)exp_min;
-	double b = log(200.0*exp_max/exp_min)/log(12);
+	double b = log(exp_max/exp_min)/log(12);
 	level = std::min(std::max(level,0),11);
 	int points = (int)(a*pow((double)level,b));
 	return(points);

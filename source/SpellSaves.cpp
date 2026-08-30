@@ -82,7 +82,7 @@ bool SpellSave::CheckSaves(std::filesystem::path dir)
 
 
 
-
+int SpellSaveBigMap::c_default_id = -1;
 
 const std::map<int,std::string> SpellSaveTerritories::c_states = {
     {0x00,"Enemy"},
@@ -280,6 +280,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
     bigmap.terr_mask.clear();
     bigmap.pal.clear();
     bigmap.terr.clear();
+    events.clear();
     
     LogFile::Write("SpellSaveBigMap::Load():\n");
     LogFile::SetIndent(+1);
@@ -358,6 +359,24 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
         auto c_names = get_text_lines(c_names_str);
         for(auto &name: c_names)
             m_commander_names.push_back(char2wstringCP895(name.c_str()));
+        LogFile::Write("done\n");
+
+        // try load and parse JEDNOTKY.DEF
+        LogFile::Write("- loading JEDNOTKY.DEF ... ");
+        auto jednotky_def_file = m_common_fs->GetFileRec("JEDNOTKY.DEF");
+        if(!jednotky_def_file)
+        {
+            LogFile::Write("failed\n");
+            LogFile::SetIndent(-1);
+            return(1);
+        }        
+        try{
+            m_jednotky_def = std::make_shared<SpellUnits>(jednotky_def_file->data.data(),jednotky_def_file->data.size());
+        }catch(const std::runtime_error& error) {
+            LogFile::Write("failed\n");
+            LogFile::SetIndent(-1);
+            return(1);
+        }        
         LogFile::Write("done\n");
     }        
     
@@ -792,6 +811,8 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
     level.stat_loss_air = *(int32_t*)&raw[0x5131];
     level.stat_loss_com = *(int32_t*)&raw[0x5135];
 
+    level.difficulty = *(int32_t*)&raw[0x52A9];
+
     LogFile::Write("done\n");
 
     LogFile::Write("- loading territory records:\n");
@@ -850,6 +871,21 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
         LogFile::Write("done\n");
 
         ptr += 56;        
+    }
+    LogFile::SetIndent(-1);
+
+    
+    // load event list
+    LogFile::Write("- loading event records:\n");
+    LogFile::SetIndent(+1);
+    ptr = &raw[0x4FAB];
+    for(int k = 0; k < 40; k++)
+    {
+        SpellSaveEvents evt;
+        evt.time = *(int32_t*)&ptr[0];
+        evt.flags = *(int32_t*)&ptr[4];
+        events.push_back(evt);
+        ptr += 8;
     }
     LogFile::SetIndent(-1);
     
@@ -1071,6 +1107,15 @@ int SpellSaveBigMap::Save(std::filesystem::path path)
         ptr += 56;
     }
 
+    // save events
+    ptr = &raw[0x4FAB];
+    for(auto &evt: events)
+    {
+        *(int32_t*)&ptr[0] = evt.time;
+        *(int32_t*)&ptr[4] = evt.flags;
+        ptr += 8;
+    }
+
 
     // game level (should be 1 - 10)
     raw[0x4834] = bigmap.level;
@@ -1116,6 +1161,7 @@ int SpellSaveBigMap::Save(std::filesystem::path path)
     *(int32_t*)&raw[0x5131] = level.stat_loss_air;
     *(int32_t*)&raw[0x5135] = level.stat_loss_com;
 
+    *(int32_t*)&raw[0x52A9] = level.difficulty;
 
     // try encode
     std::vector<uint8_t> sav;
@@ -1285,6 +1331,133 @@ int SpellSaveBigMap::HealUnits()
 {
     for(auto &unit: units)
         unit.hp = unit.hp_max;
+    return(0);
+}
+
+// fix unit according to JEDNOTKY.DEF
+int SpellSaveBigMap::FixUnit(int uid,bool force_xp_level_update)
+{
+    if(uid < 0 || uid >= units.size())
+        return(1);
+    auto &unit = units[uid];
+
+    // try get unit type record
+    if(!m_jednotky_def.get())
+        return(1);
+    auto urec = m_jednotky_def->GetUnit(unit.unit_type_id);
+    if(!urec)
+        return(1);
+
+    unit.hp_max = urec->cnt;
+    unit.hp = min(unit.hp,unit.hp_max);    
+    unit.xp = min(urec->exp_max,unit.xp);
+    if(force_xp_level_update || unit.xp > urec->exp_max)
+    {        
+        unit.xp = min(urec->exp_max,urec->CalcExperiencePts(unit.xp_level));
+    }    
+
+    return(0);
+}
+
+// try add unit to list
+int SpellSaveBigMap::AddUnit(int &uid)
+{
+    SpellSaveUnits* unit = NULL;
+    if(uid < 0)
+    {
+        for(auto &item: units)
+            if(item.is_empty())
+            {
+                unit = &item;
+                break;
+            }        
+    }
+    else if(uid >= 0 && uid < units.size())
+    {
+        unit = &units[uid];
+    }
+    if(!unit)
+        return(1);
+    uid = unit - units.data();
+
+    auto unit_rec = m_jednotky_def->GetUnit(0);
+    
+    unit->clear();
+    unit->name = L"New Unit";
+    unit->flags = 0x01;
+    unit->unit_type_id = 0;
+    unit->xp_level = 0;
+   
+    FixUnit(uid,true);
+
+    return(0);
+}
+// try remove unit from list
+int SpellSaveBigMap::RemUnit(int uid)
+{    
+    if(uid < 0 || uid >= units.size())
+        return(1);    
+    auto &unit = units[uid];
+
+    for(auto &com: commanders)
+        if(!com.is_empty() && com.unit_id == uid)
+            com.unit_id = -1;
+    unit.hierarch_pos = -1;
+    
+    unit.clear();      
+    
+    return(0);
+}
+// change unit group
+int SpellSaveBigMap::SetUnitReinforcement(int uid, bool is_reinforcement)
+{
+    if(uid < 0 || uid >= units.size())
+        return(1);
+    auto& unit = units[uid];
+    unit.SetReinforce(is_reinforcement);
+    if(unit.is_permanent())
+        return(0);
+
+    for(auto& com: commanders)
+        if(!com.is_empty() && com.unit_id == uid)
+            com.unit_id = -1;
+    unit.hierarch_pos = -1;
+
+    return(0);
+}
+
+// remove commander
+int SpellSaveBigMap::RemCommander(int cid)
+{
+    if(cid < 0 || cid >= commanders.size())
+        return(1);
+
+    commanders.erase(commanders.begin() + cid);
+    SpellSaveCommanders com;
+    com.clear();
+    commanders.push_back(com);
+
+    return(0);
+}
+// add new commander
+int SpellSaveBigMap::AddCommander(int &cid)
+{
+    cid = -1;
+    SpellSaveCommanders *comm = NULL;
+    for(auto &item: commanders)
+        if(item.is_empty())
+        {
+            comm = &item;
+            break;
+        }
+    if(!comm)
+        return(1);
+    cid = comm - commanders.data();
+
+    comm->clear();
+    comm->name = L"NewCommander";
+    comm->valid = true;
+
     return(0);
 }
 

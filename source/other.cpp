@@ -323,6 +323,22 @@ bool iequals(const std::wstring& a,const std::wstring& b)
         });*/
 }
 
+bool caseInsensitiveCharCompare(wchar_t a,wchar_t b)
+{
+    return(tolower(a) == tolower(b));
+}
+// check string for presence of substring, case insensitive
+bool match_substr(std::wstring& str,std::wstring& substr,bool case_sensitive)
+{
+    std::wstring::iterator it;
+    if(case_sensitive)
+        it = std::search(str.begin(),str.end(),substr.begin(),substr.end());
+    else     
+        it = std::search(str.begin(),str.end(),substr.begin(),substr.end(),caseInsensitiveCharCompare);
+    return(it != str.end());
+}
+
+
 // checks string for duplicates in the list, modify it to not be duplicate, like e.g. "my string 1" to "my string 2", etc.
 std::string fix_no_duplicate_string(std::string str, std::vector<std::string> &list)
 {
