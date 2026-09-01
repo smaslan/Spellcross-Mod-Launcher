@@ -86,9 +86,8 @@ class FormAbout : public wxDialog
 
 	public:
 
-		FormAbout( wxWindow* parent, wxWindowID id = wxID_FORM_ABOUT, const wxString& title = wxT("About Spellcross Mod Launcher"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 600,350 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
-		~FormAbout();
-		
+		FormAbout( wxWindow* parent,std::string ver_label,wxWindowID id = wxID_FORM_ABOUT, const wxString& title = wxT("About Spellcross Mod Launcher"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 600,350 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
+		~FormAbout();		
 
 };
 

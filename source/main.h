@@ -20,7 +20,7 @@
 #include "forms/form_save_edit.h"
 #include "forms/form_save_backup.h"*/
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-16 18:06:03
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-01 18:02:44
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -53,7 +53,7 @@
 #include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-16 18:06:03
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-01 18:02:44
 
 
 // app entry point class
@@ -153,6 +153,7 @@ private:
 	void OnModOptionChange(wxPropertyGridEvent& event);
 	void OnChangeExe(wxCommandEvent& event);
 	void OnInstallGame(wxCommandEvent& event);
+	void OnPatchExe(wxCommandEvent& event);
 	void OnUnitRandomizeConfig(wxCommandEvent& event);
 
 	std::vector<std::string> m_console_buffer;
@@ -187,6 +188,7 @@ private:
 	const std::string str_choice_none=">>> None found <<<";
 	const std::string str_choice_no_select=">>> Empty path <<<";
 	const std::string str_mod_state_ini_none="mod_state.ini";
+	const std::string str_ver_label = "V1.41, build: " __DATE__;
 	
 
 	FormEdit *form_edit;
@@ -201,7 +203,7 @@ protected:
 	int wxID_FORM_SAVE_BACK = 5998;
 	int wxID_FORM_EDIT = 5999;	
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-16 18:06:03
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-01 18:02:44
 	enum
 	{
 		wxID_FORM_MAIN = 6000,
@@ -212,6 +214,7 @@ protected:
 		wxID_MM_DOSBOX_PATH,
 		wxID_MM_EXIT,
 		wxID_MM_INSTALL,
+		wxID_MM_PATCH,
 		wxID_MM_EDIT_SPELLCFG,
 		wxID_MM_EDIT_DOSBOX_CFG,
 		wxID_MM_RUN_SETUPBAT,
@@ -317,7 +320,7 @@ protected:
 	wxButton* btnRestoreWDmod;
 	wxButton* btnRunMod;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-08-16 18:06:03
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-01 18:02:44
 
 
 public:

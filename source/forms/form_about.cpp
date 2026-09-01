@@ -16,7 +16,7 @@
 
 ///////////////////////////////////////////////////////////////////////////
 
-FormAbout::FormAbout( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
+FormAbout::FormAbout( wxWindow* parent,std::string ver_label,wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
 {
 	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormAbout' on 2026-05-03 19:15:47
 	this->SetSizeHints( wxSize( 600,350 ), wxDefaultSize );
@@ -160,8 +160,8 @@ FormAbout::FormAbout( wxWindow* parent, wxWindowID id, const wxString& title, co
 	/*std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
 	std::time_t currentTime = std::chrono::system_clock::to_time_t(now);
 	std::stringstream ver;
-	ver << std::put_time(std::localtime(&currentTime),"%Y-%m-%d %H:%M:%S");	*/	
-	txtVersion->SetValue("V1.40, build: " __DATE__);
+	ver << std::put_time(std::localtime(&currentTime),"%Y-%m-%d %H:%M:%S");	*/		
+	txtVersion->SetValue(ver_label);
 
 	auto desc = "Simple experimental tool for runtime build of mods of Spellcross game archives.\nIt can also be used as game launcher via DOSbox.";
 	txtDesc->SetValue(desc);
