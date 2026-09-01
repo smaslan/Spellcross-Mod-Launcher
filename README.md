@@ -29,6 +29,7 @@ Original tool was very messy and made in Borland VCL C++ which is obsolete. So I
 - It has simple SAVE game backup manager to make and restore backups of whole save games set just in case...
 - It has experimental SAVE game editor for inspecting and editing saves (can fix some of known game bugs).
 - It has also simple game installer to bypass original 16-bit installer that requires manula mounting of game CD to DOSbox.
+- It has integrated patcher for EN game engine that should work (unlike V1.01 patch).
 
 ![Save game editor](fig/save_editor_1.png)
 
@@ -42,11 +43,13 @@ Here are available release builds for Windows. It was tested in Windows 10, but 
 - [V1.1, 11th June 2026 (zip file)](./builds/Spellcross-Mod-Launcher-V1.1.zip)
   - Added save game editor (careful, not fully tested, make backups!).
 - [V1.2, 15th August 2026 (zip file)](./builds/Spellcross-Mod-Launcher-V1.2.zip)
-  - Added unit randomizer, mod options, fixed some bugs (careful, not fully 
+  - Added unit randomizer, mod options, fixed some bugs (careful, not fully tested, make backups!)
 - [V1.3, 24th August 2026 (zip file)](./builds/Spellcross-Mod-Launcher-V1.3.zip)
   - Added local unit randomizer, added game installer, fixed some bugs (careful, not fully tested, make backups!).
 - [V1.4, 30th August 2026 (zip file)](./builds/Spellcross-Mod-Launcher-V1.4.zip)
-  - Added units and commanders addition/removal feature to savegame editor 9careful, not fully tested, make backups!).
+  - Added units and commanders addition/removal feature to savegame editor (careful, not fully tested, make backups!).
+- [V1.42, 1st September 2026 (zip file)](./builds/Spellcross-Mod-Launcher-V1.42.zip)
+  - Added game patcher for EN game engine (careful, not fully tested, make backups!).
 
 
 ## Uasge
