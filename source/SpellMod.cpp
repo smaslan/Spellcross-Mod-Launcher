@@ -2702,14 +2702,25 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
         auto save_dir = config.spell_dir / "SAVE";
         auto mod_save_dir = mod_dir / "save";
         auto save_temp_dir = config.spell_dir / "spellcross_mod_builder_orig_save_temp";
-        
+
+        // try make save directories if not exist
+        if(!std::filesystem::exists(save_dir))
+            std::filesystem::create_directory(save_dir);
+        std::vector<std::filesystem::path> save_dirs;
+        for(int k = 0; k <= 8; k++)
+            save_dirs.push_back(save_dir / string_format("SAVE%04d",k));
+        save_dirs.push_back(save_dir / "WORKDIR");
+        for(auto& dir: save_dirs)
+            if(!std::filesystem::exists(dir))
+                std::filesystem::create_directory(dir);
+                
         PrintConsole(" - Replacing SAVE games ...");
         if(!std::filesystem::exists(mod_save_dir))
         {
             // no save games in mod folder yet: make a copy of current game saves
             if(fs_copy(save_dir,mod_save_dir,std::filesystem::copy_options::recursive))
             {
-                PrintConsole("failed! Making initial copy of games saves (%ls) to mod location (%ls).\n",mod_save_dir.wstring().c_str(),save_dir.wstring().c_str());
+                PrintConsole("failed! Making initial copy of games saves (%ls) to mod location (%ls).\n",save_dir.wstring().c_str(),mod_save_dir.wstring().c_str());
                 was_error = true;
             }
             else

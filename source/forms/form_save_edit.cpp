@@ -845,7 +845,10 @@ void FormSaveEdit::SetSaveDir(std::filesystem::path save_dir)
 	chSaves->Clear();
 	for(auto &save: saves)
 	{				
-		auto str = string_format("%s: %ls (%ls)",save.dir_name.c_str(), save.name.c_str(),save.dir_path.wstring().c_str());
+		std::string info = "<empty>";
+		if(!save.is_empty)
+			info = string_format(" (date: %s, path: %ls)",save.date.c_str(),save.dir_path.wstring().c_str());
+		auto str = string_format("%s: %ls%s",save.dir_name.c_str(), save.name.c_str(),info.c_str());
 		chSaves->Append(str,new SavesData(save.dir_path));
 	}
 	if(chSaves->GetCount())

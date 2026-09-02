@@ -970,6 +970,12 @@ void FormMain::OnInstallGame(wxCommandEvent& event)
 		return;
 	auto dta_path = std::filesystem::path(openFileDialog.GetPath().ToStdWstring());
 
+	// auto select CD path
+	auto cd_dir = dta_path.parent_path().parent_path();
+	chSpellCdPath->Insert(cd_dir.wstring(),0);
+	chSpellCdPath->SetStringSelection(cd_dir.wstring());
+	ChoiceCheckPaths(chSpellCdPath);
+
 	// select target diretory path
 	auto dest_dir = GetPathChoiceLastPath(chSpellPath);
 	wxDirDialog saveDirDialog(this,"Select target directory to install",dest_dir,wxDD_DIR_MUST_EXIST);
@@ -979,7 +985,7 @@ void FormMain::OnInstallGame(wxCommandEvent& event)
 
 	// confirm
 	{
-		wxMessageDialog dial(this,string_format("INSTALLING SPELLCROS\n\nInstallation source file:\n%ls\n\nTarget directory:\n%ls\n\nAll files in target directory will be overwritten! continue?",dta_path.wstring().c_str(),install_path.wstring().c_str()),"Install Spellcross game ...",wxYES_NO | wxICON_QUESTION);
+		wxMessageDialog dial(this,string_format("INSTALLING SPELLCROS\n\nInstallation source file:\n%ls\n\nTarget directory to which Spellcross will be installed:\n%ls\n\nAll files in target directory will be overwritten! Continue?",dta_path.wstring().c_str(),install_path.wstring().c_str()),"Install Spellcross game ...",wxYES_NO | wxICON_QUESTION);
 		if(dial.ShowModal() != wxID_YES)
 			return;
 	}
@@ -991,16 +997,10 @@ void FormMain::OnInstallGame(wxCommandEvent& event)
 		return;
 	}
 	wxMessageBox(string_format("Spellcross installation to folder \"%ls\" done!",install_path.c_str()),"Info",wxICON_INFORMATION);
-
-	// auto select CD path
-	auto cd_dir = dta_path.parent_path().parent_path();
-	chSpellCdPath->Insert(cd_dir.wstring(),0);
-	chSpellCdPath->SetStringSelection(cd_dir.wstring());
-	ChoiceCheckPaths(chSpellCdPath);
-
+	
 	// auto select install path
 	chSpellPath->Insert(install_path.wstring(),0);
-	chSpellCdPath->SetStringSelection(install_path.wstring());
+	chSpellPath->SetStringSelection(install_path.wstring());
 	ChoiceCheckPaths(chSpellPath);
 
 	// list EXE
@@ -1045,7 +1045,7 @@ void FormMain::OnPatchExe(wxCommandEvent& event)
 
 	// prompt
 	std::string spell_bak = "SPELORIG.EXE";
-	wxMessageDialog dial(this,string_format("PATCHING SPELCROS.EXE\n\nThis tool will try to patch SPELCROS.EXE to fix CD detection errors and game freeze whenever save game in WORKDIR is present. It is based on analysis of correctly working version game version of unknown origin.\nIt will backup original %s to %s.\n\nContinue?",spell_exe.c_str(),spell_bak.c_str()),"Patch Spellcross game ...", wxYES_NO | wxICON_QUESTION);
+	wxMessageDialog dial(this,string_format("PATCHING SPELCROS.EXE\n\nThis tool will try to patch SPELCROS.EXE to fix CD detection errors and game freeze whenever some auto save game in SAVE/WORKDIR is present. It is based on analysis of correctly working version game version of unknown origin.\nIt will backup original %s to %s.\n\nContinue?",spell_exe.c_str(),spell_bak.c_str()),"Patch Spellcross game ...", wxYES_NO | wxICON_QUESTION);
 	if(dial.ShowModal() != wxID_YES)
 		return;
 
@@ -1055,6 +1055,7 @@ void FormMain::OnPatchExe(wxCommandEvent& event)
 		wxMessageBox(SpellLaunch::m_last_error,"Error",wxICON_ERROR);
 		return;
 	}
+	wxMessageBox("Done successfully!","Patching SPELCROS",wxICON_INFORMATION);
 
 	// reaload
 	CheckExeVersion();

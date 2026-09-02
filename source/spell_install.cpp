@@ -136,5 +136,17 @@ int SpellInstall::InstallDTA(std::filesystem::path dta_path,std::filesystem::pat
         }
     }
 
+    // try make save directories if not exists
+    auto save_dir = target_dir / "SAVE";
+    if(!std::filesystem::exists(save_dir))
+        std::filesystem::create_directory(save_dir);
+    std::vector<std::filesystem::path> save_dirs;
+    for(int k = 0; k <= 8; k++)
+        save_dirs.push_back(save_dir / string_format("SAVE%04d",k));
+    save_dirs.push_back(save_dir / "WORKDIR");
+    for(auto &dir: save_dirs)
+        if(!std::filesystem::exists(dir))
+            std::filesystem::create_directory(dir);
+
     return(0);
 }

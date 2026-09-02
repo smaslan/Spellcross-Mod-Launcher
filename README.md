@@ -48,7 +48,7 @@ Here are available release builds for Windows. It was tested in Windows 10, but 
   - Added local unit randomizer, added game installer, fixed some bugs (careful, not fully tested, make backups!).
 - [V1.4, 30th August 2026 (zip file)](./builds/Spellcross-Mod-Launcher-V1.4.zip)
   - Added units and commanders addition/removal feature to savegame editor (careful, not fully tested, make backups!).
-- [V1.42, 1st September 2026 (zip file)](./builds/Spellcross-Mod-Launcher-V1.42.zip)
+- [V1.42, 2nd September 2026 (zip file)](./builds/Spellcross-Mod-Launcher-V1.42.zip)
   - Added game patcher for EN game engine (careful, not fully tested, make backups!).
 
 
