@@ -7,7 +7,7 @@
 
 #pragma once
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormAbout' on 2026-05-03 19:15:47
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormAbout' on 2026-09-04 19:27:33
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -26,16 +26,21 @@
 #include <wx/bmpbuttn.h>
 #include <wx/button.h>
 #include <wx/sizer.h>
+#include <wx/textctrl.h>
 #include <wx/statline.h>
 #include <wx/checkbox.h>
-#include <wx/textctrl.h>
+#include <wx/propgrid/propgrid.h>
+#include <wx/propgrid/advprops.h>
 #include <wx/frame.h>
 #include <wx/statbmp.h>
 #include <wx/dialog.h>
 #include <wx/listbox.h>
 #include <wx/checklst.h>
+#include <wx/grid.h>
+#include <wx/panel.h>
+#include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormAbout' on 2026-05-03 19:15:47
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormAbout' on 2026-09-04 19:27:33
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -50,7 +55,7 @@ class FormAbout : public wxDialog
 		void OnURL(wxTextUrlEvent& event);
 
 	protected:
-		// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormAbout' on 2026-05-03 19:15:47
+		// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormAbout' on 2026-09-04 19:27:33
 		enum
 		{
 			wxID_FORM_ABOUT = 6000,
@@ -82,11 +87,11 @@ class FormAbout : public wxDialog
 		wxStaticLine* m_staticline31;
 		wxButton* btnOK;
 
-		// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormAbout' on 2026-05-03 19:15:47
+		// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormAbout' on 2026-09-04 19:27:33
 
 	public:
 
-		FormAbout( wxWindow* parent,std::string ver_label,wxWindowID id = wxID_FORM_ABOUT, const wxString& title = wxT("About Spellcross Mod Launcher"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 600,350 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
+		FormAbout( wxWindow* parent,std::string ver_label,wxWindowID id = wxID_FORM_ABOUT, const wxString& title = wxT("About Spellcross Mod Launcher"), const wxPoint& pos = wxDefaultPosition, const wxSize& size = wxSize( 900,500 ), long style = wxDEFAULT_DIALOG_STYLE|wxRESIZE_BORDER );
 		~FormAbout();		
 
 };

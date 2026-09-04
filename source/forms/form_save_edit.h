@@ -7,7 +7,7 @@
 
 #pragma once
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-08-30 16:47:30
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-09-04 19:26:41
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -40,7 +40,7 @@
 #include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-08-30 16:47:30
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-09-04 19:26:41
 #include <wx/tglbtn.h>
 
 #include <filesystem>
@@ -89,6 +89,7 @@ private:
 	void OnSyncUpgrades(wxCommandEvent& event);
 	void OnSyncLevel(wxCommandEvent& event);
 	void OnEventSelect(wxCommandEvent& event);
+	void OnGenericPropChange(wxPropertyGridEvent& event);
 
 	void OnUnitsPupupOpen(wxMouseEvent& event);
 	void OnUnitsPupup(wxCommandEvent& event);
@@ -143,7 +144,7 @@ protected:
 	const int wxID_CH_HIERARCH_COM3C_0 = 7300;
 	const int wxID_CH_HIERARCH_COM3U_0 = 7350;
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-08-30 16:47:30
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-09-04 19:26:41
 	enum
 	{
 		wxID_FORM_SAVE_EDIT = 6000,
@@ -260,7 +261,7 @@ protected:
 	wxPropertyGrid* gridLevelProp;
 	wxButton* btnSyncLevel;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-08-30 16:47:30
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-09-04 19:26:41
 
 public:
 

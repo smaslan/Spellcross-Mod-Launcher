@@ -21,7 +21,7 @@
 
 FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
 {
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-08-30 16:47:30
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-09-04 19:26:41
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_MENU ) );
 	
@@ -63,6 +63,8 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	wxArrayString chSavesChoices;
 	chSaves = new wxChoice( this, wxID_CH_SAVES, wxDefaultPosition, wxDefaultSize, chSavesChoices, 0 );
 	chSaves->SetSelection( 0 );
+	chSaves->SetFont( wxFont( wxNORMAL_FONT->GetPointSize(), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxT("Courier New") ) );
+	
 	bSizer731->Add( chSaves, 1, wxBOTTOM|wxRIGHT|wxLEFT, 5 );
 	
 	btnLoadSpellSave = new wxBitmapButton( this, wxID_BTN_LOAD_SPELL_SAVE, wxNullBitmap, wxDefaultPosition, wxDefaultSize, wxBU_AUTODRAW|wxBORDER_NONE );
@@ -322,7 +324,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	panUnits->SetSizer( bSizer441 );
 	panUnits->Layout();
 	bSizer441->Fit( panUnits );
-	pageCtrl->AddPage( panUnits, _("Units"), true );
+	pageCtrl->AddPage( panUnits, _("Units"), false );
 	panCommanders = new wxPanel( pageCtrl, wxID_PAN_UNITS, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer4411;
 	bSizer4411 = new wxBoxSizer( wxHORIZONTAL );
@@ -404,7 +406,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	panCommanders->SetSizer( bSizer4411 );
 	panCommanders->Layout();
 	bSizer4411->Fit( panCommanders );
-	pageCtrl->AddPage( panCommanders, _("Commanders"), false );
+	pageCtrl->AddPage( panCommanders, _("Commanders"), true );
 	panHierarchy = new wxPanel( pageCtrl, wxID_PAN_HIERARCHY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* szHierA;
 	szHierA = new wxBoxSizer( wxVERTICAL );
@@ -666,7 +668,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Centre( wxBOTH );
 	
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-08-30 16:47:30
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-09-04 19:26:41
 
 	// set icon
 	wxIcon appIcon;
@@ -711,10 +713,10 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnTerrPropChange,this,wxID_GRID_TERR_PROPS);
 	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnLevelPropChange,this,wxID_GRID_LEVEL);
 	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnUnitPropChange,this,wxID_GRID_UNITS);
-	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnUnitPropChange,this,wxID_GRID_COMANDERS);
-	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnUnitPropChange,this,wxID_GRID_RES);
-	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnUnitPropChange,this,wxID_GRID_UPG);
-	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnUnitPropChange,this,wxID_GRID_EVENT);
+	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnGenericPropChange,this,wxID_GRID_COMANDERS);
+	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnGenericPropChange,this,wxID_GRID_RES);
+	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnGenericPropChange,this,wxID_GRID_UPG);
+	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnGenericPropChange,this,wxID_GRID_EVENT);
 
 	
 	
@@ -845,10 +847,14 @@ void FormSaveEdit::SetSaveDir(std::filesystem::path save_dir)
 	chSaves->Clear();
 	for(auto &save: saves)
 	{				
-		std::string info = "<empty>";
+		std::string info;
+		std::wstring name = L"<empty>";
 		if(!save.is_empty)
+		{
 			info = string_format(" (date: %s, path: %ls)",save.date.c_str(),save.dir_path.wstring().c_str());
-		auto str = string_format("%s: %ls%s",save.dir_name.c_str(), save.name.c_str(),info.c_str());
+			name = save.name;
+		}		
+		auto str = string_format("%8s: %-20ls%s",save.dir_name.c_str(), name.c_str(),info.c_str());
 		chSaves->Append(str,new SavesData(save.dir_path));
 	}
 	if(chSaves->GetCount())
@@ -1774,7 +1780,6 @@ void FormSaveEdit::OnUpgSelect(wxCommandEvent& event)
 	gridUpgProp->Append(new wxIntPropertyExt(wxT("State"),wxT(""),&upg.state));
 	gridUpgProp->Append(new wxMultiChoicePropertyExt(wxT("Suitable types"),wxT(""),MapToPGenumChoices(m_bigmap.GetUnitNames(true)),&upg.suitable_types));
 		
-	
 	gridUpgProp->Thaw();
 	gridUpgProp->FitColumns();
 }
@@ -1924,6 +1929,22 @@ void FormSaveEdit::OnUnitPropChange(wxPropertyGridEvent& event)
 	}
 }
 
+// edit generic properties
+void FormSaveEdit::OnGenericPropChange(wxPropertyGridEvent& event)
+{
+	auto pgrid = (wxPropertyGrid*)event.GetEventObject();
+	if(!pgrid)
+		return;
+
+	auto prop = event.GetProperty();
+	auto obj = (wxPGobj*)prop->GetClientObject();
+	if(obj)
+	{
+		obj->Update(prop);
+		UpdateList();
+	}
+}
+
 
 // on select commander item
 void FormSaveEdit::OnCommanderSelect(wxCommandEvent& event)
@@ -1965,6 +1986,8 @@ void FormSaveEdit::OnCommanderSelect(wxCommandEvent& event)
 	gridCommanderProp->Thaw();
 	gridCommanderProp->FitColumns();
 }
+
+
 
 // on select commander item
 void FormSaveEdit::OnTerritorySelect(wxCommandEvent& event)

@@ -18,7 +18,7 @@
 
 FormAbout::FormAbout( wxWindow* parent,std::string ver_label,wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxDialog( parent, id, title, pos, size, style )
 {
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormAbout' on 2026-05-03 19:15:47
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormAbout' on 2026-09-04 19:27:32
 	this->SetSizeHints( wxSize( 600,350 ), wxDefaultSize );
 	
 	wxBoxSizer* bSizer73;
@@ -117,7 +117,8 @@ FormAbout::FormAbout( wxWindow* parent,std::string ver_label,wxWindowID id, cons
 	m_staticline30 = new wxStaticLine( this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxLI_HORIZONTAL );
 	bSizer73->Add( m_staticline30, 0, wxEXPAND | wxALL, 5 );
 	
-	txtDesc = new wxTextCtrl( this, wxID_TXT_DESC, _("Very experimental editor for Spellcross map files and collection of Spellcross data loaders and viewers."), wxDefaultPosition, wxDefaultSize, wxTE_MULTILINE|wxTE_READONLY|wxTE_RICH|wxTE_WORDWRAP|wxBORDER_NONE );
+	txtDesc = new wxTextCtrl( this, wxID_TXT_DESC, _("Very experimental editor for Spellcross map files and collection of Spellcross data loaders and viewers."), wxDefaultPosition, wxDefaultSize, wxTE_AUTO_URL|wxTE_MULTILINE|wxTE_READONLY|wxTE_RICH|wxTE_WORDWRAP|wxBORDER_NONE );
+	txtDesc->SetFont( wxFont( 12, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_NORMAL, false, wxEmptyString ) );
 	txtDesc->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_BTNFACE ) );
 	
 	bSizer73->Add( txtDesc, 1, wxALL|wxEXPAND, 5 );
@@ -135,7 +136,7 @@ FormAbout::FormAbout( wxWindow* parent,std::string ver_label,wxWindowID id, cons
 	this->Centre( wxBOTH );
 	
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormAbout' on 2026-05-03 19:15:47
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormAbout' on 2026-09-04 19:27:32
 	// === AUTO GENERATED END ===
 	RescaleWindowDPI(this);
 	
@@ -148,6 +149,7 @@ FormAbout::FormAbout( wxWindow* parent,std::string ver_label,wxWindowID id, cons
 
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormAbout::OnClose,this,wxID_BTN_OK);
 	Bind(wxEVT_TEXT_URL,&FormAbout::OnURL,this,wxID_TXT_URL);
+	Bind(wxEVT_TEXT_URL,&FormAbout::OnURL,this,wxID_TXT_DESC);
 
 	
 	// assign button shortcuts
@@ -163,7 +165,14 @@ FormAbout::FormAbout( wxWindow* parent,std::string ver_label,wxWindowID id, cons
 	ver << std::put_time(std::localtime(&currentTime),"%Y-%m-%d %H:%M:%S");	*/		
 	txtVersion->SetValue(ver_label);
 
-	auto desc = "Simple experimental tool for runtime build of mods of Spellcross game archives.\nIt can also be used as game launcher via DOSbox.";
+	auto desc = "Simple experimental tool for runtime build of mods for Spellcross game.\n"
+		"It can also be used to install, patch, config and launcher the game via DOSbox. "
+		"Also contains useful tools such as save game editor, save game backup tool and units randomizer.\n"
+		"Project is purely experimenal and is provided without any warranty! For details see attached help or project Git.\n\n"
+		"Credits/used libraries:\n"
+		"Spellcross Map Editor: shared Spellcross libraries (https://github.com/smaslan/spellcross-map-edit)\n"
+		"wxWidgets: multiplatform graphical used interface (https://github.com/wxWidgets/wxWidgets/)\n"
+		"cparse: expression parser (https://github.com/cparse/cparse)";
 	txtDesc->SetValue(desc);
 }
 
@@ -183,7 +192,18 @@ void FormAbout::OnURL(wxTextUrlEvent& event)
 	auto mouse = event.GetMouseEvent();
 	if(!mouse.LeftDown())
 		return;
-	auto url = txtURL->GetValue();
+	//auto url = txtURL->GetValue();
+	
+	auto ctrl = (wxTextCtrl*)event.GetEventObject();
+	if(!ctrl)
+		return;
+	auto url_start = event.GetURLStart();
+	auto url_end = event.GetURLEnd();
+	if(url_start < 0 || url_end < 0)
+		return;
+	auto str = ctrl->GetValue();
+	std::wstring url = str.SubString(url_start,url_end - 1).ToStdWstring();
+
 	auto hinst = ShellExecute(NULL,L"open",url.c_str(),NULL,NULL,SW_SHOWNORMAL);
 	if((int)hinst <= 32)
 	{
