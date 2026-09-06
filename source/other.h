@@ -10,6 +10,7 @@
 
 //using namespace std;
 
+
 std::string str_to_ascii(std::wstring str);
 std::wstring char2wstring(const char* str);
 std::wstring string2wstring(std::string str);
@@ -19,7 +20,76 @@ std::wstring char2wstringCP895(const char* str);
 char wchar2charCP895(wchar_t sym);
 std::string wstring2stringCP895(std::wstring str);
 std::string& toupper(std::string& str);
-std::string string_format(const std::string fmt,...);
+
+/*template <typename T>
+decltype(auto) string_format_convertor(T&& val) {
+    return std::forward<T>(val);
+}
+inline const char* string_format_convertor(const std::string& str) {
+    return(str.c_str());
+}
+inline const char* string_format_convertor(const std::wstring& str) {
+    return(wstring2string(str).c_str());
+}*/
+
+template <typename... Args>
+std::string string_format(const std::string fmt,Args&&... args) {    
+    
+    // pre-convert parameter
+    auto to_printable = [](auto&& val) -> decltype(auto) {
+        using RawType = std::decay_t<decltype(val)>;
+        if constexpr(std::is_same_v<RawType,std::wstring>)
+            return(wstring2string(val)); // wstring to locale string
+        else if constexpr(std::is_same_v<RawType,std::wstring&>)
+            return(wstring2string(val)); // wstring to locale string
+        else if constexpr(std::is_same_v<RawType,std::filesystem::path>)
+            return(wstring2string(val.wstring())); // path->wstring->locale string
+        else if constexpr(std::is_same_v<RawType,std::filesystem::path&>)
+            return(wstring2string(val.wstring())); // path->wstring->locale string
+        else
+            return(std::forward<decltype(val)>(val));
+    };
+    auto converted_args = std::make_tuple(to_printable(std::forward<Args>(args))...);
+
+    return std::apply([fmt](auto&&... unpacked) -> std::string {
+        
+        // convert whatever string to cstr
+        auto to_cstr = [](auto&& val) -> decltype(auto) {
+            using RawType = std::decay_t<decltype(val)>;
+            if constexpr(std::is_same_v<RawType,std::string>)
+                return(val.c_str());
+            else if constexpr(std::is_same_v<RawType,std::string&>)
+                return(val.c_str());
+            else if constexpr(std::is_same_v<RawType,std::wstring>)
+                return(val.c_str());
+            else if constexpr(std::is_same_v<RawType,std::wstring&>)
+                return(val.c_str());
+            else
+                return(std::forward<decltype(val)>(val));
+        };
+    
+        int size = 1024;
+        std::string str;
+        while(1) {     // Maximum two passes on a POSIX system...
+            str.resize(size);
+            int n = std::snprintf((char*)str.data(),size,fmt.c_str(),to_cstr(std::forward<decltype(unpacked)>(unpacked))...);
+            if(n > -1 && n < size)
+            {
+                str.resize(n);
+                return(str);
+            }
+            if(n > -1)  // Needed size returned
+                size = n + 1;   // For null char
+            else
+                size *= 2;      // Guess at a larger size (OS specific)
+        }
+        return(str);
+    }, converted_args);    
+}
+
+
+
+//std::string string_format(const std::string fmt,...);
 std::wstring wstring_format(const std::wstring fmt,...);
 std::string format_bin(uint32_t dword,int digits=32,bool gaps=false);
 bool iequals(const std::string& a,const std::string& b);

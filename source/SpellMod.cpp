@@ -77,7 +77,7 @@ int SpellArchive::Load(std::filesystem::path path, Type explicit_archive_type)
             // FSU archive:
             if(m_fsu)
             {
-                m_last_error = string_format("Creating FSU archive from directory \"%s\" to object SpellArchive failed! Object already has some archive loaded.",wstring2string(path).c_str());
+                m_last_error = string_format("Creating FSU archive from directory \"%s\" to object SpellArchive failed! Object already has some archive loaded.",path);
                 return(1);
             }
             m_fsu = new FSUarchive();
@@ -95,7 +95,7 @@ int SpellArchive::Load(std::filesystem::path path, Type explicit_archive_type)
             // FS archive:
             if(m_fs)
             {
-                m_last_error = string_format("Creating FS archive from directory \"%s\" to object SpellArchive failed! Object already has some archive loaded.",wstring2string(path).c_str());
+                m_last_error = string_format("Creating FS archive from directory \"%s\" to object SpellArchive failed! Object already has some archive loaded.",path);
                 return(1);
             }
             m_fs = new FSarchive();
@@ -115,7 +115,7 @@ int SpellArchive::Load(std::filesystem::path path, Type explicit_archive_type)
         // try load FS archive data
         if(m_fsu)
         {
-            m_last_error = string_format("Loading FS archive \"%s\" to object SpellArchive failed! Object already has some archive loaded.",wstring2string(path).c_str());
+            m_last_error = string_format("Loading FS archive \"%s\" to object SpellArchive failed! Object already has some archive loaded.",path);
             return(1);
         }
         try{
@@ -132,14 +132,14 @@ int SpellArchive::Load(std::filesystem::path path, Type explicit_archive_type)
         // try load FSU archive data
         if(m_fsu)
         {
-            m_last_error = string_format("Loading FSU archive \"%s\" to object SpellArchive failed! Object already has some archive loaded.",wstring2string(path).c_str());
+            m_last_error = string_format("Loading FSU archive \"%s\" to object SpellArchive failed! Object already has some archive loaded.",path);
             return(1);
         }
         try {
             m_fsu = new FSUarchive(path.wstring(), FSUarchive::Options::NO_DECODE);
             m_path = path;
         }catch(const std::runtime_error& error) {
-            m_last_error = string_format("Loading FSU archive (%s) failed (%s)!",wstring2string(path).c_str(),error.what());
+            m_last_error = string_format("Loading FSU archive (%s) failed (%s)!",path,error.what());
             return(1);
         }
     }
@@ -270,7 +270,7 @@ int SpellArchive::RemoveFile(std::string& name,bool ignore_error)
 
     if(!m_fs && !m_fsu && !ignore_error)
     {
-        m_last_error = string_format("Cannot remove file \"%s\" from archive! Empty archive.",name.c_str());
+        m_last_error = string_format("Cannot remove file \"%s\" from archive! Empty archive.",name);
         return(1);
     }
 
@@ -289,7 +289,7 @@ int SpellArchive::RemoveFile(std::string& name,bool ignore_error)
         // FSU archive:
         if(m_fsu->RemoveResource(name,ignore_error))
         {
-            m_last_error = string_format("Cannot remove resource \"%s\" from FSU archive! Resource not found.",name.c_str());
+            m_last_error = string_format("Cannot remove resource \"%s\" from FSU archive! Resource not found.",name);
             return(1);
         }        
     }
@@ -323,7 +323,7 @@ int SpellArchive::AddFile(SpellArchive &src, std::string name, bool allow_replac
         auto data = src.m_fs->GetFileData(name.c_str());
         if(!data)
         {
-            m_last_error = string_format("Adding file \"%s\" to FS archive failed! File not found in source archive \"%s\".",name.c_str(),wstring2string(src.m_fs->m_file_path).c_str());
+            m_last_error = string_format("Adding file \"%s\" to FS archive failed! File not found in source archive \"%s\".",name,src.m_fs->m_file_path);
             return(1);
         }
         // optional rename
@@ -344,7 +344,7 @@ int SpellArchive::AddFile(SpellArchive &src, std::string name, bool allow_replac
         auto data = src.m_fsu->GetResource(name.c_str());        
         if(!data)
         {
-            m_last_error = string_format("Adding file \"%s\" to FSU archive failed! File not found in source archive.",name.c_str());
+            m_last_error = string_format("Adding file \"%s\" to FSU archive failed! File not found in source archive.",name);
             return(1);
         }        
         auto err = m_fsu->AddResource(data,allow_replace,new_name);
@@ -737,14 +737,14 @@ SpellModPath* SpellMod::AddPath(std::string name,std::filesystem::path path,std:
     auto cur_path = GetPath(name);
     if(cur_path && !overwrite)
     {
-        m_last_error = string_format("Cannot define path variable \"%s\". It already exist.",name.c_str());
+        m_last_error = string_format("Cannot define path variable \"%s\". It already exist.",name);
         return(NULL);
     }
 
     std::string var_value;
     if(!GetVar(name,var_value))
     {
-        m_last_error = string_format("Cannot define path variable \"%s\". It already exist as local variable.",name.c_str());
+        m_last_error = string_format("Cannot define path variable \"%s\". It already exist as local variable.",name);
         return(NULL);
     }
 
@@ -792,12 +792,12 @@ int SpellMod::AddVar(std::string name,std::string value,bool allow_update)
     auto path = GetPath(name);
     if(path)
     {
-        m_last_error = string_format("Cannot define variable \"%s\". It exist as path variable.",name.c_str());
+        m_last_error = string_format("Cannot define variable \"%s\". It exist as path variable.",name);
         return(1);
     }
     if(GetOption(name))
     {
-        m_last_error = string_format("Cannot define variable \"%s\". It exist as option variable.",name.c_str());
+        m_last_error = string_format("Cannot define variable \"%s\". It exist as option variable.",name);
         return(1);
     }
     for(auto it = m_vars.begin(); it != m_vars.end(); it++)
@@ -806,7 +806,7 @@ int SpellMod::AddVar(std::string name,std::string value,bool allow_update)
             continue;
         if(!allow_update)
         {
-            m_last_error = string_format("Cannot define variable \"%s\". It already exists.",name.c_str());
+            m_last_error = string_format("Cannot define variable \"%s\". It already exists.",name);
             return(1);
         }
         it->second = value;
@@ -821,7 +821,7 @@ void SpellMod::ReplaceVars(std::string &string)
 {
     for(auto it = m_vars.begin(); it != m_vars.end(); it++)
     {
-        auto key = string_format("%%%s%%",it->first.c_str());
+        auto key = string_format("%%%s%%",it->first);
         string = strrep(string,key,it->second);
     }
 }
@@ -877,7 +877,7 @@ SpellModOption *SpellMod::AddOption(std::string label,std::string description,in
     if(GetOption(label))
     {
         // already exist
-        m_last_error = string_format("Option with label \"%s\" already exists!",label.c_str());
+        m_last_error = string_format("Option with label \"%s\" already exists!",label);
         return(NULL);
     }
 
@@ -937,7 +937,7 @@ int SpellMod::LoadDEF(Config& config)
     AddPath("SPELLANY",config.spell_dir,config.spellcd_dir);
 
     // load DEF file
-    PrintConsoleWithLog(" - Loading mod DEF file (%s) ... ",wstring2string(config.mod_path).c_str());
+    PrintConsoleWithLog(" - Loading mod DEF file (%s) ... ",config.mod_path);
     if(loadstr(config.mod_path,m_def))
     {
         PrintConsoleWithLog("failed!\n");
@@ -971,7 +971,7 @@ int SpellMod::LoadDEF(Config& config)
             auto p_path = ParsePath(path);
             if(!p_path.isValid())
             {
-                PrintConsoleWithLog("failed! Line %d: adding path \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                PrintConsoleWithLog("failed! Line %d: adding path \"%s\".\n",cmd.m_line,cmd.m_raw);
                 LogFile::SetIndent(-1);
                 return(1);
             }            
@@ -979,7 +979,7 @@ int SpellMod::LoadDEF(Config& config)
                 path = mod_dir / path;
             if(!AddPath(var_name,path,"",true))
             {
-                PrintConsoleWithLog("failed! Line %d: adding path \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                PrintConsoleWithLog("failed! Line %d: adding path \"%s\".\n",cmd.m_line,cmd.m_raw);
                 LogFile::SetIndent(-1);
                 return(1);
             }
@@ -993,7 +993,7 @@ int SpellMod::LoadDEF(Config& config)
                 //   version(version_name); // where version name is CZE or ENG
                 if(func_params.size() != 1)
                 {
-                    PrintConsoleWithLog("failed! Line %d: wrong params count in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    PrintConsoleWithLog("failed! Line %d: wrong params count in command \"%s\".\n",cmd.m_line,cmd.m_raw);
                     LogFile::SetIndent(-1);
                     return(1);
                 }
@@ -1005,13 +1005,13 @@ int SpellMod::LoadDEF(Config& config)
                     target_ver = SpellLaunch::EngineVersion::CZE;
                 else
                 {
-                    PrintConsoleWithLog("failed! Line %d: wrong value of version name in command \"%s\". Must be CZE or ENG\n",cmd.m_line,cmd.m_raw.c_str());
+                    PrintConsoleWithLog("failed! Line %d: wrong value of version name in command \"%s\". Must be CZE or ENG\n",cmd.m_line,cmd.m_raw);
                     LogFile::SetIndent(-1);
                     return(1);
                 }
                 if(config.ver != target_ver)
                 {
-                    PrintConsoleWithLog("failed! Line %d: requested game version %s not matching selected game enegine version in command \"%s\". \n",cmd.m_line,ver_str.c_str(),cmd.m_raw.c_str());
+                    PrintConsoleWithLog("failed! Line %d: requested game version %s not matching selected game enegine version in command \"%s\". \n",cmd.m_line,ver_str,cmd.m_raw);
                     LogFile::SetIndent(-1);
                     return(1);
                 }                
@@ -1021,7 +1021,7 @@ int SpellMod::LoadDEF(Config& config)
                 // mod option definition
                 if(func_params.size() < 5)
                 {
-                    PrintConsoleWithLog("failed! Line %d: not enough parameters for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    PrintConsoleWithLog("failed! Line %d: not enough parameters for command \"%s\".\n",cmd.m_line,cmd.m_raw);
                     LogFile::SetIndent(-1);
                     return(1);
                 }
@@ -1029,19 +1029,19 @@ int SpellMod::LoadDEF(Config& config)
                 int opt_min,opt_max,opt_default;
                 if(str2int(func_params[2],opt_min))
                 {
-                    PrintConsoleWithLog("failed! Line %d: wrong value of parameter 3 (min value) for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    PrintConsoleWithLog("failed! Line %d: wrong value of parameter 3 (min value) for command \"%s\".\n",cmd.m_line,cmd.m_raw);
                     LogFile::SetIndent(-1);
                     return(1);
                 }
                 if(str2int(func_params[3],opt_max) || opt_max < opt_min)
                 {
-                    PrintConsoleWithLog("failed! Line %d: wrong value of paramter 4 (max value) for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    PrintConsoleWithLog("failed! Line %d: wrong value of paramter 4 (max value) for command \"%s\".\n",cmd.m_line,cmd.m_raw);
                     LogFile::SetIndent(-1);
                     return(1);
                 }
                 if(str2int(func_params[4],opt_default) || opt_default < opt_min || opt_default > opt_max)
                 {
-                    PrintConsoleWithLog("failed! Line %d: wrong value of paramter 5 (default value) for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    PrintConsoleWithLog("failed! Line %d: wrong value of paramter 5 (default value) for command \"%s\".\n",cmd.m_line,cmd.m_raw);
                     LogFile::SetIndent(-1);
                     return(1);
                 }
@@ -1053,7 +1053,7 @@ int SpellMod::LoadDEF(Config& config)
                         opt_enums = str_split(enum_str[0],';',true);
                     if(!enum_str.empty() && opt_enums.size() != opt_max - opt_min + 1)
                     {
-                        PrintConsoleWithLog("failed! Line %d: wrong count of option strings in paramter 6 for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsoleWithLog("failed! Line %d: wrong count of option strings in paramter 6 for command \"%s\".\n",cmd.m_line,cmd.m_raw);
                         LogFile::SetIndent(-1);
                         return(1);
                     }
@@ -1061,7 +1061,7 @@ int SpellMod::LoadDEF(Config& config)
                 auto option = AddOption(opt_label,func_params[1],opt_min,opt_max,opt_default,opt_enums);
                 if(!option)
                 {
-                    PrintConsoleWithLog("failed! Line %d: failed addition mod option by command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    PrintConsoleWithLog("failed! Line %d: failed addition mod option by command \"%s\".\n",cmd.m_line,cmd.m_raw);
                     LogFile::SetIndent(-1);
                     return(1);
                 }
@@ -1072,7 +1072,7 @@ int SpellMod::LoadDEF(Config& config)
                     {
                         if(opt.value < opt_min || opt.value > opt_max)
                         {
-                            PrintConsoleWithLog("failed! Line %d: provided option value %d outside defined range %d to %d for command \"%s\".\n",cmd.m_line,opt.value,opt_min,opt_max,cmd.m_raw.c_str());
+                            PrintConsoleWithLog("failed! Line %d: provided option value %d outside defined range %d to %d for command \"%s\".\n",cmd.m_line,opt.value,opt_min,opt_max,cmd.m_raw);
                             LogFile::SetIndent(-1);
                             return(1);
                         }
@@ -1082,7 +1082,7 @@ int SpellMod::LoadDEF(Config& config)
         }
         else
         {
-            PrintConsoleWithLog("failed! Line %d: uknown command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+            PrintConsoleWithLog("failed! Line %d: uknown command \"%s\".\n",cmd.m_line,cmd.m_raw);
             LogFile::SetIndent(-1);
             return(1);
         }
@@ -1122,16 +1122,16 @@ int SpellMod::ParseExpression(std::string expr,bool &result)
     cparse::TokenMap vars;    
     for(auto &opt: m_options)
     {
-        auto opt_name = string_format("%%%s%%",opt.label.c_str());
-        auto var_name = string_format("_%s_",opt.label.c_str());
+        auto opt_name = string_format("%%%s%%",opt.label);
+        auto var_name = string_format("_%s_",opt.label);
         vars[var_name] = opt.value;
         expr = strrep(expr,opt_name,var_name);
     }
     // the same for variables
     for(auto &var: m_vars)
     {
-        auto opt_name = string_format("%%%s%%",var.first.c_str());
-        auto var_name = string_format("_%s_",var.first.c_str());
+        auto opt_name = string_format("%%%s%%",var.first);
+        auto var_name = string_format("_%s_",var.first);
         vars[var_name] = var.second;
         expr = strrep(expr,opt_name,var_name);
     }    
@@ -1143,7 +1143,7 @@ int SpellMod::ParseExpression(std::string expr,bool &result)
         auto token = cparse::calculator::calculate(expr.c_str(),&vars);
         result = token.asBool();
     }catch(...) {
-        m_last_error = string_format("Error parsing expression \"%s\"!",expr.c_str());
+        m_last_error = string_format("Error parsing expression \"%s\"!",expr);
         return(1);
     }
 
@@ -1168,14 +1168,14 @@ int SpellMod::MakeTitle(SpellArchive &arch, std::vector<std::string> &params)
     std::vector<uint8_t> lzdata;
     if(arch.GetFile(img_name,lzdata))
     {
-        m_last_error = string_format("Missing file %s in source archive!",img_name.c_str());
+        m_last_error = string_format("Missing file %s in source archive!",img_name);
         return(1);
     }
     LZWexpand lze(1000000);
     auto img = lze.Decode(lzdata);
     if(img.empty())
     {
-        m_last_error = string_format("Decompressing file %s failed!",img_name.c_str());
+        m_last_error = string_format("Decompressing file %s failed!",img_name);
         return(1);
     }
     int x_size = 640;
@@ -1190,12 +1190,12 @@ int SpellMod::MakeTitle(SpellArchive &arch, std::vector<std::string> &params)
     std::vector<uint8_t> pal_data;
     if(arch.GetFile(pal_name,pal_data) || pal_data.size() != 3*256)
     {
-        m_last_error = string_format("Missing file %s in source archive!",pal_name.c_str());
+        m_last_error = string_format("Missing file %s in source archive!",pal_name);
         return(1);
     }
     if(pal_data.size() != 3*256)
     {
-        m_last_error = string_format("Invalid size of palette file %s!",pal_name.c_str());
+        m_last_error = string_format("Invalid size of palette file %s!",pal_name);
         return(1);
     }
     uint8_t(*pal)[3] = (uint8_t(*)[3])pal_data.data();
@@ -1204,14 +1204,14 @@ int SpellMod::MakeTitle(SpellArchive &arch, std::vector<std::string> &params)
     std::vector<uint8_t> fontdata;
     if(arch.GetFile(font_name,fontdata))
     {
-        m_last_error = string_format("Missing file %s in source archive!",font_name.c_str());
+        m_last_error = string_format("Missing file %s in source archive!",font_name);
         return(1);
     }
     std::unique_ptr<SpellFont> font;
     try{
         font = std::make_unique<SpellFont>(fontdata.data(), fontdata.size());
     }catch(const std::runtime_error& error) {
-        m_last_error = string_format("Failed loading font file %s!",font_name.c_str());
+        m_last_error = string_format("Failed loading font file %s!",font_name);
         return(1);
     }
 
@@ -1219,12 +1219,12 @@ int SpellMod::MakeTitle(SpellArchive &arch, std::vector<std::string> &params)
     int x_pos, y_pos;
     if(str2int(params[0],x_pos))
     {
-        m_last_error = string_format("Invalid value of x_pos parameter \"%s\"!",params[0].c_str());
+        m_last_error = string_format("Invalid value of x_pos parameter \"%s\"!",params[0]);
         return(1);
     }
     if(str2int(params[1],y_pos))
     {
-        m_last_error = string_format("Invalid value of y_pos parameter \"%s\"!",params[1].c_str());
+        m_last_error = string_format("Invalid value of y_pos parameter \"%s\"!",params[1]);
         return(1);    
     }
     auto align = params[2];
@@ -1233,28 +1233,28 @@ int SpellMod::MakeTitle(SpellArchive &arch, std::vector<std::string> &params)
         is_center = true;
     else if(!iequals(align,"left"))
     {
-        m_last_error = string_format("Invalid value of align parameter \"%s\"!",align.c_str());
+        m_last_error = string_format("Invalid value of align parameter \"%s\"!",align);
         return(1);
     }
     std::vector<int> rgb_list(2);
     if(str2int(params[3],rgb_list[0],0,256*256*256-1,16))
     {
-        m_last_error = string_format("Invalid value of color parameter \"%s\"! Must be hex number format RRGGBB.",params[2].c_str());
+        m_last_error = string_format("Invalid value of color parameter \"%s\"! Must be hex number format RRGGBB.",params[2]);
         return(1);
     }
     if(str2int(params[4],rgb_list[1],0,256*256*256-1,16))
     {
-        m_last_error = string_format("Invalid value of color parameter \"%s\"! Must be hex number format RRGGBB.",params[2].c_str());
+        m_last_error = string_format("Invalid value of color parameter \"%s\"! Must be hex number format RRGGBB.",params[2]);
         return(1);
     }
     auto text = params[5];
 
     // replace option variables
     ReplaceVars(text);
-    //text = strrep(text,"%DATE%",get_local_time_str().c_str());
+    //text = strrep(text,"%DATE%",get_local_time_str());
     for(auto &opt: m_options)
     {
-        auto key = string_format("%%%s%%",opt.label.c_str());
+        auto key = string_format("%%%s%%",opt.label);
         std::string val = string_format("%d",opt.value);
         if(opt.isEnum())
             val = opt.GetEnumValue();
@@ -1312,14 +1312,14 @@ int SpellMod::MakeTitle(SpellArchive &arch, std::vector<std::string> &params)
     try{
         LZspell(img.data(), img.size(), lzdata);
     }catch(const std::runtime_error& error) {
-        m_last_error = string_format("Failed compressing image %s!",img_name.c_str());
+        m_last_error = string_format("Failed compressing image %s!",img_name);
         return(1);
     }
     
     // replace original image
     if(arch.AddFile(lzdata, img_name, true))
     {
-        m_last_error = string_format("Failed replacing image %s in archive!",img_name.c_str());
+        m_last_error = string_format("Failed replacing image %s in archive!",img_name);
         return(1);
     }
     
@@ -1333,7 +1333,7 @@ int SpellMod::ReplaceUnits(SpellArchive* dest,SpellArchive *src, std::string nam
     std::vector<uint8_t> src_units;
     if(src->GetFile(name,src_units))
     {
-        m_last_error = string_format("Source file %s not found in source archive!",name.c_str());
+        m_last_error = string_format("Source file %s not found in source archive!",name);
         return(1);
     }
 
@@ -1342,7 +1342,7 @@ int SpellMod::ReplaceUnits(SpellArchive* dest,SpellArchive *src, std::string nam
     std::vector<uint8_t> dest_units;
     if(dest->GetFile(dest_name,dest_units))
     {
-        m_last_error = string_format("Destination file %s not found in destination archive!",dest_name.c_str());
+        m_last_error = string_format("Destination file %s not found in destination archive!",dest_name);
         return(1);
     }
 
@@ -1354,7 +1354,7 @@ int SpellMod::ReplaceUnits(SpellArchive* dest,SpellArchive *src, std::string nam
         size = 207;
     else
     {
-        m_last_error = string_format("Source/destination files %s have wrong size(s)!",name.c_str());
+        m_last_error = string_format("Source/destination files %s have wrong size(s)!",name);
         return(1);
     }
 
@@ -1382,7 +1382,7 @@ int SpellMod::ReplaceUnits(SpellArchive* dest,SpellArchive *src, std::string nam
     // replace original image
     if(dest->AddFile(dest_units,dest_name,true))
     {
-        m_last_error = string_format("Failed replacing file %s in archive!",dest_name.c_str());
+        m_last_error = string_format("Failed replacing file %s in archive!",dest_name);
         return(1);
     }
 
@@ -1397,7 +1397,7 @@ int SpellMod::SwapUnits(SpellArchive* arch,std::pair<int,int> pair)
     std::vector<uint8_t> dest_units;
     if(arch->GetFile(dest_name,dest_units))
     {
-        m_last_error = string_format("Definition file %s not found in destination archive!",dest_name.c_str());
+        m_last_error = string_format("Definition file %s not found in destination archive!",dest_name);
         return(1);
     }
 
@@ -1409,7 +1409,7 @@ int SpellMod::SwapUnits(SpellArchive* arch,std::pair<int,int> pair)
         size = 207;
     else
     {
-        m_last_error = string_format("Definition file %s have wrong size(s)!",dest_name.c_str());
+        m_last_error = string_format("Definition file %s have wrong size(s)!",dest_name);
         return(1);
     }
 
@@ -1437,7 +1437,7 @@ int SpellMod::SwapUnits(SpellArchive* arch,std::pair<int,int> pair)
     // replace original image
     if(arch->AddFile(dest_units,dest_name,true))
     {
-        m_last_error = string_format("Failed replacing file %s in archive!",dest_name.c_str());
+        m_last_error = string_format("Failed replacing file %s in archive!",dest_name);
         return(1);
     }
 
@@ -1479,7 +1479,7 @@ int SpellMod::SwapMapUnits(std::string &def, SpellUnits *units, std::map<int,int
             if(!orig_unit)
             {
                 // unknown unit type
-                m_last_error = string_format("Unknown unit type in command \"%s\".",cmd.full_command.c_str());
+                m_last_error = string_format("Unknown unit type in command \"%s\".",cmd.full_command);
                 return(1);
             }
 
@@ -1503,7 +1503,7 @@ int SpellMod::SwapMapUnits(std::string &def, SpellUnits *units, std::map<int,int
             if(!unit)
             {
                 // random unit ID not found
-                m_last_error = string_format("Unknown new unit type %d in unit swap function for command \"%s\".",new_unit_type,cmd.sub_full_command.c_str());
+                m_last_error = string_format("Unknown new unit type %d in unit swap function for command \"%s\".",new_unit_type,cmd.sub_full_command);
                 return(1);
             }
             // fix health
@@ -1552,7 +1552,7 @@ int SpellMod::SwapLevelUnits(std::string& def,SpellUnits* units,std::map<int,int
             if(str2int(cmd.parameters,army_ids,0,units->Count()-1))
             {
                 // invalid command
-                m_last_error = string_format("Some of the units in Army() command not recognized in command \"%s\".",line.c_str());
+                m_last_error = string_format("Some of the units in Army() command not recognized in command \"%s\".",line);
                 return(1);
             }
             for(auto &orig_unit_type: army_ids)
@@ -1562,7 +1562,7 @@ int SpellMod::SwapLevelUnits(std::string& def,SpellUnits* units,std::map<int,int
                 if(!orig_unit)
                 {
                     // unknown unit type
-                    m_last_error = string_format("Unknown unit type #%d for command \"%s\".",orig_unit_type,cmd.full_command.c_str());
+                    m_last_error = string_format("Unknown unit type #%d for command \"%s\".",orig_unit_type,cmd.full_command);
                     return(1);
                 }
 
@@ -1583,7 +1583,7 @@ int SpellMod::SwapLevelUnits(std::string& def,SpellUnits* units,std::map<int,int
                 if(!unit)
                 {
                     // random unit ID not found
-                    m_last_error = string_format("Unknown new unit type #%d in unit swap function for command \"%s\".",new_unit_type,cmd.sub_full_command.c_str());
+                    m_last_error = string_format("Unknown new unit type #%d in unit swap function for command \"%s\".",new_unit_type,cmd.sub_full_command);
                     return(1);
                 }
                 orig_unit_type = new_unit_type;
@@ -1643,12 +1643,12 @@ int SpellMod::ConvertVideoNames(std::string& def,bool eng_to_cz)
             if(!cmd.valid)
             {
                 // invalid command
-                m_last_error = string_format("Possibly somehow incomplete command \"%s\"?",line.c_str());
+                m_last_error = string_format("Possibly somehow incomplete command \"%s\"?",line);
                 return(1);
             }
             if(cmd.parameters.size() != 1)
             {
-                m_last_error = string_format("Wrong params count for command \"%s\"?",line.c_str());
+                m_last_error = string_format("Wrong params count for command \"%s\"?",line);
                 return(1);
             }
             auto video_name = cmd.parameters[0];
@@ -1724,13 +1724,13 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             auto path = std::filesystem::path(var_value).lexically_normal();            
             if(!AddPath(var_name,path))
             {
-                PrintConsole("failed! Line %d: adding path \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                PrintConsole("failed! Line %d: adding path \"%s\".\n",cmd.m_line,cmd.m_raw);
                 return(1);
             }
         }
         else
         {
-            PrintConsole("failed! Line %d: uknown command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+            PrintConsole("failed! Line %d: uknown command \"%s\".\n",cmd.m_line,cmd.m_raw);
             return(1);
         }
     }
@@ -1762,7 +1762,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
         if(GetClass(m_def,arch_name,cmd_list))
             continue;
 
-        PrintConsole(" - Building archive %s ... ",arch_name.c_str());
+        PrintConsole(" - Building archive %s ... ",arch_name);
 
         // cleanup local variables
         ClearVars();
@@ -1795,7 +1795,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     // define local variable
                     if(AddVar(var_name, var_value))
                     {
-                        PrintConsole("failed! Line %d: cannot add local variable in command \"%s\". %s\n",cmd.m_line,cmd.m_raw.c_str(),m_last_error.c_str());
+                        PrintConsole("failed! Line %d: cannot add local variable in command \"%s\". %s\n",cmd.m_line,cmd.m_raw,m_last_error);
                         return(1);
                     }
                 }
@@ -1813,13 +1813,13 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     // process if() conditional
                     if(par_list.size() != 1)
                     {
-                        PrintConsole("failed! Line %d: wrong condition for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: wrong condition for command \"%s\".\n",cmd.m_line,cmd.m_raw);
                         return(1);
                     }
                     bool result;
                     if(ParseExpression(par_list[0],result))
                     {
-                        PrintConsole("failed! Line %d: parsing conditional failed for command \"%s\" (%s).\n",cmd.m_line,cmd.m_raw.c_str(),m_last_error.c_str());
+                        PrintConsole("failed! Line %d: parsing conditional failed for command \"%s\" (%s).\n",cmd.m_line,cmd.m_raw,m_last_error);
                         return(1);
                     }
                     if(!result)
@@ -1827,7 +1827,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     cmd.m_cmd = cmd_rest;
                     if(!cmd.isFunction(var_name,par_list,cmd_rest))
                     {
-                        PrintConsole("failed! Line %d: missing or crippled conditional command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: missing or crippled conditional command \"%s\".\n",cmd.m_line,cmd.m_raw);
                         return(1);
                     }
                 }
@@ -1838,10 +1838,10 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     //   error(error_text)
                     if(par_list.size() != 1)
                     {
-                        PrintConsole("failed! Line %d: wrong parameters count in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: wrong parameters count in command \"%s\".\n",cmd.m_line,cmd.m_raw);
                         return(1);
                     }
-                    PrintConsole("failed! Line %d: error() command: %s\n",cmd.m_line,par_list[0].c_str());
+                    PrintConsole("failed! Line %d: error() command: %s\n",cmd.m_line,par_list[0]);
                     return(1);                    
                 }
                 else if(var_name == "title")
@@ -1855,7 +1855,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     }
                     if(MakeTitle(arch, par_list))
                     {
-                        PrintConsole("failed! Line %d: command \"%s\" failed with error: %s\n",cmd.m_line,cmd.m_raw.c_str(),m_last_error.c_str());
+                        PrintConsole("failed! Line %d: command \"%s\" failed with error: %s\n",cmd.m_line,cmd.m_raw,m_last_error);
                         return(1);
                     }
                 }
@@ -1865,7 +1865,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     //   rem(wild_card)
                     if(par_list.size() != 1)
                     {
-                        PrintConsole("failed! Line %d: wrong parameters count for command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: wrong parameters count for command \"%s\".\n",cmd.m_line,cmd.m_raw);
                         return(1);
                     }
 
@@ -1879,7 +1879,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     for(auto &name: list)
                         if(arch.RemoveFile(name,true))
                         {
-                            PrintConsole("failed! Line %d: removing archive resource \"%s\" for command \"%s\".\n",cmd.m_line,name.c_str(),cmd.m_raw.c_str());
+                            PrintConsole("failed! Line %d: removing archive resource \"%s\" for command \"%s\".\n",cmd.m_line,name,cmd.m_raw);
                             return(1);
                         }
                 }
@@ -1894,7 +1894,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     }                    
                     if(par_list.size() < 2 || par_list.size() > 3)
                     {
-                        PrintConsole("failed! Line %d: wrong params count in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: wrong params count in command \"%s\".\n",cmd.m_line,cmd.m_raw);
                         return(1);
                     }
                     auto src_path = par_list[0];
@@ -1905,7 +1905,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                         auto toks = regexp_get(par_list[2],"^\\{(.*)\\}$");
                         if(toks.size() != 1)
                         {
-                            PrintConsole("failed! Line %d: wrong format of units list in command \"%s\". Must be semicolon list in {}.\n",cmd.m_line,cmd.m_raw.c_str());
+                            PrintConsole("failed! Line %d: wrong format of units list in command \"%s\". Must be semicolon list in {}.\n",cmd.m_line,cmd.m_raw);
                             return(1);
                         }
                         toks = str_split(toks[0],';',true);
@@ -1914,7 +1914,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                             int val;
                             if(str2int(vv,val,0))
                             {
-                                PrintConsole("failed! Line %d: wrong format of units list in command \"%s\". Must be semicolon list in {}.\n",cmd.m_line,cmd.m_raw.c_str());
+                                PrintConsole("failed! Line %d: wrong format of units list in command \"%s\". Must be semicolon list in {}.\n",cmd.m_line,cmd.m_raw);
                                 return(1);
                             }
                             unit_list.push_back(val);
@@ -1926,7 +1926,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     if(!parsed_path.isValid())
                     {
                         // parsing path for add() command failed
-                        PrintConsole("failed! Line %d: parsing source path failed in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: parsing source path failed in command \"%s\".\n",cmd.m_line,cmd.m_raw);
                         return(1);
                     }
 
@@ -1935,14 +1935,14 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     if(!src)
                     {
                         // loading source data for add() command failed
-                        PrintConsole("failed! Line %d: loading source data failed in command \"%s\".\n %s\n",cmd.m_line,cmd.m_raw.c_str(),m_last_error.c_str());
+                        PrintConsole("failed! Line %d: loading source data failed in command \"%s\".\n %s\n",cmd.m_line,cmd.m_raw,m_last_error);
                         return(1);
                     }                                                       
 
                     // try replace units
                     if(ReplaceUnits(&arch,src,src_name,unit_list))
                     {
-                        PrintConsole("failed! Line %d: copying units data in command \"%s\".\n %s\n",cmd.m_line,cmd.m_raw.c_str(),m_last_error.c_str());
+                        PrintConsole("failed! Line %d: copying units data in command \"%s\".\n %s\n",cmd.m_line,cmd.m_raw,m_last_error);
                         return(1);
                     }
                     
@@ -1958,13 +1958,13 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     }
                     if(par_list.size() != 2)
                     {
-                        PrintConsole("failed! Line %d: wrong params count in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: wrong params count in command \"%s\".\n",cmd.m_line,cmd.m_raw);
                         return(1);
                     }
                     std::pair<int,int> pair;
                     if(str2int(par_list[0],pair.first,0,89) || str2int(par_list[1],pair.second,0,89))
                     {
-                        PrintConsole("failed! Line %d: wrong param values in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: wrong param values in command \"%s\".\n",cmd.m_line,cmd.m_raw);
                         return(1);
                     }
                     // just place swap pairs to the list
@@ -1982,18 +1982,18 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     }
                     if(par_list.size() != 2)
                     {
-                        PrintConsole("failed! Line %d: wrong params count in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: wrong params count in command \"%s\".\n",cmd.m_line,cmd.m_raw);
                         return(1);
                     }
                     std::pair<int,int> pair;
                     if(str2int(par_list[0],pair.first,0,89) || str2int(par_list[1],pair.second,0,89))
                     {
-                        PrintConsole("failed! Line %d: wrong param values in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: wrong param values in command \"%s\".\n",cmd.m_line,cmd.m_raw);
                         return(1);
                     }
                     if(SwapUnits(&arch, pair))
                     {
-                        PrintConsole("failed! Line %d: swaping unit recirds data in command \"%s\".\n %s\n",cmd.m_line,cmd.m_raw.c_str(),m_last_error.c_str());
+                        PrintConsole("failed! Line %d: swaping unit recirds data in command \"%s\".\n %s\n",cmd.m_line,cmd.m_raw,m_last_error);
                         return(1);
                     }
 
@@ -2009,12 +2009,12 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     }
                     if(par_list.size() != 1)
                     {
-                        PrintConsole("failed! Line %d: wrong params count in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: wrong params count in command \"%s\".\n",cmd.m_line,cmd.m_raw);
                         return(1);
                     }
                     if(par_list[0] != "EN" && par_list[0] != "ENG" && par_list[0] != "CZ" && par_list[0] != "CZE")
                     {
-                        PrintConsole("failed! Line %d: wrong parameter value in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: wrong parameter value in command \"%s\".\n",cmd.m_line,cmd.m_raw);
                         return(1);
                     }                    
                     convert_target = par_list[0];
@@ -2031,7 +2031,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     if(par_list.size() > 4 || par_list.size() < 3)
                     {
                         // wrong parameters count for add() command
-                        PrintConsole("failed! Line %d: wrong params count is command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: wrong params count is command \"%s\".\n",cmd.m_line,cmd.m_raw);
                         return(1);
                     }
                     if(par_list.size() == 4)
@@ -2041,7 +2041,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                         else
                         {
                             // unknown mode parameter for add() command
-                            PrintConsole("failed! Line %d: unknown copy mode \"%s\" in command \"%s\".\n",cmd.m_line,mode.c_str(),cmd.m_raw.c_str());
+                            PrintConsole("failed! Line %d: unknown copy mode \"%s\" in command \"%s\".\n",cmd.m_line,mode,cmd.m_raw);
                             return(1);
                         }
                         par_list.erase(par_list.begin() + 0);
@@ -2056,7 +2056,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     if(!parsed_path.isValid())
                     {
                         // parsing path for add() command failed
-                        PrintConsole("failed! Line %d: parsing source path failed in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: parsing source path failed in command \"%s\".\n",cmd.m_line,cmd.m_raw);
                         return(1);
                     }
                     
@@ -2070,7 +2070,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     if(!src)
                     {
                         // loading source data for add() command failed
-                        PrintConsole("failed! Line %d: loading source data failed in command \"%s\".\n%s\n",cmd.m_line,cmd.m_raw.c_str(),m_last_error.c_str());
+                        PrintConsole("failed! Line %d: loading source data failed in command \"%s\".\n%s\n",cmd.m_line,cmd.m_raw,m_last_error);
                         return(1);
                     }
                                                            
@@ -2078,7 +2078,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     if(arch.AddFile(*src,src_name,replace,dest_name))
                     {
                         // adding file to archive in add() command failed
-                        PrintConsole("failed! Line %d: copying file \"%s\" to \"%s\" in command \"%s\".\n%s\n",cmd.m_line,src_name.c_str(),dest_name.c_str(),cmd.m_raw.c_str(),arch.GetLastError().c_str());
+                        PrintConsole("failed! Line %d: copying file \"%s\" to \"%s\" in command \"%s\".\n%s\n",cmd.m_line,src_name,dest_name,cmd.m_raw,arch.GetLastError());
                         return(1);
                     }
                 }
@@ -2118,13 +2118,13 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     else
                     {
                         // wrong parameters count for add() command
-                        PrintConsole("failed! Line %d: wrong params combination is command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: wrong params combination is command \"%s\".\n",cmd.m_line,cmd.m_raw);
                         return(1);
                     }
                     if(mode != "ALL" && mode != "NEW")
                     {
                         // unknown mode parameter for add() command
-                        PrintConsole("failed! Line %d: unknown mode \"%s\" in command \"%s\".\n",cmd.m_line,mode.c_str(),cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: unknown mode \"%s\" in command \"%s\".\n",cmd.m_line,mode,cmd.m_raw);
                         return(1);
                     }
                     bool replace = (mode == "ALL");
@@ -2134,7 +2134,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     if(!parsed_path.isValid())
                     {
                         // parsing path for add() command failed
-                        PrintConsole("failed! Line %d: parsing source path failed in command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: parsing source path failed in command \"%s\".\n",cmd.m_line,cmd.m_raw);
                         return(1);
                     }
                     
@@ -2148,7 +2148,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     if(!src)
                     {
                         // loading source data for add() command failed
-                        PrintConsole("failed! Line %d: loading source data failed in command \"%s\".\n%s\n",cmd.m_line,cmd.m_raw.c_str(),m_last_error.c_str());
+                        PrintConsole("failed! Line %d: loading source data failed in command \"%s\".\n%s\n",cmd.m_line,cmd.m_raw,m_last_error);
                         return(1);
                     }                    
 
@@ -2161,7 +2161,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                         if(arch.AddFile(*src, name, replace))
                         {
                             // adding file to archive in add() command failed
-                            PrintConsole("failed! Line %d: adding file \"%s\" in command \"%s\".\n%s\n",cmd.m_line,name.c_str(),cmd.m_raw.c_str(),arch.GetLastError().c_str());
+                            PrintConsole("failed! Line %d: adding file \"%s\" in command \"%s\".\n%s\n",cmd.m_line,name,cmd.m_raw,arch.GetLastError());
                             return(1);
                         }
                         count++;
@@ -2169,7 +2169,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     if(!count && !iswild(wild))
                     {
                         // source file in add() command not found
-                        PrintConsole("failed! Line %d: source file \"%s\" not found in command \"%s\".\n",cmd.m_line,wild.c_str(),cmd.m_raw.c_str());
+                        PrintConsole("failed! Line %d: source file \"%s\" not found in command \"%s\".\n",cmd.m_line,wild,cmd.m_raw);
                         return(1);
                     }
 
@@ -2177,14 +2177,14 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 else
                 {
                     // unknown command
-                    PrintConsole("failed! Line %d: unknown command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                    PrintConsole("failed! Line %d: unknown command \"%s\".\n",cmd.m_line,cmd.m_raw);
                     return(1);
                 }
             }
             else
             {
                 // unknown command
-                PrintConsole("failed! Line %d: unknown command \"%s\".\n",cmd.m_line,cmd.m_raw.c_str());
+                PrintConsole("failed! Line %d: unknown command \"%s\".\n",cmd.m_line,cmd.m_raw);
                 return(1);
             }
         }
@@ -2232,13 +2232,13 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 if(units->GenerateDEF(data,units_format))                    
                 {
                     // failed
-                    PrintConsole("failed! Conversion of JEDNOTKY.DEF to desired language format %s in COMMON.FS.\n",convert_target.c_str());
+                    PrintConsole("failed! Conversion of JEDNOTKY.DEF to desired language format %s in COMMON.FS.\n",convert_target);
                     return(1);
                 }
                 // replace it
                 if(arch.AddFile(data,"JEDNOTKY.DEF",true))
                 {
-                    PrintConsole("failed! Conversion of JEDNOTKY.DEF to desired language format %s in COMMON.FS.\n",convert_target.c_str());
+                    PrintConsole("failed! Conversion of JEDNOTKY.DEF to desired language format %s in COMMON.FS.\n",convert_target);
                     return(1);
                 }
             }
@@ -2261,7 +2261,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 if(arch.GetFile(name,data))
                 {
                     // unknown command
-                    PrintConsole("failed! Unit randomizer cannot load file \"%s\" in COMMON.FS.\n",name.c_str());
+                    PrintConsole("failed! Unit randomizer cannot load file \"%s\" in COMMON.FS.\n",name);
                     return(1);
                 }
                 std::string def(data.begin(),data.end());
@@ -2271,7 +2271,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 {
                     if(UnitRandomizer::RandomizeMap(def,units.get(),rand_rules))
                     {
-                        PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name.c_str(),UnitRandomizer::m_last_error.c_str());
+                        PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name,UnitRandomizer::m_last_error);
                         return(1);
                     }
                 }
@@ -2281,7 +2281,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 {
                     if(SwapMapUnits(def,units.get(),swap_map_units_list))
                     {
-                        PrintConsole("failed! Unit swap in \"%s\" failed: %s\n",name.c_str(),m_last_error.c_str());
+                        PrintConsole("failed! Unit swap in \"%s\" failed: %s\n",name,m_last_error);
                         return(1);
                     }
                 }
@@ -2291,7 +2291,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 {
                     if(ConvertVideoNames(def, !to_eng))
                     {
-                        PrintConsole("failed! Converting mod video names to target language %s failed in file \"%s\"\n",convert_target.c_str(), name.c_str());
+                        PrintConsole("failed! Converting mod video names to target language %s failed in file \"%s\"\n",convert_target, name);
                         return(1);
                     }
                 }
@@ -2299,7 +2299,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 // replace
                 if(arch.AddFile(def,name,true))
                 {
-                    PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name.c_str(),arch.GetLastError().c_str());
+                    PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name,arch.GetLastError());
                     return(1);
                 }
             }
@@ -2313,7 +2313,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 if(arch.GetFile(name,data))
                 {
                     // unknown command
-                    PrintConsole("failed! Unit map swapper cannot load file \"%s\" in COMMON.FS.\n",name.c_str());
+                    PrintConsole("failed! Unit map swapper cannot load file \"%s\" in COMMON.FS.\n",name);
                     return(1);
                 }
                 std::string def(data.begin(),data.end());                          
@@ -2323,7 +2323,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 {
                     if(UnitRandomizer::RandomizeLevel(def,units.get(),rand_rules))
                     {
-                        PrintConsole("failed! Unit randomization of \"%s\" failed: %s\n",name.c_str(),UnitRandomizer::m_last_error.c_str());
+                        PrintConsole("failed! Unit randomization of \"%s\" failed: %s\n",name,UnitRandomizer::m_last_error);
                         return(1);
                     }
                 }
@@ -2333,7 +2333,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 {
                     if(SwapLevelUnits(def,units.get(),swap_map_units_list))
                     {
-                        PrintConsole("failed! Unit swap in \"%s\" failed: %s\n",name.c_str(),m_last_error.c_str());
+                        PrintConsole("failed! Unit swap in \"%s\" failed: %s\n",name,m_last_error);
                         return(1);
                     }
                 }
@@ -2343,7 +2343,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 {
                     if(ConvertVideoNames(def,!to_eng))
                     {
-                        PrintConsole("failed! Converting mod video names to target language %s failed in file \"%s\"\n",convert_target.c_str(),name.c_str());
+                        PrintConsole("failed! Converting mod video names to target language %s failed in file \"%s\"\n",convert_target,name);
                         return(1);
                     }
                 }
@@ -2351,7 +2351,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 // replace
                 if(arch.AddFile(def,name,true))
                 {
-                    PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name.c_str(),arch.GetLastError().c_str());
+                    PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name,arch.GetLastError());
                     return(1);
                 }
             }
@@ -2373,7 +2373,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             if(ref_arch.Load(arch_path))
             {
                 // archive loading failed
-                PrintConsole("failed! Loading target archive \"%s\".\n%s\n",wstring2string(arch_path).c_str(),ref_arch.GetLastError().c_str());
+                PrintConsole("failed! Loading target archive \"%s\".\n%s\n",arch_path,ref_arch.GetLastError());
                 return(1);
             }
             // compare by content
@@ -2386,7 +2386,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             if(ref_arch.Load(org_path))
             {
                 // archive loading failed
-                PrintConsole("failed! Loading target archive \"%s\".\n%s\n",wstring2string(org_path).c_str(),ref_arch.GetLastError().c_str());
+                PrintConsole("failed! Loading target archive \"%s\".\n%s\n",org_path,ref_arch.GetLastError());
                 return(1);
             }
             // compare by content
@@ -2413,13 +2413,13 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
         if(arch.Save(arch_path, true))
         {
             // writting archive failed
-            PrintConsole("failed! Saving target archive \"%s\".\n%s\n",wstring2string(arch_path).c_str(),arch.GetLastError().c_str());
+            PrintConsole("failed! Saving target archive \"%s\".\n%s\n",arch_path,arch.GetLastError());
             return(1);
         }
         if(arch_name == "UNITS.FSU")
             fsu_path = arch_path;
 
-        PrintConsole("saved to \"%s\".\n",wstring2string(arch_path).c_str());
+        PrintConsole("saved to \"%s\".\n",arch_path);
     }
 
     PrintConsole(" - Building mod done!\n");
@@ -2478,7 +2478,7 @@ int SpellMod::RestoreMod(Config& config)
         return(0); // nothing to restore
     }
     
-    PrintConsole("\n - loading state file (%s)\n",wstring2string(config.state_ini_path).c_str());
+    PrintConsole("\n - loading state file (%s)\n",config.state_ini_path);
     std::list<CSimpleIniA::Entry> arch_list;
     ini.GetAllSections(arch_list);        
     bool was_error = false;
@@ -2516,13 +2516,13 @@ int SpellMod::RestoreMod(Config& config)
         {
             if(!std::filesystem::exists(mod_from.parent_path()))
             {
-                PrintConsole("failed! Mod MAKE directory not exist (%s).\n",wstring2string(mod_from.parent_path()).c_str());
+                PrintConsole("failed! Mod MAKE directory not exist (%s).\n",mod_from.parent_path());
                 was_error = true;
                 continue;
             }
             if(!std::filesystem::exists(location))
             {
-                PrintConsole("failed! Game archive path not exist (%s).\n",wstring2string(location).c_str());
+                PrintConsole("failed! Game archive path not exist (%s).\n",location);
                 was_error = true;
                 continue;
             }
@@ -2530,17 +2530,17 @@ int SpellMod::RestoreMod(Config& config)
             // move mod file back to MAKE location
             if(fs_rename(location,mod_from))
             {
-                PrintConsole("failed! Moving mod (%s) back to MAKE location (%s).\n",wstring2string(location).c_str(),wstring2string(mod_from).c_str());
+                PrintConsole("failed! Moving mod (%s) back to MAKE location (%s).\n",location,mod_from);
                 was_error = true;
                 continue;
             }            
             if(is_save)
-                MakeSaveIni(mod_from,string_format("Save games of mod \"%s\"",wstring2string(config.mod_path).c_str()));
+                MakeSaveIni(mod_from,string_format("Save games of mod \"%s\"",config.mod_path));
         }       
                 
         if(has_original && !std::filesystem::exists(where_original))
         {
-            PrintConsole("failed! Original game archive path not exist (%s).\n",wstring2string(where_original).c_str());
+            PrintConsole("failed! Original game archive path not exist (%s).\n",where_original);
             was_error = true;
             continue;
         }
@@ -2548,7 +2548,7 @@ int SpellMod::RestoreMod(Config& config)
         // move original from temp back to game location
         if(has_original && fs_rename(where_original,location))
         {
-            PrintConsole("failed! Moving original from temp location (%s) back (%s).\n",wstring2string(where_original).c_str(),wstring2string(location).c_str());
+            PrintConsole("failed! Moving original from temp location (%s) back (%s).\n",where_original,location);
             was_error = true;
             continue;
         }
@@ -2672,7 +2672,7 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
         // move original to temp
         if(has_orig && fs_rename(arch.dest,temp_path))
         {
-            PrintConsole("failed! Moving original (%s) to temp location (%s).\n",wstring2string(arch.dest).c_str(),wstring2string(temp_path).c_str());
+            PrintConsole("failed! Moving original (%s) to temp location (%s).\n",arch.dest,temp_path);
             was_error = true;
             break;
         }
@@ -2687,7 +2687,7 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
         // move mod to original
         if(fs_rename(arch.source,arch.dest))
         {
-            PrintConsole("failed! Moving mod (%s) to game location (%s).\n",wstring2string(arch.source).c_str(),wstring2string(arch.dest).c_str());
+            PrintConsole("failed! Moving mod (%s) to game location (%s).\n",arch.source,arch.dest);
             was_error = true;
             break;
         }
@@ -2720,7 +2720,7 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
             // no save games in mod folder yet: make a copy of current game saves
             if(fs_copy(save_dir,mod_save_dir,std::filesystem::copy_options::recursive))
             {
-                PrintConsole("failed! Making initial copy of games saves (%s) to mod location (%s).\n",wstring2string(save_dir).c_str(),wstring2string(mod_save_dir).c_str());
+                PrintConsole("failed! Making initial copy of games saves (%s) to mod location (%s).\n",save_dir,mod_save_dir);
                 was_error = true;
             }
             else
@@ -2731,7 +2731,7 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
         // now try to swap saves
         if(!was_error && fs_rename(save_dir,save_temp_dir))
         {
-            PrintConsole("failed! Moving original saves (%s) to temp location (%s).\n",wstring2string(save_dir).c_str(),wstring2string(save_temp_dir).c_str());
+            PrintConsole("failed! Moving original saves (%s) to temp location (%s).\n",save_dir,save_temp_dir);
             was_error = true;
         }
         else if(!was_error)
@@ -2743,11 +2743,11 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
             ini.SetValue("SAVE","where_original",save_temp_dir.string().c_str());
             ini.SetValue("SAVE","mod_from","");     
 
-            MakeSaveIni(mod_save_dir,string_format("Save games of mod \"%s\"",wstring2string(config.mod_path).c_str()));
+            MakeSaveIni(mod_save_dir,string_format("Save games of mod \"%s\"",config.mod_path));
                         
             if(fs_rename(mod_save_dir,save_dir))
             {
-                PrintConsole("failed! Moving mod saves (%s) to game location (%s).\n",wstring2string(mod_save_dir).c_str(),wstring2string(save_dir).c_str());
+                PrintConsole("failed! Moving mod saves (%s) to game location (%s).\n",mod_save_dir,save_dir);
                 was_error = true;
             }
             else

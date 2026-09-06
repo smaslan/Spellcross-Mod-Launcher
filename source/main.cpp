@@ -641,7 +641,7 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	m_th_proc = NULL;
 	form_edit = NULL;
 
-	SetTitle(string_format("Spellcross Mod Launcher (%s)",str_ver_label.c_str()));
+	SetTitle(string_format("Spellcross Mod Launcher (%s)",str_ver_label));
 
 	wxIcon ico;
 	ico.LoadFile("IDI_SPELCROS",wxBITMAP_TYPE_ICO_RESOURCE);
@@ -873,6 +873,9 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 	rule.unit_list ={0,1,2};
 	rule.probab_list = {25.0,50.0,25.0};
 	auto list = rule.Randomize(100);*/
+
+	/*auto str = string_format("%s",std::wstring(L"pokus mimometčíci"));
+	return;*/
 }
 
 FormMain::~FormMain()
@@ -942,7 +945,7 @@ void FormMain::OnHelp(wxCommandEvent& event)
 	if((int)hinst <= 32)
 	{
 		// failed
-		wxMessageDialog dial(this,string_format("Cannot open help HTML:\n%s:\n\nThe file is either not found or it is blocked by system setup. Try to open manually in tool's folder.",wstring2string(path).c_str()),_("Opening help..."),wxICON_ERROR);
+		wxMessageDialog dial(this,string_format("Cannot open help HTML:\n%s:\n\nThe file is either not found or it is blocked by system setup. Try to open manually in tool's folder.",path),_("Opening help..."),wxICON_ERROR);
 		dial.ShowModal();
 	}
 }
@@ -1005,7 +1008,7 @@ void FormMain::OnInstallGame(wxCommandEvent& event)
 
 	// confirm
 	{
-		wxMessageDialog dial(this,string_format("INSTALLING SPELLCROS\n\nInstallation source file:\n%s\n\nTarget directory to which Spellcross will be installed:\n%s\n\nAll files in target directory will be overwritten! Continue?",wstring2string(dta_path).c_str(),wstring2string(install_path).c_str()),"Install Spellcross game ...",wxYES_NO | wxICON_QUESTION);
+		wxMessageDialog dial(this,string_format("INSTALLING SPELLCROS\n\nInstallation source file:\n%s\n\nTarget directory to which Spellcross will be installed:\n%s\n\nAll files in target directory will be overwritten! Continue?",dta_path,install_path),"Install Spellcross game ...",wxYES_NO | wxICON_QUESTION);
 		if(dial.ShowModal() != wxID_YES)
 			return;
 	}
@@ -1013,10 +1016,10 @@ void FormMain::OnInstallGame(wxCommandEvent& event)
 	// try install
 	if(SpellInstall::InstallDTA(dta_path,install_path))
 	{
-		wxMessageBox(string_format("Spellcross installation failed! %s",SpellInstall::m_last_error.c_str()),"Error",wxICON_ERROR);
+		wxMessageBox(string_format("Spellcross installation failed! %s",SpellInstall::m_last_error),"Error",wxICON_ERROR);
 		return;
 	}
-	wxMessageBox(string_format("Spellcross installation to folder \"%s\" done!",wstring2string(install_path).c_str()),"Info",wxICON_INFORMATION);
+	wxMessageBox(string_format("Spellcross installation to folder \"%s\" done!",install_path),"Info",wxICON_INFORMATION);
 	
 	// auto select install path
 	chSpellPath->Insert(install_path.wstring(),0);
@@ -1033,7 +1036,7 @@ void FormMain::OnInstallGame(wxCommandEvent& event)
 		return;
 
 	// prompt patch?
-	wxMessageDialog dial(this,string_format("INSTALLING SPELLCROS\n\nDetected potentially faulty patchable version of %s.\n\nTry patch it?",spell_exe.c_str()),"Installing Spellcross game ...",wxYES_NO | wxICON_QUESTION);
+	wxMessageDialog dial(this,string_format("INSTALLING SPELLCROS\n\nDetected potentially faulty patchable version of %s.\n\nTry patch it?",spell_exe),"Installing Spellcross game ...",wxYES_NO | wxICON_QUESTION);
 	if(dial.ShowModal() != wxID_YES)
 		return;
 	OnPatchExe(event);
@@ -1065,7 +1068,7 @@ void FormMain::OnPatchExe(wxCommandEvent& event)
 
 	// prompt
 	std::string spell_bak = "SPELORIG.EXE";
-	wxMessageDialog dial(this,string_format("PATCHING SPELCROS.EXE\n\nThis tool will try to patch SPELCROS.EXE to fix CD detection errors and game freeze whenever some auto save game in SAVE/WORKDIR is present. It is based on analysis of correctly working version game version of unknown origin.\nIt will backup original %s to %s.\n\nContinue?",spell_exe.c_str(),spell_bak.c_str()),"Patch Spellcross game ...", wxYES_NO | wxICON_QUESTION);
+	wxMessageDialog dial(this,string_format("PATCHING SPELCROS.EXE\n\nThis tool will try to patch SPELCROS.EXE to fix CD detection errors and game freeze whenever some auto save game in SAVE/WORKDIR is present. It is based on analysis of correctly working version game version of unknown origin.\nIt will backup original %s to %s.\n\nContinue?",spell_exe,spell_bak),"Patch Spellcross game ...", wxYES_NO | wxICON_QUESTION);
 	if(dial.ShowModal() != wxID_YES)
 		return;
 
@@ -1089,7 +1092,7 @@ void FormMain::OnEditDOSboxConf(wxCommandEvent& event)
 	auto box_path = GetPathChoiceLastPath(chDOSboxPath);
 	if(box_path.empty())
 		return;		
-	auto cmd = string_format("\"%s\" -printconf -noconsole",wstring2string(box_path).c_str());
+	auto cmd = string_format("\"%s\" -printconf -noconsole",box_path);
 	std::system(cmd.c_str());
 	//auto path_file = std::filesystem::path(box_path).parent_path() / "stdout.txt";
 	auto path_file = "stdout.txt";
@@ -1112,7 +1115,7 @@ void FormMain::OnModInfo(wxCommandEvent& event)
 	if((int)hinst <= 32)
 	{
 		// failed
-		wxMessageDialog dial(this,string_format("Cannot open mod info HTML file:\n%s:\n\nThe file is either not found or it is blocked by system setup (security setup). Try to open it manually from mod folder.",wstring2string(path).c_str()),_("Opening help..."),wxICON_ERROR);
+		wxMessageDialog dial(this,string_format("Cannot open mod info HTML file:\n%s:\n\nThe file is either not found or it is blocked by system setup (security setup). Try to open it manually from mod folder.",path),_("Opening help..."),wxICON_ERROR);
 		dial.ShowModal();
 	}
 }
@@ -1176,8 +1179,8 @@ void FormMain::OnBackupSaveWD(wxCommandEvent& event)
 
 	if(!std::filesystem::exists(save_dir) || !std::filesystem::exists(src_path))
 	{
-		info += string_format("Source savegame directory:\n  %s\ndoes not exist! ",wstring2string(save_dir).c_str());
-		info += string_format("You may have wrong paths set? Or maybe no save was made yet?",save_dir.wstring().c_str());
+		info += string_format("Source savegame directory:\n  %s\ndoes not exist! ",save_dir);
+		info += string_format("You may have wrong paths set? Or maybe no save was made yet?",save_dir);
 		wxMessageDialog dial(this,info,"Backup of savegame ...",wxICON_ERROR);
 		dial.ShowModal();
 		return;
@@ -1186,22 +1189,22 @@ void FormMain::OnBackupSaveWD(wxCommandEvent& event)
 	if(names.empty())
 	{
 		if(is_save)
-			info += string_format("Current WORKDIR save game:\n  %s\nwith its content will be copied to backup location:\n  %s.",wstring2string(src_path).c_str(),wstring2string(dest_path).c_str());
+			info += string_format("Current WORKDIR save game:\n  %s\nwith its content will be copied to backup location:\n  %s.",src_path,dest_path);
 		else
-			info += string_format("Backup WORKDIR save game/:\n  %s\nwith its content will be restored to location:\n  %s.",wstring2string(src_path).c_str(),wstring2string(dest_path).c_str());
+			info += string_format("Backup WORKDIR save game/:\n  %s\nwith its content will be restored to location:\n  %s.",src_path,dest_path);
 	}
 	else
 	{
 		if(is_save)
-			info += string_format("Existing backup of WORKDIR save game:\n  %s\nwith its content:\n",wstring2string(dest_path).c_str());
+			info += string_format("Existing backup of WORKDIR save game:\n  %s\nwith its content:\n",dest_path);
 		else
-			info += string_format("Existing WORKDIR save game:\n  %s\nwith its content:\n",wstring2string(dest_path).c_str());
+			info += string_format("Existing WORKDIR save game:\n  %s\nwith its content:\n",dest_path);
 		for(auto &item: names)
-			info += string_format("  %s\n",item.c_str());
+			info += string_format("  %s\n",item);
 		if(is_save)
-			info += string_format("will be removed and replaced by current save game WORKDIR:\n  %s.",wstring2string(src_path).c_str());
+			info += string_format("will be removed and replaced by current save game WORKDIR:\n  %s.",src_path);
 		else
-			info += string_format("will be removed and replaced by backup of WORKDIR save game:\n  %s.",wstring2string(src_path).c_str());
+			info += string_format("will be removed and replaced by backup of WORKDIR save game:\n  %s.",src_path);
 	}
 
 	wxMessageDialog dial(this,info,"Backup of savegame ...", wxYES_NO | wxICON_QUESTION);
@@ -1214,7 +1217,7 @@ void FormMain::OnBackupSaveWD(wxCommandEvent& event)
 		if(fs_remove(dest_path, true))
 		{
 			// failed
-			wxMessageDialog dial(this,string_format("Cannot remove old save directory:\n  %s\nPossibly sharing violation. Maybe you are currently viewing the save folder?",wstring2string(dest_path).c_str()),"Backup of savegame ...",wxICON_ERROR);
+			wxMessageDialog dial(this,string_format("Cannot remove old save directory:\n  %s\nPossibly sharing violation. Maybe you are currently viewing the save folder?",dest_path),"Backup of savegame ...",wxICON_ERROR);
 			dial.ShowModal();
 			return;
 		}
@@ -1224,14 +1227,14 @@ void FormMain::OnBackupSaveWD(wxCommandEvent& event)
 	if(fs_copy(src_path, dest_path, std::filesystem::copy_options::recursive))
 	{
 		// failed
-		wxMessageDialog dial(this,string_format("Cannot copy save directory:\n  %s\nto its new location:\n  %s\nPossibly sharing violation. Maybe you are currently viewing the save folder?",wstring2string(src_path).c_str(),wstring2string(dest_path).c_str()),"Backup of savegame ...",wxICON_ERROR);
+		wxMessageDialog dial(this,string_format("Cannot copy save directory:\n  %s\nto its new location:\n  %s\nPossibly sharing violation. Maybe you are currently viewing the save folder?",src_path,dest_path),"Backup of savegame ...",wxICON_ERROR);
 		dial.ShowModal();
 		return;
 	}
 
 	// ok
 	{
-		wxMessageDialog dial(this,string_format("Done!",src_path.wstring().c_str(),dest_path.wstring().c_str()),"Backup of savegame ...",wxICON_INFORMATION);
+		wxMessageDialog dial(this,string_format("Done!"),"Backup of savegame ...",wxICON_INFORMATION);
 		dial.ShowModal();	
 	}
 }
@@ -1257,7 +1260,7 @@ void FormMain::OnSaveEdit(wxCommandEvent& event)
 		auto common_fs_path = std::filesystem::path(spell_dir) / "data" / "common.fs";
 		if(!std::filesystem::exists(common_fs_path))
 		{
-			wxMessageBox(string_format("Spellcross COMMON.FS archive not found at path \"%s\"! Cannot continue.",wstring2string(common_fs_path).c_str()),"Error",wxICON_ERROR);
+			wxMessageBox(string_format("Spellcross COMMON.FS archive not found at path \"%s\"! Cannot continue.",common_fs_path),"Error",wxICON_ERROR);
 			return;
 		}
 		form_save_edit->SetCommonPath(common_fs_path,false);
@@ -1287,13 +1290,13 @@ void FormMain::OnSaveEdit(wxCommandEvent& event)
 		auto make_dir_path = mod.GetPath("MAKE");
 		if(!make_dir_path)			
 		{
-			wxMessageBox(string_format("Spellcross mod MAKE directory for mod \"%s\" not defined! Cannot continue.",wstring2string(mod_path).c_str()),"Error",wxICON_ERROR);
+			wxMessageBox(string_format("Spellcross mod MAKE directory for mod \"%s\" not defined! Cannot continue.",mod_path),"Error",wxICON_ERROR);
 			return;
 		}
 		auto common_fs_path = make_dir_path->path / "common.fs";
 		if(!std::filesystem::exists(common_fs_path))
 		{
-			wxMessageBox(string_format("Spellcross COMMON.FS archive not found at mod MAKE path \"%s\"! Make sure the mod was built before using modded save editor!\nSave editor will now use original game COMMON.FS in case selected mod does not produce modded version of COMMON.FS.",wstring2string(common_fs_path).c_str()),"Warning",wxICON_WARNING);
+			wxMessageBox(string_format("Spellcross COMMON.FS archive not found at mod MAKE path \"%s\"! Make sure the mod was built before using modded save editor!\nSave editor will now use original game COMMON.FS in case selected mod does not produce modded version of COMMON.FS.",common_fs_path),"Warning",wxICON_WARNING);
 			if(spell_dir.empty())
 			{
 				wxMessageBox("Spellcross directory not selected!","Error",wxICON_ERROR);
@@ -1302,7 +1305,7 @@ void FormMain::OnSaveEdit(wxCommandEvent& event)
 			common_fs_path = std::filesystem::path(spell_dir) / "data" / "common.fs";
 			if(!std::filesystem::exists(common_fs_path))
 			{
-				wxMessageBox(string_format("Spellcross COMMON.FS archive not found at path \"%s\"! Cannot continue.",wstring2string(common_fs_path).c_str()),"Error",wxICON_ERROR);
+				wxMessageBox(string_format("Spellcross COMMON.FS archive not found at path \"%s\"! Cannot continue.",common_fs_path),"Error",wxICON_ERROR);
 				return;
 			}
 		}		
@@ -1330,7 +1333,7 @@ void FormMain::OnSaveEdit(wxCommandEvent& event)
 	{
 		if(!std::filesystem::exists(save_dir))
 		{
-			wxMessageBox(string_format("Spellcross SAVE folder \"%s\" does not exit! Cannot continue.",wstring2string(save_dir).c_str()),"Error",wxICON_ERROR);
+			wxMessageBox(string_format("Spellcross SAVE folder \"%s\" does not exit! Cannot continue.",save_dir),"Error",wxICON_ERROR);
 			return;
 		}
 	}
@@ -1368,7 +1371,7 @@ void FormMain::OnUnitRandomizeConfig(wxCommandEvent& event)
 	auto make_dir_path = mod.GetPath("MAKE");
 	if(!make_dir_path)
 	{
-		wxMessageBox(string_format("Spellcross mod MAKE directory for mod \"%s\" not defined! Cannot continue.",wstring2string(mod_path).c_str()),"Error",wxICON_ERROR);
+		wxMessageBox(string_format("Spellcross mod MAKE directory for mod \"%s\" not defined! Cannot continue.",mod_path),"Error",wxICON_ERROR);
 		return;
 	}	
 	auto common_fs_path = make_dir_path->path / "common.fs";
@@ -1378,7 +1381,7 @@ void FormMain::OnUnitRandomizeConfig(wxCommandEvent& event)
 		common_fs_path = std::filesystem::path(mod_config.spell_dir) / "data" / "common.fs";
 		if(!std::filesystem::exists(common_fs_path))
 		{
-			wxMessageBox(string_format("Spellcross COMMON.FS archive not found at path \"%s\"! Cannot continue.",wstring2string(common_fs_path).c_str()),"Error",wxICON_ERROR);
+			wxMessageBox(string_format("Spellcross COMMON.FS archive not found at path \"%s\"! Cannot continue.",common_fs_path),"Error",wxICON_ERROR);
 			return;
 		}
 	}
@@ -1400,7 +1403,7 @@ void FormMain::OnUnitRandomizeConfig(wxCommandEvent& event)
 	// pass data to gui
 	if(form_unit_rand->SetData(common_fs_path, save_dir))
 	{
-		wxMessageBox(string_format("Running randomizer config failed with error: %s",form_unit_rand->m_last_error.c_str()),"Error",wxICON_ERROR);
+		wxMessageBox(string_format("Running randomizer config failed with error: %s",form_unit_rand->m_last_error),"Error",wxICON_ERROR);
 		delete form_unit_rand;
 		return;
 	}
@@ -2198,7 +2201,7 @@ void FormMain::EditFile(std::filesystem::path path)
 		return;
 	if(!std::filesystem::exists(path))
 	{
-		wxMessageDialog dial(this,string_format("File \"%s\" does not exist?",wstring2string(path).c_str()),_("Edit file..."),wxOK | wxICON_INFORMATION);
+		wxMessageDialog dial(this,string_format("File \"%s\" does not exist?",path),_("Edit file..."),wxOK | wxICON_INFORMATION);
 		dial.ShowModal();
 		return;
 	}
@@ -2218,7 +2221,7 @@ void FormMain::FillChoicePaths(wxChoice* choice,CSimpleIniA *ini, std::string se
     {
         auto hkey = key;
         if(k)
-            hkey = string_format("%s<%d>",key.c_str(), k);
+            hkey = string_format("%s<%d>",key, k);
         auto path = ini->GetValue(section.c_str(),hkey.c_str());
         if(path && strlen(path))
             choice->Append(path);
@@ -2261,7 +2264,7 @@ void FormMain::SaveChoicePaths(wxChoice* choice,CSimpleIniA* ini,std::string sec
 		if(!id)
 			com = comment.c_str();
 		if(id)
-            hkey = string_format("%s<%d>",key.c_str(),id);
+            hkey = string_format("%s<%d>",key,id);
         if(id < list.size())
             ini->SetValue(section.c_str(), hkey.c_str(),wstring2string(list[id]).c_str(),com);
         else

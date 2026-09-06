@@ -23,7 +23,7 @@ int SpellInstall::InstallDTA(std::filesystem::path dta_path,std::filesystem::pat
     ifstreamext fr(dta_path,std::ios::in | std::ios::binary);
     if(!fr)
     {
-        m_last_error = string_format("Opening file \"%s\" failed!",wstring2string(dta_path).c_str());
+        m_last_error = string_format("Opening file \"%s\" failed!",dta_path);
         return(1);
     }
 
@@ -31,7 +31,7 @@ int SpellInstall::InstallDTA(std::filesystem::path dta_path,std::filesystem::pat
     auto ver = fr.read_u32();
     if(!fr.is_ok())
     {
-        m_last_error = string_format("Reading file \"%s\" failed! Possibly corrupted file.",wstring2string(dta_path).c_str());
+        m_last_error = string_format("Reading file \"%s\" failed! Possibly corrupted file.",dta_path);
         return(1);
     }
     if(ver != 0x12)
@@ -41,7 +41,7 @@ int SpellInstall::InstallDTA(std::filesystem::path dta_path,std::filesystem::pat
     auto dir_count = fr.read_u32();
     if(!fr.is_ok())
     {
-        m_last_error = string_format("Reading file \"%s\" failed! Possibly corrupted file.",wstring2string(dta_path).c_str());
+        m_last_error = string_format("Reading file \"%s\" failed! Possibly corrupted file.",dta_path);
         return(1);
     }
     
@@ -52,7 +52,7 @@ int SpellInstall::InstallDTA(std::filesystem::path dta_path,std::filesystem::pat
         auto dir = fr.read_str_null();
         if(!fr.is_ok())
         {
-            m_last_error = string_format("Reading file \"%s\" failed! Possibly corrupted file.",wstring2string(dta_path).c_str());
+            m_last_error = string_format("Reading file \"%s\" failed! Possibly corrupted file.",dta_path);
             return(1);
         }
 
@@ -64,7 +64,7 @@ int SpellInstall::InstallDTA(std::filesystem::path dta_path,std::filesystem::pat
         try{
             std::filesystem::create_directories(dir_path);
         }catch(const std::runtime_error& error) {            
-            m_last_error = string_format("Creating directory \"%s\" failed!",wstring2string(dir_path).c_str());
+            m_last_error = string_format("Creating directory \"%s\" failed!",dir_path);
             return(1);
         }
     }
@@ -81,7 +81,7 @@ int SpellInstall::InstallDTA(std::filesystem::path dta_path,std::filesystem::pat
         auto name = fr.read_str_fixed(13);
         if(!fr.is_ok())
         {
-            m_last_error = string_format("Reading file \"%s\" failed! Possibly corrupted file.",wstring2string(dta_path).c_str());
+            m_last_error = string_format("Reading file \"%s\" failed! Possibly corrupted file.",dta_path);
             return(1);
         }
         
@@ -89,7 +89,7 @@ int SpellInstall::InstallDTA(std::filesystem::path dta_path,std::filesystem::pat
         auto ofs = fr.read_u32();
         if(!fr.is_ok())
         {
-            m_last_error = string_format("Reading file \"%s\" failed! Possibly corrupted file.",wstring2string(dta_path).c_str());
+            m_last_error = string_format("Reading file \"%s\" failed! Possibly corrupted file.",dta_path);
             return(1);
         }
 
@@ -97,7 +97,7 @@ int SpellInstall::InstallDTA(std::filesystem::path dta_path,std::filesystem::pat
         auto size = fr.read_u32();
         if(!fr.is_ok())
         {
-            m_last_error = string_format("Reading file \"%s\" failed! Possibly corrupted file.",wstring2string(dta_path).c_str());
+            m_last_error = string_format("Reading file \"%s\" failed! Possibly corrupted file.",dta_path);
             return(1);
         }
 
@@ -105,12 +105,12 @@ int SpellInstall::InstallDTA(std::filesystem::path dta_path,std::filesystem::pat
         auto dir_id = fr.read_u32();
         if(!fr.is_ok())
         {
-            m_last_error = string_format("Reading file \"%s\" failed! Possibly corrupted file.",wstring2string(dta_path).c_str());
+            m_last_error = string_format("Reading file \"%s\" failed! Possibly corrupted file.",dta_path);
             return(1);
         }
         if(dir_id >= dir_paths.size())
         {
-            m_last_error = string_format("Reading file \"%s\" failed! Possibly corrupted file.",wstring2string(dta_path).c_str());
+            m_last_error = string_format("Reading file \"%s\" failed! Possibly corrupted file.",dta_path);
             return(1);
         }
 
@@ -123,7 +123,7 @@ int SpellInstall::InstallDTA(std::filesystem::path dta_path,std::filesystem::pat
         auto data = fr.read_vector(size);
         if(!fr.is_ok())
         {
-            m_last_error = string_format("Reading file \"%s\" failed! Possibly corrupted file.",wstring2string(dta_path).c_str());
+            m_last_error = string_format("Reading file \"%s\" failed! Possibly corrupted file.",dta_path);
             return(1);
         }
         fr.seekg(pos);
@@ -131,7 +131,7 @@ int SpellInstall::InstallDTA(std::filesystem::path dta_path,std::filesystem::pat
         // try save file
         if(savedata(path,data))
         {
-            m_last_error = string_format("Writing file \"%s\" failed!",wstring2string(path).c_str());
+            m_last_error = string_format("Writing file \"%s\" failed!",path);
             return(1);
         }
     }

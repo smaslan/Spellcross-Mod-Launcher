@@ -115,13 +115,13 @@ int SpellSave::FixSaves(Saves& saves,std::filesystem::path common_fs_path,std::s
         bool do_fix = !check_only && save.do_fix;
 
         // load save folder
-        auto save_name = string_format("%s: %s",save.dir_name.c_str(),wstring2string(save.name).c_str());
+        auto save_name = string_format("%s: %s",save.dir_name,save.name);
         
         // parse big_map.sav
         SpellSaveBigMap bm;
         if(bm.Load(save.dir_path,common_fs))
         {
-            report += string_format("%s:\n",save_name.c_str());
+            report += string_format("%s:\n",save_name);
             report += string_format(" - Failed loading big_map.sav\n");
             save.is_consistent = false;
             return(1);
@@ -132,7 +132,7 @@ int SpellSave::FixSaves(Saves& saves,std::filesystem::path common_fs_path,std::s
         bm.FixUnits(rep,!do_fix);
         if(!rep.empty())
         {
-            report += string_format("%s:\n",save_name.c_str());            
+            report += string_format("%s:\n",save_name);            
 
             auto lines = get_text_lines(rep,false);
             for(auto& line: lines)
@@ -151,7 +151,7 @@ int SpellSave::FixSaves(Saves& saves,std::filesystem::path common_fs_path,std::s
             // was fixed, save changes
             if(bm.Save(bm.m_path))
             {
-                report += string_format("%s:\n",save_name.c_str());
+                report += string_format("%s:\n",save_name);
                 report += string_format(" - Failed saving big_map.sav\n");
                 return(1);
             }
@@ -254,7 +254,7 @@ std::map<int,std::wstring> SpellSaveBigMap::GetUnitTypeList(bool add_empty,bool 
     {
         auto id = &unit - m_unit_names.data();
         if(with_id)
-            list.insert({id,wstring_format(L"#%02d: %s",id,wstring2string(unit).c_str())});
+            list.insert({id,wstring_format(L"#%02d: %ls",id,unit.c_str())});
         else
             list.insert({id,unit});            
     }
@@ -269,7 +269,7 @@ std::map<int,std::wstring> SpellSaveBigMap::GetUnitNames(bool with_id)
     {
         auto id = &unit - m_unit_names.data();
         if(with_id)
-            list.insert({id,wstring_format(L"#%02d: %s",id,wstring2string(unit).c_str())});
+            list.insert({id,wstring_format(L"#%02d: %ls",id,unit.c_str())});
         else
             list.insert({id,unit});
             
@@ -479,7 +479,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
     }
 
     // load BIG_MAP
-    LogFile::Write("- loading save file: %s ... ",wstring2string(path).c_str());
+    LogFile::Write("- loading save file: %s ... ",path);
     std::vector<uint8_t> data;
     if(loaddata(path,data))
     {
@@ -1486,13 +1486,13 @@ int SpellSaveBigMap::FixUnits(std::string& report,bool just_check)
         auto id = &unit - units.data();
                
         //auto unit_name = string_format("Unit #%d (%s)",id,str_to_ascii(unit.name).c_str());
-        auto unit_name = string_format("Unit #%d (%s)",id,wstring2string(unit.name).c_str());
+        auto unit_name = string_format("Unit #%d (%s)",id,unit.name);
         std::vector<std::string> lines;
 
         auto urec = m_jednotky_def->GetUnit(unit.unit_type_id);
         if(!urec)
         {
-            report += string_format("%s: Type ID %d not present in provided JEDNOTKY.DEF.\n",unit_name.c_str(),unit.unit_type_id);
+            report += string_format("%s: Type ID %d not present in provided JEDNOTKY.DEF.\n",unit_name,unit.unit_type_id);
             continue;
         }
         
@@ -1527,12 +1527,12 @@ int SpellSaveBigMap::FixUnits(std::string& report,bool just_check)
             continue;
 
         if(lines.size() == 1)        
-            report += string_format("%s: %s\n",unit_name.c_str(), lines[0].c_str());
+            report += string_format("%s: %s\n",unit_name, lines[0]);
         else
         {
-            report += string_format("%s:\n",unit_name.c_str());
+            report += string_format("%s:\n",unit_name);
             for(auto &line: lines)
-                report += string_format(" - %s\n",line.c_str());
+                report += string_format(" - %s\n",line);
         }
 
 

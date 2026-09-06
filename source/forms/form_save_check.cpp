@@ -165,7 +165,7 @@ bool FormSaveCheck::UpdateCheck(bool do_fix)
 	lboxSaves->Clear();
 	for(auto& save: m_saves)
 	{		
-		lboxSaves->Append(string_format("%s: %s",save.dir_name.c_str(),wstring2string(save.name).c_str()));
+		lboxSaves->Append(string_format("%s: %s",save.dir_name,save.name));
 		lboxSaves->Check(&save - m_saves.data(),!do_fix || save.do_fix);
 	}
 	lboxSaves->Thaw();
@@ -188,7 +188,7 @@ bool FormSaveCheck::UpdateCheck(bool do_fix)
 		lboxSaves->Clear();
 		for(auto& save: m_saves)
 		{
-			lboxSaves->Append(string_format("%s: %s",save.dir_name.c_str(),wstring2string(save.name).c_str()));
+			lboxSaves->Append(string_format("%s: %s",save.dir_name,save.name));
 			lboxSaves->Check(&save - m_saves.data(),!save.is_consistent);
 		}
 		lboxSaves->Thaw();

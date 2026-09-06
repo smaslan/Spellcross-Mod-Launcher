@@ -93,31 +93,13 @@ WXCURSOR_CROSS          CURSOR                  "wx/msw/cross.cur"*/
 
 // Icon with lowest ID value placed first to ensure application icon
 // remains consistent on all systems.
-IDI_ICON1               ICON                    "ico/icon.ico"
-
-/*WXICON_AAA              ICON                    "wx/msw/std.ico"
-
-WXICON_SMALL_CLOSED_FOLDER ICON                    "wx/msw/folder1.ico"
-
-WXICON_SMALL_OPEN_FOLDER ICON                    "wx/msw/folder2.ico"
-
-WXICON_SMALL_FILE       ICON                    "wx/msw/file1.ico"
-
-WXICON_SMALL_COMPUTER   ICON                    "wx/msw/computer.ico"
-
-WXICON_SMALL_DRIVE      ICON                    "wx/msw/drive.ico"
-
-WXICON_SMALL_CDROM      ICON                    "wx/msw/cdrom.ico"
-
-WXICON_SMALL_FLOPPY     ICON                    "wx/msw/floppy.ico"
-
-WXICON_SMALL_REMOVEABLE ICON                    "wx/msw/removble.ico"*/
-
+IDI_ICON1               ICON                    "ico/icon_dark.ico"
 IDI_ICON2               ICON                    "ico/icon.ico"
 
 IDI_SPELCROS            ICON                    "ico/SPELCROS.ICO"
 IDI_SPELL_MOD           ICON                    "ico/spell_mod.ICO"
-IDI_ABOUT           ICON                    "ico/about2.ICO"
+IDI_ABOUT               ICON                    "ico/about2.ICO"
+
 
 
 /////////////////////////////////////////////////////////////////////////////
