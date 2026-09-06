@@ -77,7 +77,7 @@ int SpellArchive::Load(std::filesystem::path path, Type explicit_archive_type)
             // FSU archive:
             if(m_fsu)
             {
-                m_last_error = string_format("Creating FSU archive from directory \"%ls\" to object SpellArchive failed! Object already has some archive loaded.",path.wstring().c_str());
+                m_last_error = string_format("Creating FSU archive from directory \"%s\" to object SpellArchive failed! Object already has some archive loaded.",wstring2string(path).c_str());
                 return(1);
             }
             m_fsu = new FSUarchive();
@@ -95,7 +95,7 @@ int SpellArchive::Load(std::filesystem::path path, Type explicit_archive_type)
             // FS archive:
             if(m_fs)
             {
-                m_last_error = string_format("Creating FS archive from directory \"%ls\" to object SpellArchive failed! Object already has some archive loaded.",path.wstring().c_str());
+                m_last_error = string_format("Creating FS archive from directory \"%s\" to object SpellArchive failed! Object already has some archive loaded.",wstring2string(path).c_str());
                 return(1);
             }
             m_fs = new FSarchive();
@@ -115,7 +115,7 @@ int SpellArchive::Load(std::filesystem::path path, Type explicit_archive_type)
         // try load FS archive data
         if(m_fsu)
         {
-            m_last_error = string_format("Loading FS archive \"%ls\" to object SpellArchive failed! Object already has some archive loaded.",path.wstring().c_str());
+            m_last_error = string_format("Loading FS archive \"%s\" to object SpellArchive failed! Object already has some archive loaded.",wstring2string(path).c_str());
             return(1);
         }
         try{
@@ -132,14 +132,14 @@ int SpellArchive::Load(std::filesystem::path path, Type explicit_archive_type)
         // try load FSU archive data
         if(m_fsu)
         {
-            m_last_error = string_format("Loading FSU archive \"%ls\" to object SpellArchive failed! Object already has some archive loaded.",path.wstring().c_str());
+            m_last_error = string_format("Loading FSU archive \"%s\" to object SpellArchive failed! Object already has some archive loaded.",wstring2string(path).c_str());
             return(1);
         }
         try {
             m_fsu = new FSUarchive(path.wstring(), FSUarchive::Options::NO_DECODE);
             m_path = path;
         }catch(const std::runtime_error& error) {
-            m_last_error = string_format("Loading FSU archive (%ls) failed (%s)!",path.wstring().c_str(),error.what());
+            m_last_error = string_format("Loading FSU archive (%s) failed (%s)!",wstring2string(path).c_str(),error.what());
             return(1);
         }
     }
@@ -323,7 +323,7 @@ int SpellArchive::AddFile(SpellArchive &src, std::string name, bool allow_replac
         auto data = src.m_fs->GetFileData(name.c_str());
         if(!data)
         {
-            m_last_error = string_format("Adding file \"%s\" to FS archive failed! File not found in source archive \"%ls\".",name.c_str(),src.m_fs->m_file_path.c_str());
+            m_last_error = string_format("Adding file \"%s\" to FS archive failed! File not found in source archive \"%s\".",name.c_str(),wstring2string(src.m_fs->m_file_path).c_str());
             return(1);
         }
         // optional rename
@@ -937,7 +937,7 @@ int SpellMod::LoadDEF(Config& config)
     AddPath("SPELLANY",config.spell_dir,config.spellcd_dir);
 
     // load DEF file
-    PrintConsoleWithLog(" - Loading mod DEF file (%ls) ... ",config.mod_path.wstring().c_str());
+    PrintConsoleWithLog(" - Loading mod DEF file (%s) ... ",wstring2string(config.mod_path).c_str());
     if(loadstr(config.mod_path,m_def))
     {
         PrintConsoleWithLog("failed!\n");
@@ -2373,7 +2373,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             if(ref_arch.Load(arch_path))
             {
                 // archive loading failed
-                PrintConsole("failed! Loading target archive \"%ls\".\n%s\n",arch_path.wstring().c_str(),ref_arch.GetLastError().c_str());
+                PrintConsole("failed! Loading target archive \"%s\".\n%s\n",wstring2string(arch_path).c_str(),ref_arch.GetLastError().c_str());
                 return(1);
             }
             // compare by content
@@ -2386,7 +2386,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             if(ref_arch.Load(org_path))
             {
                 // archive loading failed
-                PrintConsole("failed! Loading target archive \"%ls\".\n%s\n",org_path.wstring().c_str(),ref_arch.GetLastError().c_str());
+                PrintConsole("failed! Loading target archive \"%s\".\n%s\n",wstring2string(org_path).c_str(),ref_arch.GetLastError().c_str());
                 return(1);
             }
             // compare by content
@@ -2413,13 +2413,13 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
         if(arch.Save(arch_path, true))
         {
             // writting archive failed
-            PrintConsole("failed! Saving target archive \"%ls\".\n%s\n",arch_path.wstring().c_str(),arch.GetLastError().c_str());
+            PrintConsole("failed! Saving target archive \"%s\".\n%s\n",wstring2string(arch_path).c_str(),arch.GetLastError().c_str());
             return(1);
         }
         if(arch_name == "UNITS.FSU")
             fsu_path = arch_path;
 
-        PrintConsole("saved to \"%ls\".\n",arch_path.wstring().c_str());
+        PrintConsole("saved to \"%s\".\n",wstring2string(arch_path).c_str());
     }
 
     PrintConsole(" - Building mod done!\n");
@@ -2478,7 +2478,7 @@ int SpellMod::RestoreMod(Config& config)
         return(0); // nothing to restore
     }
     
-    PrintConsole("\n - loading state file (%ls)\n",config.state_ini_path.wstring().c_str());
+    PrintConsole("\n - loading state file (%s)\n",wstring2string(config.state_ini_path).c_str());
     std::list<CSimpleIniA::Entry> arch_list;
     ini.GetAllSections(arch_list);        
     bool was_error = false;
@@ -2516,13 +2516,13 @@ int SpellMod::RestoreMod(Config& config)
         {
             if(!std::filesystem::exists(mod_from.parent_path()))
             {
-                PrintConsole("failed! Mod MAKE directory not exist (%ls).\n",mod_from.parent_path().wstring().c_str());
+                PrintConsole("failed! Mod MAKE directory not exist (%s).\n",wstring2string(mod_from.parent_path()).c_str());
                 was_error = true;
                 continue;
             }
             if(!std::filesystem::exists(location))
             {
-                PrintConsole("failed! Game archive path not exist (%ls).\n",location.wstring().c_str());
+                PrintConsole("failed! Game archive path not exist (%s).\n",wstring2string(location).c_str());
                 was_error = true;
                 continue;
             }
@@ -2530,17 +2530,17 @@ int SpellMod::RestoreMod(Config& config)
             // move mod file back to MAKE location
             if(fs_rename(location,mod_from))
             {
-                PrintConsole("failed! Moving mod (%ls) back to MAKE location (%ls).\n",location.wstring().c_str(), mod_from.wstring().c_str());
+                PrintConsole("failed! Moving mod (%s) back to MAKE location (%s).\n",wstring2string(location).c_str(),wstring2string(mod_from).c_str());
                 was_error = true;
                 continue;
             }            
             if(is_save)
-                MakeSaveIni(mod_from,string_format("Save games of mod \"%ls\"",config.mod_path.wstring().c_str()));
+                MakeSaveIni(mod_from,string_format("Save games of mod \"%s\"",wstring2string(config.mod_path).c_str()));
         }       
                 
         if(has_original && !std::filesystem::exists(where_original))
         {
-            PrintConsole("failed! Original game archive path not exist (%ls).\n",where_original.wstring().c_str());
+            PrintConsole("failed! Original game archive path not exist (%s).\n",wstring2string(where_original).c_str());
             was_error = true;
             continue;
         }
@@ -2548,7 +2548,7 @@ int SpellMod::RestoreMod(Config& config)
         // move original from temp back to game location
         if(has_original && fs_rename(where_original,location))
         {
-            PrintConsole("failed! Moving original from temp location (%ls) back (%ls).\n",where_original.wstring().c_str(),location.wstring().c_str());
+            PrintConsole("failed! Moving original from temp location (%s) back (%s).\n",wstring2string(where_original).c_str(),wstring2string(location).c_str());
             was_error = true;
             continue;
         }
@@ -2672,7 +2672,7 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
         // move original to temp
         if(has_orig && fs_rename(arch.dest,temp_path))
         {
-            PrintConsole("failed! Moving original (%ls) to temp location (%ls).\n",arch.dest.wstring().c_str(), temp_path.wstring().c_str());            
+            PrintConsole("failed! Moving original (%s) to temp location (%s).\n",wstring2string(arch.dest).c_str(),wstring2string(temp_path).c_str());
             was_error = true;
             break;
         }
@@ -2687,7 +2687,7 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
         // move mod to original
         if(fs_rename(arch.source,arch.dest))
         {
-            PrintConsole("failed! Moving mod (%ls) to game location (%ls).\n",arch.source.wstring().c_str(),arch.dest.wstring().c_str());
+            PrintConsole("failed! Moving mod (%s) to game location (%s).\n",wstring2string(arch.source).c_str(),wstring2string(arch.dest).c_str());
             was_error = true;
             break;
         }
@@ -2720,7 +2720,7 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
             // no save games in mod folder yet: make a copy of current game saves
             if(fs_copy(save_dir,mod_save_dir,std::filesystem::copy_options::recursive))
             {
-                PrintConsole("failed! Making initial copy of games saves (%ls) to mod location (%ls).\n",save_dir.wstring().c_str(),mod_save_dir.wstring().c_str());
+                PrintConsole("failed! Making initial copy of games saves (%s) to mod location (%s).\n",wstring2string(save_dir).c_str(),wstring2string(mod_save_dir).c_str());
                 was_error = true;
             }
             else
@@ -2731,7 +2731,7 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
         // now try to swap saves
         if(!was_error && fs_rename(save_dir,save_temp_dir))
         {
-            PrintConsole("failed! Moving original saves (%ls) to temp location (%ls).\n",save_dir.wstring().c_str(),save_temp_dir.wstring().c_str());
+            PrintConsole("failed! Moving original saves (%s) to temp location (%s).\n",wstring2string(save_dir).c_str(),wstring2string(save_temp_dir).c_str());
             was_error = true;
         }
         else if(!was_error)
@@ -2743,11 +2743,11 @@ int SpellMod::SwapMod(Config& config, bool allow_restore)
             ini.SetValue("SAVE","where_original",save_temp_dir.string().c_str());
             ini.SetValue("SAVE","mod_from","");     
 
-            MakeSaveIni(mod_save_dir,string_format("Save games of mod \"%ls\"",config.mod_path.wstring().c_str()));
+            MakeSaveIni(mod_save_dir,string_format("Save games of mod \"%s\"",wstring2string(config.mod_path).c_str()));
                         
             if(fs_rename(mod_save_dir,save_dir))
             {
-                PrintConsole("failed! Moving mod saves (%ls) to game location (%ls).\n",mod_save_dir.wstring().c_str(),save_dir.wstring().c_str());
+                PrintConsole("failed! Moving mod saves (%s) to game location (%s).\n",wstring2string(mod_save_dir).c_str(),wstring2string(save_dir).c_str());
                 was_error = true;
             }
             else

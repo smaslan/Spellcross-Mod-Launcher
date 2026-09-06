@@ -851,7 +851,7 @@ void FormSaveEdit::SetSaveDir(std::filesystem::path save_dir)
 		std::wstring name = L"<empty>";
 		if(!save.is_empty)
 		{
-			info = string_format(" (date: %s, path: %ls)",save.date.c_str(),save.dir_path.wstring().c_str());
+			info = string_format(" (date: %s, path: %s)",save.date.c_str(),wstring2string(save.dir_path).c_str());
 			name = save.name;
 		}		
 		auto str = string_format("%8s: %-20ls%s",save.dir_name.c_str(), name.c_str(),info.c_str());
@@ -918,7 +918,7 @@ void FormSaveEdit::OnSave(wxCommandEvent& event)
 	}
 	else
 	{
-		wxMessageDialog dial(this, string_format("Overwrite Spellcross savegame \"%ls\"?\nMake sure you have backups as this tool is very experimental!",path.wstring().c_str()), "Save Spellcross savegame",wxICON_QUESTION|wxYES_NO|wxYES_DEFAULT);
+		wxMessageDialog dial(this, string_format("Overwrite Spellcross savegame \"%s\"?\nMake sure you have backups as this tool is very experimental!",wstring2string(path).c_str()), "Save Spellcross savegame",wxICON_QUESTION|wxYES_NO|wxYES_DEFAULT);
 		if(dial.ShowModal() != wxID_YES)
 			return;
 	}
@@ -926,7 +926,7 @@ void FormSaveEdit::OnSave(wxCommandEvent& event)
 	// try save
 	if(m_bigmap.Save(path))
 	{
-		wxMessageBox(string_format("Failed saving Spellcross savegame to \"%ls\"!",path.wstring().c_str()),"Error",wxICON_ERROR);
+		wxMessageBox(string_format("Failed saving Spellcross savegame to \"%s\"!",wstring2string(path).c_str()),"Error",wxICON_ERROR);
 		return;
 	}	
 }
@@ -1170,14 +1170,19 @@ void FormSaveEdit::OnUnitsPupupOpen(wxMouseEvent& event)
 		listUnits->SetItemState(sel_id,wxLIST_STATE_SELECTED,wxLIST_STATE_SELECTED);
 	if(sel_id >= m_bigmap.units.size() || m_bigmap.units[sel_id].is_empty())
 		sel_id = -1;
-	auto &unit = m_bigmap.units[sel_id];
+	//auto &unit = m_bigmap.units[sel_id];
 	bool is_sel = (sel_id >= 0);
 	menu.SetClientData(&sel_id);
 					
 	if(is_sel)
-		menu.Append((int)PopupActions::UNIT_RST_NAMES,"Reset name");
+		menu.Append((int)PopupActions::UNIT_RST_NAME,"Reset name");
 	menu.Append((int)PopupActions::UNIT_RST_NAMES,"Reset all names");
-	menu.Append((int)PopupActions::UNIT_HEAL,"Heal units");
+	if(is_sel)
+		menu.Append((int)PopupActions::UNIT_HEAL,"Heal unit");
+	menu.Append((int)PopupActions::UNIT_HEAL_ALL,"Heal all units");
+	if(is_sel)
+		menu.Append((int)PopupActions::UNIT_SYNC,"Sync unit with common.fs");
+	menu.Append((int)PopupActions::UNIT_SYNC_ALL,"Sync all with common.fs");
 	menu.AppendSeparator();
 	menu.Append((int)PopupActions::UNIT_REM_GAPS,"Remove gaps in list");
 	menu.Append((int)PopupActions::UNIT_SORT_NAMES,"Sort by names");
@@ -1187,9 +1192,9 @@ void FormSaveEdit::OnUnitsPupupOpen(wxMouseEvent& event)
 	menu.Append((int)PopupActions::UNIT_ADD,"Add unit");
 	if(is_sel)
 		menu.Append((int)PopupActions::UNIT_REM,"Remove unit");	
-	menu.AppendCheckItem((int)PopupActions::UNIT_REINFORCE,"Is reinforcement?");
+	menu.AppendCheckItem((int)PopupActions::UNIT_REINFORCE,"Is reinforcement unit?");
 	if(is_sel)
-		menu.Check((int)PopupActions::UNIT_REINFORCE,unit.is_reinforce());
+		menu.Check((int)PopupActions::UNIT_REINFORCE,m_bigmap.units[sel_id].is_reinforce());
 
 	menu.Connect(wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler(FormSaveEdit::OnUnitsPupup),NULL,this);
 	PopupMenu(&menu);
@@ -1214,7 +1219,23 @@ void FormSaveEdit::OnUnitsPupup(wxCommandEvent& event)
 	}
 	else if(menu_id == PopupActions::UNIT_HEAL)
 	{
+		if(sel_id < 0)
+			return;
+		m_bigmap.HealUnits(sel_id);
+	}
+	else if(menu_id == PopupActions::UNIT_HEAL_ALL)
+	{
 		m_bigmap.HealUnits();
+	}
+	else if(menu_id == PopupActions::UNIT_SYNC)
+	{
+		if(sel_id < 0)
+			return;
+		m_bigmap.SyncUnits(sel_id);
+	}
+	else if(menu_id == PopupActions::UNIT_SYNC_ALL)
+	{
+		m_bigmap.SyncUnits();
 	}
 	else if(menu_id == PopupActions::UNIT_REM_GAPS)
 	{
@@ -1510,7 +1531,7 @@ void FormSaveEdit::OnHierComClick(wxCommandEvent& event)
 		std::vector<int> min_rank_list = {0, 3, 6};
 		if(com.rank < min_rank_list[lev])
 		{
-			wxMessageBox(string_format("Commander \"%ls\" has not required rank for this position!",com.name.c_str()),"Command assignement", wxICON_EXCLAMATION);						
+			wxMessageBox(string_format("Commander \"%s\" has not required rank for this position!",wstring2string(com.name).c_str()),"Command assignement", wxICON_EXCLAMATION);
 			FillHierarchy();
 			return;
 		}

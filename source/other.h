@@ -10,9 +10,10 @@
 
 //using namespace std;
 
+std::string str_to_ascii(std::wstring str);
 std::wstring char2wstring(const char* str);
 std::wstring string2wstring(std::string str);
-std::string wstring2string(const std::wstring& str);
+std::string wstring2string(const std::wstring& wstr,bool utf8=false);
 std::wstring char2wstringCP852(const char* str);
 std::wstring char2wstringCP895(const char* str);
 char wchar2charCP895(wchar_t sym);

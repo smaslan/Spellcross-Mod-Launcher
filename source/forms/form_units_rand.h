@@ -7,7 +7,7 @@
 
 #pragma once
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormUnitRand' on 2026-08-22 09:02:19
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormUnitRand' on 2026-09-06 13:59:39
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -40,7 +40,7 @@
 #include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormUnitRand' on 2026-08-22 09:02:19
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormUnitRand' on 2026-09-06 13:59:39
 
 #include <filesystem>
 //#include "../spell_randomizer.h"
@@ -119,7 +119,7 @@ private:
 
 protected:
 	
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormUnitRand' on 2026-08-22 09:02:19
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormUnitRand' on 2026-09-06 13:59:39
 	enum
 	{
 		wxID_FORM_UNIT_RAND = 6000,
@@ -154,7 +154,7 @@ protected:
 	wxStaticText* m_staticText48;
 	wxPropertyGrid* pgConfig;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormUnitRand' on 2026-08-22 09:02:19
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormUnitRand' on 2026-09-06 13:59:39
 
 public:
 

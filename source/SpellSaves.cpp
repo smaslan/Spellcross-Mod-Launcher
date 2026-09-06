@@ -6,6 +6,7 @@
 #include "spell_units.h"
 #include "log.h"
 #include <format>
+#include <memory>
 
 
 // load single spellcross save directory
@@ -13,19 +14,28 @@ int SpellSave::LoadSave(std::filesystem::path dir,Save &save, bool allow_empty)
 {
     if(!std::filesystem::exists(dir))
         return(1);
-
+    
     save.dir_path = dir;
     save.dir_name = dir.filename().string();
     save.is_empty = true;
     save.date = "";
-
+    save.is_workdir = iequals(save.dir_name,"WORKDIR");
+    
     // try load name
     auto path = dir / "NAME.SAV";
     std::string name;
     auto err = loadstr(path,name);
     save.name = char2wstringCP895(name.c_str());
-    if(err && !allow_empty)
+    if(!save.is_workdir && err && !allow_empty)
         return(1);
+    if(save.is_workdir)
+    {
+        path = dir / "BIG_MAP.SAV";
+        if(!std::filesystem::exists(path) && !allow_empty)
+            return(1);
+        err = 0;
+        save.name = L"<autosave>";
+    }
     if(!err)
     {
         save.is_empty = false;        
@@ -79,6 +89,78 @@ bool SpellSave::CheckSaves(std::filesystem::path dir)
     }
     return(false);
 }
+
+// fix save games to be compatible with provided common.fs
+int SpellSave::FixSaves(Saves& saves,std::filesystem::path common_fs_path,std::string &report,bool check_only)
+{
+    report.clear();
+
+    // try load common.fs
+    std::shared_ptr<FSarchive> common_fs;
+    try{
+        common_fs = std::make_shared<FSarchive>(common_fs_path);
+    }catch(const std::runtime_error& error) {
+        return(1);
+    }
+    
+    for(auto &save: saves)
+    {
+        if(save.is_empty)
+            continue;
+        if(!std::filesystem::exists(save.dir_path))
+            continue;
+
+        save.was_checked = true;
+        save.is_consistent = true;
+        bool do_fix = !check_only && save.do_fix;
+
+        // load save folder
+        auto save_name = string_format("%s: %s",save.dir_name.c_str(),wstring2string(save.name).c_str());
+        
+        // parse big_map.sav
+        SpellSaveBigMap bm;
+        if(bm.Load(save.dir_path,common_fs))
+        {
+            report += string_format("%s:\n",save_name.c_str());
+            report += string_format(" - Failed loading big_map.sav\n");
+            save.is_consistent = false;
+            return(1);
+        }             
+
+        // check units
+        std::string rep;
+        bm.FixUnits(rep,!do_fix);
+        if(!rep.empty())
+        {
+            report += string_format("%s:\n",save_name.c_str());            
+
+            auto lines = get_text_lines(rep,false);
+            for(auto& line: lines)
+            {                
+                if(trim_whites(line).starts_with("-"))
+                    line = "   " + line;
+                else
+                    line = " - " + line;
+            }
+            report += merge_text_lines(lines,"\n") + "\n\n";
+            save.is_consistent = false;
+        }
+
+        if(do_fix && save.was_checked && !save.is_consistent)
+        {
+            // was fixed, save changes
+            if(bm.Save(bm.m_path))
+            {
+                report += string_format("%s:\n",save_name.c_str());
+                report += string_format(" - Failed saving big_map.sav\n");
+                return(1);
+            }
+        }
+    }
+
+    return(!report.empty());
+}
+
 
 
 
@@ -172,7 +254,7 @@ std::map<int,std::wstring> SpellSaveBigMap::GetUnitTypeList(bool add_empty,bool 
     {
         auto id = &unit - m_unit_names.data();
         if(with_id)
-            list.insert({id,wstring_format(L"#%02d: %ls",id,unit.c_str())});            
+            list.insert({id,wstring_format(L"#%02d: %s",id,wstring2string(unit).c_str())});
         else
             list.insert({id,unit});            
     }
@@ -187,7 +269,7 @@ std::map<int,std::wstring> SpellSaveBigMap::GetUnitNames(bool with_id)
     {
         auto id = &unit - m_unit_names.data();
         if(with_id)
-            list.insert({id,wstring_format(L"#%02d: %ls",id,unit.c_str())});
+            list.insert({id,wstring_format(L"#%02d: %s",id,wstring2string(unit).c_str())});
         else
             list.insert({id,unit});
             
@@ -269,6 +351,29 @@ int store_save_array_i16(uint8_t* data,uint8_t* data_end,std::vector<int> &list,
 // load big_map.sav session
 int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path common_fs_path)
 {
+    LogFile::Write("SpellSaveBigMap::Load():\n");
+    LogFile::SetIndent(+1);
+
+    // try load common.fs    
+    std::shared_ptr<FSarchive> common_fs;
+    if(!common_fs_path.empty() && std::filesystem::exists(common_fs_path))
+    {
+        LogFile::Write("- loading COMMON.FS ... ");
+        try {
+            common_fs = std::make_shared<FSarchive>(common_fs_path.wstring());
+        }catch(const std::runtime_error& error) {
+            LogFile::Write("failed\n");
+            LogFile::SetIndent(-1);
+            return(1);
+        }
+    }
+    LogFile::Write("done\n");
+    LogFile::SetIndent(-1);
+
+    return(Load(path,common_fs));
+}
+int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> common_fs)
+{
     m_path.clear();
     raw.clear();
     research.clear();
@@ -284,21 +389,8 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
     
     LogFile::Write("SpellSaveBigMap::Load():\n");
     LogFile::SetIndent(+1);
-
-    // try load common.fs    
-    m_common_fs.reset();
-    if(!common_fs_path.empty() && std::filesystem::exists(common_fs_path))
-    {
-        LogFile::Write("- loading COMMON.FS ... ");
-        try{
-            m_common_fs = std::make_unique<FSarchive>(common_fs_path.wstring());
-        }catch(const std::runtime_error& error) {
-            LogFile::Write("failed\n");
-            LogFile::SetIndent(-1);
-            return(1);
-        }        
-    }
-    LogFile::Write("done\n");
+    
+    m_common_fs = common_fs;
     if(m_common_fs)
     {
         // parse rank strings
@@ -380,8 +472,14 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
         LogFile::Write("done\n");
     }        
     
+    if(!iequals(path.filename().string(),"big_map.sav"))
+    {
+        // probably save folder instead of sav file?
+        path = path / "big_map.sav";
+    }
+
     // load BIG_MAP
-    LogFile::Write("- loading save file: %ls ... ",path.wstring().c_str());
+    LogFile::Write("- loading save file: %s ... ",wstring2string(path).c_str());
     std::vector<uint8_t> data;
     if(loaddata(path,data))
     {
@@ -394,8 +492,8 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
 
     // decompress
     LogFile::Write("- delz save file ... ");
-    LZWexpand lzw(100000);
-    raw = lzw.Decode(data);
+    std::unique_ptr<LZWexpand> lzw = std::make_unique<LZWexpand>(100000);
+    raw = lzw->Decode(data);
     if(raw.empty())
     {
         LogFile::Write("failed\n");
@@ -657,7 +755,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
             LogFile::SetIndent(-1);
             return(1);
         }
-        bigmap.image = lzw.Decode(*bm_lz);
+        bigmap.image = lzw->Decode(*bm_lz);
         LogFile::Write("done\n");
 
         LogFile::Write("- loading LEVEL_%02d.PAL ... ",bigmap.level);
@@ -1327,11 +1425,120 @@ int SpellSaveBigMap::SwapUnits(int id_a, int id_b)
     return(0);
 }
 // heal all units
-int SpellSaveBigMap::HealUnits()
+int SpellSaveBigMap::HealUnits(int uid)
 {
+    if(uid >= 0 && uid >= units.size())
+        return(1);
+    if(uid >= 0)
+    {
+        // single unit
+        auto &unit = units[uid];
+        if(unit.is_empty())
+            return(1);
+        unit.hp = unit.hp_max;
+        return(0);
+    }
+    // all units
     for(auto &unit: units)
         unit.hp = unit.hp_max;
     return(0);
+}
+// sync all units with common.fs
+int SpellSaveBigMap::SyncUnits(int uid)
+{
+    if(!m_jednotky_def.get())
+        return(1);
+
+    for(auto &unit: units)
+    {
+        auto id = &unit - units.data();
+        if(uid >= 0 && uid != id)
+            continue;
+
+        auto urec = m_jednotky_def->GetUnit(unit.unit_type_id);
+        if(!urec)
+            return(1);        
+        auto hp = (double)unit.hp/unit.hp_max;
+        unit.hp_max = urec->cnt;
+        unit.hp = max((int)(hp*unit.hp_max),1);
+
+        int xp_a = urec->CalcExperiencePts(unit.xp_level);
+        int xp_b = urec->CalcExperiencePts(unit.xp_level + 1);
+        if(unit.xp < xp_a || unit.xp > xp_b)
+            unit.xp = (xp_a + xp_b)/2;
+    }
+
+    return(0);
+}
+// check all units with common.fs
+int SpellSaveBigMap::FixUnits(std::string& report,bool just_check)
+{
+    report.clear();
+    
+    if(!m_jednotky_def.get())
+    {
+        report += string_format("Cannot check units! JEDNOTKY.DEF missing?\n");
+        return(1);
+    }
+
+    for(auto& unit: units)
+    {
+        auto id = &unit - units.data();
+               
+        //auto unit_name = string_format("Unit #%d (%s)",id,str_to_ascii(unit.name).c_str());
+        auto unit_name = string_format("Unit #%d (%s)",id,wstring2string(unit.name).c_str());
+        std::vector<std::string> lines;
+
+        auto urec = m_jednotky_def->GetUnit(unit.unit_type_id);
+        if(!urec)
+        {
+            report += string_format("%s: Type ID %d not present in provided JEDNOTKY.DEF.\n",unit_name.c_str(),unit.unit_type_id);
+            continue;
+        }
+        
+        auto hp = (double)unit.hp/unit.hp_max;
+        if(unit.hp_max > urec->cnt)
+        {
+            lines.push_back(string_format("Max HP of %d higher than provided in JEDNOTKY.DEF (%d).",unit.hp_max,urec->cnt));
+            if(!just_check)
+                unit.hp_max = urec->cnt;
+        }  
+        if(unit.hp > urec->cnt)
+        {
+            lines.push_back(string_format("HP of %d higher than provided in JEDNOTKY.DEF (%d).",unit.hp,urec->cnt));
+            if(!just_check)
+                unit.hp = max((int)(hp*unit.hp_max),1);
+        }
+
+        if(urec->isXPvalid())
+        {
+            int xp_a = urec->CalcExperiencePts(unit.xp_level);
+            int xp_b = urec->CalcExperiencePts(unit.xp_level + 1);
+            int xp_max = urec->CalcExperiencePts(12);
+            if(unit.xp < xp_a || unit.xp > xp_b)
+            {         
+                lines.push_back(string_format("XP of %d outside matching XP level %d! JEDNOTKY.DEF range for level %d is %d to %d.",unit.xp,unit.xp_level,unit.xp_level,xp_a,xp_b));
+                if(!just_check)
+                    unit.xp = xp_a + 1;
+            }
+        }
+
+        if(lines.empty())
+            continue;
+
+        if(lines.size() == 1)        
+            report += string_format("%s: %s\n",unit_name.c_str(), lines[0].c_str());
+        else
+        {
+            report += string_format("%s:\n",unit_name.c_str());
+            for(auto &line: lines)
+                report += string_format(" - %s\n",line.c_str());
+        }
+
+
+    }
+
+    return(!report.empty());
 }
 
 // fix unit according to JEDNOTKY.DEF

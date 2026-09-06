@@ -208,7 +208,7 @@ void FormAbout::OnURL(wxTextUrlEvent& event)
 	if((int)hinst <= 32)
 	{
 		// failed
-		wxMessageDialog dial(this,string_format("Cannot open URL:\n%ls:\n\nOperation might be blocked by system setup (security). ",url.c_str()),_("Opening project URL ..."),wxICON_ERROR);
+		wxMessageDialog dial(this,string_format("Cannot open URL:\n%s:\n\nOperation might be blocked by system setup (security). ",wstring2string(url).c_str()),_("Opening project URL ..."),wxICON_ERROR);
 		dial.ShowModal();
 	}
 }

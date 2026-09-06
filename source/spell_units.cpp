@@ -346,7 +346,7 @@ SpellUnits::SpellUnits(uint8_t* data,int dlen,FSUarchive* fsu,FSarchive* fs_info
 		// unit min rank points
 		unit->exp_min = rdu32(rec + 0xC6);
 		// unit max rank points x200
-		unit->exp_max = 2*rdu32(rec + 0xCA);
+		unit->exp_max = rdu32(rec + 0xCA);
 		// precalculate experience points limits
 		for(int e = 0; e < 12; e++)
 			unit->exp_limits[e] = unit->CalcExperiencePts(e);
@@ -786,7 +786,7 @@ int SpellUnits::GenerateDEF(std::vector<uint8_t> &def,Format format)
 		// unit min rank points
 		*(uint32_t*)(ptr + 0xC6) = unit->exp_min;
 		// unit max rank points x200
-		*(uint32_t*)(ptr + 0xCA) = unit->exp_max/2;
+		*(uint32_t*)(ptr + 0xCA) = unit->exp_max;
 
 		// append to DEF file
 		def.insert(def.end(),rec.begin(),rec.end());
@@ -902,28 +902,36 @@ int SpellUnitRec::GetMaxHealth()
 		return(100);
 	return(cnt);
 }
+
+// is XP definition valid? (radards have 0, so not calculation possible)
+int SpellUnitRec::isXPvalid()
+{
+	return(exp_min != 0 && exp_max != 0);
+}
 // calculate base experience points for given exp. level 1-12 (use for precalculation only)
 int SpellUnitRec::CalcExperiencePts(int level)
-{
-	// very crude approximation of strange Spellcross experience boundaries
-	// note: it's not accurate, but decently close...
-	if(!exp_min || !exp_max)
+{	
+	if(!isXPvalid())
 		return(0);
-	double a = (double)exp_min;
-	double b = log(exp_max/exp_min)/log(12);
-	level = std::min(std::max(level,0),11);
-	int points = (int)(a*pow((double)level,b));
-	return(points);
+	
+	// regression found by ChatGPT using data points from game
+	if(level < 1)
+		return(0);
+	if(level <= 1)
+		return(exp_min);
+	int xp = 2*exp_min + floor((double)(level - 1)*(level - 1)/64.0*(exp_max - exp_min));
+	
+	return(xp);
 }
 // get base experience points for given exp. level 1-12
 int SpellUnitRec::GetExperiencePts(int level)
 {
-	return(exp_limits[std::min(std::max(level-1,0),11)]);
+	return(exp_limits[std::min(std::max(level-1,0),12)]);
 }
 // get base experience points for next of given exp. level 1-12
 int SpellUnitRec::GetNextExperiencePts(int level)
 {
-	return(exp_limits[std::min(std::max(level,0),11)]);
+	return(exp_limits[std::min(std::max(level,0),12)]);
 }
 
 // uses projectile when shooting to target unit (or NULL to object)?

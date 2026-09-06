@@ -270,4 +270,4 @@ int RescaleWindowDPI(wxWindow *win);
 wxPGChoices& MapToPGenumChoices(const std::map<int,std::string>& map);
 wxPGChoices& MapToPGenumChoices(const std::map<int,std::wstring>& map);
 int getPGcount(wxPropertyGrid* pg);
-int setPGsize(wxPropertyGrid* pg);
+int setPGsize(wxPropertyGrid* pg,int max_count=10);

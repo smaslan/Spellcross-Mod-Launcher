@@ -165,8 +165,10 @@
     <ClCompile Include="cparse\packToken.cpp" />
     <ClCompile Include="cparse\shunting-yard.cpp" />
     <ClCompile Include="forms\form_about.cpp" />
+    <ClCompile Include="forms\form_dialog.cpp" />
     <ClCompile Include="forms\form_edit.cpp" />
     <ClCompile Include="forms\form_save_backup.cpp" />
+    <ClCompile Include="forms\form_save_check.cpp" />
     <ClCompile Include="forms\form_save_edit.cpp" />
     <ClCompile Include="forms\form_units_rand.cpp" />
     <ClCompile Include="fsu_archive.cpp" />
@@ -188,8 +190,10 @@
   <ItemGroup>
     <ClInclude Include="cparse\shunting-yard.h" />
     <ClInclude Include="forms\form_about.h" />
+    <ClInclude Include="forms\form_dialog.h" />
     <ClInclude Include="forms\form_edit.h" />
     <ClInclude Include="forms\form_save_backup.h" />
+    <ClInclude Include="forms\form_save_check.h" />
     <ClInclude Include="forms\form_save_edit.h" />
     <ClInclude Include="forms\form_units_rand.h" />
     <ClInclude Include="fsu_archive.h" />

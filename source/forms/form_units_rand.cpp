@@ -25,7 +25,7 @@ FormUnitRand::FormUnitRand(wxWindow* parent,UnitRandomizerSetup& randomizer,wxWi
 	: wxFrame(parent,id,title,pos,size,style),
 	m_randomizer(randomizer)
 {
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormUnitRand' on 2026-08-22 09:02:19
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormUnitRand' on 2026-09-06 13:59:39
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_MENU ) );
 	
@@ -130,7 +130,7 @@ FormUnitRand::FormUnitRand(wxWindow* parent,UnitRandomizerSetup& randomizer,wxWi
 	bSizer19->Add( m_staticText48, 0, wxRIGHT|wxLEFT, 5 );
 	
 	pgConfig = new wxPropertyGrid(this, wxID_PG_CONFIG, wxDefaultPosition, wxDefaultSize, wxPG_DEFAULT_STYLE);
-	bSizer19->Add( pgConfig, 0, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
+	bSizer19->Add( pgConfig, 0, wxBOTTOM|wxRIGHT|wxLEFT|wxEXPAND, 5 );
 	
 	
 	this->SetSizer( bSizer19 );
@@ -139,7 +139,7 @@ FormUnitRand::FormUnitRand(wxWindow* parent,UnitRandomizerSetup& randomizer,wxWi
 	this->Centre( wxBOTH );
 	
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormUnitRand' on 2026-08-22 09:02:19
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormUnitRand' on 2026-09-06 13:59:39
 	// === AUTO GENERATED END ===
 	RescaleWindowDPI(this);
 
@@ -333,8 +333,8 @@ void FormUnitRand::LoadOptions()
 	pgConfig->Append(new wxIntPropertyExt("Max XP level",wxT(""),&m_randomizer.xp_max,1,12));
 	pgConfig->Thaw();
 	pgConfig->FitColumns();
-	pgConfig->SetAutoLayout(true);
-	setPGsize(pgConfig);
+	//pgConfig->SetAutoLayout(true);	
+	setPGsize(pgConfig);	
 }
 
 void FormUnitRand::OnChangeFilter(wxCommandEvent& event)

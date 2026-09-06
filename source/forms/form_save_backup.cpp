@@ -394,7 +394,7 @@ void FormSaveBack::OnChangeBackup(wxCommandEvent& event)
 	lbBackupSaves->Freeze();
 	for(auto& save: saves)
 	{
-		auto name = string_format(": %ls",save.name.c_str());
+		auto name = string_format(": %s",wstring2string(save.name).c_str());
 		auto date = string_format(" (%s)",save.date.c_str());
 		if(save.is_empty)
 		{
@@ -495,7 +495,7 @@ void FormSaveBack::OnOK(wxCommandEvent& event)
 		{
 			// backup exist, ask for proceed
 			auto info = string_format("Backup name \"%s\" already exist at path:\n",backup_name.c_str());
-			info += string_format("  %ls\n",backup_path.wstring().c_str());
+			info += string_format("  %s\n",wstring2string(backup_path).c_str());
 			info += string_format("Following files/sub-directories will be removed before beckup:\n");
 			for(auto& item: names)
 				info += string_format("  %s\n",item.c_str());
@@ -507,7 +507,7 @@ void FormSaveBack::OnOK(wxCommandEvent& event)
 			if(fs_remove(backup_path,true))
 			{
 				// failed
-				wxMessageDialog dial(this,string_format("Cannot remove backup save directory:\n  %ls\nPossibly sharing violation. Maybe you are currently viewing the save folder?",backup_path.wstring().c_str()),"Backup of savegame ...",wxICON_ERROR);
+				wxMessageDialog dial(this,string_format("Cannot remove backup save directory:\n  %s\nPossibly sharing violation. Maybe you are currently viewing the save folder?",wstring2string(backup_path).c_str()),"Backup of savegame ...",wxICON_ERROR);
 				dial.ShowModal();
 				return;
 			}
@@ -558,16 +558,16 @@ void FormSaveBack::OnOK(wxCommandEvent& event)
 		{
 			info += string_format("Following game saves:\n%s",list.c_str());
 			info += string_format("at path:\n");
-			info += string_format("  %ls\n",save_path.wstring().c_str());
+			info += string_format("  %s\n",wstring2string(save_path).c_str());
 			info += string_format("will be removed.\n\n");
 		}		
 		info += string_format("Following backup saves:\n");
 		for(auto& save: saves_list)
-			info += string_format("  %s: %ls\n",save.dir_name.c_str(), save.name.c_str());		
+			info += string_format("  %s: %s\n",save.dir_name.c_str(),wstring2string(save.name).c_str());
 		info += string_format("from backup \"%s\" from path:\n",backup_name.c_str());
-		info += string_format("  %ls\n",backup_path.wstring().c_str());
+		info += string_format("  %s\n",wstring2string(backup_path).c_str());
 		info += string_format("will be copied to game SAVE path:\n");
-		info += string_format("  %ls\n\n",save_path.wstring().c_str());
+		info += string_format("  %s\n\n",wstring2string(save_path).c_str());
 		info += string_format("Proceed with operation?");
 		wxMessageDialog dial(this,info,_("Restore savegame ..."),wxYES_NO | wxNO_DEFAULT | wxICON_EXCLAMATION);
 		if(dial.ShowModal() != wxID_YES)
@@ -582,7 +582,7 @@ void FormSaveBack::OnOK(wxCommandEvent& event)
 			// try remove
 			if(std::filesystem::exists(dest_path) && fs_remove(dest_path, true))
 			{
-				wxMessageDialog dial(this,string_format("Cannot remove save game:\n  %ls\nPossibly sharing violation. Maybe you are currently viewing the save folder?",dest_path.wstring().c_str()),"Restore savegame ...",wxICON_ERROR);
+				wxMessageDialog dial(this,string_format("Cannot remove save game:\n  %s\nPossibly sharing violation. Maybe you are currently viewing the save folder?",wstring2string(dest_path).c_str()),"Restore savegame ...",wxICON_ERROR);
 				dial.ShowModal();
 				return;
 			}
@@ -590,7 +590,7 @@ void FormSaveBack::OnOK(wxCommandEvent& event)
 			// try copy backup to game save
 			if(fs_copy(src_path,dest_path,std::filesystem::copy_options::recursive))
 			{
-				wxMessageDialog dial(this,string_format("Cannot copy save game:\n  %ls\nto destination:\n  %ls\n\nPossibly sharing violation. Maybe you are currently viewing the save folder?",src_path.wstring().c_str(),dest_path.wstring().c_str()),"Restore savegame ...",wxICON_ERROR);
+				wxMessageDialog dial(this,string_format("Cannot copy save game:\n  %s\nto destination:\n  %s\n\nPossibly sharing violation. Maybe you are currently viewing the save folder?",wstring2string(src_path).c_str(),wstring2string(dest_path).c_str()),"Restore savegame ...",wxICON_ERROR);
 				dial.ShowModal();
 				return;
 			}
@@ -617,7 +617,7 @@ void FormSaveBack::OnRemove(wxCommandEvent& event)
 	}
 	if(!std::filesystem::exists(backup_path))
 	{
-		wxMessageDialog dial(this,string_format("Backup \"%s\" at path:\n  %ls\ndoes not exist!",backup_name.c_str(),backup_path.wstring().c_str()),_("Remove save backup ..."),wxICON_ERROR);
+		wxMessageDialog dial(this,string_format("Backup \"%s\" at path:\n  %s\ndoes not exist!",backup_name.c_str(),wstring2string(backup_path).c_str()),_("Remove save backup ..."),wxICON_ERROR);
 		dial.ShowModal();
 		return;
 	}
@@ -628,7 +628,7 @@ void FormSaveBack::OnRemove(wxCommandEvent& event)
 	
 	// backup exist, ask for proceed
 	auto info = string_format("Backup name \"%s\" at path:\n",backup_name.c_str());
-	info += string_format("  %ls\n",backup_path.wstring().c_str());
+	info += string_format("  %s\n",wstring2string(backup_path).c_str());
 	if(!names.empty())
 	{
 		info += string_format("with its content:\n");
@@ -644,7 +644,7 @@ void FormSaveBack::OnRemove(wxCommandEvent& event)
 	if(fs_remove(backup_path,true))
 	{
 		// failed
-		wxMessageDialog dial(this,string_format("Cannot remove backup save directory:\n  %ls\nPossibly sharing violation. Maybe you are currently viewing the save folder?",backup_path.wstring().c_str()),"Remove save backup ...",wxICON_ERROR);
+		wxMessageDialog dial(this,string_format("Cannot remove backup save directory:\n  %s\nPossibly sharing violation. Maybe you are currently viewing the save folder?",wstring2string(backup_path).c_str()),"Remove save backup ...",wxICON_ERROR);
 		dial.ShowModal();
 		return;
 	}
@@ -724,7 +724,7 @@ void FormSaveBack::OnUpdateList(std::string backup_to_select)
 	lbGameSaves->Clear();
 	for(auto& save: saves)
 	{
-		auto name = string_format(": %ls",save.name.c_str());
+		auto name = string_format(": %s",wstring2string(save.name).c_str());
 		auto date = string_format(" (%s)",save.date.c_str());
 		if(save.is_empty)
 		{

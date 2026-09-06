@@ -102,6 +102,12 @@
     <ClCompile Include="log.cpp">
       <Filter>Zdrojové soubory</Filter>
     </ClCompile>
+    <ClCompile Include="forms\form_dialog.cpp">
+      <Filter>Zdrojové soubory\forms</Filter>
+    </ClCompile>
+    <ClCompile Include="forms\form_save_check.cpp">
+      <Filter>Zdrojové soubory\forms</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -175,6 +181,12 @@
     </ClInclude>
     <ClInclude Include="log.h">
       <Filter>Hlavičkové soubory</Filter>
+    </ClInclude>
+    <ClInclude Include="forms\form_dialog.h">
+      <Filter>Hlavičkové soubory\forms</Filter>
+    </ClInclude>
+    <ClInclude Include="forms\form_save_check.h">
+      <Filter>Hlavičkové soubory\forms</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

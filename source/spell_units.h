@@ -236,6 +236,7 @@ class SpellUnitRec
 		int hasFireAttack();
 		int isSingleMan();
 		int GetMaxHealth();
+		int isXPvalid();
 		int CalcExperiencePts(int level=1);
 		int GetExperiencePts(int level=1);
 		int GetNextExperiencePts(int level=1);

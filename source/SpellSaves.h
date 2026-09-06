@@ -346,12 +346,15 @@ public:
     
 
     SpellSaveBigMap();
+    int Load(std::filesystem::path path, std::shared_ptr<FSarchive> common_fs);
     int Load(std::filesystem::path path, std::filesystem::path common_fs_path="");
     int Save(std::filesystem::path path);
     int SortUnits(bool remove_gaps,bool separate,bool by_types,bool by_names);
     int SwapUnits(int id_a,int id_b);
     int ResetUnitName(int unit_id=-1,bool also_reinforces=false);
-    int HealUnits();
+    int HealUnits(int uid=-1);
+    int SyncUnits(int uid=-1);
+    int FixUnits(std::string &report,bool just_check=true);
     int FixUnit(int uid,bool force_xp_level_update=false);
     int AddUnit(int &uid=c_default_id);
     int RemUnit(int uid);
@@ -371,6 +374,9 @@ public:
     std::map<int,std::wstring> GetRanksList();
 };
 
+bool DecodeCLK(const std::vector<uint8_t>& clkBytes,int& outW,int& outH,std::vector<uint8_t>& values);
+
+
 class SpellSave{
 public:
 
@@ -381,6 +387,10 @@ public:
         std::wstring name;
         std::string date;
         bool is_empty;
+        bool was_checked;
+        bool is_consistent;
+        bool do_fix;
+        bool is_workdir;
         SpellSaveBigMap m_bigmap;
     };
     typedef std::vector<Save> Saves;
@@ -389,6 +399,6 @@ public:
     static int LoadSave(std::filesystem::path dir,Save &save,bool allow_empty=true);
     static int LoadSaves(std::filesystem::path dir, Saves &saves,bool skip_missing=true);
     static bool CheckSaves(std::filesystem::path dir);
+    static int FixSaves(Saves& saves, std::filesystem::path common_fs_path, std::string& report, bool check_only=true);
 };
 
-bool DecodeCLK(const std::vector<uint8_t>& clkBytes,int& outW,int& outH,std::vector<uint8_t>& values);

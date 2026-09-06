@@ -9,6 +9,91 @@
 #include <chrono>
 #include <format>
 
+// converts wstring to ascii string (removes accents, then leaves out anything >255)
+std::string str_to_ascii(std::wstring str)
+{
+    typedef struct {
+        std::string rep;
+        std::wstring list;
+    }TDictElement;
+    static std::vector<TDictElement> dict ={
+        {"A",L"ÀÁÂÃÄÅĀĂĄǍǞǠǺȀȂȦȺΆΑḀẠẢẤẦẨẪẬẮẰẲẴẶἈἉἊἋἌἍἎἏᾈᾉᾊᾋᾌᾍᾎᾏᾸᾹᾺΆᾼ"},
+        {"AE",L"ÆǢǼ"},
+        {"B",L"ḂḄḆ"},
+        {"C",L"ÇĆĈĊČƇḈ"},
+        {"D",L"ĎĐƉƊḊḌḎḐḒ"},
+        {"E",L"ÈÉÊËĒĔĖĘĚȄȆȨɆΕЀЁḔḖḘḚḜẸẺẼẾỀỂỄỆἘἙἚἛἜἝῈΈ"},
+        {"F",L"ƑḞ"},
+        {"G",L"ĜĞĠĢƓǤǦǴḠ"},
+        {"H",L"ĤĦȞΉΗḢḤḦḨḪἨἩἪἫἬἭἮἯᾘᾙᾚᾛᾜᾝᾞᾟῊΉῌ"},
+        {"I",L"ÌÍÎÏĨĪĬĮİǏȈȊΙḬḮỈỊἸἹἺἻἼἽἾἿῘῙῚΊ"},
+        {"J",L"Ĵ"},
+        {"K",L"ĶΚǨḰḲḴ"},
+        {"L",L"ĹĻĽĿŁḶḸḺḼ"},
+        {"M",L"ΜḾṀṂ"},
+        {"N",L"ŃŅŇΝṄṆṈṊ"},
+        {"O",L"ÒÓÔÕÖØŌŎŐƟǑǪǬǾȌȎȪȬȮȰʘΌΘΟṌṎṐṒỌỎỐỒỔỖỘỚỜỞỠỢὈὉὊὋὌὍ"},
+        {"P",L"ƤΡṔṖ"},
+        {"R",L"ŔŖŘƦȐȒɌṘṚṜṞ"},
+        {"S",L"ŠŚŜŞŠȘṠṢṤṦṨ"},
+        {"T",L"ŢŤŦƬƮȚȾͲͳΤṪṬṮṰ"},
+        {"U",L"ÙÚÛÜŨŪŬŮŰŲƲǓǕǗǙǛȔȖṲṴṶṸṺỤỦỨỪỬỮỰ"},
+        {"V",L"ƔṼṾ"},
+        {"W",L"ẀẂẄẆẈ"},
+        {"X",L"ẊẌ"},
+        {"Y",L"ŸŶŸȲÝẎỲỴỶỸỾὙὛὝὟῨῩῪΎ"},
+        {"Z",L"ŽŹŻŽȤΖẐẒẔ"},
+        {"a",L"àáâãäåāăąǎǟǡǻȁȃȧḁẚạảấầẩẫậắằẳẵặἀἁἂἃἄἅἆἇὰάᾀᾁᾂᾃᾄᾅᾆᾇᾰᾱᾲᾳᾴᾶᾷ"},
+        {"ae",L"æǣǽ"},
+        {"b",L"ḃḅḇ"},
+        {"c",L"çćĉċčƈȼḉ"},
+        {"d",L"ďđƋƌḋḍḏḑḓ"},
+        {"e",L"èéêëēĕėęěȅȇȩɇḕḗḙḛḝẹẻẽếềểễệἐἑἒἓἔἕὲέ"},
+        {"f",L"ƒḟẛẜẝ"},
+        {"g",L"ĝğġģǥǧǵɠɡɢḡ"},
+        {"h",L"ĥħȟɦɧḣḥḧḩḫẖ"},
+        {"i",L"ìíîïĩīĭįıǐȉȋɨɩɪḭḯỉịἰἱἲἳἴἵἶἷὶίῐῑῒΐῖῗ"},
+        {"j",L"ĵǰȷɉ"},
+        {"k",L"ķĸƙǩḱḳḵ"},
+        {"l",L"ĺļľŀłƖƚȴɫɬɭḷḹḻḽ"},
+        {"m",L"ḿṁṃ"},
+        {"n",L"ñńņňŉŋƞǹȵɲɳɴṅṇṉṋἠἡἢἣἤἥἦἧὴήᾐᾑᾒᾓᾔᾕᾖᾗῂῃῄῆῇ"},
+        {"o",L"ðòóôõöøōŏőǒǫǭǿȍȏȫȭȯȱɵṍṏṑṓọỏốồổỗộớờởỡợὀὁὂὃὄὅὸό"},
+        {"p",L"ṕṗῤῥ"},
+        {"r",L"ŕŗřȑȓɍṙṛṝṟ"},
+        {"s",L"śŝşšșȿṡṣṥṧṩ"},
+        {"t",L"ţťŧƫƭțȶṫṭṯṱẗ"},
+        {"u",L"ùúûüũūŭůűųưǔǖǘǚǜȕȗṳṵṷṹṻụủứừửữựὐὑὒὓὔὕὖὗὺύῠῡῢΰῦῧ"},
+        {"v",L"ɣṽṿ"},
+        {"w",L"ŵẁẃẅẇẉẘὼώᾠᾡᾢᾣᾤᾥᾦᾧῲῳῴῶῷ"},
+        {"x",L"ẋẍ"},
+        {"y",L"ýÿŷƴȳɏẏẙỳỵỷỹỿ"},
+        {"z",L"źżžƶȥẑẓẕ"}
+    };
+
+    // for each input symbol
+    std::string res = "";
+    for(auto c: str)
+    {
+        // default output
+        std::string sym = "";
+        if(c <= 255)
+            sym.push_back(c);
+        // check & replace by dictionary items
+        for(auto dic: dict)
+        {
+            if(dic.list.find(c) != std::wstring::npos)
+            {
+                sym = dic.rep;
+                break;
+            }
+        }
+        res.append(sym);
+    }
+
+    return res;
+}
+
 std::wstring char2wstring(const char* str)
 {
     //setup converter
@@ -22,11 +107,18 @@ std::wstring string2wstring(std::string str)
     return char2wstring(str.c_str());
 }
 
-// convert wstring to UTF-8 string
-std::string wstring2string(const std::wstring& str)
-{
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> myconv;
-    return myconv.to_bytes(str);
+// convert wstring to locale string
+std::string wstring2string(const std::wstring& wstr,bool utf8)
+{        
+    if(utf8)
+    {
+        std::wstring_convert<std::codecvt_utf8<wchar_t>> myconv;
+        return myconv.to_bytes(wstr);
+    }
+    static std::locale loc("");
+    auto& facet = std::use_facet<std::codecvt<wchar_t,char,std::mbstate_t>>(loc);
+    return std::wstring_convert<std::remove_reference<decltype(facet)>::type,wchar_t>(&facet).to_bytes(wstr);        
+    
 }
 
 // convert char str to wstring using CZ CP852 encoding

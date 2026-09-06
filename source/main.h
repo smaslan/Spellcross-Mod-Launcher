@@ -20,7 +20,7 @@
 #include "forms/form_save_edit.h"
 #include "forms/form_save_backup.h"*/
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-01 18:02:44
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-06 14:14:23
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -53,7 +53,7 @@
 #include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-01 18:02:44
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-06 14:14:23
 
 
 // app entry point class
@@ -75,6 +75,8 @@ public:
 		PRINT,
 		CLEAR,
 		STATUS,
+		DIALOG,
+		SAVE_CHECK,
 		DONE
 	};
 
@@ -85,7 +87,8 @@ public:
 		SWAP,
 		CLEANUP,
 		RUN,
-		SETUP
+		SETUP,
+		CHECK_SAVE
 	};
 
 	typedef std::vector<Action> ActionsList;
@@ -105,11 +108,16 @@ public:
 		bool dosbox_fullscreen;
 		bool move_saves;
 		bool force_build;
+		bool check_saves;
 		SpellMod::RandomizerMode unit_randomizer;
 		UnitRandomizerSetup randomize_rules;
 		std::vector<SpellModOption> options;
 		SpellLaunch::EngineVersion ver;
 	};
+
+	SpellMod::Config MakeModConfig();
+	std::filesystem::path GetSavesPath(bool is_mod, bool after_swap=false);
+	std::filesystem::path GetCommonFsPath(bool is_mod, bool after_swap=false);
 
 	ProcTh(wxFrame* parent,Params &config,ActionsList &actions);
 	virtual ExitCode Entry();	
@@ -125,6 +133,8 @@ private:
 	void ConsoleClearCallback();
 	void ConsoleStringCallback(std::string info);
 	void SetStatusCallback(std::string info);
+	int DialogCallback(std::string message,std::string title);
+	int CheckSaves(FormSaveCheck::Params& par);
 };
 
 class FormMain : public wxFrame
@@ -149,6 +159,7 @@ private:
 	void OnBackupSave(wxCommandEvent& event);
 	void OnBackupSaveWD(wxCommandEvent& event);
 	void OnSaveEdit(wxCommandEvent& event);
+	void OnSaveCheck(wxCommandEvent& event);
 	void OnModSaveSource(wxCommandEvent& event);
 	void OnModOptionChange(wxPropertyGridEvent& event);
 	void OnChangeExe(wxCommandEvent& event);
@@ -171,6 +182,7 @@ private:
 	std::wstring GetPathChoiceLastPath(wxChoice* choice,std::wstring default_path=L"");	
 	void ListSpellExecutables(std::filesystem::path spell_dir, wxChoice* choice);
 	SpellLaunch::EngineVersion CheckExeVersion();
+	ProcTh::Params GetProcThParams();
 
 	int LoadOptionsIni(std::vector<SpellModOption>& options);
 	int SaveOptionsIni();
@@ -183,12 +195,13 @@ private:
 	ProcTh *m_th_proc;
 
 	UnitRandomizerSetup m_randomizer;
+	//bool m_auto_check_saves;
 
 	const std::string str_choice_browse=">>> Browse <<<";
 	const std::string str_choice_none=">>> None found <<<";
 	const std::string str_choice_no_select=">>> Empty path <<<";
 	const std::string str_mod_state_ini_none="mod_state.ini";
-	const std::string str_ver_label = "V1.43, build: " __DATE__;
+	const std::string str_ver_label = "V1.45, build: " __DATE__;
 	
 
 	FormEdit *form_edit;
@@ -198,12 +211,9 @@ private:
 
 protected:
 	
-	int wxID_FORM_UNIT_RAND = 5996;
-	int wxID_FORM_SAVE_EDIT = 5997;
-	int wxID_FORM_SAVE_BACK = 5998;
-	int wxID_FORM_EDIT = 5999;	
+	
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-01 18:02:44
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-06 14:14:23
 	enum
 	{
 		wxID_FORM_MAIN = 6000,
@@ -228,12 +238,15 @@ protected:
 		wxID_MM_CFG_RANDOMIZER,
 		wxID_MM_SAVE_WD_ORG,
 		wxID_MM_RESTORE_WD_ORG,
+		wxID_MM_SAVE_CHECK_ORIG,
 		wxID_MM_SAVE_ORIG,
 		wxID_MM_SAVE_EDIT_ORIG,
 		wxID_MM_SAVE_WD_MOD,
 		wxID_MM_RESTORE_WD_MOD,
+		wxID_MM_SAVE_CHECK_MOD,
 		wxID_MM_SAVE_MOD,
 		wxID_MM_SAVE_EDIT_MOD,
+		wxID_MM_AUTO_CHECK_SAVE,
 		wxID_MM_BUILD_LAUNCH,
 		wxID_MM_RUN_ORIG,
 		wxID_MM_RUN_MOD,
@@ -320,12 +333,18 @@ protected:
 	wxButton* btnRestoreWDmod;
 	wxButton* btnRunMod;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-01 18:02:44
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-06 14:14:23
 
 
 public:
 	
 	static const int wxID_PROC_THREAD = 7000;
+	static const wxWindowID wxID_FORM_SAVE_CHECK = 5994;
+	static const wxWindowID wxID_FORM_DIALOG = 5995;
+	static const wxWindowID wxID_FORM_UNIT_RAND = 5996;
+	static const wxWindowID wxID_FORM_SAVE_EDIT = 5997;
+	static const wxWindowID wxID_FORM_SAVE_BACK = 5998;
+	static const wxWindowID wxID_FORM_EDIT = 5999;
 
 	FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id = wxID_FORM_MAIN, const wxString& title = _("Spellcross Mod Launcher"),const wxPoint& pos = wxDefaultPosition,const wxSize& size = wxSize(900,800),long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL);
 
