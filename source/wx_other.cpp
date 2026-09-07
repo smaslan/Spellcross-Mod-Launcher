@@ -112,12 +112,12 @@ int getPGcount(wxPropertyGrid *pg)
 }
 
 // set property grid vertical size to props count
-int setPGsize(wxPropertyGrid* pg,int max_count)
+int setPGsize(wxPropertyGrid* pg,int max_count,int min_count)
 {
 	auto count = getPGcount(pg);
 	if(!count)
 		return(1);
-	int lines = std::min(max_count,std::max(max_count,1));
+	int lines = std::max(std::min(max_count,count),min_count);
 	pg->SetMinSize(wxSize(-1,pg->GetRowHeight()*lines + pg->GetSpacingY()));
 	if(lines < count)
 	{

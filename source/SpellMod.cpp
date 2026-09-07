@@ -1326,6 +1326,42 @@ int SpellMod::MakeTitle(SpellArchive &arch, std::vector<std::string> &params)
     return(0);
 }
 
+
+// various edits to map DEF file
+int SpellMod::ProcMapDEFs(std::string& def,bool no_night_vission)
+{
+    // parse to lines
+    auto lines = get_text_lines(def);
+
+    // leave because it's not mission DEF but no error
+    if(lines.empty() || !lines[0].starts_with("MissionData"))
+        return(0);
+
+    // process all lines
+    for(auto& line: lines)
+    {
+        if(no_night_vission && line.starts_with("NightMission"))
+        {
+            // disable night vission option
+            SpellDefCmd cmd(line);
+            if(!cmd.valid)
+            {
+                // invalid command
+                m_last_error = string_format("Possibly somehow incomplete command %s?",cmd.full_command);
+                return(1);
+            }            
+            line = "";
+            continue;
+        }
+    }
+
+    // merge modified lines
+    def = merge_text_lines(lines);
+
+    return(0);
+}
+
+
 // replace particular units from source
 int SpellMod::ReplaceUnits(SpellArchive* dest,SpellArchive *src, std::string name, std::vector<int> &list)
 {
@@ -2190,7 +2226,12 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
         }
 
         // units randomizer and/or swapper?
-        if(is_common && (config.randomize != RandomizerMode::OFF || !swap_map_units_list.empty() || !convert_target.empty()))
+        if(is_common && (
+                config.randomize != RandomizerMode::OFF ||
+                !swap_map_units_list.empty() ||
+                !convert_target.empty() ||
+                config.no_night_vission
+            ))
         {
             // parse units definition
             std::vector<uint8_t> data;
@@ -2286,6 +2327,16 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     }
                 }
 
+                // other map DEF file mods
+                if(config.no_night_vission)
+                {
+                    if(ProcMapDEFs(def,config.no_night_vission))
+                    {
+                        PrintConsole("failed! Modifying \"%s\" failed: %s\n",name,m_last_error);
+                        return(1);
+                    }
+                }
+
                 // convert video file extensions?
                 if(!convert_target.empty())
                 {
@@ -2294,9 +2345,9 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                         PrintConsole("failed! Converting mod video names to target language %s failed in file \"%s\"\n",convert_target, name);
                         return(1);
                     }
-                }
+                }                
 
-                // replace
+                // finally replace file in archive
                 if(arch.AddFile(def,name,true))
                 {
                     PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name,arch.GetLastError());

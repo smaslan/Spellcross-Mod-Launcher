@@ -20,7 +20,7 @@
 #include "forms/form_save_edit.h"
 #include "forms/form_save_backup.h"*/
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-06 14:14:23
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-07 18:02:23
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -53,7 +53,7 @@
 #include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-06 14:14:23
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-07 18:02:23
 
 
 // app entry point class
@@ -109,6 +109,7 @@ public:
 		bool move_saves;
 		bool force_build;
 		bool check_saves;
+		bool no_night_vission;
 		SpellMod::RandomizerMode unit_randomizer;
 		UnitRandomizerSetup randomize_rules;
 		std::vector<SpellModOption> options;
@@ -213,7 +214,7 @@ protected:
 	
 	
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-06 14:14:23
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-07 18:02:23
 	enum
 	{
 		wxID_FORM_MAIN = 6000,
@@ -270,6 +271,7 @@ protected:
 		wxID_PG_MOD_OPTS,
 		wxID_CB_ALLOW_CD_MOD,
 		wxID_CB_MOD_SAVES,
+		wxID_CB_NO_NIGHT,
 		wxID_CH_RAND_MODE,
 		wxID_TEXT_OUTPUT,
 		wxID_BTN_RUN_ORIG,
@@ -320,6 +322,7 @@ protected:
 	wxPropertyGrid* pgModOptions;
 	wxCheckBox* cbAllowCDmod;
 	wxCheckBox* cbModSaves;
+	wxCheckBox* cbNoNight;
 	wxStaticText* m_staticText43;
 	wxChoice* chRandomizeMode;
 	wxStaticLine* m_staticline44;
@@ -333,7 +336,7 @@ protected:
 	wxButton* btnRestoreWDmod;
 	wxButton* btnRunMod;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-06 14:14:23
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-07 18:02:23
 
 
 public:

@@ -172,6 +172,7 @@ FormAbout::FormAbout( wxWindow* parent,std::string ver_label,wxWindowID id, cons
 		"Credits/used libraries:\n"
 		"Spellcross Map Editor: shared Spellcross libraries (https://github.com/smaslan/spellcross-map-edit)\n"
 		"wxWidgets: multiplatform graphical used interface (https://github.com/wxWidgets/wxWidgets/)\n"
+		"simpleini: cross-platform library handling INI-style conf. files (https://github.com/brofield/simpleini)\n"
 		"cparse: expression parser (https://github.com/cparse/cparse)";
 	txtDesc->SetValue(desc);
 }
@@ -208,7 +209,7 @@ void FormAbout::OnURL(wxTextUrlEvent& event)
 	if((int)hinst <= 32)
 	{
 		// failed
-		wxMessageDialog dial(this,string_format("Cannot open URL:\n%s:\n\nOperation might be blocked by system setup (security). ",wstring2string(url).c_str()),_("Opening project URL ..."),wxICON_ERROR);
+		wxMessageDialog dial(this,string_format("Cannot open URL:\n%s:\n\nOperation might be blocked by system setup (security). ",url),_("Opening project URL ..."),wxICON_ERROR);
 		dial.ShowModal();
 	}
 }

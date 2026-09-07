@@ -116,6 +116,7 @@ public:
         bool allow_cd_mod;
         bool move_saves;
         bool force_write;
+        bool no_night_vission;
         RandomizerMode randomize;
         UnitRandomizerSetup rand_rules;
         std::vector<SpellModOption> options;
@@ -185,6 +186,7 @@ private:
 
     int ParseExpression(std::string expr,bool& result);
     int MakeTitle(SpellArchive& arch,std::vector<std::string>& params);
+    int ProcMapDEFs(std::string& def,bool no_night_vission);
     int ReplaceUnits(SpellArchive* dest,SpellArchive* src,std::string name,std::vector<int>& list);
     int SwapUnits(SpellArchive* arch,std::pair<int,int> pair);
     int SwapMapUnits(std::string &def,SpellUnits* units,std::map<int,int>& swap_map_units_list);
