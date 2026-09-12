@@ -98,7 +98,7 @@ Also, you can star my project here on GitHub if you like to help me out on a way
 
 ## Usage
 
-The tool has [help](./help/help_eng.html) in the application folder. It should be able to launch the HTML help via menu (it may fail due to Windows security policies). If not, open it manually using your browser.
+The tool has [help](https://htmlpreview.github.io/?https://github.com/smaslan/Spellcross-Mod-Launcher/help/help_eng.html) in the application folder. It should be able to launch the HTML help via menu (it may fail due to Windows security policies). If not, open it manually using your browser.
  
                                  
 ## License
