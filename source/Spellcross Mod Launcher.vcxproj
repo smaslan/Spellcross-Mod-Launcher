@@ -125,7 +125,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_HAS_STD_BYTE=0;_WINSOCKAPI_;_DEBUG;_WINDOWS;WXUSINGDLL;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;MINIMAL_SPELL_UNITS;STATIC_CPARSE_STARTUP;CATCH_CPP14_OR_GREATER;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_HAS_STD_BYTE=0;_WINSOCKAPI_;_DEBUG;_WINDOWS;WXUSINGDLL;_CRT_SECURE_NO_WARNINGS;_SILENCE_ALL_CXX17_DEPRECATION_WARNINGS;MINIMAL_SPELL_UNITS;MINIMAL_SPRITES;STATIC_CPARSE_STARTUP;CATCH_CPP14_OR_GREATER;NOMINMAX;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(wxwin)include;$(wxwin)include\msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
@@ -170,6 +170,7 @@
     <ClCompile Include="forms\form_save_backup.cpp" />
     <ClCompile Include="forms\form_save_check.cpp" />
     <ClCompile Include="forms\form_save_edit.cpp" />
+    <ClCompile Include="forms\form_trees_rand.cpp" />
     <ClCompile Include="forms\form_units_rand.cpp" />
     <ClCompile Include="fsu_archive.cpp" />
     <ClCompile Include="fs_archive.cpp" />
@@ -181,10 +182,13 @@
     <ClCompile Include="SpellLaunch.cpp" />
     <ClCompile Include="SpellMod.cpp" />
     <ClCompile Include="spell_def.cpp" />
+    <ClCompile Include="spell_filter.cpp" />
     <ClCompile Include="spell_font.cpp" />
     <ClCompile Include="spell_install.cpp" />
+    <ClCompile Include="spell_palette.cpp" />
     <ClCompile Include="spell_randomizer.cpp" />
     <ClCompile Include="spell_units.cpp" />
+    <ClCompile Include="sprites.cpp" />
     <ClCompile Include="wx_other.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -195,6 +199,7 @@
     <ClInclude Include="forms\form_save_backup.h" />
     <ClInclude Include="forms\form_save_check.h" />
     <ClInclude Include="forms\form_save_edit.h" />
+    <ClInclude Include="forms\form_trees_rand.h" />
     <ClInclude Include="forms\form_units_rand.h" />
     <ClInclude Include="fsu_archive.h" />
     <ClInclude Include="fs_archive.h" />
@@ -209,10 +214,13 @@
     <ClInclude Include="SpellMod.h" />
     <ClInclude Include="SpellSaves.h" />
     <ClInclude Include="spell_def.h" />
+    <ClInclude Include="spell_filter.h" />
     <ClInclude Include="spell_font.h" />
     <ClInclude Include="spell_install.h" />
+    <ClInclude Include="spell_palette.h" />
     <ClInclude Include="spell_randomizer.h" />
     <ClInclude Include="spell_units.h" />
+    <ClInclude Include="sprites.h" />
     <ClInclude Include="wx_other.h" />
   </ItemGroup>
   <ItemGroup>

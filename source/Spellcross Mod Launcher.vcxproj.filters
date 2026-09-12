@@ -108,6 +108,18 @@
     <ClCompile Include="forms\form_save_check.cpp">
       <Filter>Zdrojové soubory\forms</Filter>
     </ClCompile>
+    <ClCompile Include="forms\form_trees_rand.cpp">
+      <Filter>Zdrojové soubory\forms</Filter>
+    </ClCompile>
+    <ClCompile Include="sprites.cpp">
+      <Filter>Zdrojové soubory</Filter>
+    </ClCompile>
+    <ClCompile Include="spell_palette.cpp">
+      <Filter>Zdrojové soubory</Filter>
+    </ClCompile>
+    <ClCompile Include="spell_filter.cpp">
+      <Filter>Zdrojové soubory</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -187,6 +199,18 @@
     </ClInclude>
     <ClInclude Include="forms\form_save_check.h">
       <Filter>Hlavičkové soubory\forms</Filter>
+    </ClInclude>
+    <ClInclude Include="forms\form_trees_rand.h">
+      <Filter>Hlavičkové soubory\forms</Filter>
+    </ClInclude>
+    <ClInclude Include="sprites.h">
+      <Filter>Hlavičkové soubory</Filter>
+    </ClInclude>
+    <ClInclude Include="spell_palette.h">
+      <Filter>Hlavičkové soubory</Filter>
+    </ClInclude>
+    <ClInclude Include="spell_filter.h">
+      <Filter>Hlavičkové soubory</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

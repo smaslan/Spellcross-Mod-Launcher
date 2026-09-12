@@ -1,3 +1,11 @@
+//=============================================================================
+// Collection of useful random stuff.
+// 
+// This code is part of Spellcross Map Editor project.
+// (c) 2021-2026, Stanislav Maslan, s.maslan@seznam.cz
+// url: https://github.com/smaslan/spellcross-map-edit
+// Distributed under MIT license, https://opensource.org/licenses/MIT.
+//=============================================================================
 #ifndef other_H
 #define other_H
 
@@ -87,7 +95,7 @@ std::string string_format(const std::string fmt,Args&&... args) {
     }, converted_args);    
 }
 
-
+int data_read_str(std::string &str, uint8_t* &data, uint8_t *dend, int len, bool null_term=false);
 
 //std::string string_format(const std::string fmt,...);
 std::wstring wstring_format(const std::wstring fmt,...);
@@ -106,6 +114,7 @@ std::string get_local_time_str();
 void srand_init();
 int str2int(std::string str,int& value,int min=-INT_MIN,int max=INT_MAX,int base=10);
 int str2int(std::vector<std::string>& str,std::vector<int>& value,int min=-INT_MIN,int max=INT_MAX,int base=10);
+int str2real(std::string str,double& value,double min,double max);
 
 template <typename TP>
 std::time_t to_time_t(TP tp)
@@ -253,6 +262,26 @@ public:
 
     int write_str_p16(std::string data) {
         return(write_str_p16(data.c_str()));
+    };
+
+    // write string with null termination (len == 0) or fixed len > 0 with padding
+    int write_str(std::string &data, int len=0, char padding='\0') {
+        if(!len)
+        {         
+            // null terminated mode
+            std::ofstream::write(data.data(),data.size());
+            write('\0');
+            return(0);
+        }
+        
+        // fixed len mode with padding
+        if(data.size() > len)
+            return(1);
+        // add padding
+        data.resize(len,padding);
+        // write
+        std::ofstream::write(data.data(),data.size());
+        return(0);
     };
 
 };

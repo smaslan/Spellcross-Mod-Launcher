@@ -1,10 +1,11 @@
 //=============================================================================
 // Loader of Spellcross units definition file JEDNOTKY.DEF.
 // Loads CZ or EN version from binary data input.
-// Decoders binary to list of unit records.
+// Decodes binary to list of unit records.
 // 
 // This code is part of Spellcross Map Editor project.
-// (c) 2021, Stanislav Maslan, s.maslan@seznam.cz
+// (c) 2021 - 2026, Stanislav Maslan, s.maslan@seznam.cz
+// url: https://github.com/smaslan/spellcross-map-edit
 // Distributed under MIT license, https://opensource.org/licenses/MIT.
 //=============================================================================
 #pragma once

@@ -1,19 +1,22 @@
 //=============================================================================
 // Loader of Spellcross units definition file JEDNOTKY.DEF.
 // Loads CZ or EN version from binary data input.
-// Decoders binary to list of unit records.
+// Decodes binary to list of unit records.
 // 
 // This code is part of Spellcross Map Editor project.
-// (c) 2021, Stanislav Maslan, s.maslan@seznam.cz
+// (c) 2021 - 2026, Stanislav Maslan, s.maslan@seznam.cz
+// url: https://github.com/smaslan/spellcross-map-edit
 // Distributed under MIT license, https://opensource.org/licenses/MIT.
 //=============================================================================
 #undef _HAS_STD_BYTE
 #define _HAS_STD_BYTE 0
+//#define NOMINMAX
 
 #include "spell_units.h"
 #ifndef MINIMAL_SPELL_UNITS
 #include "fs_archive.h"
 #include "fsu_archive.h"
+#include "spell_filter.h"
 #include "spellcross.h"
 #include "map.h"
 #endif
@@ -24,6 +27,9 @@
 #include <stdexcept>
 #include <random>
 
+// get rid of Windows.h definitions
+#undef min
+#undef max
 
 //using namespace std;
 
@@ -923,15 +929,16 @@ int SpellUnitRec::CalcExperiencePts(int level)
 	
 	return(xp);
 }
+
 // get base experience points for given exp. level 1-12
 int SpellUnitRec::GetExperiencePts(int level)
 {
-	return(exp_limits[std::min(std::max(level-1,0),12)]);
+	return(exp_limits[std::min(std::max(level-1,0),11)]);
 }
 // get base experience points for next of given exp. level 1-12
 int SpellUnitRec::GetNextExperiencePts(int level)
 {
-	return(exp_limits[std::min(std::max(level,0),12)]);
+	return(exp_limits[std::min(std::max(level,0),11)]);
 }
 
 // uses projectile when shooting to target unit (or NULL to object)?
@@ -1804,7 +1811,7 @@ int MapUnit::Render(Terrain* data,uint8_t* buffer,uint8_t* buf_end,int buf_x_pos
 		return(0);	
 	
 	// filter for shadow rendering
-	auto shadow_filter = data->filter.darker;
+	auto shadow_filter = data->filter->darker;
 	
 	int loc_frame = frame;
 	if(!in_animation)
@@ -1817,7 +1824,7 @@ int MapUnit::Render(Terrain* data,uint8_t* buffer,uint8_t* buf_end,int buf_x_pos
 	auto [x_status_bar,y_status_bar] = unit->Render(buffer, buf_end, buf_x_pos, buf_y_pos, buf_x_size,filter,shadow_filter, sprt, visible_man,azimuth, azimuth_turret, loc_frame, in_animation, altitude);
 	
 	if(!hud_filter)
-		hud_filter = data->filter.nullpal;
+		hud_filter = data->filter->nullpal;
 
 	// -- make status bar
 	if(!show_hud)
@@ -1995,7 +2002,7 @@ int MapUnit::RenderPreview(uint8_t* buffer,uint8_t* buf_end,int buf_x_size)
 	if(!map->isGameMode())
 	{
 		// unit ID (pos = 141,25)
-		spell_data->font7->SetFilter(map->terrain->filter.darkpal);
+		spell_data->font7->SetFilter(map->terrain->filter->darkpal);
 		spell_data->font7->Render(buffer,buf_end,buf_x_size,141,25,string_format("#%d",id),252,254,SpellFont::FontShadow::SOLID,SpellFont::FontAlign::RIGHT);
 		spell_data->font7->SetFilter(NULL);
 	}

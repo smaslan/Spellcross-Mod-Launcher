@@ -1328,8 +1328,10 @@ int SpellMod::MakeTitle(SpellArchive &arch, std::vector<std::string> &params)
 
 
 // various edits to map DEF file
-int SpellMod::ProcMapDEFs(std::string& def,bool no_night_vission)
+int SpellMod::ProcMapDEFs(std::string& def,SpellUnits* units,bool no_night_vission,bool fix_units)
 {
+    m_last_error.clear();
+
     // parse to lines
     auto lines = get_text_lines(def);
 
@@ -1353,6 +1355,66 @@ int SpellMod::ProcMapDEFs(std::string& def,bool no_night_vission)
             line = "";
             continue;
         }
+
+        if(fix_units)
+        {
+            // fix units max HP using JEDNOTKY.DEF limits
+            if(!units)
+            {
+                m_last_error = string_format("Cannot check units consistency without JEDNOTKY.DEF provided.");
+                return(1);
+            }
+
+            if(line.starts_with("AddUnit") || line.starts_with("AddSpecialUnit"))
+            {
+                SpellDefCmd cmd(line);
+                if(!cmd.valid)
+                {
+                    // invalid command
+                    m_last_error = "Wrong parameters count for command AddUnit() or AddSpecialUnit().";
+                    return(1);
+                }
+                if((cmd.name == "AddUnit" && cmd.parameters.size() != 7) || (cmd.name == "AddSpecialUnit" && cmd.parameters.size() != 6))
+                {
+                    // invalid params count
+                    m_last_error = "Wrong parameters count for command AddUnit() or AddSpecialUnit().";
+                    return(1);
+                }
+
+                // check unit type
+                int unit_type;
+                if(str2int(cmd.parameters[1],unit_type,0,89))
+                {
+                    m_last_error = string_format("Unknown unit type in command \"%s\".",cmd.full_command);
+                    return(1);
+                }
+                auto unit = units->GetUnit(unit_type);
+                if(!unit)
+                {
+                    // unknown unit type
+                    m_last_error = string_format("Unknown unit type in command \"%s\".",cmd.full_command);
+                    return(1);
+                }
+
+                // get HP
+                int hp;
+                if(str2int(cmd.parameters[4],hp,1,100))
+                {
+                    m_last_error = string_format("Invalid unit HP in command \"%s\".",cmd.full_command);
+                    return(1);
+                }
+                // fix it to valid range
+                hp = std::max(std::min(hp, unit->cnt),1);                              
+
+                // rebuild unit command
+                cmd.parameters[4] = string_format("%d",hp);
+                line = cmd.name + "(" + merge_text_lines(cmd.parameters,",") + ")";
+
+                continue;
+            }
+
+        }
+
     }
 
     // merge modified lines
@@ -1774,7 +1836,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
 
     // parse archive section(s)
     std::filesystem::path fsu_path;
-    std::vector<std::string> archive_names = {"UNITS.FSU","COMMON.FS", "T11.FS", "PUST.FS", "DEVAST.FS", "TEXTS.FS", "SAMPLES.FS", "MUSIC.FS", "RESEARCH.FS", "INFO.FS", "SPEAKER.FS", "MOVIE.FS"};
+    std::vector<std::string> archive_names = {"UNITS.FSU", "T11.FS", "PUST.FS", "DEVAST.FS", "COMMON.FS", "TEXTS.FS", "SAMPLES.FS", "MUSIC.FS", "RESEARCH.FS", "INFO.FS", "SPEAKER.FS", "MOVIE.FS"};
     for(auto &arch_name: archive_names)
     {
         // target archive absolute path
@@ -2202,7 +2264,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                         }
                         count++;
                     }
-                    if(!count && !iswild(wild))
+                    if(!is_optional && !count && !iswild(wild))
                     {
                         // source file in add() command not found
                         PrintConsole("failed! Line %d: source file \"%s\" not found in command \"%s\".\n",cmd.m_line,wild,cmd.m_raw);
@@ -2223,29 +2285,34 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 PrintConsole("failed! Line %d: unknown command \"%s\".\n",cmd.m_line,cmd.m_raw);
                 return(1);
             }
-        }
+        } // for each command
 
-        // units randomizer and/or swapper?
+        // randomizers and/or swappers?
         if(is_common && (
                 config.randomize != RandomizerMode::OFF ||
                 !swap_map_units_list.empty() ||
                 !convert_target.empty() ||
-                config.no_night_vission
+                config.no_night_vission ||
+                config.trees_rand ||
+                config.check_maps
             ))
         {
+            
+            srand_init();
+
             // parse units definition
             std::vector<uint8_t> data;
             if(arch.GetFile("JEDNOTKY.DEF",data))
             {
                 // unknown command
-                PrintConsole("failed! Unit randomizer cannot find file JEDNOTKY.DEF in COMMON.FS.\n");
+                PrintConsole("failed! Cannot find file JEDNOTKY.DEF in COMMON.FS.\n");
                 return(1);
             }
             std::unique_ptr<SpellUnits> units;
             try{
                 units = std::make_unique<SpellUnits>(data.data(), data.size());
             }catch(const std::runtime_error& error) {
-                PrintConsole(string_format("failed! Unit randomizer cannot decode file JEDNOTKY.DEF in COMMON.FS.\n"));
+                PrintConsole(string_format("failed! Cannot decode file JEDNOTKY.DEF in COMMON.FS.\n"));
                 return(1);
             }
 
@@ -2328,9 +2395,9 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 }
 
                 // other map DEF file mods
-                if(config.no_night_vission)
+                if(config.no_night_vission || config.check_maps)
                 {
-                    if(ProcMapDEFs(def,config.no_night_vission))
+                    if(ProcMapDEFs(def,units.get(),config.no_night_vission,config.check_maps))
                     {
                         PrintConsole("failed! Modifying \"%s\" failed: %s\n",name,m_last_error);
                         return(1);
@@ -2350,7 +2417,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 // finally replace file in archive
                 if(arch.AddFile(def,name,true))
                 {
-                    PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name,arch.GetLastError());
+                    PrintConsole("failed! Modifying \"%s\" failed: %s\n",name,arch.GetLastError());
                     return(1);
                 }
             }
@@ -2408,9 +2475,72 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             }
 
 
+            // randomize trees?
+            if(config.trees_rand)
+            {
+                // try load all terrains
+                std::vector<std::shared_ptr<FSarchive>> terr_fs_list;
+                std::vector<std::string> terr_fs_names = {"T11.FS", "PUST.FS", "DEVAST.FS"};
+                for(auto &fs_name: terr_fs_names)
+                {
+                    // priority in MAKE folder, then Spellcross dir
+                    auto fs_path = make_dir / fs_name;
+                    if(!std::filesystem::exists(fs_path))
+                        fs_path = config.spell_dir / "data" / fs_name;
+                    if(!std::filesystem::exists(fs_path))
+                        continue;
 
-        }
+                    // try load archive (just names, no load data)
+                    std::shared_ptr<FSarchive> fs_arch;
+                    try{   
+                        fs_arch = std::make_shared<FSarchive>(fs_path.wstring(),FSarchive::Options::NO_LOAD);
+                    }catch(const std::runtime_error& error) {
+                        PrintConsole("failed! Trees randomizer failed on loading \"%s\".\n",fs_name);
+                        return(1);
+                    }
+                    terr_fs_list.push_back(fs_arch);
+                }
 
+                // prepare randomizer rules
+                SpellTreeRandomizer trees_rand;
+                if(trees_rand.PrepareRules(config.trees_rand_rules, terr_fs_list))
+                {
+                    PrintConsole("failed! Trees randomizer failed on preparing rules: %s\n",trees_rand.m_last_error);
+                    return(1);
+                }
+
+                // for each possible level script:
+                for(auto& name: arch.GetItemNames())
+                {
+                    // possible map DTA files
+                    std::string key = "*.DTA";
+                    if(!wildcmp(key,name))
+                        continue;
+                    if(arch.GetFile(name,data))
+                    {
+                        PrintConsole("failed! Trees randomizer cannot load file \"%s\" in COMMON.FS.\n",name);
+                        return(1);
+                    }
+                    
+                    // try randomize map
+                    if(trees_rand.RandomizeMapDTA(data,name))
+                    {
+                        PrintConsole("failed! Trees randomizer failed processing map DTA file \"%s\" in COMMON.FS: %s\n",name,trees_rand.m_last_error);
+                        return(1);
+                    }
+
+                    // finally replace file in archive
+                    if(arch.AddFile(data,name,true))
+                    {
+                        PrintConsole("failed! Trees randomizer failed modifying \"%s\": %s\n",name,arch.GetLastError());
+                        return(1);
+                    }
+                    
+                } // for each common.fs file
+
+            } // if(config.trees_rand)
+
+        } // randomizers/swappers and stuff for common.fs
 
         
 

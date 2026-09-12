@@ -4,8 +4,9 @@
 // and stores the sprites to lists. IT can take some time to decode'em as there 
 // are a lot of them (>20000).
 // 
-// This code is part of Spellcross Map Editor project.
-// (c) 2021, Stanislav Maslan, s.maslan@seznam.cz
+// This code is part of Spellcross Map Editor project
+// (https://github.com/smaslan/spellcross-map-edit).
+// (c) 2021 - 2026, Stanislav Maslan, s.maslan@seznam.cz
 // Distributed under MIT license, https://opensource.org/licenses/MIT.
 //=============================================================================
 #ifndef fsu_archiveH

@@ -970,7 +970,7 @@ void FormSaveEdit::UpdateList()
 	listUnits->SetItemCount(m_bigmap.units.size());
 	listUnits->SetColumnWidth(0,wxLIST_AUTOSIZE_USEHEADER);
 	listUnits->Refresh();
-	if(uid >= 0 || uid < m_bigmap.units.size())
+	if(uid >= 0 && uid < m_bigmap.units.size())
 	{			
 		listUnits->SetItemState(uid,wxLIST_STATE_SELECTED,wxLIST_STATE_SELECTED);
 		listUnits->EnsureVisible(uid);

@@ -6,7 +6,7 @@
 // archive with 20000+ sprites.
 // 
 // This code is part of Spellcross Map Editor project.
-// (c) 2021-2025, Stanislav Maslan, s.maslan@seznam.cz
+// (c) 2021-2026, Stanislav Maslan, s.maslan@seznam.cz
 // url: https://github.com/smaslan/spellcross-map-edit
 // Distributed under MIT license, https://opensource.org/licenses/MIT.
 //=============================================================================

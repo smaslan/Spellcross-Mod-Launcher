@@ -1,0 +1,130 @@
+// Spellcross toolset export from Spellcross Map Editor
+// Note: this export covers just single sprites like trees and not composite objects
+
+What:: Spellcross toolset
+Date:: 2026-09-12 19:18:33
+Version:: V1.00
+
+Terrain:: DEVAST
+Toolset name:: Trees
+Toolset title:: Trees
+
+#startmatrix:: Tools list
+	Spruce
+	Pine
+	Pine 2
+	Willow
+	Willow dead
+	Leafy tree
+	Leafy tree dead
+	Leafy tree 2
+	Burned pine
+	Pine dead
+	Burned willow
+#endmatrix:: Tools list
+
+#startmatrix:: Spruce
+	STA_0001
+	STA_0002
+	STA_0003
+	STA_0004
+	STA_0005
+	STA_0006
+	STA_0007
+#endmatrix:: Spruce
+
+#startmatrix:: Pine
+	STA_0042
+	STA_0043
+	STA_0044
+	STA_0045
+#endmatrix:: Pine
+
+#startmatrix:: Pine 2
+	STA_0101
+	STA_0102
+	STA_0103
+	STA_0104
+	STA_0105
+	STA_0106
+	STA_0107
+#endmatrix:: Pine 2
+
+#startmatrix:: Willow
+	STA_0019
+	STA_0020
+#endmatrix:: Willow
+
+#startmatrix:: Willow dead
+	STA_0021
+	STA_0022
+	STA_0023
+	STA_0024
+	STA_0025
+	STA_0026
+	STA_0027
+	STA_0028
+	STA_0029
+#endmatrix:: Willow dead
+
+#startmatrix:: Leafy tree
+	STA_0085
+	STA_0086
+	STA_0087
+	STA_0089
+	STA_0090
+	STA_0091
+	STA_0092
+	STA_0093
+	STA_0094
+	STA_0095
+	STA_0096
+	STA_0097
+	STA_0098
+	STA_0099
+	STA_0100
+#endmatrix:: Leafy tree
+
+#startmatrix:: Leafy tree dead
+	STA_0083
+	STA_0084
+	STA_0088
+#endmatrix:: Leafy tree dead
+
+#startmatrix:: Leafy tree 2
+	STA_0074
+	STA_0075
+	STA_0076
+	STA_0077
+	STA_0078
+	STA_0079
+	STA_0080
+	STA_0081
+	STA_0082
+#endmatrix:: Leafy tree 2
+
+#startmatrix:: Burned pine
+	STA_0056
+	STA_0057
+	STA_0058
+	STA_0059
+#endmatrix:: Burned pine
+
+#startmatrix:: Pine dead
+	STA_0060
+#endmatrix:: Pine dead
+
+#startmatrix:: Burned willow
+	STA_0061
+	STA_0062
+	STA_0063
+	STA_0064
+	STA_0065
+	STA_0066
+	STA_0067
+	STA_0068
+	STA_0069
+	STA_0070
+	STA_0071
+#endmatrix:: Burned willow
+

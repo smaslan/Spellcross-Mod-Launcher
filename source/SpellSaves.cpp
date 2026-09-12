@@ -33,7 +33,8 @@ int SpellSave::LoadSave(std::filesystem::path dir,Save &save, bool allow_empty)
         path = dir / "BIG_MAP.SAV";
         if(!std::filesystem::exists(path) && !allow_empty)
             return(1);
-        err = 0;
+        if(std::filesystem::exists(path))
+            err = 0;
         save.name = L"<autosave>";
     }
     if(!err)

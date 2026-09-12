@@ -2,8 +2,9 @@
 // class FSarchive - Loading Spellcross FS archive data to memory.
 // Works only for *.FS files, but not *.FSU file!
 // 
-// This code is part of Spellcross Map Editor project.
-// (c) 2021, Stanislav Maslan, s.maslan@seznam.cz
+// This code is part of Spellcross Map Editor project
+// (https://github.com/smaslan/spellcross-map-edit).
+// (c) 2021-2026, Stanislav Maslan, s.maslan@seznam.cz
 // Distributed under MIT license, https://opensource.org/licenses/MIT.
 //=============================================================================
 #pragma once

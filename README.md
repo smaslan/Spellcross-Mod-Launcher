@@ -1,42 +1,69 @@
 # Spellcross Mod Launcher
 
-Simple tool for runtime building of Spellcross game archive mods and launching Spellcross game.
+Simple tool for runtime building of Spellcross game archive mods and launching [Spellcross](https://en.wikipedia.org/wiki/Spellcross) game.
 
 
 ## What is it and why is it?
 
-Spellcross is my favourite oldie game. Some 20 years ago I started playing with the game data archives (*.FS and *.FSU) and trying to decode and modify them. See some of my early experiments are 
-[here](https://spellcross.kvalitne.cz/index.html) (sorry, Czech language only). 
+Spellcross is my favourite oldie game. Some 20+ years ago I started playing with the game data archives (*.FS and *.FSU files) and trying to decode and modify them. See some of my early experiments are [here](https://spellcross.kvalitne.cz/index.html) (sorry, Czech language only). 
 
 ![Spellcross Mod Launcher Tool](fig/screen_1.png)
 
-However, when I wanted to make actual mods involving changes in several game archives, it has become a bit impractical to do so manually by unpacking, editing files and repacking each archive again. The situation became even more convoluted when I had multiple different mods. So, I made a [tool](https://spellcross.kvalitne.cz/mod/spell_mod_builder.html) that can build modified game archives on runtime based on definition file from original game files and additional user files to be added/modified. 
-Then it can replace original game archives with modded ones, launch the game and of course restore original game archives after the game is finished. 
-Original tool was very messy and made in Borland VCL C++ which is obsolete. So I spent few days and made the whole thing from a scratch again in MSVC C++ with wxWidgets GUI (in theory prepared for multiplatform builds).
+However, when I wanted to make actual mods involving changes in several game archives and many files, it has become a bit impractical to do so manually by unpacking, editing files and repacking each archive again. The situation became even more convoluted when I had multiple different mods. So, I made a [tool](https://spellcross.kvalitne.cz/mod/spell_mod_builder.html) that can build modified game archives on runtime based on definition file from original game files and additional mod files to be added/modified. 
+Then it can replace original game archives with modded ones, launch the game and of course restore original game archives after the game play is finished. 
+Original tool was very messy and made in Borland VCL C++ which is now obsolete. So I spent few days and made the whole thing from a scratch again in MSVC C++ with wxWidgets GUI (in theory prepared for multiplatform builds). But soon I got many other ideas like randomizer functions, saves editor, etc. so the whole thing grew to be quite a capable tool.
 
 ![Modded gameplay](fig/scr02.png)
 
 
 ## What can it do?
 
-- Current version is able to build all game archives based on definition file same as the old tool.
+Here is brief list of things it can do:
+
+- Current version is able to build modified game archives based on definition file same as the old tool.
 - It can randomize unit types based on rules provided by my [Spellcross Map Editor](https://github.com/smaslan/spellcross-map-edit).
+- It can force unit randomization using local rules.
+- It can randomize trees in the maps to refresh the graphics a bit.
 - It can swap the game archives with modded ones and restore them back.
 - It can also move SAVE games folder along with the modded archives, so you can have separate set of saves for each mod not colliding with each other.
 - It generates game launch batch files for either DOSbox mode or native Win32 mode. The Win32 is now obsolete but if compiled for x86 it can be run in e.g. 32bit WinXP which still has NTDVM emulator integrated.
 - It can directly launch the game via DOSbox or Win32 modes - one click operation together with or without mod.
 - It can make fast backup and restore of temporary WORKDIR save that is useful when you play some of the bloody mission where loss of special unit terminates mission without option to load (we all know those convoy missions right? :-).
-- It has simple SAVE game backup manager to make and restore backups of whole save games set just in case...
-- It has experimental SAVE game editor for inspecting and editing saves (can fix some of known game bugs).
-- It has also simple game installer to bypass original 16-bit installer that requires manula mounting of game CD to DOSbox.
+- It has simple save game backup manager to make and restore backups of whole save games set just in case...
+- It has experimental save game editor for inspecting and editing saves (can fix some of known game bugs).
+- It has also simple game installer to bypass original 16-bit installer that requires manual mounting of game CD to DOSbox.
 - It has integrated patcher for EN game engine that should work (unlike V1.01 patch).
+
+
+## Randomizing units
+
+Bored of same enemies every time? Use units randomizer. The tool works in conjunction with my experimental [Spellcross Map Editor](https://github.com/smaslan/spellcross-map-edit). It can either randomize map units using rules defined in the editor for each map or it can force randomization by rules set defined in this tool. This way you can e.g. swap Alliance and OS units and see how it goes.
+
+![Save game editor](fig/scr03.png)
+
+
+## Randomizing trees
+
+The visual of some maps is kind of boring. Especially the first three "grassy" levels. So I made a randomizer that allows you to create rules with probabilities that will replace trees in the maps every time you start the game.
+
+![Save game editor](fig/scr04.png)
+
+
+## Save game editor
+
+Got stuck in somewhere due to some game bugs? You run out of money? Or you just want to mess with your units beyond what game allows? Well, you can using the integrated save game editor. So far I was able to decipher about 95% of the level state stave `big_map.sav`. There are still a few items I cannot understand but those do not seem to be relevant to anything. Just make sure you have backups before you do anything! 
 
 ![Save game editor](fig/save_editor_1.png)
 
 
+## Where to get some mods?
+
+Well, apart from few [attempts](https://spellcross.kvalitne.cz/mod/spell_mod_builder.html) made for Czech version of the game there is one larger mod in development [here](https://github.com/smaslan/Spellcross-Mod-CZ-Hard). Apart from that, there is a mod template in the tool folder. That one should be sufficient to use the randomizers without changing anything else  
+
+
 ## Builds
 
-Here are available release builds for Windows. It was tested in Windows 10, but should work in Win11 as well. There is no installation, just download ZIP file, unpack it where you like it and run. 
+Here are available release builds for Windows. It was tested in Windows 10, but should work in Win11 as well. There is no installation, just download ZIP file, unpack it where you like it and run. There may a bit issue with Win11 security setup. So far I do not have certificate so I cannot build a signed trusted installer. This may result in problems with Windows "Smart App Control" or "App Install Control" depending on your system setup. But I'm working on it! You can star my project if you like to help me out here get the certificate.   
 
 - [V1.0, 5th May 2026 (zip file)](./builds/Spellcross-Mod-Launcher-V1.0.zip)
   - First release (careful, not fully tested, make backups!).  
@@ -54,12 +81,11 @@ Here are available release builds for Windows. It was tested in Windows 10, but 
   - fixed save editor not updating some properties (careful, not fully tested, make backups!).
 
 
-## Uasge
+## Usage
 
-The tool has help in the application folder. It should be able to launch the HTML help via menu (it may fail due to Windows security policies). If not, open it manually using your browser.
+The tool has [help](./help/help_eng.html) in the application folder. It should be able to launch the HTML help via menu (it may fail due to Windows security policies). If not, open it manually using your browser.
  
                                  
 ## License
 The tool is distributed under [MIT license](./LICENSE). 
-  
   

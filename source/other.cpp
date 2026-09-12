@@ -1,4 +1,12 @@
-﻿#include "other.h"
+﻿//=============================================================================
+// Collection of useful random stuff.
+// 
+// This code is part of Spellcross Map Editor project.
+// (c) 2021-2026, Stanislav Maslan, s.maslan@seznam.cz
+// url: https://github.com/smaslan/spellcross-map-edit
+// Distributed under MIT license, https://opensource.org/licenses/MIT.
+//=============================================================================
+#include "other.h"
 
 #include <string>
 #include <codecvt>
@@ -236,6 +244,18 @@ int str2int(std::string str,int &value,int min,int max,int base)
     return(0);
 }
 
+// string to real with string validity check
+int str2real(std::string str,double& value,double min,double max)
+{
+    char* send;
+    value = std::strtod(str.c_str(),&send);
+    if(send == str.c_str())
+        return(1);
+    if(value < min || value > max)
+        return(1);
+    return(0);
+}
+
 // vector or strings to integers with string validity check
 int str2int(std::vector<std::string> &str,std::vector<int>& value,int min,int max,int base)
 {
@@ -334,27 +354,45 @@ char num2hex(int num)
     return('_');
 }
 
-
-/*std::string string_format(const std::string fmt,...) {
-    int size = ((int)fmt.size()) * 2 + 50;   // Use a rubric appropriate for your code
-    std::string str;
-    va_list ap;
-    while(1) {     // Maximum two passes on a POSIX system...
-        str.resize(size);
-        va_start(ap,fmt);        
-        int n = vsnprintf((char*)str.data(),size,fmt.c_str(),ap);
-        va_end(ap);
-        if(n > -1 && n < size) {  // Everything worked
-            str.resize(n);
-            return str;
-        }
-        if(n > -1)  // Needed size returned
-            size = n + 1;   // For null char
-        else
-            size *= 2;      // Guess at a larger size (OS specific)
+// read string from data with range checking, 
+//  null_term=true expects null terminated string of max len size, 
+//   null_term=false expects fixed size string of len size without null termination
+int data_read_str(std::string& str,uint8_t* &data,uint8_t* dend,int len,bool null_term)
+{    
+    str.clear();
+    if(null_term)
+    {
+        // null terminated string of max len size (without null)        
+        str.assign(len,'\0');
+        for(int k = 0;;k++)
+        {
+            if(data >= dend)
+                return(1);            
+            bool is_null = *data == '\0';
+            if(k >= len || is_null)
+            {
+                str.resize(k);                
+                if(is_null)
+                    data++;
+                return(!is_null);
+            }
+            str[k] = *data++;
+        }        
     }
-    return str;
-}*/
+
+    // fixed size string of len size without null termination
+    if(data + len >= dend)
+        return(1);
+
+    str.assign(len,'\0');
+    std::memcpy(str.data(), data, len);
+    data += len;
+    auto send = str.find('\0');
+    if(send != std::string::npos)
+        str.resize(send);
+    
+    return(0);
+}
 
 std::wstring wstring_format(const std::wstring fmt,...) {
     int size = ((int)fmt.size()) * 2 + 50;   // Use a rubric appropriate for your code

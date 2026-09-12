@@ -1,0 +1,73 @@
+// Spellcross toolset export from Spellcross Map Editor
+// Note: this export covers just single sprites like trees and not composite objects
+
+What:: Spellcross toolset
+Date:: 2026-09-12 13:13:50
+Version:: V1.00
+
+Terrain:: PUST
+Toolset name:: Trees
+Toolset title:: Trees
+
+#startmatrix:: Tools list
+	Bush
+	Palm
+	Palm bush
+	Pine
+	Small pine
+	Small bush
+	Cactus
+#endmatrix:: Tools list
+
+#startmatrix:: Bush
+	STA_0000
+	STA_0001
+#endmatrix:: Bush
+
+#startmatrix:: Palm
+	STA_0002
+	STA_0003
+	STA_0004
+	STA_0005
+	STA_0006
+	STA_0007
+	STA_0008
+#endmatrix:: Palm
+
+#startmatrix:: Palm bush
+	STA_0009
+	STA_0010
+#endmatrix:: Palm bush
+
+#startmatrix:: Pine
+	STA_0011
+	STA_0012
+#endmatrix:: Pine
+
+#startmatrix:: Small pine
+	SPA_0007
+	SPA_0008
+	SPA_0009
+#endmatrix:: Small pine
+
+#startmatrix:: Small bush
+	SPA_0010
+#endmatrix:: Small bush
+
+#startmatrix:: Cactus
+	POA1_000
+	POA1_001
+	POA1_002
+	POA1_003
+	POA1_004
+	POA1_005
+	POA1_006
+	POA1_007
+	POA1_008
+	POA1_009
+	POA1_010
+	POA1_011
+	POA1_012
+	POA9_000
+#endmatrix:: Cactus
+

@@ -117,8 +117,11 @@ public:
         bool move_saves;
         bool force_write;
         bool no_night_vission;
+        bool check_maps;
         RandomizerMode randomize;
         UnitRandomizerSetup rand_rules;
+        bool trees_rand;
+        SpellTreeRandomizerRules trees_rand_rules;
         std::vector<SpellModOption> options;
         SpellLaunch::EngineVersion ver;
     };    
@@ -186,7 +189,7 @@ private:
 
     int ParseExpression(std::string expr,bool& result);
     int MakeTitle(SpellArchive& arch,std::vector<std::string>& params);
-    int ProcMapDEFs(std::string& def,bool no_night_vission);
+    int ProcMapDEFs(std::string& def,SpellUnits* units,bool no_night_vission,bool fix_units=false);
     int ReplaceUnits(SpellArchive* dest,SpellArchive* src,std::string name,std::vector<int>& list);
     int SwapUnits(SpellArchive* arch,std::pair<int,int> pair);
     int SwapMapUnits(std::string &def,SpellUnits* units,std::map<int,int>& swap_map_units_list);
