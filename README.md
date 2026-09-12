@@ -61,9 +61,24 @@ Got stuck in somewhere due to some game bugs? You run out of money? Or you just 
 Well, apart from few [attempts](https://spellcross.kvalitne.cz/mod/spell_mod_builder.html) made for Czech version of the game there is one larger mod in development [here](https://github.com/smaslan/Spellcross-Mod-CZ-Hard). Apart from that, there is a mod template in the tool folder. That one should be sufficient to use the randomizers without changing anything else  
 
 
-## Builds
+## Credits
 
-Here are available release builds for Windows. It was tested in Windows 10, but should work in Win11 as well. There is no installation, just download ZIP file, unpack it where you like it and run. There may a bit issue with Win11 security setup. So far I do not have certificate so I cannot build a signed trusted installer. This may result in problems with Windows "Smart App Control" or "App Install Control" depending on your system setup. But I'm working on it! You can star my project if you like to help me out here get the certificate.   
+The project uses few very useful external open source libraries:
+- Spellcross Map Editor: shared Spellcross handling libraries ([https://github.com/smaslan/spellcross-map-edit](https://github.com/smaslan/spellcross-map-edit))
+- wxWidgets: multiplatform graphical used interface ([https://github.com/wxWidgets/wxWidgets/](https://github.com/wxWidgets/wxWidgets/))
+- simpleini: cross-platform library handling INI-style conf. files ([https://github.com/brofield/simpleini](https://github.com/brofield/simpleini))
+- cparse: expression parser ([https://github.com/cparse/cparse](https://github.com/cparse/cparse))
+
+
+## Building the project
+
+If you like to make your own builds you certainly can. The project was made in pure C++20 in Microsoft Visual Studio 2019, so there should be no problem building it. The whole thing was made 100% using standard C++ libraries and a few multiplatform open source libraries listed above. The only hurdle is to properly link it with wxWidgets libraries. You have to download those and build them first, then set some system path variables and also change paths in the MSVC project file. That is always a bit of a mess when I start on a new PC. 
+
+
+## Releases
+
+Here are available release builds for 64-bit Windows. It was tested in Windows 10, but should work in Windows 11 as well. There is no installation, just download ZIP file, unpack it where you like it and run it. There may a bit issue with Windows 11 security setup though. So far I do not have certificate so I cannot build a signed trusted installer. This may result in problems with Windows "Smart App Control" or "App Install Control" or whatever it is called depending on your system setup. But I'm working on it!
+Also, you can star my project here on GitHub if you like to help me out on a way to get the certificate.   
 
 - [V1.0, 5th May 2026 (zip file)](./builds/Spellcross-Mod-Launcher-V1.0.zip)
   - First release (careful, not fully tested, make backups!).  
@@ -83,7 +98,7 @@ Here are available release builds for Windows. It was tested in Windows 10, but 
 
 ## Usage
 
-The tool has [help](./help/help_eng.html) in the application folder. It should be able to launch the HTML help via menu (it may fail due to Windows security policies). If not, open it manually using your browser.
+The tool has [help](https://github.io?https://github.com/smaslan/Spellcross-Mod-Launcher/help/help_eng.html) in the application folder. It should be able to launch the HTML help via menu (it may fail due to Windows security policies). If not, open it manually using your browser.
  
                                  
 ## License
