@@ -64,10 +64,10 @@ Well, apart from few [attempts](https://spellcross.kvalitne.cz/mod/spell_mod_bui
 ## Credits
 
 The project uses few very useful external open source libraries:
-- Spellcross Map Editor: shared Spellcross handling libraries ([https://github.com/smaslan/spellcross-map-edit](https://github.com/smaslan/spellcross-map-edit))
-- wxWidgets: multiplatform graphical used interface ([https://github.com/wxWidgets/wxWidgets/](https://github.com/wxWidgets/wxWidgets/))
-- simpleini: cross-platform library handling INI-style conf. files ([https://github.com/brofield/simpleini](https://github.com/brofield/simpleini))
-- cparse: expression parser ([https://github.com/cparse/cparse](https://github.com/cparse/cparse))
+- `Spellcross Map Editor`: shared Spellcross handling libraries ([https://github.com/smaslan/spellcross-map-edit](https://github.com/smaslan/spellcross-map-edit))
+- `wxWidgets`: multiplatform graphical used interface ([https://github.com/wxWidgets/wxWidgets/](https://github.com/wxWidgets/wxWidgets/))
+- `simpleini`: cross-platform library handling INI-style conf. files ([https://github.com/brofield/simpleini](https://github.com/brofield/simpleini))
+- `cparse`: expression parser ([https://github.com/cparse/cparse](https://github.com/cparse/cparse))
 
 
 ## Building the project

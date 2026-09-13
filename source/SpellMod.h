@@ -196,6 +196,7 @@ private:
     int SwapLevelUnits(std::string& def,SpellUnits* units,std::map<int,int>& swap_map_units_list);
     int FilterUnitsResources(SpellUnits* units,SpellArchive* fsu);
     int ConvertVideoNames(std::string& def,bool eng_to_cz=true);
+    int ModUpgoups(SpellArchive* arch, std::vector<std::string> par, std::string def_name="UPGROUPS.DEF");
 
     int GetClass(std::string def,std::string class_name,SpellModCmdList& commands);     
     SpellArchive *GetArchive(SpellModPath &path);

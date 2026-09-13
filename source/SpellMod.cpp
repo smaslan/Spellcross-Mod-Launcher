@@ -12,6 +12,9 @@
 #include <stdexcept>
 #include <filesystem>
 #include <sys/stat.h>
+#include <vector>
+#include <ranges>
+#include <string>
 
 #include "other.h"
 #include "log.h"
@@ -1773,6 +1776,137 @@ int SpellMod::ConvertVideoNames(std::string& def,bool eng_to_cz)
     return(0);
 }
 
+// modify UPGROUPS.DEF file
+int SpellMod::ModUpgoups(SpellArchive *arch, std::vector<std::string> par, std::string def_name)
+{
+    m_last_error.clear();
+    if(!arch)
+        return(1);
+    
+    // try get DEF file    
+    std::vector<uint8_t> data;
+    if(arch->GetFile(def_name,data))
+    {
+        m_last_error = arch->GetLastError();
+        return(1);
+    }    
+    auto lines = get_text_lines(data);
+
+    // check format
+    if(std::ranges::find_if(lines, [](std::string &line){return(line.starts_with("UpgradeGroups"));}) == lines.end())
+    {
+        m_last_error = string_format("%s is probably not correct file! Does not contain UpgradeGroups class.",def_name);
+        return(1);
+    }
+
+    if(par.size() < 2)
+    {
+        m_last_error = string_format("Wrong params count! Must be at least 2.");
+        return(1);
+    }
+    
+    bool is_add = false;
+    if(iequals(par[1],"ADD"))
+        is_add = true;
+    else if(!iequals(par[1],"REM"))    
+    {
+        m_last_error = string_format("Second parameter must be ADD or REM!");
+        return(1);
+    }
+    if(is_add & par.size() < 3)
+    {
+        m_last_error = string_format("Missing unit index(es) parameter(s)!");
+        return(1);
+    }
+    bool is_all = par.size() < 3;
+
+    std::vector<std::string> classes = {"Infantry","Tanks","Radars","Artillery","Transport","Aerial","Other"};
+    auto class_id = iequals(classes, par[0]);
+    if(class_id < 0)
+    {
+        m_last_error = string_format("Second parameter must be {%s}!", merge_text_lines(classes,";"));
+        return(1);
+    }
+
+    std::vector<std::string> list(par.begin() + 2,par.end());
+    std::vector<int> ids;
+    if(str2int(list,ids,0,89))
+    {
+        m_last_error = string_format("Error parsing units list {%s}!",merge_text_lines(list,";"));
+        return(1);
+    }
+
+    // process lines
+    for(auto &line: lines)
+    {
+        // parse command
+        SpellDefCmd cmd(line);
+        if(!cmd.valid || cmd.name != "UnitsToGroup")
+            continue;
+
+        if(cmd.parameters.size() < 1)
+        {
+            m_last_error = string_format("Possibly invalid UPGROUPS.DEF command \"%s\"!",cmd.full_command);
+            return(1);
+        }
+
+        auto def_class_id = iequals(classes,cmd.parameters[0]);
+        if(def_class_id < 0)
+        {
+            m_last_error = string_format("Second parameter in command \"%s\" must be {%s}!",cmd.full_command,merge_text_lines(classes,";"));
+            return(1);
+        }
+        if(class_id != def_class_id)
+            continue;
+        // found matching class
+
+        std::vector<std::string> list(cmd.parameters.begin() + 1,cmd.parameters.end());
+        std::vector<int> def_ids;
+        if(str2int(list, def_ids, 0, 89))
+        {
+            m_last_error = string_format("Error parsing units list in command \"%s\"!",cmd.full_command);
+            return(1);
+        }
+
+        if(is_add)
+        {
+            // add units
+            def_ids.insert(def_ids.end(), ids.begin(), ids.end());
+            std::ranges::sort(def_ids);
+            auto it = std::ranges::unique(def_ids);
+            def_ids.erase(it.begin(), it.end());
+        }
+        else
+        {
+            // remove units
+            if(is_all)
+                def_ids.clear();
+            else
+                std::erase_if(def_ids, [ids](int &item){ return(std::ranges::find(ids,item) != ids.end());});
+        }
+        
+        // rebuild command
+        line = cmd.name + "(" + cmd.parameters[0] + "," + merge_vector(def_ids,",") + ")";
+    }
+
+    // rebuild DEF file
+    auto def = merge_text_lines(lines);
+
+    // write file back
+    if(arch->AddFile(def,def_name,true))
+    {
+        m_last_error = arch->GetLastError();
+        return(1);
+    }
+
+    return(0);
+}
+
+
+
+
+
+
 
 
 // try load mod DEF file
@@ -2095,6 +2229,20 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                         return(1);
                     }
 
+                }
+                else if(var_name == "upgroups")
+                {
+                    // modify UPGROUPS.DEF
+                    if(!is_common)
+                    {
+                        PrintConsole("failed! Line %d: %s() command must be placed in COMMON.FS archive.\n",cmd.m_line,var_name);
+                        return(1);
+                    }
+                    if(ModUpgoups(&arch, par_list))
+                    {                        
+                        PrintConsole("failed! Line %d: \"%s\" command processing error: %s.\n",cmd.m_line,cmd.m_raw,m_last_error);
+                        return(1);
+                    }
                 }
                 else if(var_name == "convert")
                 {

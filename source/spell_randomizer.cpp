@@ -352,8 +352,7 @@ int UnitRandomizer::RandomizeMap(std::string& def, SpellUnits* units,UnitRandomi
 			// get unit special type
 			std::string spec_type;
 			if(cmd.name == "AddSpecialUnit")
-				spec_type = cmd.parameters[0];			
-
+				spec_type = cmd.parameters[0];
 			
 			// try randomize using global rule if enabled
 			int unit_id = -1;

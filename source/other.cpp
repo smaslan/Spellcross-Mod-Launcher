@@ -454,6 +454,15 @@ bool iequals(const std::wstring& a,const std::wstring& b)
         });*/
 }
 
+// compare string to list of strings case insensitive, return matching index or -1
+int iequals(std::vector<std::string> &list, std::string &str)
+{
+    auto it = std::ranges::find_if(list,[str](const std::string& a){return(iequals(a,str));});
+    if(it == list.end())
+        return(-1);
+    return(it - list.begin());
+}
+
 bool caseInsensitiveCharCompare(wchar_t a,wchar_t b)
 {
     return(tolower(a) == tolower(b));
@@ -759,6 +768,12 @@ std::vector<std::string> str_split(std::string string,char separator,bool trim_w
     return(chunks);
 }
 
+// split data-string by lines (or other separators), by default also trims white chars both ends
+std::vector<std::string> get_text_lines(std::vector<uint8_t> &data,bool trim_white,char separator)
+{
+    std::string str(data.begin(),data.end());
+    return(get_text_lines(str,trim_white,separator));
+}
 // split string by lines (or other separators), by default also trims white chars both ends
 std::vector<std::string> get_text_lines(std::string string, bool trim_white, char separator)
 {

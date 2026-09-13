@@ -102,6 +102,7 @@ std::wstring wstring_format(const std::wstring fmt,...);
 std::string format_bin(uint32_t dword,int digits=32,bool gaps=false);
 bool iequals(const std::string& a,const std::string& b);
 bool iequals(const std::wstring& a,const std::wstring& b);
+int iequals(std::vector<std::string>& list,std::string& str);
 bool match_substr(std::wstring& str,std::wstring& substr,bool case_sensitive=true);
 std::string& strrep(std::string& str,std::string key,std::string rep);
 int savestr(std::wstring path,std::string& str);
@@ -159,8 +160,8 @@ std::vector<std::string> info_get_text_vector(std::string& info,std::string key)
 std::vector<std::string> info_get_text_vector(std::vector<std::string>& lines,std::string key);
 std::vector<std::string> info_get_section(std::string &info,std::string section);
 std::vector<std::string> info_get_section(std::vector<std::string>& lines,std::string section);
-
 std::vector<std::string> str_split(std::string string,char separator,bool trim_white=false);
+std::vector<std::string> get_text_lines(std::vector<uint8_t> &data,bool trim_white=true,char separator='\n');
 std::vector<std::string> get_text_lines(std::string string,bool trim_white=true,char separator='\n');
 std::string merge_text_lines(std::vector<std::string>& lines,std::string separator="\r\n");
 std::string merge_vector(std::vector<int>& vec,std::string separator);
