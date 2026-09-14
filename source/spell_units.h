@@ -328,6 +328,7 @@ public:
 		CZE
 	};
 	
+	SpellUnits(std::vector<uint8_t> &data,FSUarchive* fsu=NULL,FSarchive* fs_info=NULL,SpellGraphics* graphics=NULL,SpellGraphics* info_graphics=NULL,SpellSounds* sounds=NULL,UnitBonuses* bonuses=NULL);
 	SpellUnits(uint8_t* data, int dlen, FSUarchive *fsu=NULL, FSarchive* fs_info=NULL, SpellGraphics *graphics=NULL,SpellGraphics* info_graphics=NULL,SpellSounds* sounds=NULL,UnitBonuses *bonuses=NULL);
 	~SpellUnits();
 	int GenerateDEF(std::vector<uint8_t>& def,Format format=Format::DEFAULT);

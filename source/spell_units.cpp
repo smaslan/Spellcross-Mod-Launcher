@@ -109,6 +109,12 @@ std::string get_char_str(uint8_t *data,int max_len=0,bool remove_trail=false)
 	return(str);
 }
 
+
+// decode units def file
+SpellUnits::SpellUnits(std::vector<uint8_t>& data,FSUarchive* fsu,FSarchive* fs_info,SpellGraphics* graphics,SpellGraphics* info_graphics,SpellSounds* sounds,UnitBonuses* bonuses)
+	: SpellUnits(data.data(),data.size(),fsu,fs_info,graphics,info_graphics,sounds,bonuses)
+{	
+}
 // decode units def file
 SpellUnits::SpellUnits(uint8_t* data,int dlen,FSUarchive* fsu,FSarchive* fs_info,SpellGraphics* graphics,SpellGraphics* info_graphics,SpellSounds* sounds,UnitBonuses* bonuses)
 {

@@ -1427,6 +1427,109 @@ int SpellMod::ProcMapDEFs(std::string& def,SpellUnits* units,bool no_night_vissi
 }
 
 
+
+// change unit sound class
+int SpellMod::SetUnitSound(SpellArchive* arch,std::vector<std::string> par,std::string def_name)
+{
+    m_last_error.clear();
+    if(!arch)
+        return(1);
+
+    // try load DEF file units
+    std::vector<uint8_t> def_data;
+    if(arch->GetFile(def_name,def_data))
+    {
+        m_last_error = string_format("Definition file %s not found in destination archive!",def_name);
+        return(1);
+    }
+
+    // try decode units
+    std::unique_ptr<SpellUnits> units;
+    try {
+        units = std::make_unique<SpellUnits>(def_data);
+    }catch(const std::runtime_error& error) {
+        PrintConsole(string_format("failed! Cannot decode %s in COMMON.FS.\n",def_name));
+        return(1);
+    }
+   
+    if(par.size() < 3)
+    {
+        m_last_error = string_format("Wrong parameters count! At least 3.");
+        return(1);
+    }     
+
+    // sound class
+    std::vector<std::string> classes = {"Report","Move","Hit","SpecialAction","LightAttack","ArmoredAttack","AirAttack"};
+    auto class_id = iequals(classes,par[0]);
+    if(class_id < 0)
+    {
+        m_last_error = string_format("Wrong sound class '%s' parameter! Only {%s} allowed.",par[1],merge_text_lines(classes,","));
+        return(1);
+    }
+    auto snd_class = classes[class_id];
+
+    // sound ID
+    int sound_id;
+    if(str2int(par[1],sound_id,0,89))
+    {
+        m_last_error = string_format("Wrong sound ID %s parameter!",par[2]);
+        return(1);
+    }
+
+    // unit ID
+    std::vector<std::string> par_id_list(par.begin() + 2, par.end());
+    std::vector<int> unit_ids;
+    if(str2int(par_id_list,unit_ids,0,units->Count()-1))
+    {
+        m_last_error = string_format("Wrong unit IDs {%s} parameter!",merge_text_lines(par_id_list,","));
+        return(1);
+    }
+
+    // modify unit record(s)
+    for(auto &unit_id: unit_ids)
+    {        
+        auto unit = units->GetUnit(unit_id);
+        if(!unit)
+        {
+            m_last_error = string_format("Failed accessing unit #%d record!",unit_id);
+            return(1);
+        }
+
+        if(snd_class == "Report")
+            unit->ssel = sound_id;
+        else if(snd_class == "Move")
+            unit->smov = sound_id;
+        else if(snd_class == "Hit")
+            unit->shit = sound_id;
+        else if(snd_class == "SpecialAction")
+            unit->snd_action_id = sound_id;
+        else if(snd_class == "LightAttack")
+            unit->slig = sound_id;
+        else if(snd_class == "ArmoredAttack")
+            unit->sarm = sound_id;
+        else if(snd_class == "AirAttack")
+            unit->sair = sound_id;
+    }
+
+    // try regenerate DEF file
+    if(units->GenerateDEF(def_data))
+    {
+        PrintConsole(string_format("failed generating modified %s.\n",def_name));
+        return(1);
+    }
+
+    // replace original file
+    if(arch->AddFile(def_data,def_name,true))
+    {
+        m_last_error = string_format("Failed replacing file %s in archive!",def_name);
+        return(1);
+    }
+
+    return(0);
+}
+
+
+
 // replace particular units from source
 int SpellMod::ReplaceUnits(SpellArchive* dest,SpellArchive *src, std::string name, std::vector<int> &list)
 {
@@ -2228,11 +2331,26 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                         PrintConsole("failed! Line %d: swaping unit recirds data in command \"%s\".\n %s\n",cmd.m_line,cmd.m_raw,m_last_error);
                         return(1);
                     }
-
+                }
+                else if(var_name == "unitsound")
+                {
+                    // modify unit(s) sound class
+                    //   unitsound(sound_class_name, sound_class_id, unit_ids_list)
+                    if(!is_common)
+                    {
+                        PrintConsole("failed! Line %d: %s() command must be placed in COMMON.FS archive.\n",cmd.m_line,var_name);
+                        return(1);
+                    }
+                    if(SetUnitSound(&arch,par_list))
+                    {
+                        PrintConsole("failed! Line %d: \"%s\" command processing error: %s.\n",cmd.m_line,cmd.m_raw,m_last_error);
+                        return(1);
+                    }
                 }
                 else if(var_name == "upgroups")
                 {
                     // modify UPGROUPS.DEF
+                    //   upgroups(unit_class_name, operation, list_of_unit_ids)
                     if(!is_common)
                     {
                         PrintConsole("failed! Line %d: %s() command must be placed in COMMON.FS archive.\n",cmd.m_line,var_name);

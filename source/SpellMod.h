@@ -190,11 +190,14 @@ private:
     int ParseExpression(std::string expr,bool& result);
     int MakeTitle(SpellArchive& arch,std::vector<std::string>& params);
     int ProcMapDEFs(std::string& def,SpellUnits* units,bool no_night_vission,bool fix_units=false);
+    
+    int SetUnitSound(SpellArchive* arch,std::vector<std::string> par,std::string def_name="JEDNOTKY.DEF");
     int ReplaceUnits(SpellArchive* dest,SpellArchive* src,std::string name,std::vector<int>& list);
     int SwapUnits(SpellArchive* arch,std::pair<int,int> pair);
     int SwapMapUnits(std::string &def,SpellUnits* units,std::map<int,int>& swap_map_units_list);
     int SwapLevelUnits(std::string& def,SpellUnits* units,std::map<int,int>& swap_map_units_list);
     int FilterUnitsResources(SpellUnits* units,SpellArchive* fsu);
+
     int ConvertVideoNames(std::string& def,bool eng_to_cz=true);
     int ModUpgoups(SpellArchive* arch, std::vector<std::string> par, std::string def_name="UPGROUPS.DEF");
 
