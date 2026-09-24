@@ -154,6 +154,11 @@ std::string info_get_string(std::string &info,std::string key,std::string defaul
 std::string info_get_string(std::vector<std::string>& lines,std::string key,std::string default_value="");
 int info_get_int(std::string& info,std::string key,int default_value=0);
 int info_get_int(std::vector<std::string>& lines,std::string key,int default_value=0);
+double info_get_real(std::string& info,std::string key,double default_value=0.0);
+double info_get_real(std::vector<std::string>& lines,std::string key,double default_value=0.0);
+std::string info_make_string(std::string key,std::string value,std::string comment="");
+std::string info_make_int(std::string key,int value,std::string comment="");
+std::string info_make_real(std::string key,double value,std::string comment="");
 std::string info_make_text_vector(std::string key,std::vector<std::string> list,std::string comment="");
 std::string info_make_section(std::string section_name,std::string data,std::string comment="");
 std::vector<std::string> info_get_text_vector(std::string& info,std::string key);

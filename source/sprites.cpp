@@ -2004,6 +2004,9 @@ int Terrain::Load(FSarchive *terrain_fs, uint8_t map_pal[][3],SpellGraphics* gre
 				Sprite* sprite = new Sprite();
 				sprites.push_back(sprite);
 
+				/*if(_strcmpi(name,"STA_JA06") == 0)
+					size *=1;*/
+
 				// try decode sprite data
 				auto len = sprite->Decode(data,name);
 				if(len != size)

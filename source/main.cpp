@@ -1503,9 +1503,9 @@ void FormMain::OnTreesRandomizeConfig(wxCommandEvent& event)
 	
 	// set terrains
 	if(form_trees_rand->SetTerrains(terrains, &m_tree_randomizer))
-	{
-		delete form_trees_rand;
+	{		
 		wxMessageBox(string_format("Trees randomizer config initialization failed with error: %s",form_trees_rand->m_last_error),"Error",wxICON_ERROR);
+		delete form_trees_rand;
 		return;
 	}
 

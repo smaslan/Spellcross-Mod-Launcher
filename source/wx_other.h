@@ -247,7 +247,7 @@ public:
 	}
 };
 
-// PropGrid multi-choice strings with selection indices vector using linker variable
+// PropGrid multi-choice strings with selection indices vector using linked variable
 class wxMultiChoicePropertyExt : public wxMultiChoiceProperty
 {
 private:
