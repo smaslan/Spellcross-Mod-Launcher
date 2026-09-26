@@ -10,8 +10,8 @@
 
 //#include <filesystem>
 #include <fstream>
-
-using namespace std;
+#include "other.h"
+//using namespace std;
 
 // create filter record
 SpellFilterRec::SpellFilterRec(uint8_t* data,string name)
@@ -109,26 +109,26 @@ SpellFilters::~SpellFilters()
 }
 
 // add new filter to the list
-void SpellFilters::AddFilter(uint8_t* data,const char* name)
+void SpellFilters::AddFilter(uint8_t* data, std::string name)
 {
     // add new iterm hoping size of data is 256
 	auto filter = new SpellFilterRec(data,string(name));	
 	auto item = list.insert(list.begin()+1,filter);
 	
 	// try assign fast link
-	if(!_strcmpi(name,"darkpal.pal"))
+	if(iequals(name,"darkpal.pal"))
 		darkpal = filter->filter;
-	else if(!_strcmpi(name,"darkpal2.pal"))
+	else if(iequals(name,"darkpal2.pal"))
 		darkpal2 = filter->filter;
-	else if(!_strcmpi(name,"darker.pal"))
+	else if(iequals(name,"darker.pal"))
 		darker = filter->filter;
-	else if(!_strcmpi(name,"bluepal.pal"))
+	else if(iequals(name,"bluepal.pal"))
 		bluepal = filter->filter;
-	else if(!_strcmpi(name,"dbluepal.pal"))
+	else if(iequals(name,"dbluepal.pal"))
 		dbluepal = filter->filter;
-	else if(!_strcmpi(name,"redpal.pal"))
+	else if(iequals(name,"redpal.pal"))
 		redpal = filter->filter;
-	else if(!_strcmpi(name,"goldpal.pal"))
+	else if(iequals(name,"goldpal.pal"))
 		goldpal = filter->filter;
 }
 

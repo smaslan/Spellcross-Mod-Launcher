@@ -43,7 +43,7 @@ public:
 	
 	SpellFilters();
 	~SpellFilters();
-	void AddFilter(uint8_t* data, const char *name);
+	void AddFilter(uint8_t* data, std::string name);
 	SpellFilterRec *GetTempFilter();
 };
 

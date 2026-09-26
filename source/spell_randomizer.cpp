@@ -10,6 +10,9 @@
 #include "other.h"
 #include "spell_def.h"
 #include "spell_units.h"
+#ifndef NO_SPELL_MAP
+#include "map.h"
+#endif
 
 #include <algorithm>
 #include <numeric>
@@ -1024,12 +1027,15 @@ SpellTreeRandomizerRule* SpellTreeRandomizerTerrain::AddRule(std::string name)
 	if(rule)
 		return(NULL);
 
-	for(int k = 1;;k++)
+	if(name.empty())
 	{
-		name = string_format("New rule %d",k);
-		auto rule = GetRule(name);
-		if(!rule)
-			break;
+		for(int k = 1;;k++)
+		{
+			name = string_format("New rule %d",k);
+			auto rule = GetRule(name);
+			if(!rule)
+				break;
+		}
 	}
 
 	SpellTreeRandomizerRule new_rule;
@@ -1324,10 +1330,27 @@ int SpellTreeToolset::LoadInfo(std::filesystem::path info_path,std::string terr_
 	return(0);
 }
 
+
+
+
+// default randomizer (empty)
+SpellTreeRandomizer::SpellTreeRandomizer()
+{
+	m_is_prepared = false;
+}
+
+// clear prepared rules
+void SpellTreeRandomizer::Clear()
+{
+	m_rules.Clear();
+	m_is_prepared = false;
+}
+
 // prepare randomizing rules: filter rules by available terrain sprites, make fast tree lookups
 int SpellTreeRandomizer::PrepareRules(SpellTreeRandomizerRules& rules,std::vector<std::shared_ptr<FSarchive>> terrain_fs_archives)
 {	
 	m_last_error.clear();
+	Clear();
 
 	for(auto &fs_archive: terrain_fs_archives)
 	{
@@ -1361,9 +1384,50 @@ int SpellTreeRandomizer::PrepareRules(SpellTreeRandomizerRules& rules,std::vecto
 		std::ranges::for_each(spr_names,[](std::string& name) { name = std::filesystem::path(name).stem().string();});
 		terr->MakeSpriteRules(spr_names);
 	}
-	
+	m_is_prepared = true;
 	return(0);
 }
+
+// prepare randomizing rules: filter rules by available terrain sprites, make fast tree lookups (editor mode)
+#ifndef NO_SPELL_MAP
+int SpellTreeRandomizer::PrepareRules(SpellTreeRandomizerRules& rules,SpellData* spell_data)
+{
+	m_last_error.clear();
+	Clear();
+
+	if(!spell_data)
+	{
+		m_last_error = "No Spellcross data provided?";
+		return(1);
+	}
+	
+	// for each terrain
+	for(auto &terr: spell_data->terrain)
+	{				
+		auto rule = rules.GetTerrain(terr->name);
+		if(!rule)
+			continue;
+		auto rules = m_rules.AddTerrain(rule);
+		if(!rules)
+		{
+			m_last_error = string_format("Failed creating terrain \"%s\" rules set!",terr->name);
+			return(1);
+		}
+
+		// prepare rules
+		std::vector<std::string> sprite_list;
+		std::ranges::transform(terr->sprites,std::back_inserter(sprite_list),[](const Sprite* spr) {return(spr->name);});
+		if(rules->MakeSpriteRules(sprite_list))
+		{
+			m_last_error = string_format("Failed preparing trees randomizer for terrain %s!",terr->name);
+			return(1);
+		}		
+	}
+	m_is_prepared = true;
+	return(0);
+}
+#endif
+
 
 // randomzize map DTA file using current rules
 int SpellTreeRandomizer::RandomizeMapDTA(std::vector<uint8_t>& dta, std::string dta_name)
@@ -1373,30 +1437,30 @@ int SpellTreeRandomizer::RandomizeMapDTA(std::vector<uint8_t>& dta, std::string 
 	uint8_t *data = dta.data();
 	uint8_t *dend = data + dta.size();
 
-	if(data + sizeof(uint32_t) >= dend)
+	if(data + sizeof(uint32_t) > dend)
 		return(0); // possibly not map DTA?
 	
-	if(data + sizeof(uint32_t) >= dend)
+	if(data + sizeof(uint32_t) > dend)
 		return(0); // possibly not map DTA?
 	int L1_offset = *(uint32_t*)data; data += sizeof(uint32_t);
-	if(dta.data() + L1_offset >= dend)
+	if(dta.data() + L1_offset > dend)
 		return(0); // possibly not map DTA?
 
-	if(data + sizeof(uint32_t) >= dend)
+	if(data + sizeof(uint32_t) > dend)
 		return(0); // possibly not map DTA?
 	int L1_count = *(uint32_t*)data; data += sizeof(uint32_t);
 	if(L1_count > 4095)
 		return(0); // possibly not map DTA?
 
 	// version check
-	if(data + sizeof(uint8_t) >= dend)
+	if(data + sizeof(uint8_t) > dend)
 		return(0); // possibly not map DTA?
 	if(*data++ != 0x12)
 		return(0); // possibly not map DTA?
 	// from now on we assume it is map DTA, so any error is fail
 
 	// get map size
-	if(data + 2*sizeof(uint16_t) >= dend)
+	if(data + 2*sizeof(uint16_t) > dend)
 	{
 		m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
 		return(1);
@@ -1405,15 +1469,12 @@ int SpellTreeRandomizer::RandomizeMapDTA(std::vector<uint8_t>& dta, std::string 
 	int y_size = *(int16_t*)data; data += sizeof(uint16_t);
 
 	// get map terrain name
-	if(data + 13 >= dend)
+	std::string terr_name;
+	if(data_read_str(terr_name,data,dend,13))
 	{
 		m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
 		return(1);
 	}
-	char terr_name[14];
-	std::memset((void*)terr_name,'\0',sizeof(terr_name));
-	std::memcpy((void*)terr_name,data,13);
-	data += 13;
 
 	// check if we have this terrain in rules
 	auto terr = m_rules.GetTerrain(terr_name);
@@ -1422,7 +1483,7 @@ int SpellTreeRandomizer::RandomizeMapDTA(std::vector<uint8_t>& dta, std::string 
 
 	// skip Layer 1: terrain
 	int L1_size = L1_count*8 + x_size*y_size*2;
-	if(data + L1_size >= dend)
+	if(data + L1_size > dend)
 	{
 		m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
 		return(1);
@@ -1431,7 +1492,7 @@ int SpellTreeRandomizer::RandomizeMapDTA(std::vector<uint8_t>& dta, std::string 
 
 	// get L2 sprites count
 	auto p_L2_start = data - dta.data();
-	if(data + sizeof(uint32_t) >= dend)
+	if(data + sizeof(uint32_t) > dend)
 	{
 		m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
 		return(1);
@@ -1442,7 +1503,7 @@ int SpellTreeRandomizer::RandomizeMapDTA(std::vector<uint8_t>& dta, std::string 
 		m_last_error = string_format("Failed parsing map DTA file \"%s\"! Too many L2 unique sprites %d (max 255)?",dta_name,L2_count);
 		return(1);
 	}
-	if(data + L2_count*8 >= dend)
+	if(data + L2_count*8 > dend)
 	{
 		m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
 		return(1);
@@ -1454,13 +1515,15 @@ int SpellTreeRandomizer::RandomizeMapDTA(std::vector<uint8_t>& dta, std::string 
 	for(int k = 0; k < L2_count; k++)
 	{
 		// read sprite name
-		char name[9];
-		std::memset((void*)name,'\0',sizeof(name));
-		std::memcpy((void*)name,(void*)data,8);
-		data += 8;
+		std::string name;
+		if(data_read_str(name,data,dend,8))
+		{
+			m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
+			return(1);
+		}
 
 		// try to find matching sprite in randomizer list
-		auto sid = std::ranges::find(terr->m_sprite_names,std::string(name));
+		auto sid = std::ranges::find(terr->m_sprite_names,name);
 		if(sid == terr->m_sprite_names.end())
 		{		
 			m_last_error = string_format("Failed parsing map DTA file \"%s\"! L2 sprite %s not found in currently loaded sprites?",dta_name,name);
@@ -1472,7 +1535,7 @@ int SpellTreeRandomizer::RandomizeMapDTA(std::vector<uint8_t>& dta, std::string 
 
 	// load L2 data	
 	auto p_L2_data = data - dta.data();
-	if(data + x_size*y_size*2 >= dend)
+	if(data + x_size*y_size*2 > dend)
 	{
 		m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
 		return(1);
@@ -1521,7 +1584,9 @@ int SpellTreeRandomizer::RandomizeMapDTA(std::vector<uint8_t>& dta, std::string 
 	dta.erase(dta.begin() + p_L2_list, dta.begin() + p_L2_data);
 	// inset new one (empty)
 	dta.insert(dta.begin() + p_L2_list, L2_count*8, 0);
-	
+	// new data end
+	dend = dta.data() + dta.size();
+
 	// new L2 sprites count
 	data = dta.data() + p_L2_start;
 	*(uint32_t*)data = L2_count;
@@ -1530,10 +1595,11 @@ int SpellTreeRandomizer::RandomizeMapDTA(std::vector<uint8_t>& dta, std::string 
 	// put new sprite names
 	for(auto &sid: L2_list_new)
 	{
-		auto name = terr->m_sprite_names[sid];
-		name.resize(8,'\0');
-		memcpy(data,name.c_str(),8);
-		data += 8;
+		if(data_put_str(terr->m_sprite_names[sid], data, dend, 8))			
+		{
+			m_last_error = string_format("Failed building map DTA file \"%s\"! Unknown error?",dta_name);
+			return(1);
+		}
 	}
 
 	// put new sprite index map
@@ -1564,3 +1630,41 @@ int SpellTreeRandomizer::RandomizeMapDTA(std::vector<uint8_t>& dta, std::string 
 	
 	return(0);
 }
+
+// randomize trees in map object (editor mode)
+#ifndef NO_SPELL_MAP
+int SpellTreeRandomizer::RandomizeMap(SpellMap* map)
+{
+	if(!map)
+	{
+		m_last_error = string_format("No map object?");
+		return(1);
+	}
+	auto terr = map->terrain;
+
+	// fetch randomizer rules
+	auto rules = m_rules.GetTerrain(map->terrain_name);
+	if(!rules)
+	{
+		m_last_error = string_format("No rules found for terrain type %s!",map->terrain_name);
+		return(1);
+	}
+	
+	// for each tile:
+	for(auto &tile: map->tiles)
+	{
+		if(!tile.L2)
+			continue;
+		
+		int rand_id = rules->GetRandomTreeID(tile.L2->index);
+		if(rand_id < 0 || rand_id >= terr->GetSpriteCount())
+		{
+			m_last_error = string_format("Sprite %s randomization failed!",tile.L2->name);
+			return(1);
+		}
+		tile.L2 = terr->GetSprite(rand_id);
+	}
+
+	return(0);
+}
+#endif

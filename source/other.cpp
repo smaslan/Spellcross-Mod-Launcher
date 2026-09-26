@@ -381,7 +381,7 @@ int data_read_str(std::string& str,uint8_t* &data,uint8_t* dend,int len,bool nul
     }
 
     // fixed size string of len size without null termination
-    if(data + len >= dend)
+    if(data + len > dend)
         return(1);
 
     str.assign(len,'\0');
@@ -393,6 +393,45 @@ int data_read_str(std::string& str,uint8_t* &data,uint8_t* dend,int len,bool nul
     
     return(0);
 }
+
+// put string to data with range checking, 
+//   null_term=true: puts null terminated string of max len,  
+//   null_term=false: puts string to fixed size data without null
+int data_put_str(std::string& str,uint8_t*& data,uint8_t* dend,int len,bool null_term)
+{
+    if(null_term)
+    {
+        // null terminated string of max len size (without null)        
+        if(len && str.length() > len - 1)
+            return(1); // won't fit    
+
+        int len = str.length();
+        int max_len = dend - data;
+        if(len + 1 > max_len)
+            return(1); // won't fit
+
+        std::memcpy(data, str.c_str(), len);
+        data += len;
+        *data++ = '\0';
+
+        return(0);
+    }      
+
+    // fixed size string of len size without null termination
+    if(!len)
+        return(1);
+    if(str.length() > len)
+        return(1);
+    if(data + len > dend)
+        return(1);
+
+    std::memset(data, '\0', len);
+    std::memcpy(data, str.c_str(), str.length());
+    data += len;
+    
+    return(0);
+}
+
 
 std::wstring wstring_format(const std::wstring fmt,...) {
     int size = ((int)fmt.size()) * 2 + 50;   // Use a rubric appropriate for your code

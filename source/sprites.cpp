@@ -32,6 +32,7 @@
 #include <regex>
 #include <memory>
 #include <sstream>
+#include <algorithm>
 
 #include "wx/dcgraph.h"
 #include "wx/dcbuffer.h"
@@ -123,113 +124,149 @@ int Sprite::GetIndex()
 }
 
 
+
+// add int to pixel data
+void Sprite::PixelDataPutInt(int value,int pos)
+{
+	if(pos < 0)
+		pos = data.size();
+
+	int add = std::max<int>(pos + sizeof(int) - (int)data.size(), 0);
+	if(add)
+		data.resize(data.size() + add);
+
+	std::memcpy(data.data() + pos, &value, sizeof(int));
+}
+
+// add pixel data
+void Sprite::PixelDataPutData(uint8_t* ptr,int size)
+{
+	data.resize(data.size() + size);
+	std::memcpy(data.data() + data.size() - size, ptr, size);
+}
+
+// skip bytes in pixel data
+int Sprite::PixelDataIncrement(int step)
+{
+	int pos = data.size();
+	data.resize(data.size() + step);
+	return(pos);
+}
+
+
 // decode sprite from raw FS archive data, return bytes consumed
 // ###todo: check input memory overrun?
-int Sprite::Decode(uint8_t* src, const char* name)
+int Sprite::Decode(uint8_t* src, int size, std::string name)
 {
 	// store data start
 	uint8_t* source_start = src;
-	
-	// set width
+	uint8_t* dend = src + size;
+		
+	// set width (dummy size)
 	x_size = 80;
 
-	// get heigth
+	// get height
+	if(src + 2 > dend)
+		return(1);
 	y_size = *src;
 	src += 2;
 
 	// get land type
+	if(src + 2 > dend)
+		return(1);
 	land_type = *src;
 	src += 2;
 
 	// get vertical offset
+	if(src + 4 > dend)
+		return(1);
 	y_ofs = (int)*(int32_t*)src;
 	src += 4;
 
-	// allocate sprite data (maximum possible value)
-	data.resize((x_size + sizeof(int) * 2) * 256);
-	uint8_t *pdata = data.data();
+	// no transparency by default
+	has_transp = false;
 
-	//unsigned char* mp = mem;
-	int i,j,k;
+	// allocate pixel buffer
+	data.clear();
+	data.reserve(256*(256 + 2*sizeof(int)));
 
-	// no transparencies yet
-	has_transp = 0;
-
-	// for each sprite line
-	for (i = 0; i < y_size; i++)
+	// for each line
+	for(int y = 0; y < y_size; y++)
 	{
-		unsigned char* quad = pdata + sizeof(int)*2;
-		int oo;
-		int nn;
-		int	ss;
+		int line_len = 0;
 
 		// get line offset
-		oo = *src++;
-		src++;
+		if(src + sizeof(int16_t) > dend)
+			return(1);
+		int line_ofs = *(int16_t*)src; src += sizeof(int16_t);
+		
 		// get full blocks count
-		nn = *src++;
+		if(src + sizeof(int8_t) > dend)
+			return(1);
+		int full_chunks = *src++;
+		
 		// get transparent blocks count
-		ss = *src++;
+		if(src + sizeof(int8_t) > dend)
+			return(1);
+		int partial_chunks = *src++;
+		
+		// skip line params
+		int p_line_ofs = PixelDataIncrement(sizeof(int));
+		int p_line_len = PixelDataIncrement(sizeof(int));
 
-		// read full blocks into temp
-		std::memcpy((void*)quad, (void*)src, nn * 4);
-		quad += nn * 4;
-		src += nn * 4;
+		// put full chunks
+		if(src + full_chunks*4 > dend)
+			return(1);
+		PixelDataPutData(src, full_chunks*4);
+		src += full_chunks*4;
+		line_len += full_chunks*4;
 
-		// read transparent blocks into temp
-		for (j = 0; j < ss; j++)
+		// for each partial chunk:
+		for(int cid = 0; cid < partial_chunks; cid++)
 		{
-			unsigned char mask[4];
+			// last chunk
+			bool is_last = cid >= (partial_chunks - 1);
 
-			// copy chunk
-			std::memcpy((void*)quad, (void*)src, 4);
-			quad += 4;
+			if(src + 8 > dend)
+				return(1);			
+			auto pix = &src[0];
+			auto mask = &src[4];
+			
+			// last chunk valid len
+			int len = 4;
+			if(is_last)
+				for(int k = 0; k < 4; k++)
+					if(!mask[k])
+						len = k + 1;				
 
-			// generate transparency mark
-			for (k = 0; k < 4; k++)
-				mask[k] = (*src++ != 0x00) ? 0x00 : 0xFF;
+			// copy pixel data
+			for(int k = 0; k < len; k++)
+			{
+				uint8_t col = 0x00;
+				if(!mask[k])
+					col = pix[k];
+				data.push_back(col);
+			}
+			line_len += len;
 
-			// check for mark validity
-			if (memcmp((void*)src, (void*)mask, 4) != 0)
-				return(1);
-
-			// test if there is transparency
-			if (MaskHasTransp(mask) || ss > 1)
+			// check transparencies
+			if(partial_chunks > 1 || MaskHasTransp(mask))
 				has_transp = 1;
 
-			// skip mark
-			src += 4;
+			// next chunk
+			src += 8;
 		}
 
-		// full line len (in pixels now)
-		nn = nn * 4 + ss * 4;
-
-		// line data start
-		quad = pdata + sizeof(int)*2;
-
-		// detect real len (loose transparent garbage at end of line)
-		for (j = nn - 1; j >= 0; j--)
-			if (quad[j] != 0x00)
-				break;
-		nn = j + 1;
-
-		// store decoded line offset
-		*(int*)&pdata[0] = oo;
-		// store decoded line len
-		*(int*)&pdata[sizeof(int)] = nn;
-
-		// line decoding done
-		pdata += nn + 2*sizeof(int);
+		// store line params
+		PixelDataPutInt(line_ofs,p_line_ofs);
+		PixelDataPutInt(line_len,p_line_len);
 	}
 
 	// sprite data total len
-	int len = pdata - data.data();
-	data.resize(len);
 	data.shrink_to_fit();
 
 	// store sprite name
 	this->name = name;
-	//strcpy_s(this->name, sizeof(this->name), name);
 
 	// try init wall sprite parameters
 	InitWallParams();
@@ -237,8 +274,11 @@ int Sprite::Decode(uint8_t* src, const char* name)
 	// mark sprite as valid
 	is_dummy = false;
 
-	// return bytes consumed from the source
-	return(src - source_start);
+	// check consumed data size
+	if(src - source_start != size)
+		return(1);
+	
+	return(0);
 }
 
 // save indexed image data to DTA file
@@ -266,6 +306,7 @@ int Sprite::SaveSprite(std::filesystem::path path,std::vector<uint8_t>& buffer,i
 		uint16_t* p_x_offset = (uint16_t*)data; data += sizeof(uint16_t);
 		uint8_t* p_full_count = (uint8_t*)data; data += sizeof(uint8_t);
 		uint8_t* p_part_count = (uint8_t*)data; data += sizeof(uint8_t);
+		uint8_t* p_last_empty = data;
 
 		uint8_t quad[4] = {0,0,0,0};
 		uint8_t mask[4] = {0xFF,0xFF,0xFF,0xFF};
@@ -300,7 +341,8 @@ int Sprite::SaveSprite(std::filesystem::path path,std::vector<uint8_t>& buffer,i
 			if(pid >= 4 || x == x_buf_size - 1)
 			{
 				is_partial |= (pid < 4);
-				bool is_valid = part_count == 0 && full_count == 0;
+				bool is_empty = part_count == 0 && full_count == 0;
+				bool is_valid = is_empty;
 				for(int k = 0; k < pid; k++)
 					is_valid |= (mask[k] == 0);
 				// put pixel data chunk
@@ -317,12 +359,16 @@ int Sprite::SaveSprite(std::filesystem::path path,std::vector<uint8_t>& buffer,i
 				memset(quad,0x00,4);
 				memset(mask,0xFF,4);
 				pid = 0;
+				is_empty = part_count == 0 && full_count == 0;
 				if(is_valid)
 				{
-					p_last = data;
+					if(is_empty)
+						p_last = p_last_empty;
+					else
+						p_last = data;
 					last_part_count = part_count;
 					last_full_count = full_count;
-				}
+				}				
 			}
 		}
 		// move back to last valid line data
@@ -352,12 +398,16 @@ int Sprite::SaveSprite(std::filesystem::path path,std::vector<uint8_t>& buffer,i
 	data = p_last_line;
 	sprite.resize(data - sprite.data());
 
+	// check it is decodable
+	Sprite spr;
+	if(spr.Decode(sprite.data(),sprite.size(),""))
+		return(1);
+
 	// empty sprite?
 	if(y_min < 0)
 		return(1);
 
 	// try save result
-
 	return(savedata(path,sprite));
 }
 
@@ -365,23 +415,33 @@ int Sprite::SaveSprite(std::filesystem::path path,std::vector<uint8_t>& buffer,i
 int Sprite::ExportInfo(std::filesystem::path path, std::filesystem::path image_name,SpellPalette &palette)
 {
 	std::string info = string_format("// Spellcross graphics resource meta file (autogenerated by Spellcross Map Editor)\n");
-	info += string_format("name:: %s.DTA\n", name.c_str());
-	info += string_format("image:: %ls\n", image_name.wstring().c_str());
-	info += string_format("format:: DTA\n");
-	info += string_format("pixels:: %d\n", x_size*y_size);
-	info += string_format("xsize:: %d\n",x_size);
-	info += string_format("ysize:: %d\n",y_size);
-	info += string_format("xoffset:: %d\n",x_ofs);
-	info += string_format("yoffset:: %d\n",y_ofs);
-	info += string_format("landtype:: %d\n",land_type);
-	info += string_format("transparent:: %d\n",1);
+	info += info_make_string("name",string_format("%s.DTA", name));
+	info += info_make_string("image", image_name.string());
+	info += info_make_string("format","DTA");
+	info += info_make_int("pixels", x_size*y_size);
+	info += info_make_int("xsize",x_size);
+	info += info_make_int("ysize",y_size);
+	info += info_make_int("xoffset",x_ofs);
+	info += info_make_int("yoffset",y_ofs);
+	info += info_make_int("landtype",land_type);
+	info += info_make_int("transparent",1);
 	
 	auto pal_name = std::filesystem::path(palette.m_name).stem().concat(".palinfo").string();
-	info += string_format("palette:: %s\n",pal_name.c_str());
-	info += string_format("colors:: ");
-	info += palette.GetRangeString();
-	info += string_format("\n");
+	info += info_make_string("palette",pal_name);
 
+	auto cycle = palette.GetChunk("CYCLE.PAL");
+	auto has_cycle = palette.isInUserRange("CYCLE.PAL");
+	info += info_make_int("uses_cycle_pal",has_cycle);
+	if(has_cycle && cycle)
+	{
+		std::vector<std::string> colors;
+		for(auto k = cycle->offset; k < cycle->offset + cycle->size; k++)
+			colors.push_back(string_format("%d,%d,%d",palette.m_pal[k*3 + 0],palette.m_pal[k*3 + 1],palette.m_pal[k*3 + 2]));
+		info += info_make_text_vector("cycle_pal_colors",colors,"// Colors used for CYCLE.PAL pixels [r,g,b]");
+	}
+
+	info += info_make_string("colors",palette.GetUserRangeString());
+	
 	// save file only if differs from existing
 	std::string info_old;
 	loadstr(path,info_old);
@@ -610,8 +670,53 @@ wxBitmap *Sprite::Render(uint8_t *pal, double gamma, int bmp_x_size, int bmp_y_s
 	}
 
 	return(bmp);
-
 }
+
+
+// export sprite image to image using external palette and external buffer (will be resized)
+int Sprite::Export(std::filesystem::path image_path, SpellPalette &pal, std::vector<uint8_t> &buffer)
+{
+	// allocate render buffer for indexed image
+	buffer.assign(x_size*y_size,0);
+	uint8_t* buf = buffer.data();
+	uint8_t* buf_end = buf + buffer.size();
+	
+	// make local bitmap buffer
+	wxBitmap bmp(x_size,y_size,32);
+	bmp.UseAlpha(true);
+
+	// render tile aligned to left
+	Render(buf,buf_end, -x_ofs, -y_ofs, x_size);
+
+	// palette
+	auto rpal = pal.GetPal();
+
+	// render 24bit RGB data to raw bmp buffer
+	typedef wxPixelData<wxBitmap,wxAlphaPixelFormat> PixelData;
+	PixelData data(bmp);
+	PixelData::Iterator p(data);
+	for(int y = 0; y < y_size; ++y)
+	{		
+		//uint8_t* scan = p.m_ptr;
+		uint8_t* src = &buf[y*x_size];
+		p.MoveTo(data,0,y);
+		for(int x = 0; x < x_size; x++)
+		{
+			p.Red() =   rpal[*src][0];
+			p.Green() = rpal[*src][1];
+			p.Blue() =  rpal[*src][2];
+			p.Alpha() = (*src != 0)*255;
+			p++;
+			src++;
+		}
+	}
+
+	// save file
+	bmp.SaveFile(image_path.wstring(),wxBITMAP_TYPE_PNG);
+
+	return(0);
+}
+
 
 
 // get vertices pair of edge 0-3 (Q1 - Q4)
@@ -945,13 +1050,12 @@ double Sprite::GetTileProjY(double x, double y)
 //=============================================================================
 AnimL1::AnimL1()
 {
-	name[0] = '\0';
 	frames.clear();
 }
 
 AnimL1::~AnimL1()
 {
-	name[0] = '\0';
+	name.clear();
 	// loose frames
 	for (unsigned k = 0; k < frames.size(); k++)
 		delete frames[k];
@@ -959,7 +1063,7 @@ AnimL1::~AnimL1()
 }
 
 // decode animation file from buffer
-int AnimL1::Decode(uint8_t* data, char* name)
+int AnimL1::Decode(uint8_t* data, int size, std::string name)
 {
 	// get frames count
 	int count = *data++;
@@ -975,7 +1079,7 @@ int AnimL1::Decode(uint8_t* data, char* name)
 		frames.push_back(frame);
 		
 		// decode sprite
-		int len = frames.back()->Decode(&data[*frame_data_offsets++], name);
+		int len = frames.back()->Decode(&data[*frame_data_offsets++], size, name);
 		if (!len)
 		{
 			// failed
@@ -989,7 +1093,7 @@ int AnimL1::Decode(uint8_t* data, char* name)
 	y_ofs = frames.front()->y_ofs;
 
 	// store animation name
-	strcpy_s(this->name, sizeof(this->name), name);
+	this->name = name;
 
 	return(0);
 }
@@ -1169,7 +1273,7 @@ int AnimPNM::Encode(std::filesystem::path path,std::vector<std::unique_ptr<Spell
 #endif
 
 // decode animation file from buffer
-int AnimPNM::Decode(uint8_t* data, const char* name)
+int AnimPNM::Decode(uint8_t* data, std::string name)
 {
 	// get frames count
 	int count = *data++;
@@ -1290,7 +1394,6 @@ int AnimPNM::Decode(uint8_t* data, const char* name)
 		
 		// store name
 		spr->name = name;
-		//strcpy_s(spr->name, sizeof(spr->name), name);
 
 		// store frame geometry
 		spr->has_transp = 1;
@@ -1908,7 +2011,8 @@ DestructibleRec SpellL2classes::GetClass(const char* sprite_name)
 
 Terrain::Terrain(SpellData &spell_data) :
 	m_spell_data(spell_data),
-	filter(std::make_unique<SpellFilters>())
+	filter(std::make_unique<SpellFilters>()),
+	pal(std::make_unique<SpellPalette>())
 {
 	name[0] = '\0';	
 	sprites.clear();
@@ -1919,7 +2023,7 @@ Terrain::Terrain(SpellData &spell_data) :
 
 Terrain::~Terrain()
 {
-	name[0] = '\0';
+	name.clear();
 	
 	// destruct each sprite element
 	for (unsigned k = 0; k < sprites.size(); k++)
@@ -1947,163 +2051,142 @@ Terrain::~Terrain()
 	tools.clear();
 }
 
-int Terrain::Load(FSarchive *terrain_fs, uint8_t map_pal[][3],SpellGraphics* gres,SpellL2classes *L2,std::function<void(std::string)> status_item)
+int Terrain::Load(FSarchive *terrain_fs, SpellPalette *map_pal,SpellGraphics* gres,SpellL2classes *L2,std::function<void(std::string)> status_item)
 {	
 	// store archive name (no extension)
 	name = terrain_fs->GetFSname(false);
 	
 	// init common part of map palette
 	if(map_pal)
-		std::memcpy(pal, map_pal, 256*3);
+	{
+		*pal = *map_pal;
+	}
 
 	// --- read files from archive:
 	int sprite_index = 0;
 	int fcnt = 0;
-	for (int i = 0; i < terrain_fs->Count(); i++)
+	for(auto file: terrain_fs->GetFiles())
 	{		
-		const char* full_name;
-		uint8_t* data;
-		int size;
-		
 		// get file from archive
-		terrain_fs->GetFile(i, &data, &size, &full_name);
+		auto data = file->data.data();
+		int size = file->file_size;
+		auto full_name = file->name;
 
-		// local name copy
-		char name[14];
-		strcpy_s(name, sizeof(name), full_name);
+		// strip extension
+		auto name = std::filesystem::path(full_name).stem().string();
+		auto ext = std::filesystem::path(full_name).extension().string();
+		
+		if(iequals(ext,".DTA"))
+		{
+			///////////////////
+			///// Sprites /////
+			///////////////////					
 				
-		// split name and ext
-		char *pstr = strrchr(name, '.');
-		char* ext;
-		if (pstr)
-		{
-			*pstr = '\0';
-			ext = pstr + 1;
-		}
-		else
-		{
-			ext = &name[strlen(name) - 1];
-		}
-				
-		// check extension
-		if (ext)
-		{
-			// file with extension
+			// skip known faulty sprites
+			if(this->name == "DEVAST" && iequals(name,"DMA0_270"))
+				continue;
 
-			if (_strcmpi(ext, "DTA") == 0)
+			// add sprite list element
+			Sprite* sprite = new Sprite();
+			sprites.push_back(sprite);
+
+			// try decode sprite data
+			if(sprite->Decode(data, size, name))
+				return(1);
+
+			// set sprite index (linear unsorted)
+			sprite->SetIndex(sprite_index++);
+			sprite->terr = this;
+
+			if(status_item)
+				status_item(name);
+			fcnt++;
+		}
+		else if(iequals(ext,".ANM"))
+		{
+			/////////////////////////
+			///// ANM animation /////
+			/////////////////////////
+
+			// add animation to list
+			AnimL1* anim = new AnimL1();
+			anms.push_back(anim);
+
+			// try decode animation data
+			if (anim->Decode(data, size, name))
+			{
+				return(1);
+			}
+
+			if(status_item)
+				status_item(name);
+			fcnt++;
+		}
+		else if(iequals(ext,".PNM"))
+		{
+			/////////////////////////
+			///// PNM animation /////
+			/////////////////////////
+
+			// add animation to list
+			AnimPNM* pnm = new AnimPNM();
+			pnm->index = pnms.size();
+			pnms.push_back(pnm);
+				
+
+			// try decode animation data
+			if (pnm->Decode(data, name))
+			{
+				return(1);
+			}
+
+			if(status_item)
+				status_item(name);
+			fcnt++;
+		}
+		else if(iequals(ext,".PAL"))
+		{
+			if(size != 256)
 			{
 				///////////////////
-				///// Sprites /////
-				///////////////////					
-				
-				// skip known faulty sprites
-				if(this->name == "DEVAST" && _strcmpi(name,"DMA0_270") == 0)
-					continue;
+				///// Palette /////
+				///////////////////
 
-				// add sprite list element
-				Sprite* sprite = new Sprite();
-				sprites.push_back(sprite);
-
-				/*if(_strcmpi(name,"STA_JA06") == 0)
-					size *=1;*/
-
-				// try decode sprite data
-				auto len = sprite->Decode(data,name);
-				if(len != size)
-					return(1);
-				// set sprite index (linear unsorted)
-				sprite->SetIndex(sprite_index++);
-				sprite->terr = this;
-
-				if(status_item)
-					status_item(name);
-				fcnt++;
-			}
-			else if (_strcmpi(ext, "ANM") == 0)
-			{
-				/////////////////////////
-				///// ANM animation /////
-				/////////////////////////
-
-				// add animation to list
-				AnimL1* anim = new AnimL1();
-				anms.push_back(anim);
-
-				// try decode animation data
-				if (anim->Decode(data, name))
+				if(iequals(full_name, "map.pal") && size == 128*3)
 				{
-					return(1);
-				}
-
-				if(status_item)
-					status_item(name);
-				fcnt++;
-			}
-			else if (_strcmpi(ext, "PNM") == 0)
-			{
-				/////////////////////////
-				///// PNM animation /////
-				/////////////////////////
-
-				// add animation to list
-				AnimPNM* pnm = new AnimPNM();
-				pnm->index = pnms.size();
-				pnms.push_back(pnm);
-				
-
-				// try decode animation data
-				if (pnm->Decode(data, name))
-				{
-					return(1);
-				}
-
-				if(status_item)
-					status_item(name);
-				fcnt++;
-			}
-			else if (_strcmpi(ext, "PAL") == 0)
-			{
-				if (size != 256)
-				{
-					///////////////////
-					///// Palette /////
-					///////////////////
-
-					if (_strcmpi(full_name, "map.pal") == 0)
-					{
-						// "map.pal"
-						std::memcpy((void*)&pal[0][0], data, 128*3);
-
-						if(status_item)
-							status_item(name);
-						fcnt++;
-					}
-					else if (_strcmpi(full_name, "cycle.pal") == 0)
-					{
-						// "cycle.pal"
-						std::memcpy((void*)&pal[240][0], data, 10*3);
-
-						if(status_item)
-							status_item(name);
-						fcnt++;
-					}
-
-				}
-				else
-				{
-					//////////////////
-					///// Filter /////
-					//////////////////
-					
-					// these are color reindexing filters, ie. 256 bytes represent new 256 colors, each points to some original color					
-					filter->AddFilter(data,full_name);
-
+					// "map.pal"
+					pal->Insert(data,"MAP.PAL",0,128);
+						
 					if(status_item)
 						status_item(name);
 					fcnt++;
 				}
+				else if (iequals(full_name, "cycle.pal") && size == 10*3)
+				{
+					// "cycle.pal"
+					pal->Insert(data,"CYCLE.PAL",240,10);
+						
+					if(status_item)
+						status_item(name);
+					fcnt++;
+				}
+
+			}
+			else
+			{
+				//////////////////
+				///// Filter /////
+				//////////////////
+					
+				// these are color reindexing filters, ie. 256 bytes represent new 256 colors, each points to some original color					
+				filter->AddFilter(data,full_name);
+
+				if(status_item)
+					status_item(name);
+				fcnt++;
 			}
 		}
+		
 	}
 	
 #ifndef MINIMAL_SPRITES
@@ -3379,12 +3462,12 @@ int Terrain::RenderSpritePreview(wxBitmap& bmp, std::vector<Sprite*> &tiles, int
 		last_gamma = gamma;
 
 		// male local copy of palette	
-		std::memcpy((void*)gamma_pal,(void*)pal,3 * 256);
+		std::memcpy((void*)gamma_pal,(void*)pal->GetPal(),3 * 256);
 
 		// apply gamma correction (this should be maybe optimized out of here?
 		for(int k = 0; k < 256; k++)
 			for(int c = 0; c < 3; c++)
-				gamma_pal[k][c] = (uint8_t)(pow((double)pal[k][c] / 255.0,1.0 / gamma) * 255.0);
+				gamma_pal[k][c] = (uint8_t)(pow((double)gamma_pal[k][c] / 255.0,1.0 / gamma) * 255.0);
 	}
 
 	// render 24bit RGB data to raw bmp buffer
@@ -3440,12 +3523,12 @@ int Terrain::RenderPNMpreview(wxBitmap& bmp,Sprite *spr,int flags,double gamma)
 		last_gamma = gamma;
 
 		// male local copy of palette	
-		std::memcpy((void*)gamma_pal,(void*)pal,3 * 256);
+		std::memcpy((void*)gamma_pal,(void*)pal->GetPal(),3 * 256);
 
 		// apply gamma correction (this should be maybe optimized out of here?
 		for(int k = 0; k < 256; k++)
 			for(int c = 0; c < 3; c++)
-				gamma_pal[k][c] = (uint8_t)(pow((double)pal[k][c] / 255.0,1.0 / gamma) * 255.0);
+				gamma_pal[k][c] = (uint8_t)(pow((double)gamma_pal[k][c] / 255.0,1.0 / gamma) * 255.0);
 	}
 
 	// render 24bit RGB data to raw bmp buffer
@@ -3479,7 +3562,7 @@ AnimL1* Terrain::GetANM(const char* name)
 {
 	for (unsigned k = 0; k < this->anms.size(); k++)
 	{
-		if (_strcmpi(this->anms[k]->name, name) == 0)
+		if (iequals(this->anms[k]->name, name))
 			return(this->anms[k]);
 	}
 	return(NULL);
@@ -4267,7 +4350,7 @@ SpellObject::SpellObject(ifstreamext& fr,std::vector<Sprite*> &sprite_list,std::
 SpellObject* Terrain::AddObject(vector<MapXY> xy,vector<Sprite*> L1_list,vector<Sprite*> L2_list,vector<uint8_t> flag_list,vector<MapLayer4> pnm_list,uint8_t* palette,std::string desc)
 {		
 	// create object
-	SpellObject *obj = new SpellObject(xy,L1_list,L2_list,flag_list,pnm_list,(uint8_t*)pal,desc);
+	SpellObject *obj = new SpellObject(xy,L1_list,L2_list,flag_list,pnm_list,(uint8_t*)pal->GetPal(),desc);
 
 	// add to list
 	objects.push_back(obj);
@@ -4412,8 +4495,8 @@ int Terrain::AddSpecialTools()
 	}
 
 	// create counter attack post object
-	std::vector<std::string> pnm_names ={"CAPOS_PL","CAPOS_EN"};
-	tool_names = {"Counter Attack Player Post","Counter Attack Enemy Post"};
+	std::vector<std::string> pnm_names ={"CAPOS_PL","CAPOS_EN","PORT_POS"};
+	tool_names = {"Counter Attack Player Post","Counter Attack Enemy Post","Active Portal"};
 	for(int k = 0; k < pnm_names.size(); k++)
 	{
 		auto tool_id = GetToolSetItem(ts_id,tool_names[k]);
@@ -4436,7 +4519,7 @@ int Terrain::AddSpecialTools()
 		pnm.x_pos = 0;
 		pnm.y_pos = 0;
 		std::vector<MapLayer4> pnm_list ={pnm};
-		auto obj = AddObject(posxy,L1_list,L2_list,flag_list,pnm_list,(uint8_t*)pal,tool_names[k]);
+		auto obj = AddObject(posxy,L1_list,L2_list,flag_list,pnm_list,(uint8_t*)pal->GetPal(),tool_names[k]);
 		if(!obj)
 			return(1);
 		obj->is_virtual = true;
@@ -4664,7 +4747,7 @@ wxBitmap* Terrain::RenderToolSetItemImage(int tool_id,int item_id,double gamma, 
 			(sid->GetGlyphFlags() & Sprite::LandFlags::IS_TOOL_ITEM_GLYPH))
 		{
 			// mathing sprite found: render
-			return(sid->Render((uint8_t*)pal, gamma, x_size, y_size, no_zoom));
+			return(sid->Render((uint8_t*)pal->GetPal(), gamma, x_size, y_size, no_zoom));
 		}
 	}
 	for (auto const& obj : objects)
@@ -4852,6 +4935,46 @@ int Terrain::MoveToolSetItem(int toolset_id,int posa,int posb,bool insert)
 	RemoveToolSetItem(toolset_id,temp_pos);
 	return(0);
 }
+
+// move toolset item from a toolseta to toolsetb, from posa to posb
+int Terrain::MoveToolSetItemToOther(int toolset_a,int pos_a, int toolset_b,int pos_b)
+{
+	if(toolset_a < 0 || toolset_a >= tools.size() || pos_a < 0 || pos_a >= tools[toolset_a]->items.size()
+		|| toolset_b < 0 || toolset_b >= tools.size() || (pos_b >= 0 && pos_b >= tools[toolset_b]->items.size()))
+		return(1);
+	
+	// make target toolset item
+	if(AddToolSetItem(toolset_b, tools[toolset_a]->items[pos_a], pos_b))
+		return(1);
+
+	// move content
+	for(auto const& spr : sprites)
+	{
+		if(spr->GetToolClass() != toolset_a + 1)
+			continue;
+		auto tid = spr->GetToolClassGroup();
+		if(tid == pos_a + 1)
+		{
+			spr->SetToolClass(toolset_b + 1);
+			spr->SetToolClassGroup(pos_b + 1);
+		}
+	}
+	for(auto const& obj : objects)
+	{
+		if(obj->GetToolClass() != toolset_a + 1)
+			continue;
+		auto tid = obj->GetToolClassGroup();
+		if(tid == pos_a + 1)
+		{
+			obj->SetToolClass(toolset_b + 1);
+			obj->SetToolClassGroup(pos_b + 1);
+		}
+	}
+
+	// remove old tool
+	return(RemoveToolSetItem(toolset_a, pos_a));
+}
+
 // swap toolset items posa <-> posb
 int Terrain::SwapToolSetItems(int toolset_id, int posa, int posb)
 {
@@ -4945,6 +5068,14 @@ std::vector<Sprite*> Terrain::GetToolSprites(SpellTool &tool)
 
 	return(list);
 }
+// get all sprites matching given tool
+std::vector<Sprite*> Terrain::GetToolSprites(int toolset_id, int tool_id)
+{
+	SpellTool tool;
+	tool.Set(toolset_id,tool_id);
+	return(GetToolSprites(tool));
+}
+
 // get all objects matching given tool
 std::vector<SpellObject*> Terrain::GetToolObjects(SpellTool& tool)
 {
@@ -4989,11 +5120,11 @@ int Terrain::RenderPalette(wxBitmap& bmp, uint8_t* filter, int relative_time)
 
 	// make local copy of palette, cycle colors
 	uint8_t cpal[256][3];
-	memcpy((void*)cpal, (void*)pal, 3*256);
+	memcpy((void*)cpal, (void*)pal->GetPal(), 3*256);
 	for(int k = 240; k < 240+10; k++)
 	{
 		int src = (k + relative_time)%10 + 240;
-		std::memcpy((void*)&cpal[k][0],(void*)&pal[src][0],3);
+		std::memcpy((void*)&cpal[k][0],(void*)&pal->GetPal()[src][0],3);
 	}
 
 	// split vertically
@@ -5051,6 +5182,8 @@ int Terrain::RenderPaletteColor(wxBitmap& bmp, int x_size, int x_pos, uint8_t *f
 	int pal_id = (is_selected)?((x_pos - x_ofs)/x_color_width):-1;
 	if(filter)
 		pal_id = filter[pal_id];
+
+	auto pal = this->pal->GetPal();
 
 	// render 24bit RGB data to raw bmp buffer
 	wxNativePixelData data(bmp);

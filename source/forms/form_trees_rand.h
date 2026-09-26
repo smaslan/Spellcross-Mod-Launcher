@@ -51,8 +51,6 @@ class FSarchive;
 class SpellTreeRandomizerRules;
 class SpellTreeRandomizerTerrain;
 
-
-
 ///////////////////////////////////////////////////////////////////////////////
 /// Class FormEdit
 ///////////////////////////////////////////////////////////////////////////////
@@ -87,6 +85,9 @@ private:
 	std::shared_ptr<wxBitmap> m_bmp;
 	SpellTreeRandomizerRules *m_rules;
 	SpellTreeRandomizerTerrain *m_rules_group;
+
+	int m_last_dest_list;
+	int m_last_src_list;
 
 	enum class PopupActions{
 		ADD_RULE = 0,
@@ -149,6 +150,7 @@ public:
 	~FormTreeRand();
 
 	int SetTerrains(std::vector<std::shared_ptr<FSarchive>> terrains, SpellTreeRandomizerRules *rules);
+	int SetTerrain(Terrain *terrain,SpellTreeRandomizerRules* rules);
 
 };
 

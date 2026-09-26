@@ -18,7 +18,8 @@
 class SpellUnits;
 class Terrain;
 class FSarchive;
-
+class SpellMap;
+class SpellData;
 
 
 class UnitRandomizerRule{    
@@ -152,7 +153,7 @@ public:
 class SpellTreeRandomizerTerrain {
 public:
     std::string name;
-    std::shared_ptr<Terrain> terr;
+    Terrain* terr;
     std::vector<SpellTreeRandomizerRule> rules;
     std::filesystem::path m_path;
     SpellTreeToolset map_toolset;
@@ -192,7 +193,12 @@ class SpellTreeRandomizer{
 public:
     std::string m_last_error;
     SpellTreeRandomizerRules m_rules;
+    bool m_is_prepared;
 
+    SpellTreeRandomizer();
+    void Clear();
     int PrepareRules(SpellTreeRandomizerRules &rules, std::vector<std::shared_ptr<FSarchive>> terrain_fs_archives);
+    int PrepareRules(SpellTreeRandomizerRules& rules, SpellData *spell_data);
     int RandomizeMapDTA(std::vector<uint8_t> &dta,std::string dta_name="");
+    int RandomizeMap(SpellMap *map);
 };

@@ -96,6 +96,7 @@ std::string string_format(const std::string fmt,Args&&... args) {
 }
 
 int data_read_str(std::string &str, uint8_t* &data, uint8_t *dend, int len, bool null_term=false);
+int data_put_str(std::string& str,uint8_t*& data,uint8_t* dend,int len=0,bool null_term=false);
 
 //std::string string_format(const std::string fmt,...);
 std::wstring wstring_format(const std::wstring fmt,...);

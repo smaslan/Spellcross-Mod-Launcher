@@ -146,7 +146,8 @@ class Sprite
 		void Render(std::vector<uint8_t>& buf,int buf_x,int buf_y,int x_size,uint8_t* filter=NULL);
 		void Render(uint8_t* buffer, uint8_t* buf_end, int buf_x, int buf_y, int x_size, uint8_t* filter=NULL);
 		wxBitmap* Render(uint8_t* pal,double gamma=1.3, int x_size=-1, int y_size=-1, bool no_zoom=true);
-		int Decode(uint8_t* data,const char* name);
+		int Export(std::filesystem::path image_path,SpellPalette& pal,std::vector<uint8_t>& buffer);
+		int Decode(uint8_t* data, int size, std::string name);
 		static int SaveSprite(std::filesystem::path path,std::vector<uint8_t>& buffer,int x_buf_size,int x_offset,int y_offset,int land_type);
 		int ExportInfo(std::filesystem::path path,std::filesystem::path image_name,SpellPalette& palette);
 		void GetTileModel(TFxyz* vert, int* face=NULL, int* face_count=NULL,int triangle_faces=false);
@@ -318,6 +319,10 @@ class Sprite
 	private:
 		int MaskHasTransp(uint8_t* mask);
 		void InitWallParams();
+
+		int PixelDataIncrement(int step);
+		void PixelDataPutInt(int value, int pos=-1);
+		void PixelDataPutData(uint8_t* ptr,int size);
 		
 		
 
@@ -345,7 +350,7 @@ class AnimL1
 {
 	public:
 		// animation name
-		char name[MAX_SPRITE_NAME + 1];
+		std::string name;
 		// frames list
 		std::vector<Sprite*> frames;
 		// sprite size
@@ -357,7 +362,7 @@ class AnimL1
 		// void constructor
 		AnimL1();
 		~AnimL1();
-		int Decode(uint8_t* data, char* name);
+		int Decode(uint8_t* data, int size, std::string name);
 
 };
 
@@ -381,7 +386,7 @@ class AnimPNM
 		// void constructor
 		AnimPNM();
 		~AnimPNM();
-		int Decode(uint8_t* data, const char* name);
+		int Decode(uint8_t* data, std::string name);
 		static int Encode(std::filesystem::path path,std::vector<std::unique_ptr<SpellGraphicItem>>& frames);
 
 };
@@ -538,7 +543,8 @@ public:
 	// terrain objects list
 	std::vector<SpellObject*> objects;
 	// color palette
-	uint8_t pal[256][3];
+	//uint8_t raw_pal[256][3];
+	std::unique_ptr<SpellPalette> pal;
 	// filters
 	std::unique_ptr<SpellFilters> filter;
 	// fonts
@@ -550,7 +556,7 @@ public:
 	// void contructor
 	Terrain(SpellData &spell_data);
 	~Terrain();
-	int Load(FSarchive *terrain_fs, uint8_t map_pal[][3], SpellGraphics *gres, SpellL2classes* L2=NULL,std::function<void(std::string)> status_item=NULL);
+	int Load(FSarchive *terrain_fs, SpellPalette *pal, SpellGraphics *gres, SpellL2classes* L2=NULL,std::function<void(std::string)> status_item=NULL);
 	Sprite* GetSprite(const char* name);
 	Sprite* GetSprite(int index);
 	int GetSpriteID(Sprite *spr);
@@ -620,6 +626,7 @@ public:
 	int RenameToolSetItem(int toolset_id,std::string item, int position);
 	int RemoveToolSetItem(int toolset_id, int position);
 	int MoveToolSetItem(int toolset_id,int posa,int posb,bool insert=false);	
+	int MoveToolSetItemToOther(int toolset_a,int pos_a,int toolset_b,int pos_b=-1);
 	int AddToolSet(std::string& name,std::string title);
 	int AddToolSet(std::string &name,std::string title,int &position);
 	int RemoveToolSet(int position);
@@ -630,6 +637,7 @@ public:
 	wxBitmap* RenderToolSetItemImage(int tool_id, int item_id, double gamma=1.30, int x_size=-1, int y_size=-1, bool no_zoom=true);
 	std::tuple<int, int> GetToolSetItemImageSize(int tool_id, int item_id);
 
+	std::vector<Sprite*> GetToolSprites(int toolset_id,int tool_id);
 	std::vector<Sprite*> GetToolSprites(SpellTool &tool);
 	std::vector<SpellObject*> GetToolObjects(SpellTool& tool);
 	int AddSpecialTools();

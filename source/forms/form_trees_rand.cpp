@@ -211,12 +211,21 @@ FormTreeRand::FormTreeRand(wxWindow* parent,wxWindowID id,const wxString& title,
 
 	m_rules = NULL;
 	m_rules_group = NULL;
-
+	m_last_dest_list = -1;
 }
 
 FormTreeRand::~FormTreeRand()
 {
 }
+
+// close window
+void FormTreeRand::OnClose(wxCloseEvent& ev)
+{
+	// signalize to caller
+	wxPostEvent(GetParent(),ev);
+	ev.Skip();
+}
+
 
 
 // set terrains
@@ -270,8 +279,7 @@ int FormTreeRand::SetTerrains(std::vector<std::shared_ptr<FSarchive>> terrains,S
 		// load terrain
 		m_terrains.push_back(std::make_shared<Terrain>(spell_data));
 		auto terr = m_terrains.back();
-		auto map_pal = (uint8_t(*)[3])pal.m_pal.data();
-		if(terr->Load(terr_fs.get(),map_pal,NULL,NULL))
+		if(terr->Load(terr_fs.get(),&pal,NULL,NULL))
 		{
 			// failed
 			m_last_error = string_format("Failed loading terrain %s!",terr_fs->m_fs_name);
@@ -288,7 +296,7 @@ int FormTreeRand::SetTerrains(std::vector<std::shared_ptr<FSarchive>> terrains,S
 			m_last_error = string_format("Failed creating terrain %s rules!",terr_fs->m_fs_name);
 			return(1);
 		}
-		rule->terr = terr;
+		rule->terr = terr.get();
 
 		// try load map editor toolset with trees
 		auto toolset_info_path = GetExecutableDir() / "data" / string_format("trees_%s.info",terr->name);
@@ -302,6 +310,59 @@ int FormTreeRand::SetTerrains(std::vector<std::shared_ptr<FSarchive>> terrains,S
 
 	return(0);
 }
+
+
+// set terrain (editor mode - restricted to map terrain)
+int FormTreeRand::SetTerrain(Terrain* terrain,SpellTreeRandomizerRules* rules)
+{
+	m_last_error.clear();
+
+	if(!terrain)
+	{
+		m_last_error = string_format("Randomizer terrain not provided!");
+		return(1);
+	}
+	if(!rules)
+	{
+		m_last_error = string_format("Randomizer rules not provided!");
+		return(1);
+	}
+	m_rules = rules;
+
+	// just dummy place holder
+	static SpellData spell_data;
+		
+	// load terrains
+	chTerrClass->Freeze();
+	chTerrClass->Clear();
+
+	// add terrain to list if not there yet as preset
+	chTerrClass->Append(terrain->name);
+	auto rule = m_rules->GetTerrain(terrain->name);
+	if(!rule)
+		rule = m_rules->AddTerrain(terrain->name);
+	if(!rule)
+	{
+		m_last_error = string_format("Failed creating terrain %s rules!",terrain->name);
+		return(1);
+	}
+	rule->terr = terrain;
+
+	// try load map editor toolset with trees
+	auto toolset_info_path = GetExecutableDir() / "data" / "tree_randomizer" / string_format("trees_%s.info",terrain->name);
+	rule->map_toolset.LoadInfo(toolset_info_path,terrain->name);
+
+	chTerrClass->Thaw();
+	chTerrClass->Select(0);
+
+	wxCommandEvent evt;
+	OnSelectTerrain(evt);
+
+	return(0);
+}
+
+
+
 
 
 // select tarrain class
@@ -442,6 +503,7 @@ void FormTreeRand::OnEndRuleLabelEdit(wxListEvent& event)
 // select rule
 void FormTreeRand::OnRuleGroupItemSelect(wxCommandEvent& event)
 {
+	m_last_src_list = -1;
 	lboxSourceTrees->Clear();
 	pgProbab->Clear();
 
@@ -491,6 +553,19 @@ void FormTreeRand::OnSrcTreeClick(wxCommandEvent& event)
 	if(rid < 0 || rid >= m_rules_group->rules.size())
 		return;
 	auto &rule = m_rules_group->rules[rid];
+
+	// group check
+	wxMouseState mouseState = wxGetMouseState();
+	int item_id = event.GetInt();
+	if(mouseState.ShiftDown() && item_id != wxNOT_FOUND && m_last_src_list != wxNOT_FOUND)
+	{
+		int start = std::min(m_last_src_list,item_id);
+		int end = std::max(m_last_src_list,item_id);
+		bool state = lboxSourceTrees->IsChecked(item_id);
+		for(int k = 0; k < lboxSourceTrees->GetCount(); k++)
+			if(k >= start && k <= end)
+				lboxSourceTrees->Check(k,state);
+	}
 		
 	for(int k = 0; k < lboxSourceTrees->GetCount(); k++)
 	{
@@ -505,14 +580,15 @@ void FormTreeRand::OnSrcTreeClick(wxCommandEvent& event)
 	if(sid >= 0 && sid < lboxSourceTrees->GetCount())
 		lboxSourceTrees->SetSelection(sid);
 	OnSelectSprite(event);
+
+	m_last_src_list = item_id;
 }
 
 
 // pick random tree
 void FormTreeRand::OnRandTreeClick(wxCommandEvent& event)
 {
-	pgProbab->Clear();
-
+	pgProbab->Clear();	
 	if(!m_rules_group)
 		return;
 
@@ -520,6 +596,19 @@ void FormTreeRand::OnRandTreeClick(wxCommandEvent& event)
 	if(rid < 0 || rid >= m_rules_group->rules.size())
 		return;
 	auto& rule = m_rules_group->rules[rid];
+
+	// group check
+	wxMouseState mouseState = wxGetMouseState();
+	int item_id = event.GetInt();
+	if(mouseState.ShiftDown() && item_id != wxNOT_FOUND && m_last_dest_list != wxNOT_FOUND)
+	{
+		int start = std::min(m_last_dest_list,item_id);
+		int end = std::max(m_last_dest_list,item_id);
+		bool state = lboxTrees->IsChecked(item_id);
+		for(int k = 0; k < lboxTrees->GetCount(); k++)
+			if(k >= start && k <= end)
+				lboxTrees->Check(k,state);
+	}
 
 	pgProbab->Freeze();
 	for(int k = 0; k < lboxTrees->GetCount(); k++)
@@ -544,6 +633,8 @@ void FormTreeRand::OnRandTreeClick(wxCommandEvent& event)
 	if(sid >= 0 && sid < lboxTrees->GetCount())
 		lboxTrees->SetSelection(sid);
 	OnSelectSprite(event);
+
+	m_last_dest_list = item_id;
 }
 
 
@@ -708,7 +799,7 @@ void FormTreeRand::OnSelectSprite(wxCommandEvent& event)
 	if(!spr)
 		return;
 	auto size = canvas->GetClientSize();
-	m_bmp.reset(spr->Render((uint8_t*)spr->terr->pal,1.5,-1,-1));	
+	m_bmp.reset(spr->Render((uint8_t*)spr->terr->pal->GetPal(),1.5,-1,-1));	
 	canvas->Refresh();
 }
 void FormTreeRand::OnSelectProbSprite(wxPropertyGridEvent& event)
@@ -729,7 +820,7 @@ void FormTreeRand::OnSelectProbSprite(wxPropertyGridEvent& event)
 		return;
 
 	auto size = canvas->GetClientSize();
-	m_bmp.reset(spr->Render((uint8_t*)spr->terr->pal,1.5,-1,-1,false));
+	m_bmp.reset(spr->Render((uint8_t*)spr->terr->pal->GetPal(),1.5,-1,-1,false));
 	canvas->Refresh();
 }
 
@@ -750,11 +841,7 @@ void FormTreeRand::OnCanvasRepaint(wxPaintEvent& event)
 }
 
 
-// close window
-void FormTreeRand::OnClose(wxCloseEvent& ev)
-{
-	ev.Skip();	
-}
+
 
 // on close form
 void FormTreeRand::OnCloseClick(wxCommandEvent& event)
@@ -775,10 +862,16 @@ void FormTreeRand::OnSave(wxCommandEvent& event)
 		dir = m_rules_group->m_path.parent_path();
 		name = m_rules_group->m_path.filename();
 	}
-	wxFileDialog openFileDialog(this,"Save trees randomizer preset",dir,name,"Trees Randomizer preset file (*.info)|*.info",wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+	wxFileDialog openFileDialog(this,"Save trees randomizer preset",dir,name,"Trees Randomizer preset file (*.info)|*.info",wxFD_SAVE);
 	if(openFileDialog.ShowModal() == wxID_CANCEL)
 		return;
 	auto path = std::filesystem::path(openFileDialog.GetPath().ToStdWstring());
+	if(!path.empty() && std::filesystem::exists(path))
+	{
+		wxMessageDialog dlg(this, string_format("Selected file \"%s\" exist!\nOverwrite?",path),"Saving trees randomizer preset",wxYES_NO|wxYES_DEFAULT);
+		if(dlg.ShowModal() != wxID_YES)
+			return;
+	}
 
 	if(m_rules->StorePreset(path,m_rules_group->name))
 	{
