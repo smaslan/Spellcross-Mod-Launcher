@@ -2581,7 +2581,7 @@ int Terrain::InitSpriteContext(std::filesystem::path &path)
 	for(int k = 0; k < obj_count;k++)
 	{
 		// read object data
-		SpellObject* obj = new SpellObject(fr,spr_list,pnm_list,tpal);
+		SpellObject* obj = new SpellObject(fr,spr_list,pnm_list,pal->GetPal()[0]);
 		objects.push_back(obj);
 	}
 

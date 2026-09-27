@@ -176,6 +176,7 @@ public:
 class SpellTreeRandomizerRules {
 public:
     std::vector<SpellTreeRandomizerTerrain> terrains;
+    std::filesystem::path m_tree_classes_dir;
     
     void Clear();
     SpellTreeRandomizerTerrain* AddTerrain(SpellTreeRandomizerTerrain *terrain);
@@ -200,5 +201,5 @@ public:
     int PrepareRules(SpellTreeRandomizerRules &rules, std::vector<std::shared_ptr<FSarchive>> terrain_fs_archives);
     int PrepareRules(SpellTreeRandomizerRules& rules, SpellData *spell_data);
     int RandomizeMapDTA(std::vector<uint8_t> &dta,std::string dta_name="");
-    int RandomizeMap(SpellMap *map);
+    int RandomizeMap(SpellMap *map, bool froce_rand_all=false);
 };

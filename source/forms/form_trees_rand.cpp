@@ -349,7 +349,7 @@ int FormTreeRand::SetTerrain(Terrain* terrain,SpellTreeRandomizerRules* rules)
 	rule->terr = terrain;
 
 	// try load map editor toolset with trees
-	auto toolset_info_path = GetExecutableDir() / "data" / "tree_randomizer" / string_format("trees_%s.info",terrain->name);
+	auto toolset_info_path = m_rules->m_tree_classes_dir / string_format("trees_%s.info",terrain->name);
 	rule->map_toolset.LoadInfo(toolset_info_path,terrain->name);
 
 	chTerrClass->Thaw();

@@ -1633,7 +1633,7 @@ int SpellTreeRandomizer::RandomizeMapDTA(std::vector<uint8_t>& dta, std::string 
 
 // randomize trees in map object (editor mode)
 #ifndef NO_SPELL_MAP
-int SpellTreeRandomizer::RandomizeMap(SpellMap* map)
+int SpellTreeRandomizer::RandomizeMap(SpellMap* map, bool froce_rand_all)
 {
 	if(!map)
 	{
@@ -1650,12 +1650,34 @@ int SpellTreeRandomizer::RandomizeMap(SpellMap* map)
 		return(1);
 	}
 	
-	// for each tile:
+	// check selections?
+	auto sel_pos = map->GetPersistSelections();
+	if(sel_pos.empty())
+		sel_pos = map->GetSelections();
+	if(!froce_rand_all && !sel_pos.empty())
+	{
+		// selection mode
+		for(auto &pos: sel_pos)
+		{
+			auto tile = map->GetTile(&pos);
+			if(!tile->L2)
+				continue;
+			int rand_id = rules->GetRandomTreeID(tile->L2->index);
+			if(rand_id < 0 || rand_id >= terr->GetSpriteCount())
+			{
+				m_last_error = string_format("Sprite %s randomization failed!",tile->L2->name);
+				return(1);
+			}
+			tile->L2 = terr->GetSprite(rand_id);
+		}
+		return(0);
+	}
+	
+	// for each tile mode
 	for(auto &tile: map->tiles)
 	{
 		if(!tile.L2)
 			continue;
-		
 		int rand_id = rules->GetRandomTreeID(tile.L2->index);
 		if(rand_id < 0 || rand_id >= terr->GetSpriteCount())
 		{

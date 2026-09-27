@@ -790,7 +790,7 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 		cbModSaves->SetValue(true);
 		
 			
-	Bind(wxEVT_CLOSE_WINDOW,&FormMain::OnClose,this,wxID_FORM_MAIN);
+	Bind(wxEVT_CLOSE_WINDOW,&FormMain::OnClose,this);
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnExit,this,wxID_MM_EXIT);
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnAbout,this,wxID_MM_ABOUT);
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormMain::OnHelp,this,wxID_MM_HELP);
@@ -903,7 +903,11 @@ FormMain::~FormMain()
 // on form close
 void FormMain::OnClose(wxCloseEvent& ev)
 {
-	
+	if(ev.GetId() == wxID_FORM_TREES_RAND)
+	{
+		return;
+	}
+
 	if(m_randomizer.m_path.empty())
 	{
 		// auto save randomizer setup if not previously loaded preset

@@ -2,7 +2,7 @@
 // Note: this export covers just single sprites like trees and not composite objects
 
 What:: Spellcross toolset
-Date:: 2026-09-12 19:18:33
+Date:: 2026-09-27 13:44:36
 Version:: V1.00
 
 Terrain:: DEVAST
@@ -21,6 +21,12 @@ Toolset title:: Trees
 	Burned pine
 	Pine dead
 	Burned willow
+	Spruces
+	Larches
+	Birch
+	Oak
+	Poplar
+	Willows
 #endmatrix:: Tools list
 
 #startmatrix:: Spruce
@@ -127,4 +133,88 @@ Toolset title:: Trees
 	STA_0070
 	STA_0071
 #endmatrix:: Burned willow
+
+#startmatrix:: Spruces
+	STA_SP01
+	STA_SP02
+	STA_SP03
+	STA_SP04
+	STA_SP05
+	STA_SP06
+	STA_SP07
+	STA_SP08
+	STA_SP09
+	STA_SP10
+	STA_SP11
+	STA_SP12
+	STA_SP13
+	STA_SP14
+	STA_SP15
+	STA_SP16
+	STA_SP17
+	STA_SP18
+	STA_SP19
+	STA_SP20
+#endmatrix:: Spruces
+
+#startmatrix:: Larches
+	STA_LA01
+	STA_LA02
+	STA_LA03
+	STA_LA04
+	STA_LA05
+	STA_LA06
+	STA_LA07
+	STA_LA08
+	STA_LA09
+	STA_LA10
+	STA_LA11
+	STA_LA12
+	STA_LA13
+	STA_LA14
+	STA_LA15
+	STA_LA16
+	STA_LA17
+	STA_LA18
+	STA_LA19
+	STA_LA20
+#endmatrix:: Larches
+
+#startmatrix:: Birch
+	STA_BI01
+	STA_BI02
+	STA_BI03
+	STA_BI04
+	STA_BI05
+	STA_BI06
+#endmatrix:: Birch
+
+#startmatrix:: Oak
+	STA_OAK1
+	STA_OAK2
+	STA_OAK3
+	STA_OAK4
+	STA_OAK5
+	STA_OAK6
+#endmatrix:: Oak
+
+#startmatrix:: Poplar
+	STA_POP1
+	STA_POP2
+	STA_POP3
+	STA_POP4
+	STA_POP5
+	STA_POP6
+#endmatrix:: Poplar
+
+#startmatrix:: Willows
+	STA_WI01
+	STA_WI02
+	STA_WI03
+	STA_WI04
+	STA_WI05
+	STA_WI06
+	STA_WI07
+	STA_WI08
+#endmatrix:: Willows
 

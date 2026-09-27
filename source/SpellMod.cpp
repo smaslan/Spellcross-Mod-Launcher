@@ -1427,6 +1427,210 @@ int SpellMod::ProcMapDEFs(std::string& def,SpellUnits* units,bool no_night_vissi
 }
 
 
+// process map DTA files (analyzes used graphical resources)
+int SpellMod::ProcMapDTAs(std::vector<uint8_t>& dta,std::string dta_name,SpellArchive& arch)
+{
+    /*m_last_error.clear();
+
+    uint8_t* data = dta.data();
+    uint8_t* dend = data + dta.size();
+
+    if(data + sizeof(uint32_t) > dend)
+        return(0); // possibly not map DTA?
+
+    if(data + sizeof(uint32_t) > dend)
+        return(0); // possibly not map DTA?
+    int L1_offset = *(uint32_t*)data; data += sizeof(uint32_t);
+    if(dta.data() + L1_offset > dend)
+        return(0); // possibly not map DTA?
+
+    if(data + sizeof(uint32_t) > dend)
+        return(0); // possibly not map DTA?
+    int L1_count = *(uint32_t*)data; data += sizeof(uint32_t);
+    if(L1_count > 4095)
+        return(0); // possibly not map DTA?
+
+    // version check
+    if(data + sizeof(uint8_t) > dend)
+        return(0); // possibly not map DTA?
+    if(*data++ != 0x12)
+        return(0); // possibly not map DTA?
+    // from now on we assume it is map DTA, so any error is fail
+
+    // get map size
+    if(data + 2*sizeof(uint16_t) > dend)
+    {
+        m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
+        return(1);
+    }
+    int x_size = *(int16_t*)data; data += sizeof(uint16_t);
+    int y_size = *(int16_t*)data; data += sizeof(uint16_t);
+
+    // get map terrain name
+    std::string terr_name;
+    if(data_read_str(terr_name,data,dend,13))
+    {
+        m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
+        return(1);
+    }
+
+    // check if we have this terrain in rules
+    auto terr = m_rules.GetTerrain(terr_name);
+    if(!terr)
+        return(0); // nope, just leave
+
+    // skip Layer 1: terrain
+    int L1_size = L1_count*8 + x_size*y_size*2;
+    if(data + L1_size > dend)
+    {
+        m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
+        return(1);
+    }
+    data += L1_size;
+
+    // get L2 sprites count
+    auto p_L2_start = data - dta.data();
+    if(data + sizeof(uint32_t) > dend)
+    {
+        m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
+        return(1);
+    }
+    int L2_count = *(uint32_t*)data; data += sizeof(uint32_t);
+    if(L2_count > 255)
+    {
+        m_last_error = string_format("Failed parsing map DTA file \"%s\"! Too many L2 unique sprites %d (max 255)?",dta_name,L2_count);
+        return(1);
+    }
+    if(data + L2_count*8 > dend)
+    {
+        m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
+        return(1);
+    }
+
+    // load list of used sprites, reindex to global terrain indices	
+    auto p_L2_list = data - dta.data();
+    std::vector<int> L2_list;
+    for(int k = 0; k < L2_count; k++)
+    {
+        // read sprite name
+        std::string name;
+        if(data_read_str(name,data,dend,8))
+        {
+            m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
+            return(1);
+        }
+
+        // try to find matching sprite in randomizer list
+        auto sid = std::ranges::find(terr->m_sprite_names,name);
+        if(sid == terr->m_sprite_names.end())
+        {
+            m_last_error = string_format("Failed parsing map DTA file \"%s\"! L2 sprite %s not found in currently loaded sprites?",dta_name,name);
+            return(1);
+        }
+        int id = sid - terr->m_sprite_names.begin();
+        L2_list.push_back(id);
+    }
+
+    // load L2 data	
+    auto p_L2_data = data - dta.data();
+    if(data + x_size*y_size*2 > dend)
+    {
+        m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
+        return(1);
+    }
+    std::vector<int> L2_map;
+    for(int k = 0; k < x_size*y_size; k++)
+    {
+        // get sprite index
+        int sid = *data++;
+        // get sprite flags
+        int code = *data++;
+
+        if(!sid)
+        {
+            // empty
+            L2_map.push_back(-1);
+            continue;
+        }
+        // try randomize
+        if(sid - 1 >= L2_list.size())
+        {
+            m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file? L2 sprite index %d out of range of listed used sprites.",dta_name,sid - 1);
+            return(1);
+        }
+        sid = terr->GetRandomTreeID(L2_list[sid - 1]);
+        L2_map.push_back(sid);
+    }
+
+    // find unique sprites
+    auto L2_list_new = L2_map;
+    std::erase_if(L2_list_new,[](int& item) { return(item < 0);});
+    std::ranges::sort(L2_list_new);
+    auto L2_list_new_res = std::ranges::unique(L2_list_new);
+    L2_list_new.erase(L2_list_new_res.begin(),L2_list_new_res.end());
+    // too many?
+    L2_count = L2_list_new.size();
+    if(L2_count > 255)
+    {
+        m_last_error = string_format("Failed parsing map DTA file \"%s\"! Too many unique L2 sprites %d (max 255). Reduce randomizer random sprites count.",dta_name,L2_count);
+        return(1);
+    }
+
+    // make new DTA
+
+    // remove old L2 sprites list
+    dta.erase(dta.begin() + p_L2_list,dta.begin() + p_L2_data);
+    // inset new one (empty)
+    dta.insert(dta.begin() + p_L2_list,L2_count*8,0);
+    // new data end
+    dend = dta.data() + dta.size();
+
+    // new L2 sprites count
+    data = dta.data() + p_L2_start;
+    *(uint32_t*)data = L2_count;
+    data += sizeof(uint32_t);
+
+    // put new sprite names
+    for(auto& sid: L2_list_new)
+    {
+        if(data_put_str(terr->m_sprite_names[sid],data,dend,8))
+        {
+            m_last_error = string_format("Failed building map DTA file \"%s\"! Unknown error?",dta_name);
+            return(1);
+        }
+    }
+
+    // put new sprite index map
+    for(auto& sid: L2_map)
+    {
+        if(sid < 0)
+        {
+            // no sprite
+            *data++ = 0;
+            data++;
+            continue;
+        }
+
+        // reindex to used sprites
+        auto nid = std::ranges::find(L2_list_new,sid);
+        if(nid == L2_list_new.end())
+        {
+            // this should not happen
+            m_last_error = string_format("Failed building map DTA file \"%s\"! Unknown error?",dta_name);
+            return(1);
+        }
+
+        // replace sprite id
+        *data++ = nid - L2_list_new.begin() + 1;
+        // leave flags
+        data++;
+    }*/
+
+    return(0);
+}
+
+
+
 
 // change unit sound class
 int SpellMod::SetUnitSound(SpellArchive* arch,std::vector<std::string> par,std::string def_name)

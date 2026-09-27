@@ -2,7 +2,7 @@
 // Note: this export covers just single sprites like trees and not composite objects
 
 What:: Spellcross toolset
-Date:: 2026-09-12 13:13:50
+Date:: 2026-09-27 13:44:58
 Version:: V1.00
 
 Terrain:: PUST
@@ -17,6 +17,7 @@ Toolset title:: Trees
 	Small pine
 	Small bush
 	Cactus
+	Palms
 #endmatrix:: Tools list
 
 #startmatrix:: Bush
@@ -70,4 +71,13 @@ Toolset title:: Trees
 	POA1_012
 	POA9_000
 #endmatrix:: Cactus
+
+#startmatrix:: Palms
+	STA_P001
+	STA_P002
+	STA_P003
+	STA_P004
+	STA_P005
+	STA_P006
+#endmatrix:: Palms
 

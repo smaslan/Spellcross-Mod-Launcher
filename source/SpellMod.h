@@ -166,7 +166,8 @@ public:
     SpellModOption* GetOption(std::string label);
     SpellModOption* AddOption(std::string label,std::string description,int min,int max,int def,std::vector<std::string>& enum_strings);
 
-private:
+private:       
+
     std::vector<SpellModPath> m_paths;
     std::vector<SpellArchive*> m_sources;
     std::function<void(std::string)> m_stdout_cb;
@@ -190,7 +191,8 @@ private:
     int ParseExpression(std::string expr,bool& result);
     int MakeTitle(SpellArchive& arch,std::vector<std::string>& params);
     int ProcMapDEFs(std::string& def,SpellUnits* units,bool no_night_vission,bool fix_units=false);
-    
+    int ProcMapDTAs(std::vector<uint8_t>& dta,std::string dta_name,SpellArchive& arch);
+
     int SetUnitSound(SpellArchive* arch,std::vector<std::string> par,std::string def_name="JEDNOTKY.DEF");
     int ReplaceUnits(SpellArchive* dest,SpellArchive* src,std::string name,std::vector<int>& list);
     int SwapUnits(SpellArchive* arch,std::pair<int,int> pair);

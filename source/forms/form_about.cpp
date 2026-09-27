@@ -158,11 +158,21 @@ FormAbout::FormAbout( wxWindow* parent,std::string ver_label,wxWindowID id, cons
 	entries.emplace_back(wxACCEL_NORMAL,WXK_ESCAPE,wxID_BTN_OK);
 	wxAcceleratorTable accel(entries.size(),entries.data());
 	this->SetAcceleratorTable(accel);
-
-	/*std::chrono::system_clock::time_point now = std::chrono::system_clock::now();
-	std::time_t currentTime = std::chrono::system_clock::to_time_t(now);
-	std::stringstream ver;
-	ver << std::put_time(std::localtime(&currentTime),"%Y-%m-%d %H:%M:%S");	*/		
+		
+	
+	#ifdef _DEBUG
+		#ifdef _DLL
+			ver_label += " (debug dll-wxWidgets)";
+		#else
+			ver_label += " (debug static-wxWidgets)";
+		#endif
+	#else
+		#ifdef _DLL
+			ver_label += " (release dll-wxWidgets)";
+		#else
+			ver_label += " (release static-wxWidgets)";
+		#endif
+	#endif
 	txtVersion->SetValue(ver_label);
 
 	auto desc = "Simple experimental tool for runtime build of mods for Spellcross game.\n"
