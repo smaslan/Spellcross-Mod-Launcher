@@ -179,7 +179,7 @@ int FSarchive::LoadFolder(std::wstring dir, std::string wild_filter, bool allow_
 	auto path = std::filesystem::path(dir);
 	if(path.has_extension())
 	{
-		m_last_error = string_format("Loading folder \"%ls\" to FS archive failed! Path is likely not folder?",path.wstring().c_str());
+		m_last_error = string_format("Loading folder \"%s\" to FS archive failed! Path is likely not folder?",path);
 		return(1); // likely not folder
 	}
 
@@ -192,6 +192,12 @@ int FSarchive::LoadFolder(std::wstring dir, std::string wild_filter, bool allow_
 	{
 		// make archive path from folder
 		m_file_path = dir;
+	}
+
+	if(!std::filesystem::exists(path))
+	{
+		m_last_error = string_format("Loading FS archive from folder (%s) failed! Path does not exist.",path);
+		return(1);
 	}
 	
 
@@ -223,7 +229,7 @@ int FSarchive::LoadFolder(std::wstring dir, std::string wild_filter, bool allow_
 		if(loaddata(item,file->data))
 		{
 			delete file;
-			m_last_error = string_format("Adding file \"%ls\" to FS archive failed! Cannot read the file data.",item.wstring().c_str());
+			m_last_error = string_format("Adding file \"%s\" to FS archive failed! Cannot read the file data.",item);
 			return(1);
 		}
 		
@@ -594,4 +600,45 @@ std::vector<std::string> FSarchive::GetFileNames(std::string wild)
 			list.push_back(file->name);
 	//return(std::move(*list));
 	return(list);
+}
+
+// set used file flags by wildcard filter
+void FSarchive::SetUsed(std::string wild,bool no_wild)
+{
+	if(no_wild)
+	{
+		auto fid = std::ranges::find(m_files, wild, &FSfile::name);
+		if(fid != m_files.end())
+			(*fid)->used = true;
+		return;
+	}
+	for(auto &file: m_files)
+		if(wildcmp(wild,file->name))
+			file->used = true;
+}
+// clear used file flags by wildcard filter
+void FSarchive::ClearUsed(std::string wild,bool no_wild)
+{
+	if(no_wild)
+	{
+		auto fid = std::ranges::find(m_files,wild,&FSfile::name);
+		if(fid != m_files.end())
+			(*fid)->used = false;
+		return;
+	}
+	for(auto& file: m_files)
+		if(wildcmp(wild,file->name))
+			file->used = false;
+}
+// remove files not marked as used
+void FSarchive::RemoveUnused()
+{
+	std::erase_if(m_files, [](FSfile *file){
+		if(!file->used)
+		{
+			delete file;
+			return(true);
+		}
+		return(false);
+		});
 }

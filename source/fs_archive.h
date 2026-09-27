@@ -38,6 +38,7 @@ class FSarchive
 			std::string name;
 			std::vector<uint8_t> data;
 			bool lz_unpacked;
+			bool used;
 		};		
 
 		~FSarchive();
@@ -66,6 +67,10 @@ class FSarchive
 		const char *GetFileName(int id);
 		std::string GetFSname(bool with_extension=true);
 		std::vector<std::string> GetFileNames(std::string wild="*");
+
+		void SetUsed(std::string wild="*",bool no_wild=false);
+		void ClearUsed(std::string wild="*",bool no_wild=false);
+		void RemoveUnused();
 
 		std::wstring m_file_path;
 		std::string m_fs_name;

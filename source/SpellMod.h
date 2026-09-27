@@ -46,9 +46,13 @@ class SpellArchive
 private:
     std::string m_last_error;
 public:
+    std::string m_name;
     std::filesystem::path m_path;
     FSarchive *m_fs;
     FSUarchive* m_fsu;
+    // helper items (not used by class itself)
+    std::filesystem::path m_orig_path;
+    std::filesystem::path m_save_path;
 
     enum Type
     {
@@ -57,11 +61,12 @@ public:
         FSU
     };
     
-    SpellArchive();
+    SpellArchive(std::string name="",Type explicit_archive_type=Type::AUTO);
     SpellArchive(SpellModPath& path,Type explicit_archive_type=Type::AUTO);
     int Load(SpellModPath& path,Type explicit_archive_type=Type::AUTO);
     int Load(std::filesystem::path path,Type explicit_archive_type=Type::AUTO);
     ~SpellArchive();
+    void Clear();
     bool isFolder();
     bool isEmpty();
     std::vector<std::string> GetItemNames();
@@ -189,9 +194,9 @@ private:
     SpellModPath* AddPath(std::string name,std::filesystem::path path,std::filesystem::path alt_path="",bool overwrite=false);
 
     int ParseExpression(std::string expr,bool& result);
-    int MakeTitle(SpellArchive& arch,std::vector<std::string>& params);
+    int MakeTitle(SpellArchive *arch,std::vector<std::string>& params);
     int ProcMapDEFs(std::string& def,SpellUnits* units,bool no_night_vission,bool fix_units=false);
-    int ProcMapDTAs(std::vector<uint8_t>& dta,std::string dta_name,SpellArchive& arch);
+    int ProcMapDTAs(std::vector<uint8_t>& dta,std::string dta_name,SpellArchive *arch);
 
     int SetUnitSound(SpellArchive* arch,std::vector<std::string> par,std::string def_name="JEDNOTKY.DEF");
     int ReplaceUnits(SpellArchive* dest,SpellArchive* src,std::string name,std::vector<int>& list);
@@ -205,7 +210,9 @@ private:
 
     int GetClass(std::string def,std::string class_name,SpellModCmdList& commands);     
     SpellArchive *GetArchive(SpellModPath &path);
+    SpellArchive* GetArchiveByName(std::string name);
     SpellArchive *LoadArchive(SpellModPath &path,SpellArchive::Type arch_type=SpellArchive::Type::AUTO);
+    SpellArchive *MakeArchive(std::string name, SpellArchive::Type arch_type);
 
     
 

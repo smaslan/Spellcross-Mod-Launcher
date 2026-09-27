@@ -83,6 +83,12 @@ int FSUarchive::LoadFolder(std::filesystem::path dir, std::string wild_filter)
 	if(path.has_extension())
 		return(1); // likely not folder
 
+	if(!std::filesystem::exists(path))
+	{
+		m_last_error = string_format("Loading FSU archive from folder (%s) failed! Path does not exist. ",path);
+		return(1);
+	}
+
 	bool do_wild = !(wild_filter == "*" || wild_filter.empty());
 
 	// list folder for unit folders:
@@ -95,7 +101,7 @@ int FSUarchive::LoadFolder(std::filesystem::path dir, std::string wild_filter)
 		name = toupper(name);
 		if(name.size() > 5)
 		{
-			m_last_error = string_format("Loading FSU archive from folder (%ls) failed! Unit folder (%s) has name longer than 5 characters.", path.wstring().c_str(), name.c_str());
+			m_last_error = string_format("Loading FSU archive from folder (%s) failed! Unit folder (%s) has name longer than 5 characters.", path, name);
 			return(1);
 		}
 
@@ -105,7 +111,7 @@ int FSUarchive::LoadFolder(std::filesystem::path dir, std::string wild_filter)
 
 		if(GetResource(name.c_str()))
 		{
-			m_last_error = string_format("Loading FSU archive from folder (%ls) failed! Unit name (%s) already in archive.",path.wstring().c_str(),name.c_str());
+			m_last_error = string_format("Loading FSU archive from folder (%s) failed! Unit name (%s) already in archive.",path,name);
 			return(1);
 		}
 

@@ -38,17 +38,27 @@ bool SpellModPath::isValid()
 
 
 // make empty archive
-SpellArchive::SpellArchive()
+SpellArchive::SpellArchive(std::string name,Type explicit_archive_type)
 {
+    m_name = name;
     m_fs = NULL;
     m_fsu = NULL;
     m_path = "";
     m_last_error = "";
+    if(explicit_archive_type == Type::FS)
+    {
+        m_fs = new FSarchive(name);
+    }
+    else if(explicit_archive_type == Type::FSU)
+    {
+        m_fsu = new FSUarchive();
+    }
 }
 
 // load data archive
 SpellArchive::SpellArchive(SpellModPath &path,Type explicit_archive_type)
 {
+    m_name = "";
     m_fs = NULL;
     m_fsu = NULL;
     m_path = "";
@@ -57,7 +67,8 @@ SpellArchive::SpellArchive(SpellModPath &path,Type explicit_archive_type)
         throw std::runtime_error(m_last_error);        
 }
 
-SpellArchive::~SpellArchive()
+// clear archive data
+void SpellArchive::Clear()
 {
     if(m_fs)
         delete m_fs;
@@ -65,6 +76,11 @@ SpellArchive::~SpellArchive()
     if(m_fsu)
         delete m_fsu;
     m_fsu = NULL;
+}
+
+SpellArchive::~SpellArchive()
+{
+    Clear();
 }
 
 // load archive from path (must be empty before)
@@ -833,10 +849,19 @@ void SpellMod::ReplaceVars(std::string &string)
 SpellArchive* SpellMod::GetArchive(SpellModPath &path)
 {
     for(auto &item: m_sources)
-        if(item->m_path == path.path)
+        if(!item->m_path.empty() && item->m_path == path.path)
             return(item);
     for(auto& item: m_sources)
-        if(item->m_path == path.alt_path)
+        if(!item->m_path.empty() && item->m_path == path.alt_path)
+            return(item);
+    return(NULL);
+}
+
+// get source archive from memory by name (or null if not loaded)
+SpellArchive* SpellMod::GetArchiveByName(std::string name)
+{
+    for(auto& item: m_sources)
+        if(!item->m_name.empty() && item->m_name == name)
             return(item);
     return(NULL);
 }
@@ -861,6 +886,33 @@ SpellArchive* SpellMod::LoadArchive(SpellModPath &path, SpellArchive::Type arch_
     // add to list
     m_sources.push_back(arch);
     
+    return(arch);
+}
+
+// make blank archive with target path
+SpellArchive* SpellMod::MakeArchive(std::string name, SpellArchive::Type arch_type)
+{
+    m_last_error = "";
+
+    // check duplicates
+    SpellArchive* arch = GetArchiveByName(name);
+    if(arch)
+    {
+        m_last_error = string_format("Archive %s already exist!",name);
+        return(NULL);
+    }
+
+    // try create archive    
+    try{
+        arch = new SpellArchive(name,arch_type);
+    }catch(const std::runtime_error& error) {
+        m_last_error = string_format("%s",error.what());
+        return(NULL);
+    }
+
+    // add to list
+    m_sources.push_back(arch);
+
     return(arch);
 }
 
@@ -1155,7 +1207,7 @@ int SpellMod::ParseExpression(std::string expr,bool &result)
 
 // make initial screen with mod text
 // params: title(pos_x,pos_y,align,color_text,shadow_text,text)
-int SpellMod::MakeTitle(SpellArchive &arch, std::vector<std::string> &params)
+int SpellMod::MakeTitle(SpellArchive *arch, std::vector<std::string> &params)
 {
     if(params.size() < 6)
     {
@@ -1169,7 +1221,7 @@ int SpellMod::MakeTitle(SpellArchive &arch, std::vector<std::string> &params)
 
     // get existing image
     std::vector<uint8_t> lzdata;
-    if(arch.GetFile(img_name,lzdata))
+    if(arch->GetFile(img_name,lzdata))
     {
         m_last_error = string_format("Missing file %s in source archive!",img_name);
         return(1);
@@ -1191,7 +1243,7 @@ int SpellMod::MakeTitle(SpellArchive &arch, std::vector<std::string> &params)
 
     // load palette
     std::vector<uint8_t> pal_data;
-    if(arch.GetFile(pal_name,pal_data) || pal_data.size() != 3*256)
+    if(arch->GetFile(pal_name,pal_data) || pal_data.size() != 3*256)
     {
         m_last_error = string_format("Missing file %s in source archive!",pal_name);
         return(1);
@@ -1205,7 +1257,7 @@ int SpellMod::MakeTitle(SpellArchive &arch, std::vector<std::string> &params)
 
     // load font
     std::vector<uint8_t> fontdata;
-    if(arch.GetFile(font_name,fontdata))
+    if(arch->GetFile(font_name,fontdata))
     {
         m_last_error = string_format("Missing file %s in source archive!",font_name);
         return(1);
@@ -1320,7 +1372,7 @@ int SpellMod::MakeTitle(SpellArchive &arch, std::vector<std::string> &params)
     }
     
     // replace original image
-    if(arch.AddFile(lzdata, img_name, true))
+    if(arch->AddFile(lzdata, img_name, true))
     {
         m_last_error = string_format("Failed replacing image %s in archive!",img_name);
         return(1);
@@ -1386,7 +1438,7 @@ int SpellMod::ProcMapDEFs(std::string& def,SpellUnits* units,bool no_night_vissi
 
                 // check unit type
                 int unit_type;
-                if(str2int(cmd.parameters[1],unit_type,0,89))
+                if(str2int(cmd.parameters[1],unit_type,0,units->Count()-1))
                 {
                     m_last_error = string_format("Unknown unit type in command \"%s\".",cmd.full_command);
                     return(1);
@@ -1428,9 +1480,18 @@ int SpellMod::ProcMapDEFs(std::string& def,SpellUnits* units,bool no_night_vissi
 
 
 // process map DTA files (analyzes used graphical resources)
-int SpellMod::ProcMapDTAs(std::vector<uint8_t>& dta,std::string dta_name,SpellArchive& arch)
+int SpellMod::ProcMapDTAs(std::vector<uint8_t>& dta,std::string dta_name,SpellArchive *arch)
 {
-    /*m_last_error.clear();
+    m_last_error.clear();
+
+    if(!arch)
+        return(1);
+    auto *fs = arch->m_fs;
+    if(!fs)
+    {
+        m_last_error = string_format("Provided archive is not FS type?");
+        return(1);
+    }
 
     uint8_t* data = dta.data();
     uint8_t* dend = data + dta.size();
@@ -1474,22 +1535,34 @@ int SpellMod::ProcMapDTAs(std::vector<uint8_t>& dta,std::string dta_name,SpellAr
         return(1);
     }
 
-    // check if we have this terrain in rules
-    auto terr = m_rules.GetTerrain(terr_name);
-    if(!terr)
-        return(0); // nope, just leave
+    // skip if different terrain
+    if(!iequals(std::filesystem::path(arch->m_name).stem().string(),terr_name))
+        return(0);
 
-    // skip Layer 1: terrain
-    int L1_size = L1_count*8 + x_size*y_size*2;
+    // Layer 1: terrain
+    int L1_size = L1_count*8;
     if(data + L1_size > dend)
     {
         m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
         return(1);
+    }    
+    for(int k = 0; k < L1_count; k++)
+    {
+        // read sprite name
+        std::string name;
+        if(data_read_str(name,data,dend,8))
+        {
+            m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
+            return(1);
+        }
+        name += ".DTA";
+        // mark as used
+        fs->SetUsed(name, true);
     }
-    data += L1_size;
+    // skip layer data    
+    data += x_size*y_size*2;
 
     // get L2 sprites count
-    auto p_L2_start = data - dta.data();
     if(data + sizeof(uint32_t) > dend)
     {
         m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
@@ -1508,8 +1581,6 @@ int SpellMod::ProcMapDTAs(std::vector<uint8_t>& dta,std::string dta_name,SpellAr
     }
 
     // load list of used sprites, reindex to global terrain indices	
-    auto p_L2_list = data - dta.data();
-    std::vector<int> L2_list;
     for(int k = 0; k < L2_count; k++)
     {
         // read sprite name
@@ -1519,112 +1590,10 @@ int SpellMod::ProcMapDTAs(std::vector<uint8_t>& dta,std::string dta_name,SpellAr
             m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
             return(1);
         }
-
-        // try to find matching sprite in randomizer list
-        auto sid = std::ranges::find(terr->m_sprite_names,name);
-        if(sid == terr->m_sprite_names.end())
-        {
-            m_last_error = string_format("Failed parsing map DTA file \"%s\"! L2 sprite %s not found in currently loaded sprites?",dta_name,name);
-            return(1);
-        }
-        int id = sid - terr->m_sprite_names.begin();
-        L2_list.push_back(id);
-    }
-
-    // load L2 data	
-    auto p_L2_data = data - dta.data();
-    if(data + x_size*y_size*2 > dend)
-    {
-        m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file?",dta_name);
-        return(1);
-    }
-    std::vector<int> L2_map;
-    for(int k = 0; k < x_size*y_size; k++)
-    {
-        // get sprite index
-        int sid = *data++;
-        // get sprite flags
-        int code = *data++;
-
-        if(!sid)
-        {
-            // empty
-            L2_map.push_back(-1);
-            continue;
-        }
-        // try randomize
-        if(sid - 1 >= L2_list.size())
-        {
-            m_last_error = string_format("Failed parsing map DTA file \"%s\"! Possibly corrupted file? L2 sprite index %d out of range of listed used sprites.",dta_name,sid - 1);
-            return(1);
-        }
-        sid = terr->GetRandomTreeID(L2_list[sid - 1]);
-        L2_map.push_back(sid);
-    }
-
-    // find unique sprites
-    auto L2_list_new = L2_map;
-    std::erase_if(L2_list_new,[](int& item) { return(item < 0);});
-    std::ranges::sort(L2_list_new);
-    auto L2_list_new_res = std::ranges::unique(L2_list_new);
-    L2_list_new.erase(L2_list_new_res.begin(),L2_list_new_res.end());
-    // too many?
-    L2_count = L2_list_new.size();
-    if(L2_count > 255)
-    {
-        m_last_error = string_format("Failed parsing map DTA file \"%s\"! Too many unique L2 sprites %d (max 255). Reduce randomizer random sprites count.",dta_name,L2_count);
-        return(1);
-    }
-
-    // make new DTA
-
-    // remove old L2 sprites list
-    dta.erase(dta.begin() + p_L2_list,dta.begin() + p_L2_data);
-    // inset new one (empty)
-    dta.insert(dta.begin() + p_L2_list,L2_count*8,0);
-    // new data end
-    dend = dta.data() + dta.size();
-
-    // new L2 sprites count
-    data = dta.data() + p_L2_start;
-    *(uint32_t*)data = L2_count;
-    data += sizeof(uint32_t);
-
-    // put new sprite names
-    for(auto& sid: L2_list_new)
-    {
-        if(data_put_str(terr->m_sprite_names[sid],data,dend,8))
-        {
-            m_last_error = string_format("Failed building map DTA file \"%s\"! Unknown error?",dta_name);
-            return(1);
-        }
-    }
-
-    // put new sprite index map
-    for(auto& sid: L2_map)
-    {
-        if(sid < 0)
-        {
-            // no sprite
-            *data++ = 0;
-            data++;
-            continue;
-        }
-
-        // reindex to used sprites
-        auto nid = std::ranges::find(L2_list_new,sid);
-        if(nid == L2_list_new.end())
-        {
-            // this should not happen
-            m_last_error = string_format("Failed building map DTA file \"%s\"! Unknown error?",dta_name);
-            return(1);
-        }
-
-        // replace sprite id
-        *data++ = nid - L2_list_new.begin() + 1;
-        // leave flags
-        data++;
-    }*/
+        name += ".DTA";
+        // mark as used
+        fs->SetUsed(name,true);      
+    }      
 
     return(0);
 }
@@ -2131,7 +2100,7 @@ int SpellMod::ModUpgoups(SpellArchive *arch, std::vector<std::string> par, std::
     auto class_id = iequals(classes, par[0]);
     if(class_id < 0)
     {
-        m_last_error = string_format("Second parameter must be {%s}!", merge_text_lines(classes,";"));
+        m_last_error = string_format("First parameter must be {%s}!", merge_text_lines(classes,";"));
         return(1);
     }
 
@@ -2276,7 +2245,6 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
     PrintConsole("done.\n");
 
     // parse archive section(s)
-    std::filesystem::path fsu_path;
     std::vector<std::string> archive_names = {"UNITS.FSU", "T11.FS", "PUST.FS", "DEVAST.FS", "COMMON.FS", "TEXTS.FS", "SAMPLES.FS", "MUSIC.FS", "RESEARCH.FS", "INFO.FS", "SPEAKER.FS", "MOVIE.FS"};
     for(auto &arch_name: archive_names)
     {
@@ -2294,20 +2262,41 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             else if(std::filesystem::exists(org_p_path.alt_path))
                 org_path = org_p_path.alt_path;
         }
-        if(arch_name == "UNITS.FSU")
-            fsu_path = org_path;
-
-        // try load archive definition class        
-        if(GetClass(m_def,arch_name,cmd_list))
-            continue;
+        bool is_units_fsu = (arch_name == "UNITS.FSU");
 
         PrintConsole(" - Building archive %s ... ",arch_name);
 
-        // cleanup local variables
-        ClearVars();
-
         // make blank archive
-        SpellArchive arch;
+        SpellArchive* arch = MakeArchive(arch_name,(is_units_fsu)?SpellArchive::Type::FSU:SpellArchive::Type::FS);
+        if(!arch)
+        {
+            PrintConsole("failed! %s\n",m_last_error);
+            return(1);
+        }
+        // preset target path and game original path
+        arch->m_save_path = arch_path;
+        arch->m_orig_path = org_path;
+
+        // try load archive definition class        
+        if(GetClass(m_def,arch_name,cmd_list))
+        {
+            // this archive is not to be modified, but we need to load it anyway for further processing
+            arch->Clear();
+            if(arch->Load(org_path))
+            {
+                PrintConsole("failed! %s\n",m_last_error);
+                return(1);
+            }
+            arch->m_name = arch_name;
+
+            PrintConsole(" skipping (not modded)\n");
+            continue;
+        }             
+
+        // cleanup local variables
+        ClearVars();        
+
+        
         bool glob_replace = 0;
         bool is_optional = false;
         std::map<int,int> swap_map_units_list;
@@ -2410,13 +2399,13 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
 
                     // list to remove
                     std::vector<std::string> list;
-                    for(auto &file: arch.GetItemNames())
+                    for(auto &file: arch->GetItemNames())
                         if(wildcmp(par_list[0],file))
                             list.push_back(file);
 
                     // now try remove
                     for(auto &name: list)
-                        if(arch.RemoveFile(name,true))
+                        if(arch->RemoveFile(name,true))
                         {
                             PrintConsole("failed! Line %d: removing archive resource \"%s\" for command \"%s\".\n",cmd.m_line,name,cmd.m_raw);
                             return(1);
@@ -2479,7 +2468,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     }                                                       
 
                     // try replace units
-                    if(ReplaceUnits(&arch,src,src_name,unit_list))
+                    if(ReplaceUnits(arch,src,src_name,unit_list))
                     {
                         PrintConsole("failed! Line %d: copying units data in command \"%s\".\n %s\n",cmd.m_line,cmd.m_raw,m_last_error);
                         return(1);
@@ -2530,7 +2519,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                         PrintConsole("failed! Line %d: wrong param values in command \"%s\".\n",cmd.m_line,cmd.m_raw);
                         return(1);
                     }
-                    if(SwapUnits(&arch, pair))
+                    if(SwapUnits(arch, pair))
                     {
                         PrintConsole("failed! Line %d: swaping unit recirds data in command \"%s\".\n %s\n",cmd.m_line,cmd.m_raw,m_last_error);
                         return(1);
@@ -2545,7 +2534,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                         PrintConsole("failed! Line %d: %s() command must be placed in COMMON.FS archive.\n",cmd.m_line,var_name);
                         return(1);
                     }
-                    if(SetUnitSound(&arch,par_list))
+                    if(SetUnitSound(arch,par_list))
                     {
                         PrintConsole("failed! Line %d: \"%s\" command processing error: %s.\n",cmd.m_line,cmd.m_raw,m_last_error);
                         return(1);
@@ -2560,7 +2549,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                         PrintConsole("failed! Line %d: %s() command must be placed in COMMON.FS archive.\n",cmd.m_line,var_name);
                         return(1);
                     }
-                    if(ModUpgoups(&arch, par_list))
+                    if(ModUpgoups(arch, par_list))
                     {                        
                         PrintConsole("failed! Line %d: \"%s\" command processing error: %s.\n",cmd.m_line,cmd.m_raw,m_last_error);
                         return(1);
@@ -2638,15 +2627,15 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     if(!src)
                     {
                         // loading source data for add() command failed
-                        PrintConsole("failed! Line %d: loading source data failed in command \"%s\".\n%s\n",cmd.m_line,cmd.m_raw,m_last_error);
+                        PrintConsole("failed! Line %d: loading source data failed in command \"%s\".\n%s\nIf the path should be optional, consider adding switch \"optional=1;\".",cmd.m_line,cmd.m_raw,m_last_error);
                         return(1);
                     }
                                                            
                     // try copy file
-                    if(arch.AddFile(*src,src_name,replace,dest_name))
+                    if(arch->AddFile(*src,src_name,replace,dest_name))
                     {
                         // adding file to archive in add() command failed
-                        PrintConsole("failed! Line %d: copying file \"%s\" to \"%s\" in command \"%s\".\n%s\n",cmd.m_line,src_name,dest_name,cmd.m_raw,arch.GetLastError());
+                        PrintConsole("failed! Line %d: copying file \"%s\" to \"%s\" in command \"%s\".\n%s\n",cmd.m_line,src_name,dest_name,cmd.m_raw,arch->GetLastError());
                         return(1);
                     }
                 }
@@ -2716,7 +2705,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     if(!src)
                     {
                         // loading source data for add() command failed
-                        PrintConsole("failed! Line %d: loading source data failed in command \"%s\".\n%s\n",cmd.m_line,cmd.m_raw,m_last_error);
+                        PrintConsole("failed! Line %d: loading source data failed in command \"%s\".\n%s\nIf the path should be optional, consider adding switch \"optional=1;\".",cmd.m_line,cmd.m_raw,m_last_error);
                         return(1);
                     }                    
 
@@ -2726,10 +2715,10 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     {
                         if(!wildcmp(wild, name))
                             continue;                        
-                        if(arch.AddFile(*src, name, replace))
+                        if(arch->AddFile(*src, name, replace))
                         {
                             // adding file to archive in add() command failed
-                            PrintConsole("failed! Line %d: adding file \"%s\" in command \"%s\".\n%s\n",cmd.m_line,name,cmd.m_raw,arch.GetLastError());
+                            PrintConsole("failed! Line %d: adding file \"%s\" in command \"%s\".\n%s\n",cmd.m_line,name,cmd.m_raw,arch->GetLastError());
                             return(1);
                         }
                         count++;
@@ -2772,7 +2761,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
 
             // parse units definition
             std::vector<uint8_t> data;
-            if(arch.GetFile("JEDNOTKY.DEF",data))
+            if(arch->GetFile("JEDNOTKY.DEF",data))
             {
                 // unknown command
                 PrintConsole("failed! Cannot find file JEDNOTKY.DEF in COMMON.FS.\n");
@@ -2791,15 +2780,15 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             if(!convert_target.empty())
             {
                 // load UNITS.FSU
-                SpellArchive fsu;
-                if(fsu.Load(fsu_path))
+                SpellArchive *fsu = GetArchiveByName("UNITS.FSU");
+                if(!fsu)
                 {
                     // loading source data for add() command failed
                     PrintConsole("failed! Loading UNITS.FSU source data failed in convert() command!\n");
                     return(1);
                 }
                 // filter units graphics resources
-                if(FilterUnitsResources(units.get(), &fsu))
+                if(FilterUnitsResources(units.get(), fsu))
                 {
                     PrintConsole("failed! Filtering UNITS.FSU for unknown graphic resources failed in convert() command!\n");
                     return(1);
@@ -2814,7 +2803,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     return(1);
                 }
                 // replace it
-                if(arch.AddFile(data,"JEDNOTKY.DEF",true))
+                if(arch->AddFile(data,"JEDNOTKY.DEF",true))
                 {
                     PrintConsole("failed! Conversion of JEDNOTKY.DEF to desired language format %s in COMMON.FS.\n",convert_target);
                     return(1);
@@ -2831,12 +2820,12 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             }
                        
             // for each possible map script:
-            for(auto& name: arch.GetItemNames())
+            for(auto& name: arch->GetItemNames())
             {
                 std::string key = "M??_*.DEF";
                 if(!wildcmp(key,name))
                     continue;
-                if(arch.GetFile(name,data))
+                if(arch->GetFile(name,data))
                 {
                     // unknown command
                     PrintConsole("failed! Unit randomizer cannot load file \"%s\" in COMMON.FS.\n",name);
@@ -2885,20 +2874,20 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 }                
 
                 // finally replace file in archive
-                if(arch.AddFile(def,name,true))
+                if(arch->AddFile(def,name,true))
                 {
-                    PrintConsole("failed! Modifying \"%s\" failed: %s\n",name,arch.GetLastError());
+                    PrintConsole("failed! Modifying \"%s\" failed: %s\n",name,arch->GetLastError());
                     return(1);
                 }
             }
 
             // for each possible level script:
-            for(auto& name: arch.GetItemNames())
+            for(auto& name: arch->GetItemNames())
             {
                 std::string key = "LEVEL_*.DEF";
                 if(!wildcmp(key,name))
                     continue;
-                if(arch.GetFile(name,data))
+                if(arch->GetFile(name,data))
                 {
                     // unknown command
                     PrintConsole("failed! Unit map swapper cannot load file \"%s\" in COMMON.FS.\n",name);
@@ -2937,9 +2926,9 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 }
 
                 // replace
-                if(arch.AddFile(def,name,true))
+                if(arch->AddFile(def,name,true))
                 {
-                    PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name,arch.GetLastError());
+                    PrintConsole("failed! Unit randomizer modifying \"%s\" failed: %s\n",name,arch->GetLastError());
                     return(1);
                 }
             }
@@ -2949,26 +2938,16 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             if(config.trees_rand)
             {
                 // try load all terrains
-                std::vector<std::shared_ptr<FSarchive>> terr_fs_list;
-                std::vector<std::string> terr_fs_names = {"T11.FS", "PUST.FS", "DEVAST.FS"};
-                for(auto &fs_name: terr_fs_names)
-                {
-                    // priority in MAKE folder, then Spellcross dir
-                    auto fs_path = make_dir / fs_name;
-                    if(!std::filesystem::exists(fs_path))
-                        fs_path = config.spell_dir / "data" / fs_name;
-                    if(!std::filesystem::exists(fs_path))
-                        continue;
 
-                    // try load archive (just names, no load data)
-                    std::shared_ptr<FSarchive> fs_arch;
-                    try{   
-                        fs_arch = std::make_shared<FSarchive>(fs_path.wstring(),FSarchive::Options::NO_LOAD);
-                    }catch(const std::runtime_error& error) {
-                        PrintConsole("failed! Trees randomizer failed on loading \"%s\".\n",fs_name);
-                        return(1);
-                    }
-                    terr_fs_list.push_back(fs_arch);
+                // make list of terrain archive (should be loaded in memory)
+                std::vector<FSarchive*> terr_fs_list;
+                std::vector<std::string> terr_fs_names = {"T11.FS", "PUST.FS", "DEVAST.FS"};
+                for(auto& fs_name: terr_fs_names)
+                {
+                    auto *fs_arch = GetArchiveByName(fs_name);
+                    if(!fs_arch || !fs_arch->m_fs)
+                        continue;
+                    terr_fs_list.push_back(fs_arch->m_fs);
                 }
 
                 // prepare randomizer rules
@@ -2979,14 +2958,14 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     return(1);
                 }
 
-                // for each possible level script:
-                for(auto& name: arch.GetItemNames())
+                // for each possible map DTA:
+                for(auto& name: arch->GetItemNames())
                 {
                     // possible map DTA files
                     std::string key = "*.DTA";
                     if(!wildcmp(key,name))
                         continue;
-                    if(arch.GetFile(name,data))
+                    if(arch->GetFile(name,data))
                     {
                         PrintConsole("failed! Trees randomizer cannot load file \"%s\" in COMMON.FS.\n",name);
                         return(1);
@@ -3000,9 +2979,9 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     }
 
                     // finally replace file in archive
-                    if(arch.AddFile(data,name,true))
+                    if(arch->AddFile(data,name,true))
                     {
-                        PrintConsole("failed! Trees randomizer failed modifying \"%s\": %s\n",name,arch.GetLastError());
+                        PrintConsole("failed! Trees randomizer failed modifying \"%s\": %s\n",name,arch->GetLastError());
                         return(1);
                     }
                     
@@ -3010,14 +2989,78 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
 
             } // if(config.trees_rand)
 
+
+            // archive cleanup?
+            if(true)
+            {
+                // make list of terrain archive (should be loaded in memory)
+                std::vector<SpellArchive*> terr_fs_list;
+                std::vector<std::string> terr_fs_names = {"T11.FS", "PUST.FS", "DEVAST.FS"};
+                for(auto& fs_name: terr_fs_names)
+                {
+                    auto* fs_arch = GetArchiveByName(fs_name);
+                    if(!fs_arch || !fs_arch->m_fs)
+                        continue;
+                    terr_fs_list.push_back(fs_arch);
+                }
+                
+                // for each terrain
+                /*for(auto &terr_fs: terr_fs_list)
+                {                    
+                    // mark all but DTA as used
+                    terr_fs->m_fs->SetUsed("*");
+                    terr_fs->m_fs->ClearUsed("*.DTA");
+                    terr_fs->m_fs->ClearUsed("START.DTA");
+                    terr_fs->m_fs->ClearUsed("CIEL.DTA");
+                    terr_fs->m_fs->ClearUsed("TARGET.DTA");
+
+                    // for each possible map DTA:
+                    for(auto& name: arch->GetItemNames())
+                    {
+                        // possible map DTA files
+                        std::string key = "*.DTA";
+                        if(!wildcmp(key,name))
+                            continue;
+                        if(arch->GetFile(name,data))
+                        {
+                            PrintConsole("failed! Archive pruner cannot load file \"%s\" in COMMON.FS.\n",name);
+                            return(1);
+                        }
+
+                        // process map
+                        if(ProcMapDTAs(data,name,terr_fs))
+                        {
+                            PrintConsole("failed! Archive pruner failed processing map DTA file \"%s\" in COMMON.FS: %s\n",name,m_last_error);
+                            return(1);
+                        }
+                    }
+
+                    // remove unused stuff
+                    terr_fs->m_fs->RemoveUnused();
+                }*/
+            }
+
+
         } // randomizers/swappers and stuff for common.fs
 
-        
+        PrintConsole("done.\n");
+    } // for each archive   
 
-        // --- save archive:
+     
+     // --- saving archives
+     for(auto& arch_name: archive_names)
+     {
+        auto arch = GetArchiveByName(arch_name);
+        if(!arch)
+            continue;
+        auto arch_path = arch->m_save_path;
+        auto org_path = arch->m_orig_path;
+
+        PrintConsole(" - Saving archive %s ... ",arch_name);
+        
         // check if target archive differs from newly built one
-        bool must_write = config.force_write && !arch.isEmpty();
-        if(!must_write && !arch.isEmpty() && std::filesystem::exists(arch_path))
+        bool must_write = config.force_write && !arch->isEmpty();
+        if(!must_write && !arch->isEmpty() && std::filesystem::exists(arch_path))
         {            
             // try load archive from target path            
             SpellArchive ref_arch;
@@ -3028,9 +3071,9 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 return(1);
             }
             // compare by content
-            must_write |= !arch.Compare(ref_arch);            
+            must_write |= !arch->Compare(ref_arch);            
         }
-        if(!must_write && !arch.isEmpty() && std::filesystem::exists(org_path) && !std::filesystem::exists(arch_path))
+        if(!must_write && !arch->isEmpty() && std::filesystem::exists(org_path) && !std::filesystem::exists(arch_path))
         {
             // try load archive from spellcross target path
             SpellArchive ref_arch;
@@ -3041,9 +3084,9 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                 return(1);
             }
             // compare by content
-            must_write |= !arch.Compare(ref_arch);
+            must_write |= !arch->Compare(ref_arch);
         }
-        if(!must_write && !arch.isEmpty() && !std::filesystem::exists(arch_path) && org_path.empty())
+        if(!must_write && !arch->isEmpty() && !std::filesystem::exists(arch_path) && org_path.empty())
         {
             // force write if archive not present in-game
             must_write =  true;
@@ -3054,24 +3097,23 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             PrintConsole("done (not saving: no change detected).\n");
             continue;
         }
-        if(arch.isEmpty())
+        if(arch->isEmpty())
         {
             PrintConsole("done (not saving: empty archive).\n");
             continue;
         }
 
         // try save archive
-        if(arch.Save(arch_path, true))
+        if(arch->Save(arch_path, true))
         {
             // writting archive failed
-            PrintConsole("failed! Saving target archive \"%s\".\n%s\n",arch_path,arch.GetLastError());
+            PrintConsole("failed! Saving target archive \"%s\".\n%s\n",arch_path,arch->GetLastError());
             return(1);
         }
-        if(arch_name == "UNITS.FSU")
-            fsu_path = arch_path;
 
         PrintConsole("saved to \"%s\".\n",arch_path);
-    }
+    
+    } // for each archive
 
     PrintConsole(" - Building mod done!\n");
 

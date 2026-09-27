@@ -198,7 +198,7 @@ public:
 
     SpellTreeRandomizer();
     void Clear();
-    int PrepareRules(SpellTreeRandomizerRules &rules, std::vector<std::shared_ptr<FSarchive>> terrain_fs_archives);
+    int PrepareRules(SpellTreeRandomizerRules &rules, std::vector<FSarchive*> terrain_fs_archives);
     int PrepareRules(SpellTreeRandomizerRules& rules, SpellData *spell_data);
     int RandomizeMapDTA(std::vector<uint8_t> &dta,std::string dta_name="");
     int RandomizeMap(SpellMap *map, bool froce_rand_all=false);

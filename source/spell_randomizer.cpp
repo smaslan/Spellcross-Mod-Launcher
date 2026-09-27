@@ -1347,7 +1347,7 @@ void SpellTreeRandomizer::Clear()
 }
 
 // prepare randomizing rules: filter rules by available terrain sprites, make fast tree lookups
-int SpellTreeRandomizer::PrepareRules(SpellTreeRandomizerRules& rules,std::vector<std::shared_ptr<FSarchive>> terrain_fs_archives)
+int SpellTreeRandomizer::PrepareRules(SpellTreeRandomizerRules& rules,std::vector<FSarchive*> terrain_fs_archives)
 {	
 	m_last_error.clear();
 	Clear();
