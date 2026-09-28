@@ -289,6 +289,19 @@
             <property name="shortcut">Ctrl+F2</property>
             <property name="unchecked_bitmap"></property>
           </object>
+          <object class="wxMenuItem" expanded="true">
+            <property name="bitmap"></property>
+            <property name="checked">0</property>
+            <property name="enabled">1</property>
+            <property name="help"></property>
+            <property name="id">wxID_MM_MOD_BUILD_NO_CHECK</property>
+            <property name="kind">wxITEM_NORMAL</property>
+            <property name="label">Build ignoring checks and no pruning</property>
+            <property name="name">mmModBuildNoCheck</property>
+            <property name="permission">none</property>
+            <property name="shortcut">Alt+F2</property>
+            <property name="unchecked_bitmap"></property>
+          </object>
           <object class="wxMenuItem" expanded="false">
             <property name="bitmap"></property>
             <property name="checked">0</property>

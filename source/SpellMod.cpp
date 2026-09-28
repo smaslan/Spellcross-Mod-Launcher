@@ -247,7 +247,7 @@ std::string SpellArchive::CountStr()
     if(m_fs)
         return(string_format("%d",m_fs->Count()));
     if(m_fsu)
-        return(string_format("%d (%d sprites)",m_fsu->GetCount(),m_fsu->GetCountFiles()));
+        return(string_format("%d/%d",m_fsu->GetCount(),m_fsu->GetCountFiles()));
     return("0");
 }
 
@@ -2306,15 +2306,16 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
         if(GetClass(m_def,arch_name,cmd_list))
         {
             // this archive is not to be modified, but we need to load it anyway for further processing
-            arch->Clear();
-            if(arch->Load(org_path))
+            arch->Clear();            
+            if(!org_path.empty() && arch->Load(org_path))
             {
                 PrintConsole("failed! %s\n",m_last_error);
                 return(1);
             }
-            arch->m_name = arch_name;
+            if(arch)
+                arch->m_name = arch_name;
 
-            PrintConsole(" skipping (not modded)\n");
+            PrintConsole(" skipping (no mod)\n");
             continue;
         }             
 
@@ -2643,8 +2644,8 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     }
                     
                     // try load source archive
-                    SpellArchive::Type arch_type = SpellArchive::Type::AUTO;
-                    if(wildcmp("*.FSU",arch_name.c_str()))
+                    SpellArchive::Type arch_type = SpellArchive::Type::AUTO;                    
+                    if(is_units_fsu)
                         arch_type = SpellArchive::Type::FSU;
                     if(!std::filesystem::exists(parsed_path.path) && !std::filesystem::exists(parsed_path.alt_path) && is_optional)
                         continue; // optional mode: skip
@@ -2722,7 +2723,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     
                     // load source archive
                     SpellArchive::Type arch_type = SpellArchive::Type::AUTO;
-                    if(wildcmp("*.FSU",arch_name.c_str()))
+                    if(is_units_fsu)
                         arch_type = SpellArchive::Type::FSU;
                     if(!std::filesystem::exists(parsed_path.path) && !std::filesystem::exists(parsed_path.alt_path) && is_optional)
                         continue; // optional mode: skip
@@ -3039,7 +3040,8 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     terr_fs->m_fs->ClearUsed("DM??_???.DTA");
                     terr_fs->m_fs->ClearUsed("CP?_????.DTA");
                     terr_fs->m_fs->ClearUsed("RKA?_???.DTA");
-                    terr_fs->m_fs->ClearUsed("STA_*.DTA");                                     
+                    terr_fs->m_fs->ClearUsed("POA?_???.DTA");
+                    //terr_fs->m_fs->ClearUsed("STA_*.DTA");                                     
 
                     // for each possible map DTA mark used items
                     for(auto& name: arch->GetItemNames())

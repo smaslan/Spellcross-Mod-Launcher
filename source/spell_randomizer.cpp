@@ -319,14 +319,14 @@ int UnitRandomizer::RandomizeMap(std::string& def, SpellUnits* units,UnitRandomi
 			int orig_unit_type;
 			if(str2int(cmd.parameters[1],orig_unit_type,0,units->Count()-1))
 			{
-				m_last_error = string_format("Failed parsing command \"%s\" parameters.",cmd.full_command);
+				m_last_error = string_format("Failed parsing command \"%s\" parameter \"%s\" or unit id value out of range 0 to %d.",cmd.full_command,cmd.parameters[1],units->Count()-1);
 				return(1);
 			}
 			auto orig_unit = units->GetUnit(orig_unit_type);
 			if(!orig_unit)
 			{
 				// unknown unit type
-				m_last_error = string_format("Unknown unit type for command \"%s\".",cmd.full_command);
+				m_last_error = string_format("Unknown unit type \"%s\" for command \"%s\".",cmd.parameters[1],cmd.full_command);
 				return(1);
 			}
 
