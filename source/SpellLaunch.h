@@ -50,6 +50,7 @@ public:
         ExeVersion exe_version;
         std::string version_name;
         size_t exe_hash;
+        int fs_count_limit;
     };
 
     static int GameEngineVersion(std::filesystem::path spell_dir,std::string spell_exe,SpellLaunch::GameVersion& ver);

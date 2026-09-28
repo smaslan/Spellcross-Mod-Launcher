@@ -43,7 +43,9 @@ It also contains simple SAVE games manager for making backups.
 If you have several Spellcross patch version EXE files in your Spellcross installation folder, so you may select desired <b>Spellcross executable</b> to launch (should be listed, default is "SPELCROS.EXE"). Next, specify <b>Virtual CD drive letter</b> to which Spellcross CD will be mounted (applies to both DOSbox mod and native Win32 modes).
 Next, define your <b>DOSbox path</b> (for DOSbox mode only). You can optionally disable "autoexec.bat" and start fullscreen in DOSbox.
 Next, select Spellcross <b>Run mode</b>. This tool was originally made in the era of 32bit WinXP which could still run 16bit DOS apps natively using its integrated NTDVM and DOSbox was a bit too slow back than. So, there is still legacy option "Win32" to run it natively e.g. in virtual machine. But now the only viable option is "DOSbox" mode.
-Finally, if you want to run mod, select <b>Mod path</b>. For each mod you can specify if it's allowed to modify CD game files (default: yes) by <b>Allow CD mod</b>. Another option is to <b>move SAVE games</b> folder with the mod. The idea here is that your save games will be copied to selected mod folder when you finish playing. On the next startup they will be moved to the game location (originals are preserved/backuped) and will be moved to mod folder again when you finish playing. This way you can have multiple sets of save games not colliding with each other. Options <b>Disable night vision</b> will disable green night vission effect in the missions. Next, you set <b>Units randomizer mode</b>. Value "off" will disable it. Value "map rules" will enable randomization of unit types in the map according to the rules provided in the map DEF files (for details, see <a href="#randomizer">8 - Units randomizer</a>). Value "local rules" will force randomization using local rules that can be configured in menu <b>Mod-&gt;Config Units Randomizer</b>. If mod contains some mod options, the list will appear in the <b>Options</b> property grid. All options can be changed. For details see <a href="#options">7 - Making mods</a>.
+Finally, if you want to run mod, select <b>Mod path</b>. For each mod you can specify if it's allowed to modify CD game files (default: yes) by <b>Allow CD mod</b>. Another option is to <b>move SAVE games</b> folder with the mod. The idea here is that your save games will be copied to selected mod folder when you finish playing. On the next startup they will be moved to the game location (originals are preserved/backuped) and will be moved to mod folder again when you finish playing. This way you can have multiple sets of save games not colliding with each other. Options <b>Disable night vision</b> will disable green night vission effect in the missions. Next, you set <b>Units randomizer mode</b>. Value "off" will disable it. Value "map rules" will enable randomization of unit types in the map according to the rules provided in the map DEF files (for details, see <a href="#randomizer">8 - Units randomizer</a>). Value "local rules" will force randomization using local rules that can be configured in menu <b>Mod-&gt;Config Units Randomizer</b>. 
+It is also possible to enable trees randomizer using <b>Randomize trees</b> option (for setup see <a href="#treerandomizer">9 - Trees randomzier</a>). 
+If mod contains some mod options, the list will appear in the <b>Options</b> property grid. All options can be changed. For details see <a href="#options">7 - Making mods</a>.
 
 And that is it for basic setup.
 </p>
@@ -65,6 +67,7 @@ And that is it for basic setup.
 <div class="n2">4 - Advanced usage</div><p align="justify">
 &nbsp;&nbsp; There are few other actions useful for mainly for development of mods. First, in the <b>Setup</b> menu you can select <b>Install game</b> to install game. It will unpack installer archive DATA/INSTALL.DTA from game CD to target folder same as original installer would do. This is useful so you don't have to do it via DOSbox. Another <b>Setup</b> function is <b>Apply patch to SPELCROS.EXE</b>. This will try to patch original binary SPELCROS.EXE so it correctly detects CD and it also fixes known bug of official patch V1.01 where the game hangs up whenever there is auto save game in folder SAVE/WORKDIR. The patch is based on analysis of properly working game binary of unknown origin (maybe some ancient cracked version?). I cannot find it anywhere nowadays so the function just modifies few bytes in game binary accordingly.    
 Next, in the <b>Setup</b> menu you can edit various config files and run Spellcross "SETUP.BAT". In the menu <b>Mod</b> you can choose <b>Build mod</b>. This will make modded archives into the mod's MAKE folder. Option <b>Force rebuild mod</b> will make mod files and force write operation even when content is not changed. Option <b>Build and swap</b> will build mod files and replace the original game files and they will stay there until restored. Option <b>Restore original</b> will move the modded archives back to the mod's MAKE folder and restore original game files from their backup location. Note all these operations are done automatically when you run the mod by button <b>Run Mod</b>. The restore operation is called automatically before any other action to ensure game is always in its original state. In some rare cases the restore operation might fail. This can happen in very unlikely case when PC crashes during game archives swap operation. But it can also happen when you are viewing content of some folder or file that is to be moved by some of the tool operations. The restore can be retried any number of times. The tool stores state of modded files (and saves) in file "mod_state.ini", so it should be able to recover automatically even after crash or restart. If that for some reason fails consistently, you can use option <b>Cleanup mod config</b> which will clear the state file. But this will almost certainly lead to inconsistent state of game files (and possibly save games if you use option <b>Move SAVE games</b>), so that is really the last resort option. After this operation you'll likely have to manually restore everything from your backup.<br>
+&nbsp;&nbsp; Next relevant option in <b>Mod</b> menu are <b>Check archive limits</b>. This will do checks if some FS or FSU archives of the mod have allowed size. I strongly recommend to enable it (default). It will generate errors if there are too many files for detected game version. Related option is <b>Prune archives</b>. This option will try to remove archive items that are not being used so the result fits to game limits. Use this only if mod build reports errors (<b>Check archive limits</b> must be active to report errors!). It is highly experimental feature, but it seems to work.<br>
 &nbsp;&nbsp; In menu <b>Run</b> you can use <b>Build launch files</b> which will generate various game startup BATch files to the game installation folder. You can run those outside this tool if you wish. Note these are generated automatically whenever you start the game via this tool.  
 </p>
 
@@ -223,7 +226,20 @@ Switch "optional=1" can mark archive as optional, so tool will not generate erro
     title(x_pos,y_pos,text_align,text_color,shadow_color,text);
 </pre>
 <p align="justify">"x_pos" and "y_pos" are positions of string (center of string for centered mode). "text_align" can be "center" or "left". "text_color" and "shadow_color" are hexa colors RRGGBB. Note it is just desired color, but it will choose nearest available in existing palette file. "text" is the string to print. It is possible to insert variable using percent notation %MY_VAR% and date string %DATE%.<br>
-&nbsp;&nbsp; Another special command is "convert()" that can convert selected files from EN engine format to CZ engine. It will change video file extensions in mission and level DEF files and it will convert JEDNOTKY.DEF. Syntax is following.</p>
+
+&nbsp;&nbsp; Another command is "upgroups()", which does modifications to "UPGROUPS.DEF". Command is usable in COMMON.FS. Syntax is following:</p>
+<pre>
+    upgroups(Transport,REM,18,19,...); // to remove unit(s) from class
+    upgroups(Transport,ADD,20,21,...); // to add unit(s) to class
+</pre>
+
+<p align="justify">&nbsp;&nbsp; Another command is "unitsound()", which allows to change "JEDNOTKY.DEF" sound classes. Command is usable in COMMON.FS. Syntax is following:</p>
+<pre>
+    unitsound(Report,0, 17,73); // set reporting sound class to 0 for units #17 and #73
+</pre>
+<p align="justify">Recognized sound classes are "Report", "Move", "Hit", "SpecialAction", "LightAttack", "ArmoredAttack" and "AirAttack".</p>
+
+<p align="justify">&nbsp;&nbsp; Another special command is "convert()" that can convert selected files from EN engine format to CZ engine. It will change video file extensions in mission and level DEF files and it will convert JEDNOTKY.DEF. Syntax is following.</p>
 <pre>
     convert(CZE); // convert from EN to CZ engine
     convert(ENG); // convert from CZ to EN engine
@@ -280,7 +296,18 @@ MissionData {
 
 
 <br>
-<div class="n2">9 - Versions history</div><p align="justify">
+<a name="treerandomizer"></a>
+<div class="n2">9 - Trees randomzier</div><p align="justify">
+&nbsp;&nbsp; Visual of Spellcross is bit boring, so I decided to include trees randomizing feature. It works similarly to the units randomizer. Setup is launched using menu <b>Mod-&gt;Config Trees Randomizer</b>. There it is possible to define rules such as replace list of source trees by random trees list with predefined probabilities. Created presets can be saved and loaded. The randomizer function can be activated in main panel by <b>Randomize trees</b> option.  
+</p>
+
+<table align="center"><tr><td>
+<img src="obr/trees_randomizer_1.png" alt="Trees randomizer rules" title="Trees randomizer rules">
+</td></tr></table><br>
+
+
+<br>
+<div class="n2">10 - Versions history</div><p align="justify">
 <table  align="justify">
  <tr valign="top">
   <td width="200">
@@ -322,11 +349,27 @@ MissionData {
    Savegame editor supports addition/removal of units and commanders. Minor fixes.
   </td>
  <tr>
+ <tr valign="top">
+  <td width="200">
+   <span class="d1">V1.43 - September 4th, 2026</span>:
+  </td>
+  <td>
+   Savegame editor fixes. Minor fixes.
+  </td>
+ <tr>
+ <tr valign="top">
+  <td width="200">
+   <span class="d1">V1.45 - September 28th, 2026</span>:
+  </td>
+  <td>
+   Added trees randomzier. Minor fixes.
+  </td>
+ <tr>
 </table>
 </p>
 
 <br>
-<div class="n2">10 - License</div><p align="justify">
+<div class="n2">11 - License</div><p align="justify">
 &nbsp;&nbsp; The tool is provided without any warranty as open source project under MIT license.
 </p>
 <pre>

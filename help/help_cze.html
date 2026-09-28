@@ -42,7 +42,7 @@ i s těmi na CD (pokud je CD emulováno ze složky, namísto z ISO). Následně 
 <div class="n2">1 - Základní nastavení</div><p align="justify">
 &nbsp;&nbsp; Všechna hlavní nastavení lze provést na hlavním panelu. Předně je třeba nastavit cestu k instalaci hry <b>Spellcross installation folder</b> např. "C:/hry/SPELCROS". Dále je třeba nastavit cestu ke kopii CD hry <b>Spellcross CD path</b>. Sice lze nastavit i cestu k namontovanému ISO, ale ISO image pochopitelně nelze modifikovat, takže doporučuji udělat kopii např. do "C:/hry/SPELLCD". Pokud máte ve složce hry několik EXE souborů, např. různé verze patchů hry, můžete si vybrat cílový EXE pro spuštění <b>Spellcross executable</b>. Dále zvolte písmeno jednotky <b>Virtual CD drive letter</b> kam bude namontováno CD hry. Toto nastavení platí jak pro DOSbox, tak i pro Win32 režim. Pokud hry budete spouštět přes DOSbox, pak je třeba také zadat cestu k instalaci DOSboxu <b>DOSbox path</b>. Dále zvolte metodu spuštění hry <b>Run mode</b>. Nástroj byl původně vyvinut v době 32bit WinXP, kde se daly 16bitové DOSové aplikace provozovat nativně přes integrovaný emulátor NTDVM, takže obsahuje možnost spustit nativně "Win32". Toto nastavení je ovšem dnes již trochu mimo a aplikace ani není kompilovaná pro 32bit systém. Ale teoreticky by to mohlo jít spustit ve virtuálním stroji. Každopádně dnes je jediná rozumná metoda režim "DOSbox". Pro režim "DOSbox" lze volitelně vypnout "autoexec.bat" a nastavit spouštění ve fullscreen režimu.
 Další nastavení je cesta k modu <b>Mod path</b>. Pro spouštění modu lze eventuálně vypnout <b>Allow CD mod</b>, pokud by cesta k CD hry vedla na namontované ISO, které pochopitelně nelze přepisovat. Poslední volba je <b>Move SAVE games</b>. Pokud je vybráno, vytvoří Spellcross Mod Launcher po prvním hraní modu kopii uložených pozic do složky modu "save". Při dalším spuštění modu přesune tyto uložené pozice do herní složky "SAVE" (a pochopitelně zálohuje původní pozice v "SAVE") a po skončení hraní je zase přesune zpět do složky modu a obnoví původní "SAVE". Takto lze mít nezávislé uložené pozice pro každý mod i originální hru a nepletou se dohromady, protože jsou nekompatibilní a hra při načtení většinou padne. 
-Volba <b>Disable night vision</b> vypne efekt nočního vidění v nočních misích. Déle lze nastavit režim randomizace jednotek <b>Units randomizatoin mode</b>. Hodnota "off" randomizaci vypne, hodnota "map rules" zapne automatickou randomizaci typů jednotek podle pravidel v DEF souborech misí (viz detaily <a href="#randomizer">8 - Randomizér jednotek</a>) a hodnota "local rules" zapne randomizaci podle nastavení v menu <b>Mod-&gt;Config Units Randomizer</b>. Pokud mod obsahuje nějaké uživatelské volby, zobrazí se v seznamu <b>Options</b>. Detaily viz <a href="#options">7 - Vytváření modů</a>.     
+Volba <b>Disable night vision</b> vypne efekt nočního vidění v nočních misích. Déle lze nastavit režim randomizace jednotek <b>Units randomization mode</b>. Hodnota "off" randomizaci vypne, hodnota "map rules" zapne automatickou randomizaci typů jednotek podle pravidel v DEF souborech misí (viz detaily <a href="#randomizer">8 - Randomizér jednotek</a>) a hodnota "local rules" zapne randomizaci podle nastavení v menu <b>Mod-&gt;Config Units Randomizer</b>. Lze také aktivovat randomizér stromů <b>Randomize trees</b> (nastavení viz <a href="#treerandomizer">9 - Randomizér stromů</a>). Pokud mod obsahuje nějaké uživatelské volby, zobrazí se v seznamu <b>Options</b>. Detaily viz <a href="#options">7 - Vytváření modů</a>.     
 </p>
 
 <table align="center"><tr><td>
@@ -63,6 +63,7 @@ Volba <b>Disable night vision</b> vypne efekt nočního vidění v nočních mis
 &nbsp;&nbsp; Mimo základního spouštění umožňuje pár další operací. V menu <b>Setup</b> je předně k dispozici instalátor hry <b>Install Game</b>. Tato funkce rozbalí data z DATA/INSTALL.DTA z CD hry stejně jako by to udělal originální instalátor, ale není to provádět složitě přes DOSbox. Dále je v menu <b>Setup</b> speciální funkce <b>Apply patch to SPELCROS.EXE</b>. Tato funkce se pokusí patchnout binárku hry, aby korektně detekovala CD. Zatím to funguje jen pro EN verzi, ke které není k dohledání funkční patch. Je to založené na analýze fungující binárky neznámého původu, kterou se mi ale dnes už nepodařilo nikde dohledat (možná je to nějaká cracknutá verze?). Každopádně to řeší detekci CD a zatuhnutí hry kdykoliv je nějaký auto save ve složce SAVE/WORKDIR, což je známý problém EN patche V1.01.
 V menu <b>Setup</b> lze také spustit "SETUP.BAT" hry pro nastavení zvuku. Dále lze editovat konfigurační soubor Spellcrossu a DOSboxu. V menu <b>Mod</b> lze vybrat <b>Build mod</b>. Tato funkce sestaví datové archivy modu. Volba <b>Force rebuild mod</b> sestaví soubory modu a vynutí zápis na disk i pokud se data proti minulému sestavení nezmění. Volba <b>Build and swap</b>  sestaví soubory modu a prohodí je s archivy hry. V tomto stavu zůstanou až do provedení operace <b>Restore mod</b>. Operace <b>Restore mod</b> vrátí soubory modu zpět do složky modu a obnoví původní data hry. Tato funkce je volána automaticky před každou operací, aby se zajistil konzistentní stav dat hry. Nástroj uchovává stav modifikaci v konfiguračním souboru "mod_state.ini", takže by měl být schopen obnovit stav při pádu hry nebo sytému.<br>
 &nbsp;&nbsp; Ve velmi nepravděpodobném případě, kdy by došlo k pádu systému v mezičase mezi přesuny dat a zápisem do "mod_state.ini" by operace <b>Restore mod</b> mohla opakovaně selhávat. V takovém případě lze použít operaci <b>Cleanup mod</b>, která vymaže obsah stavového souboru "mod_state.ini". To je ovšem poslední možnost a téměř jistě povede k nekonzistentním souborům hry a bude pravděpodobně třeba je ručně obnovit ze zálohy. Před touto operací je vhodné se ujistit, že neselhává např. z důvodu prohlížení obsahu některé složky nebo souboru, který má být přesouván (file sharing violation).<br>
+&nbsp;&nbsp; Další důležitá volba v <b>Mod</b> menu je <b>Check archive limits</b>. Tato volba zajistí kontrolu limitů FS/FSU archivů pro danou verzi hry. Doporučuji nechat zapnuté (default). Launcher vygeneruje při buildu chybu, pokud detekuje příliš mnoho souborů v archivech. S tím je spojena také volba <b>Prune archives</b>. Tato volba se pokusí pročistit archivy od nepoužitých souborů, aby se výsledek vešel do limitů hry. Toto nastavení doporučuji zapínat pouze, pokud launcher hlásí patřičné chyby při buildu (<b>Check archive limits</b> musí být aktivní, aby to fungovalo!). Je to hodně experimentální řešení, ale zdá se to být funkční. <br>
 &nbsp;&nbsp; V menu <b>Run</b> lze zvolit <b>Build launch files</b>, což vygeneruje spouštěcí BAT soubory hry. Ty jsou generovány automaticky při spouštění přes <b>Run Original</b> a <b>Run Mod</b>.
 </p>
 
@@ -213,7 +214,19 @@ Lze také definovat lokální proměnné, které jsou pak přístupné jako %MY_
 </pre>
 <p align="justify">kde "x_pos" a "y_pos" je pozice textu (jeho střed pro centrovný režim). "text_align" zarovnání "center" nebo "left". Barvy textu "text_color" a pozadí "shadow_color" jsou ve formátu hexa RRGGBB. Vlatní "text" může obsahovat předem definované proměnné ve formátu %MY_VARIABLE% nebo předdefinované datum %DATE%.<br>
 
-&nbsp;&nbsp; Další speciální příkaz je "convert()", který umožňuje provést konverzi vybraných dat z EN enginu do CZ nebo opačně. Nahradí přípony video souborů v DEF souborech misí a levelů a také převede formát JEDNOTKY.DEF. Syntaxe je následující:</p>
+&nbsp;&nbsp; Další příkaz je "upgroups()", který umožňuje umožňuje provédět modifikace v souboru "UPGROUPS.DEF". Příkaz lze použít jen v COMMON.FS. Syntaxe je následující:</p>
+<pre>
+    upgroups(Transport,REM,18,19,...); // to remove unit(s) from class
+    upgroups(Transport,ADD,20,21,...); // to add unit(s) to class
+</pre>
+
+<p align="justify">&nbsp;&nbsp; Další příkaz je "unitsound()", který umožňuje umožňuje změnit třídy zvuků v "JEDNOTKY.DEF". Příkaz lze použít jen v COMMON.FS. Syntaxe je následující:</p>
+<pre>
+    unitsound(Report,0, 17,73); // set reporting sound class to 0 for units #17 and #73
+</pre>
+<p align="justify">Třídy zvuků jsou "Report", "Move", "Hit", "SpecialAction", "LightAttack", "ArmoredAttack" a "AirAttack".</p>
+
+<p align="justify">&nbsp;&nbsp; Další speciální příkaz je "convert()", který umožňuje provést konverzi vybraných dat z EN enginu do CZ nebo opačně. Nahradí přípony video souborů v DEF souborech misí a levelů a také převede formát JEDNOTKY.DEF. Syntaxe je následující:</p>
 <pre>
     convert(CZE); // convert from EN to CZ engine
     convert(ENG); // convert from CZ to EN engine
@@ -271,7 +284,24 @@ MissionData {
 
 
 <br>
-<div class="n2">9 - Historie verzí</div><p align="justify">
+<a name="treerandomizer"></a>
+<div class="n2">9 - Randomizér stromů</div><p align="justify">
+&nbsp;&nbsp; Vzhled hry je poněkud okoukaný, takže jsem doplnil randomizér stromů. Jeho nastavení lze vyvolat v menu <b>Mod-&gt;Config Trees Randomizer</b>. Zde lze vytvořit pravidla obdobně jako pro randomizaci jednotek. Tj. lze vytvořit sadu pravidel, kde je vždy vybrán seznam zdrojových stromů a následně seznam náhodných stromů, kterými mají být zdrojové nahrazeny. Lze také zadat pravděpodobnost výskytu. Vytvořené pravidla lze uložit a na načítat. Po vytvoření pravidel je třeba randomizaci zapnout na hlavním panelu <b>Randomize trees</b>.  
+</p>
+
+<table align="center"><tr><td>
+<img src="obr/trees_randomizer_1.png" alt="Trees randomizer rules" title="Trees randomizer rules">
+</td></tr></table><br>
+
+
+<p align="justify">
+&nbsp;&nbsp; Lokální pravidla jsou rozdělena podle třídy jednotek na lehké, těžké a letecké v menu <b>Source untis class</b>. Pro každou třídu je třeba vybrat jednotky, které budou randomizovány v menu <b>Source (applicable) units</b>. Dále je třeba vybrat typy jednotek, na které se bude randomizovat v menu <b>Target units</b>. Zde lze zapnout filtr podle posledního uložené pozice ve SAVE/WORKDIR (tato možnost nemusí vždy správně fungovat, takže ji lze vypnout). Následně pro každou z jednotek lze nastavit pravděpodobnost náhodného výběru v menu <b>Probabilities</b>.
+&nbsp;&nbsp; Pro všechny třídy jednotek společně je třeba nastavit pravidla randomizace v menu <b>Randomizer global config</b>. Zde se především nastavuje kde se mají pravidla aplikovat. Vytvořené pravidla lze uložit a načítat přes menu <b>File-&gt;Save preset</b> a <b>File-&gt;Load preset</b>.   
+</p>
+
+
+<br>
+<div class="n2">10 - Historie verzí</div><p align="justify">
 <table  align="justify">
  <tr valign="top">
   <td width="130">
@@ -313,12 +343,28 @@ MissionData {
    Savegame editor umožňuje přidávat/odebírat jednotky a velitele. Drobné úpravy/opravy.
   </td> 
  <tr>
+ <tr valign="top">
+  <td width="130">
+   <span class="d1">V1.43 - 4.9.2026</span>:
+  </td>
+  <td>
+   Opravy savegame editoru. Drobné úpravy/opravy.
+  </td> 
+ <tr>
+ <tr valign="top">
+  <td width="130">
+   <span class="d1">V1.45 - 28.9.2026</span>:
+  </td>
+  <td>
+   Pridan randomizer stromu a par uprav.
+  </td> 
+ <tr>
 </table>
 </p>
 
 
 <br>
-<div class="n2">10 - Licence</div><p align="justify">
+<div class="n2">11 - Licence</div><p align="justify">
 &nbsp;&nbsp; Nástroj je šířen jako open source pod licencí MIT. Lze ho volně šířit v souladu s licencí. Hrubý překlad MIT licence:
 </p>
 <pre>

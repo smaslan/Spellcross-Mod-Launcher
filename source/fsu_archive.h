@@ -124,6 +124,7 @@ class FSUarchive{
 		explicit Options::operator bool() const { return(static_cast<std::underlying_type_t<Options>>(lhs) != 0); }*/
 		
 		int GetCount();
+		int GetCountFiles();
 		std::wstring GetAuxDataPath() {return(aux_data_path);};
 
 		FSUarchive();

@@ -290,12 +290,12 @@ int SpellLaunch::GameEngineVersion(std::filesystem::path spell_dir, std::string 
 
     // try to match known versions
     const std::vector<GameVersion> ver_list = {
-        {EngineVersion::ENG, ExeVersion::EN_100, "English (initial release)", 17968204797226898554},
-        {EngineVersion::ENG, ExeVersion::EN_101, "English (patch V1.01)", 260851315303727605},
-        {EngineVersion::ENG, ExeVersion::EN_CRACK, "English (unknown no-cd patch)", 4795372327937121801},
-        {EngineVersion::CZE, ExeVersion::CZ_100, "Czech (initial release)", 5049612772850811613},
-        {EngineVersion::CZE, ExeVersion::CZ_106, "Czech (patch V1.06)", 18295206956031377920},
-        {EngineVersion::CZE, ExeVersion::CZ_107, "Czech (patch V1.07)", 5526712442606542630}
+        {EngineVersion::ENG, ExeVersion::EN_100, "English (initial release)", 17968204797226898554, 2600},
+        {EngineVersion::ENG, ExeVersion::EN_101, "English (patch V1.01)", 260851315303727605, 2600},
+        {EngineVersion::ENG, ExeVersion::EN_CRACK, "English (unknown no-cd patch)", 4795372327937121801, 2600},
+        {EngineVersion::CZE, ExeVersion::CZ_100, "Czech (initial release)", 5049612772850811613, 2600},
+        {EngineVersion::CZE, ExeVersion::CZ_106, "Czech (patch V1.06)", 18295206956031377920, 2600},
+        {EngineVersion::CZE, ExeVersion::CZ_107, "Czech (patch V1.07)", 5526712442606542630, 2600}
     };    
     for(auto &item: ver_list)
         if(item.exe_hash == exe_hash)
@@ -314,6 +314,7 @@ int SpellLaunch::GameEngineVersion(std::filesystem::path spell_dir, std::string 
     {
         ver.engine_ver = EngineVersion::ENG;
         ver.version_name = "English (unknown version)";
+        ver.fs_count_limit = 2600;
         return(0);
     }
     key = "SPELLCROSS: Posledn";
@@ -322,6 +323,8 @@ int SpellLaunch::GameEngineVersion(std::filesystem::path spell_dir, std::string 
     {
         ver.engine_ver = EngineVersion::CZE;
         ver.version_name = "Czech (unknown version)";
+        ver.fs_count_limit = 2600;
+        return(0);
     }
 
     return(0);

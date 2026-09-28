@@ -69,6 +69,8 @@ public:
     void Clear();
     bool isFolder();
     bool isEmpty();
+    int Count();
+    std::string CountStr();
     std::vector<std::string> GetItemNames();
     int GetFile(std::string name,std::vector<uint8_t>& data);
     bool ExistFile(std::string name);
@@ -123,12 +125,15 @@ public:
         bool force_write;
         bool no_night_vission;
         bool check_maps;
+        bool prune_archives;
+        bool check_limits;
         RandomizerMode randomize;
         UnitRandomizerSetup rand_rules;
         bool trees_rand;
         SpellTreeRandomizerRules trees_rand_rules;
         std::vector<SpellModOption> options;
-        SpellLaunch::EngineVersion ver;
+        SpellLaunch::GameVersion ver;
+        
     };    
 
     class ModArchivesList
@@ -179,7 +184,7 @@ private:
     std::string m_def;
     std::string m_last_error;
     std::map<std::string,std::string> m_vars;
-    SpellLaunch::EngineVersion m_ver;
+    SpellLaunch::GameVersion m_ver;
 
     //void PrintConsole(const std::string fmt,...);
     template<typename... Args> void PrintConsole(const std::string fmt,Args... args);

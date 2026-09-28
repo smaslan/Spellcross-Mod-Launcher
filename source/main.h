@@ -20,7 +20,7 @@
 #include "forms/form_save_edit.h"
 #include "forms/form_save_backup.h"*/
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-11 19:38:43
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-28 09:22:26
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -53,7 +53,7 @@
 #include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-11 19:38:43
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-28 09:22:26
 
 
 // app entry point class
@@ -116,7 +116,9 @@ public:
 		bool trees_rand;
 		SpellTreeRandomizerRules trees_rand_rules;
 		std::vector<SpellModOption> options;
-		SpellLaunch::EngineVersion ver;
+		SpellLaunch::GameVersion ver;
+		bool prune_archives;
+		bool check_limits;
 	};
 
 	SpellMod::Config MakeModConfig();
@@ -186,7 +188,7 @@ private:
 	void ChoiceCheckPaths(wxChoice *choice);
 	std::wstring GetPathChoiceLastPath(wxChoice* choice,std::wstring default_path=L"");	
 	void ListSpellExecutables(std::filesystem::path spell_dir, wxChoice* choice);
-	SpellLaunch::EngineVersion CheckExeVersion();
+	SpellLaunch::GameVersion CheckExeVersion();
 	ProcTh::Params GetProcThParams();
 
 	int LoadOptionsIni(std::vector<SpellModOption>& options);
@@ -220,7 +222,7 @@ protected:
 	
 	
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-11 19:38:43
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-28 09:22:26
 	enum
 	{
 		wxID_FORM_MAIN = 6000,
@@ -241,6 +243,8 @@ protected:
 		wxID_MM_MOD_BUILD_SWAP,
 		wxID_MM_MOD_RESTORE,
 		wxID_MM_MOD_CLEAN,
+		wxID_MM_MOD_OPT_CHECK_ARCH,
+		wxID_MM_MOD_OPT_PRUNE_ARCH,
 		wxID_MM_EDIT_MOD_DEF,
 		wxID_MM_CFG_RANDOMIZER,
 		wxID_MM_CFG_TREES_RAND,
@@ -295,6 +299,8 @@ protected:
 	wxMenu* mmFile;
 	wxMenu* mmSetup;
 	wxMenu* mmMod;
+	wxMenuItem* mmModOptCheckLimits;
+	wxMenuItem* mmModOptPruneArch;
 	wxMenu* mmSave;
 	wxMenu* msmSaveOrig;
 	wxMenu* msmSaveMod;
@@ -345,7 +351,7 @@ protected:
 	wxButton* btnRestoreWDmod;
 	wxButton* btnRunMod;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-11 19:38:43
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-28 09:22:26
 
 
 public:

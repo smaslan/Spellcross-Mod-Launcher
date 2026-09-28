@@ -881,6 +881,15 @@ int FSUarchive::GetCount()
 	return(m_list.size());
 }
 
+// get total count of files
+int FSUarchive::GetCountFiles()
+{
+	int total = 0;
+	for(auto &item: m_list)
+		total += item->list.size();	
+	return(total);
+}
+
 // save auxiliary data asociated to FSU archive
 int FSUarchive::SaveAuxData(std::wstring path)
 {

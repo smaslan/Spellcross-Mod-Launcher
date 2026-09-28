@@ -94,7 +94,7 @@ Also, you can star my project here on GitHub if you like to help me out on a way
   - Added game patcher for EN game engine (careful, not fully tested, make backups!).
 - [V1.43, 4th September 2026 (7zip file)](./builds/Spellcross-Mod-Launcher-V1.43.7z)
   - fixed save editor not updating some properties (careful, not fully tested, make backups!).
-- [V1.45, 27th September 2026 (7zip file)](./builds/Spellcross-Mod-Launcher-V1.45.7z)
+- [V1.45, 28th September 2026 (7zip file)](./builds/Spellcross-Mod-Launcher-V1.45.7z)
   - add trees randomizer (careful, not fully tested, make backups!).
   - very untested version!
 

@@ -227,6 +227,30 @@ bool SpellArchive::isEmpty()
     return(false);
 }
 
+// get items count
+int SpellArchive::Count()
+{
+    if(!m_fs && !m_fsu)
+        return(0);
+    if(m_fs)
+        return(m_fs->Count());
+    if(m_fsu)
+        return(m_fsu->GetCount());
+    return(0);
+}
+
+// get items count as string
+std::string SpellArchive::CountStr()
+{
+    if(!m_fs && !m_fsu)
+        return("0");
+    if(m_fs)
+        return(string_format("%d",m_fs->Count()));
+    if(m_fsu)
+        return(string_format("%d (%d sprites)",m_fsu->GetCount(),m_fsu->GetCountFiles()));
+    return("0");
+}
+
 // get list of items in archive
 std::vector<std::string> SpellArchive::GetItemNames()
 {
@@ -786,9 +810,10 @@ void SpellMod::ClearVars()
 {
     m_vars.clear();
     
+
     // add default variables
     AddVar("DATE",get_local_time_str(),true);
-    AddVar("VER",(m_ver == SpellLaunch::EngineVersion::ENG)?"\"ENG\"":"\"CZE\"",true);
+    AddVar("VER",(m_ver.engine_ver == SpellLaunch::EngineVersion::ENG)?"\"ENG\"":"\"CZE\"",true);
 }
 
 // try get variable
@@ -1064,7 +1089,7 @@ int SpellMod::LoadDEF(Config& config)
                     LogFile::SetIndent(-1);
                     return(1);
                 }
-                if(config.ver != target_ver)
+                if(config.ver.engine_ver != target_ver)
                 {
                     PrintConsoleWithLog("failed! Line %d: requested game version %s not matching selected game enegine version in command \"%s\". \n",cmd.m_line,ver_str,cmd.m_raw);
                     LogFile::SetIndent(-1);
@@ -2990,8 +3015,8 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             } // if(config.trees_rand)
 
 
-            // archive cleanup?
-            if(true)
+            // archive pruning
+            if(config.prune_archives)
             {
                 // make list of terrain archive (should be loaded in memory)
                 std::vector<SpellArchive*> terr_fs_list;
@@ -3004,17 +3029,19 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     terr_fs_list.push_back(fs_arch);
                 }
                 
-                // for each terrain
-                /*for(auto &terr_fs: terr_fs_list)
+                // for each terrain:
+                for(auto &terr_fs: terr_fs_list)
                 {                    
-                    // mark all but DTA as used
+                    // mark optional stuff
                     terr_fs->m_fs->SetUsed("*");
-                    terr_fs->m_fs->ClearUsed("*.DTA");
-                    terr_fs->m_fs->ClearUsed("START.DTA");
-                    terr_fs->m_fs->ClearUsed("CIEL.DTA");
-                    terr_fs->m_fs->ClearUsed("TARGET.DTA");
+                    terr_fs->m_fs->ClearUsed("GC??_???.DTA");
+                    terr_fs->m_fs->ClearUsed("PL???_??.DTA");
+                    terr_fs->m_fs->ClearUsed("DM??_???.DTA");
+                    terr_fs->m_fs->ClearUsed("CP?_????.DTA");
+                    terr_fs->m_fs->ClearUsed("RKA?_???.DTA");
+                    terr_fs->m_fs->ClearUsed("STA_*.DTA");                                     
 
-                    // for each possible map DTA:
+                    // for each possible map DTA mark used items
                     for(auto& name: arch->GetItemNames())
                     {
                         // possible map DTA files
@@ -3035,15 +3062,15 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                         }
                     }
 
-                    // remove unused stuff
+                    // remove stuff that was not found i maps
                     terr_fs->m_fs->RemoveUnused();
-                }*/
+                }
             }
 
 
         } // randomizers/swappers and stuff for common.fs
 
-        PrintConsole("done.\n");
+        PrintConsole("done (%s files).\n", arch->CountStr());
     } // for each archive   
 
      
@@ -3057,6 +3084,15 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
         auto org_path = arch->m_orig_path;
 
         PrintConsole(" - Saving archive %s ... ",arch_name);
+
+        // check archive limits
+        if(!config.force_write && config.check_limits && arch->Count() >= config.ver.fs_count_limit)
+        {
+            // too many files
+            PrintConsole("failed! Too many files (%d of %d) for detected game version.\n"
+                "You may try to use 'Mod->Prune archives' build option to remove unused content or use patched Spellcross with bigger limits.\n",arch->Count(),config.ver.fs_count_limit);
+            return(1);
+        }
         
         // check if target archive differs from newly built one
         bool must_write = config.force_write && !arch->isEmpty();
@@ -3111,7 +3147,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             return(1);
         }
 
-        PrintConsole("saved to \"%s\".\n",arch_path);
+        PrintConsole("%s files saved to \"%s\".\n",arch->CountStr(),arch_path);
     
     } // for each archive
 
