@@ -332,8 +332,23 @@ private:
     static int c_default_id;
 
 public:
+    
+    enum class Version : int {
+        AUTO = 0,
+        ORIG,
+        JONNYQ_V1
+    };
+    Version m_ver;
+    std::string m_ver_string;
+    int m_units_count;
+    int m_upgrades_count;
+    int m_ver_shift;
+    int m_research_total_size;
+    
+    
     std::filesystem::path m_path;
     bool is_loaded;
+    std::string m_last_error;
 
     std::vector<uint8_t> raw;
     std::vector<SpellSaveResearch> research;
@@ -348,7 +363,7 @@ public:
     SpellSaveBigMap();
     int Load(std::filesystem::path path, std::shared_ptr<FSarchive> common_fs);
     int Load(std::filesystem::path path, std::filesystem::path common_fs_path="");
-    int Save(std::filesystem::path path);
+    int Save(std::filesystem::path path, Version ver=Version::AUTO);
     int SortUnits(bool remove_gaps,bool separate,bool by_types,bool by_names);
     int SwapUnits(int id_a,int id_b);
     int ResetUnitName(int unit_id=-1,bool also_reinforces=false);

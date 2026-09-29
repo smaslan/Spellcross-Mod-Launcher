@@ -21,7 +21,7 @@
 
 FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& title, const wxPoint& pos, const wxSize& size, long style ) : wxFrame( parent, id, title, pos, size, style )
 {
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-09-04 19:26:41
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-09-29 19:36:06
 	this->SetSizeHints( wxDefaultSize, wxDefaultSize );
 	this->SetBackgroundColour( wxSystemSettings::GetColour( wxSYS_COLOUR_MENU ) );
 	
@@ -38,6 +38,20 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	wxMenuItem* mmSaveAs;
 	mmSaveAs = new wxMenuItem( mnufile, wxID_MM_SAVE_AS, wxString( _("Save savegame as") ) , wxEmptyString, wxITEM_NORMAL );
 	mnufile->Append( mmSaveAs );
+	
+	mnufile->AppendSeparator();
+	
+	wxMenuItem* mmSaveNewFmt;
+	mmSaveNewFmt = new wxMenuItem( mnufile, wxID_MM_SAVE_NEW_FMT, wxString( _("Save savegame in new format") ) , wxEmptyString, wxITEM_NORMAL );
+	mnufile->Append( mmSaveNewFmt );
+	
+	wxMenuItem* mmSaveAsNewFmt;
+	mmSaveAsNewFmt = new wxMenuItem( mnufile, wxID_MM_SAVE_AS_NEW_FMT, wxString( _("Save as in new format") ) , wxEmptyString, wxITEM_NORMAL );
+	mnufile->Append( mmSaveAsNewFmt );
+	
+	wxMenuItem* mmSaveAllNewFmt;
+	mmSaveAllNewFmt = new wxMenuItem( mnufile, wxID_MM_SAVE_ALL_NEW_FMT, wxString( _("Save all in new format") ) , wxEmptyString, wxITEM_NORMAL );
+	mnufile->Append( mmSaveAllNewFmt );
 	
 	mnufile->AppendSeparator();
 	
@@ -72,6 +86,13 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	
 	
 	bSizer43->Add( bSizer731, 0, wxEXPAND, 5 );
+	
+	m_staticText61 = new wxStaticText( this, wxID_ANY, _("Save version:"), wxDefaultPosition, wxDefaultSize, 0 );
+	m_staticText61->Wrap( -1 );
+	bSizer43->Add( m_staticText61, 0, wxRIGHT|wxLEFT, 5 );
+	
+	txtVer = new wxTextCtrl( this, wxID_TXT_VER, wxEmptyString, wxDefaultPosition, wxDefaultSize, wxTE_READONLY );
+	bSizer43->Add( txtVer, 0, wxEXPAND|wxBOTTOM|wxRIGHT|wxLEFT, 5 );
 	
 	pageCtrl = new wxNotebook( this, wxID_PAGE_CTRL, wxDefaultPosition, wxDefaultSize, 0 );
 	panResearch = new wxPanel( pageCtrl, wxID_PAN_RESEARCH, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
@@ -324,7 +345,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	panUnits->SetSizer( bSizer441 );
 	panUnits->Layout();
 	bSizer441->Fit( panUnits );
-	pageCtrl->AddPage( panUnits, _("Units"), false );
+	pageCtrl->AddPage( panUnits, _("Units"), true );
 	panCommanders = new wxPanel( pageCtrl, wxID_PAN_UNITS, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* bSizer4411;
 	bSizer4411 = new wxBoxSizer( wxHORIZONTAL );
@@ -406,7 +427,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	panCommanders->SetSizer( bSizer4411 );
 	panCommanders->Layout();
 	bSizer4411->Fit( panCommanders );
-	pageCtrl->AddPage( panCommanders, _("Commanders"), true );
+	pageCtrl->AddPage( panCommanders, _("Commanders"), false );
 	panHierarchy = new wxPanel( pageCtrl, wxID_PAN_HIERARCHY, wxDefaultPosition, wxDefaultSize, wxTAB_TRAVERSAL );
 	wxBoxSizer* szHierA;
 	szHierA = new wxBoxSizer( wxVERTICAL );
@@ -668,7 +689,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	this->Centre( wxBOTH );
 	
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-09-04 19:26:41
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.cpp' class 'FormSaveEdit' on 2026-09-29 19:36:06
 
 	// set icon
 	wxIcon appIcon;
@@ -678,6 +699,9 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 
 	mmSave->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
 	mmSaveAs->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
+	mmSaveNewFmt->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
+	mmSaveAsNewFmt->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
+	mmSaveAllNewFmt->SetBitmaps(LoadSVGiconsBundle("IDR_SAVE"));
 	mmOpen->SetBitmaps(LoadSVGiconsBundle("IDR_OPEN"));
 	mmExit->SetBitmaps(LoadSVGiconsBundle("IDR_EXIT"));
 
@@ -689,6 +713,8 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormSaveEdit::OnOpen,this,wxID_MM_OPEN);
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormSaveEdit::OnSave,this,wxID_MM_SAVE);
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormSaveEdit::OnSave,this,wxID_MM_SAVE_AS);
+	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormSaveEdit::OnSave,this,wxID_MM_SAVE_NEW_FMT);
+	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormSaveEdit::OnSave,this,wxID_MM_SAVE_AS_NEW_FMT);
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnOpen,this,wxID_BTN_LOAD_SPELL_SAVE);
 	
 
@@ -893,8 +919,10 @@ void FormSaveEdit::OnOpen(wxCommandEvent& event)
 	if(path.empty() || !std::filesystem::exists(path))
 		return;
 
+	txtVer->Clear();
+
 	m_bigmap.Load(path, m_common_fs_path);
-	UpdateList();	
+	UpdateList();
 
 	SetStatusText(path.wstring(),0);
 }
@@ -907,7 +935,7 @@ void FormSaveEdit::OnSave(wxCommandEvent& event)
 	
 	// save as?
 	std::filesystem::path path = m_bigmap.m_path;
-	if(event.GetId() == wxID_MM_SAVE_AS)
+	if(event.GetId() == wxID_MM_SAVE_AS || event.GetId() == wxID_MM_SAVE_AS_NEW_FMT)
 	{
 		std::wstring dir = path.parent_path().wstring();
 		std::wstring name = path.filename().wstring();
@@ -923,10 +951,14 @@ void FormSaveEdit::OnSave(wxCommandEvent& event)
 			return;
 	}
 
+	SpellSaveBigMap::Version ver = SpellSaveBigMap::Version::AUTO;
+	if(event.GetId() == wxID_MM_SAVE_NEW_FMT || event.GetId() == wxID_MM_SAVE_AS_NEW_FMT)
+		ver = SpellSaveBigMap::Version::JONNYQ_V1;
+
 	// try save
-	if(m_bigmap.Save(path))
+	if(m_bigmap.Save(path,ver))
 	{
-		wxMessageBox(string_format("Failed saving Spellcross savegame to \"%s\"!",wstring2string(path).c_str()),"Error",wxICON_ERROR);
+		wxMessageBox(string_format("Failed saving Spellcross savegame to \"%s\"!",path),"Error",wxICON_ERROR);
 		return;
 	}	
 }
@@ -935,6 +967,8 @@ void FormSaveEdit::OnSave(wxCommandEvent& event)
 void FormSaveEdit::UpdateList()
 {
 	m_territory_mouse = 0;
+
+	txtVer->SetValue(m_bigmap.m_ver_string);
 
 	listRes->Freeze();
 	auto sel_id = listRes->GetSelection();

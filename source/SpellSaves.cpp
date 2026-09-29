@@ -502,16 +502,39 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
         return(1);
     }
     LogFile::Write("done\n");
-
-    //int min_size = 8 + 47*200 + 35*142 + 2*90 + 48*66 + 14*44;
-    int min_size = 21165;
-    uint8_t *ptr = raw.data();
-    if(raw.size() < min_size)
+    
+    if(raw.size() == 21165)
     {
+        // original game engine
+        m_ver = Version::ORIG;
+        m_ver_string = "Original game format";
+        m_ver_shift = 0;
+        m_units_count = 90;
+        m_upgrades_count = 36;
+    }
+    else if(raw.size() == 29089)
+    {
+        // JonnyQ patch version with extended units and upgrades slots
+        m_ver = Version::JONNYQ_V1;
+        m_ver_string = "HonzaQ Patch format";
+        m_ver_shift = 7924;
+        m_units_count = 128;
+        m_upgrades_count = 72;        
+    }
+    else
+    {
+        // unknown or corrupted
+        m_last_error = string_format("Decompresed big_map.sav has unknown size of %d bytes!",raw.size());
         LogFile::Write("- error: save game file has wrong size %d instead of 21165\n",raw.size());
         LogFile::SetIndent(-1);
         return(1);
     }
+    int max_upg_count = 72;
+    int upg_size = 52 + m_units_count;
+    int max_upg_size = 52 + 128;
+
+
+    uint8_t *ptr = raw.data();
     uint8_t *pend = ptr + raw.size();
 
     // research entries count (max 200)
@@ -553,14 +576,17 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
 
     // load upgrade entries
     LogFile::Write("- loading upgread items ... ");
+    upgrade.resize(max_upg_count);
     ptr = &raw[0x24C0];
-    for(int k = 0; k < 36; k++)
+    for(int k = 0; k < m_upgrades_count; k++)
     {                        
+        auto& upg = upgrade[k];
+
         // read name, convert to unicode
         auto name_len = strnlen((const char*)&ptr[0],30);
         if(!name_len)
             break;
-        if(std::all_of(&ptr[30],&ptr[141],[](uint8_t i) { return i==0; }))
+        if(std::all_of(&ptr[30],&ptr[upg_size-1],[](uint8_t i) { return i==0; }))
             break;
         if(ptr[0 + name_len])
         {
@@ -568,10 +594,9 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
             LogFile::SetIndent(-1);
             return(1);        
         }
-
-        auto& upg = upgrade.emplace_back();
-        upg.raw.resize(142);
-        memcpy(upg.raw.data(),ptr,142);
+                
+        upg.raw.assign(max_upg_size,0);
+        memcpy(upg.raw.data(),ptr,upg_size);
 
         upg.name = char2wstringCP895(trim_whites(get_save_str(&ptr[0],pend,30),true).c_str());
 
@@ -600,14 +625,17 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
         for(int m = 0; m < types_count; m++)
             upg.suitable_types.push_back(ptr[52 + m]);
 
-        ptr += 142;
+        ptr += upg_size;
     }
     LogFile::Write("done\n");
+       
 
     // unit available flags (this is independent of research flags for whatever reason)
     LogFile::Write("- loading units availability list ... ");
-    ptr = &raw[0x38B8];
-    for(int k = 0; k < 90; k++)
+    int research_size = 8 + 200*47;
+    int upg_size_offset = research_size + m_upgrades_count*(52 + m_units_count);
+    ptr = &raw[upg_size_offset];
+    for(int k = 0; k < m_units_count; k++)
     {
         int flag = *(int16_t*)ptr;
         for(auto &res: research)
@@ -628,7 +656,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
 
     // list of player units
     LogFile::Write("- loading player units ... ");
-    ptr = &raw[0x396C];
+    ptr = &raw[m_ver_shift + 0x396C];
     for(int k = 0; k < 48; k++)
     {        
         auto& unit = units.emplace_back();
@@ -673,7 +701,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
     // list of player commanders
     LogFile::Write("- loading player commanders ... ");
     std::vector<std::wstring> used_com_names;
-    ptr = &raw[0x45CC];
+    ptr = &raw[m_ver_shift + 0x45CC];
     for(int k = 0; k < 14; k++)
     {
         auto& com = commanders.emplace_back();
@@ -735,7 +763,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
     LogFile::Write("done\n");
 
 
-    ptr = &raw[0x4834];
+    ptr = &raw[m_ver_shift + 0x4834];
     
     // game level (should be 1 - 10)
     bigmap.level = ptr[0];    
@@ -866,49 +894,49 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
 
     LogFile::Write("- loading general level data ... ");
     // level music
-    level.level_music = get_save_str(&raw[0x4838],pend,13);
+    level.level_music = get_save_str(&raw[m_ver_shift + 0x4838],pend,13);
     
     // counter attack normal units: AttackUnits()
-    level.attack_units = get_save_array_i16(&raw[0x4845],pend);
+    level.attack_units = get_save_array_i16(&raw[m_ver_shift + 0x4845],pend);
     
     // counter attack special units: AttackSpecialUnits()
-    level.attack_spec_units = get_save_array_i16(&raw[0x486F],pend);
+    level.attack_spec_units = get_save_array_i16(&raw[m_ver_shift + 0x486F],pend);
 
     // counter attack flags: AttackFlags()
-    level.attack_flags_non_spec = *(int16_t*)&raw[0x4899 + 0];
-    level.attack_flags_total = *(int16_t*)&raw[0x4899 + 2];
-    level.attack_flags_xp_level = *(int16_t*)&raw[0x4899 + 4];
-    level.attack_flags_xp_level2 = *(int16_t*)&raw[0x4899 + 6];
-    level.attack_flags_xp_f_attack_a = *(int16_t*)&raw[0x4899 + 8];
-    level.attack_flags_xp_f_attack_b = *(int16_t*)&raw[0x4899 + 10];
+    level.attack_flags_non_spec = *(int16_t*)&raw[m_ver_shift + 0x4899 + 0];
+    level.attack_flags_total = *(int16_t*)&raw[m_ver_shift + 0x4899 + 2];
+    level.attack_flags_xp_level = *(int16_t*)&raw[m_ver_shift + 0x4899 + 4];
+    level.attack_flags_xp_level2 = *(int16_t*)&raw[m_ver_shift + 0x4899 + 6];
+    level.attack_flags_xp_f_attack_a = *(int16_t*)&raw[m_ver_shift + 0x4899 + 8];
+    level.attack_flags_xp_f_attack_b = *(int16_t*)&raw[m_ver_shift + 0x4899 + 10];
 
     // round
-    level.round = *(int16_t*)&raw[0x4835];
+    level.round = *(int16_t*)&raw[m_ver_shift + 0x4835];
     // player money
-    level.money = *(int32_t*)&raw[0x50F9];
+    level.money = *(int32_t*)&raw[m_ver_shift + 0x50F9];
     // money to research
-    level.money_research = *(int32_t*)&raw[0x50FD];
+    level.money_research = *(int32_t*)&raw[m_ver_shift + 0x50FD];
 
-    level.xp = *(int32_t*)&raw[0x50EF];
-    level.rank = *(int8_t*)&raw[0x50ED];
+    level.xp = *(int32_t*)&raw[m_ver_shift + 0x50EF];
+    level.rank = *(int8_t*)&raw[m_ver_shift + 0x50ED];
 
-    level.stat_kill_light_tot = *(int32_t*)&raw[0x5101];
-    level.stat_kill_armor_tot = *(int32_t*)&raw[0x5105];
-    level.stat_kill_air_tot = *(int32_t*)&raw[0x5109];
+    level.stat_kill_light_tot = *(int32_t*)&raw[m_ver_shift + 0x5101];
+    level.stat_kill_armor_tot = *(int32_t*)&raw[m_ver_shift + 0x5105];
+    level.stat_kill_air_tot = *(int32_t*)&raw[m_ver_shift + 0x5109];
 
-    level.stat_loss_light_tot = *(int32_t*)&raw[0x510D];
-    level.stat_loss_armor_tot = *(int32_t*)&raw[0x5111];
-    level.stat_loss_air_tot = *(int32_t*)&raw[0x5115];
-    level.stat_loss_com_tot = *(int32_t*)&raw[0x5119];
+    level.stat_loss_light_tot = *(int32_t*)&raw[m_ver_shift + 0x510D];
+    level.stat_loss_armor_tot = *(int32_t*)&raw[m_ver_shift + 0x5111];
+    level.stat_loss_air_tot = *(int32_t*)&raw[m_ver_shift + 0x5115];
+    level.stat_loss_com_tot = *(int32_t*)&raw[m_ver_shift + 0x5119];
 
-    level.stat_kill_light = *(int32_t*)&raw[0x511D];
-    level.stat_kill_armor = *(int32_t*)&raw[0x5121];
-    level.stat_kill_air = *(int32_t*)&raw[0x5125];
+    level.stat_kill_light = *(int32_t*)&raw[m_ver_shift + 0x511D];
+    level.stat_kill_armor = *(int32_t*)&raw[m_ver_shift + 0x5121];
+    level.stat_kill_air = *(int32_t*)&raw[m_ver_shift + 0x5125];
 
-    level.stat_loss_light = *(int32_t*)&raw[0x5129];
-    level.stat_loss_armor = *(int32_t*)&raw[0x512D];
-    level.stat_loss_air = *(int32_t*)&raw[0x5131];
-    level.stat_loss_com = *(int32_t*)&raw[0x5135];
+    level.stat_loss_light = *(int32_t*)&raw[m_ver_shift + 0x5129];
+    level.stat_loss_armor = *(int32_t*)&raw[m_ver_shift + 0x512D];
+    level.stat_loss_air = *(int32_t*)&raw[m_ver_shift + 0x5131];
+    level.stat_loss_com = *(int32_t*)&raw[m_ver_shift + 0x5135];
 
     level.difficulty = *(int32_t*)&raw[0x52A9];
 
@@ -916,7 +944,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
 
     LogFile::Write("- loading territory records:\n");
     LogFile::SetIndent(+1);
-    ptr = &raw[0x48E3];
+    ptr = &raw[m_ver_shift + 0x48E3];
     for(int k = 0; k < bigmap.terr_count; k++)
     {
         LogFile::Write("- loading territory %d ... ",k);
@@ -977,7 +1005,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
     // load event list
     LogFile::Write("- loading event records:\n");
     LogFile::SetIndent(+1);
-    ptr = &raw[0x4FAB];
+    ptr = &raw[m_ver_shift + 0x4FAB];
     for(int k = 0; k < 40; k++)
     {
         SpellSaveEvents evt;
@@ -994,19 +1022,48 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
 }
 
 // save big_map.sav session
-int SpellSaveBigMap::Save(std::filesystem::path path)
+int SpellSaveBigMap::Save(std::filesystem::path path, Version ver)
 {    
+    if(ver == Version::AUTO)
+        ver = m_ver;
+    if(ver == Version::JONNYQ_V1 && m_ver == Version::ORIG)
+    {
+        // upconvert
+        
+        // expand raw data to new size
+        int research_size = 8 + 200*47;
+        int old_upg_size = m_upgrades_count*(52 + m_units_count) + 2*m_units_count;
+        int new_upg_size = 72*(52 + 128) + 2*128;                
+        raw.erase(raw.begin() + research_size, raw.begin() + research_size + old_upg_size);
+        raw.insert(raw.begin() + research_size,new_upg_size,0);
+        
+        // setup new params
+        m_ver = Version::JONNYQ_V1;
+        m_ver_string = "HonzaQ Patch format";
+        m_ver_shift = 7924;
+        m_units_count = 128;
+        m_upgrades_count = 72;
+    }
+    else if(ver == Version::ORIG && m_ver == Version::JONNYQ_V1)
+    {
+        // downconvert
+        m_last_error = string_format("Covnersion from %s to original format not supported!",m_ver_string);
+        return(1);
+    }
+    
+    auto ptr = &raw[0x0000];
+    auto pend = raw.data() + raw.size();
+
     // store research stuff
     if(research.size() > 200)
         return(1);    
-    auto ptr = &raw[0x0000];
-    auto pend = raw.data() + raw.size();
+        
     // items count
     *(uint32_t*)&ptr[0] = research.size();
     ptr += 8;
     // clear records
     memset(ptr,0x00,200*47);
-
+    // store items
     for(auto &res: research)
     {
         // start with raw original data
@@ -1033,13 +1090,19 @@ int SpellSaveBigMap::Save(std::filesystem::path path)
         ptr += 47;
     }
 
-    // load upgrade entries
+    // put upgrade entries
+    int upg_size = 52 + m_units_count;
     ptr = &raw[0x24C0];
-    for(auto &upg: upgrade)
+    for(int k = 0; k < m_upgrades_count; k++)
     {
-        // start with raw original data
-        memcpy(ptr,upg.raw.data(),upg.raw.size());
+        if(k > upgrade.size())
+            return(1);
+        auto &upg = upgrade[k];
 
+        // start with raw original data
+        memset(ptr, 0, upg_size);
+        memcpy(ptr, upg.raw.data(), std::min<int>(upg_size,upg.raw.size()));
+        
         // put name
         memset(&ptr[0],0,30);
         if(upg.name.length() > 29)
@@ -1063,22 +1126,22 @@ int SpellSaveBigMap::Save(std::filesystem::path path)
         *(int16_t*)&ptr[42] = upg.type;
 
         // list of suitable unit ids
-        if(upg.suitable_types.size() > 90)
+        if(upg.suitable_types.size() > m_units_count)
             return(1);
         *(int16_t*)&ptr[50] = upg.suitable_types.size();
         for(int m = 0; m < upg.suitable_types.size(); m++)
         {
-            if(upg.suitable_types[m] > 90 || upg.suitable_types[m] < 0)
+            if(upg.suitable_types[m] > m_units_count || upg.suitable_types[m] < 0)
                 return(1);
             ptr[52 + m] = upg.suitable_types[m];
         }
 
-        ptr += 142;
+        ptr += upg_size;
     }
 
     // unit available flags (this is independent of research flags for whatever reason)
-    ptr = &raw[0x38B8];
-    for(int k = 0; k < 90; k++)
+    //ptr = &raw[0x38B8];
+    for(int k = 0; k < m_units_count; k++)
     {        
         for(auto& res: research)
         {
@@ -1096,7 +1159,7 @@ int SpellSaveBigMap::Save(std::filesystem::path path)
     
     
     // list of player units
-    ptr = &raw[0x396C];
+    ptr = &raw[m_ver_shift + 0x396C];
     for(auto &unit: units)
     {
         if(unit.is_empty())
@@ -1134,7 +1197,7 @@ int SpellSaveBigMap::Save(std::filesystem::path path)
     }
 
     // list of player commanders
-    ptr = &raw[0x45CC];
+    ptr = &raw[m_ver_shift + 0x45CC];
     for(auto &com: commanders)
     {
         if(com.is_empty())
@@ -1165,7 +1228,7 @@ int SpellSaveBigMap::Save(std::filesystem::path path)
     }
 
     // store territories
-    ptr = &raw[0x48E3];
+    ptr = &raw[m_ver_shift + 0x48E3];
     for(int k = 0; k < bigmap.terr_count; k++)
     {
         auto& terr = bigmap.terr[k];
@@ -1207,7 +1270,7 @@ int SpellSaveBigMap::Save(std::filesystem::path path)
     }
 
     // save events
-    ptr = &raw[0x4FAB];
+    ptr = &raw[m_ver_shift + 0x4FAB];
     for(auto &evt: events)
     {
         *(int32_t*)&ptr[0] = evt.time;
@@ -1217,50 +1280,50 @@ int SpellSaveBigMap::Save(std::filesystem::path path)
 
 
     // game level (should be 1 - 10)
-    raw[0x4834] = bigmap.level;
+    raw[m_ver_shift + 0x4834] = bigmap.level;
     // last territory index?
-    raw[0x4837] = bigmap.final_terr;
+    raw[m_ver_shift + 0x4837] = bigmap.final_terr;
 
 
     // level music
-    store_save_str(&raw[0x4838],pend,13,level.level_music);
+    store_save_str(&raw[m_ver_shift + 0x4838],pend,13,level.level_music);
     
     // counter attack normal units: AttackUnits()
-    store_save_array_i16(&raw[0x4845],pend,level.attack_units,20);
+    store_save_array_i16(&raw[m_ver_shift + 0x4845],pend,level.attack_units,20);
 
     // counter attack special units: AttackSpecialUnits()
-    store_save_array_i16(&raw[0x486F],pend,level.attack_spec_units,20);
+    store_save_array_i16(&raw[m_ver_shift + 0x486F],pend,level.attack_spec_units,20);
 
     // counter attack flags: AttackFlags()
-    *(int16_t*)&raw[0x4899 + 0] = level.attack_flags_non_spec;
-    *(int16_t*)&raw[0x4899 + 2] = level.attack_flags_total;
-    *(int16_t*)&raw[0x4899 + 4] = level.attack_flags_xp_level;
-    *(int16_t*)&raw[0x4899 + 6] = level.attack_flags_xp_level2;
-    *(int16_t*)&raw[0x4899 + 8] = level.attack_flags_xp_f_attack_a;
-    *(int16_t*)&raw[0x4899 + 10] = level.attack_flags_xp_f_attack_b;
+    *(int16_t*)&raw[m_ver_shift + 0x4899 + 0] = level.attack_flags_non_spec;
+    *(int16_t*)&raw[m_ver_shift + 0x4899 + 2] = level.attack_flags_total;
+    *(int16_t*)&raw[m_ver_shift + 0x4899 + 4] = level.attack_flags_xp_level;
+    *(int16_t*)&raw[m_ver_shift + 0x4899 + 6] = level.attack_flags_xp_level2;
+    *(int16_t*)&raw[m_ver_shift + 0x4899 + 8] = level.attack_flags_xp_f_attack_a;
+    *(int16_t*)&raw[m_ver_shift + 0x4899 + 10] = level.attack_flags_xp_f_attack_b;
 
     // level stuff
-    *(int16_t*)&raw[0x4835] = level.round;
-    *(int32_t*)&raw[0x50F9] = level.money;
-    *(int32_t*)&raw[0x50FD] = level.money_research;
-    *(int32_t*)&raw[0x50EF] = level.xp;
-    *(int8_t*)&raw[0x50ED] = level.rank;
-    *(int32_t*)&raw[0x5101] = level.stat_kill_light_tot;
-    *(int32_t*)&raw[0x5105] = level.stat_kill_armor_tot;
-    *(int32_t*)&raw[0x5109] = level.stat_kill_air_tot;
-    *(int32_t*)&raw[0x510D] = level.stat_loss_light_tot;
-    *(int32_t*)&raw[0x5111] = level.stat_loss_armor_tot;
-    *(int32_t*)&raw[0x5115] = level.stat_loss_air_tot;
-    *(int32_t*)&raw[0x5119] = level.stat_loss_com_tot;
-    *(int32_t*)&raw[0x511D] = level.stat_kill_light;
-    *(int32_t*)&raw[0x5121] = level.stat_kill_armor;
-    *(int32_t*)&raw[0x5125] = level.stat_kill_air;
-    *(int32_t*)&raw[0x5129] = level.stat_loss_light;
-    *(int32_t*)&raw[0x512D] = level.stat_loss_armor;
-    *(int32_t*)&raw[0x5131] = level.stat_loss_air;
-    *(int32_t*)&raw[0x5135] = level.stat_loss_com;
+    *(int16_t*)&raw[m_ver_shift + 0x4835] = level.round;
+    *(int32_t*)&raw[m_ver_shift + 0x50F9] = level.money;
+    *(int32_t*)&raw[m_ver_shift + 0x50FD] = level.money_research;
+    *(int32_t*)&raw[m_ver_shift + 0x50EF] = level.xp;
+    *(int8_t*)&raw[m_ver_shift + 0x50ED] = level.rank;
+    *(int32_t*)&raw[m_ver_shift + 0x5101] = level.stat_kill_light_tot;
+    *(int32_t*)&raw[m_ver_shift + 0x5105] = level.stat_kill_armor_tot;
+    *(int32_t*)&raw[m_ver_shift + 0x5109] = level.stat_kill_air_tot;
+    *(int32_t*)&raw[m_ver_shift + 0x510D] = level.stat_loss_light_tot;
+    *(int32_t*)&raw[m_ver_shift + 0x5111] = level.stat_loss_armor_tot;
+    *(int32_t*)&raw[m_ver_shift + 0x5115] = level.stat_loss_air_tot;
+    *(int32_t*)&raw[m_ver_shift + 0x5119] = level.stat_loss_com_tot;
+    *(int32_t*)&raw[m_ver_shift + 0x511D] = level.stat_kill_light;
+    *(int32_t*)&raw[m_ver_shift + 0x5121] = level.stat_kill_armor;
+    *(int32_t*)&raw[m_ver_shift + 0x5125] = level.stat_kill_air;
+    *(int32_t*)&raw[m_ver_shift + 0x5129] = level.stat_loss_light;
+    *(int32_t*)&raw[m_ver_shift + 0x512D] = level.stat_loss_armor;
+    *(int32_t*)&raw[m_ver_shift + 0x5131] = level.stat_loss_air;
+    *(int32_t*)&raw[m_ver_shift + 0x5135] = level.stat_loss_com;
 
-    *(int32_t*)&raw[0x52A9] = level.difficulty;
+    *(int32_t*)&raw[m_ver_shift + 0x52A9] = level.difficulty;
 
     // try encode
     std::vector<uint8_t> sav;

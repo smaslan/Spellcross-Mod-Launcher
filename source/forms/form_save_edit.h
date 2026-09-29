@@ -7,7 +7,7 @@
 
 #pragma once
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-09-04 19:26:41
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-09-29 19:36:06
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -40,7 +40,7 @@
 #include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-09-04 19:26:41
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-09-29 19:36:06
 #include <wx/tglbtn.h>
 
 #include <filesystem>
@@ -147,17 +147,21 @@ protected:
 	const int wxID_CH_HIERARCH_COM3C_0 = 7300;
 	const int wxID_CH_HIERARCH_COM3U_0 = 7350;
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-09-04 19:26:41
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-09-29 19:36:06
 	enum
 	{
 		wxID_FORM_SAVE_EDIT = 6000,
 		wxID_MM_OPEN,
 		wxID_MM_SAVE,
 		wxID_MM_SAVE_AS,
+		wxID_MM_SAVE_NEW_FMT,
+		wxID_MM_SAVE_AS_NEW_FMT,
+		wxID_MM_SAVE_ALL_NEW_FMT,
 		wxID_MM_EXIT,
 		wxID_SBAR,
 		wxID_CH_SAVES,
 		wxID_BTN_LOAD_SPELL_SAVE,
+		wxID_TXT_VER,
 		wxID_PAGE_CTRL,
 		wxID_PAN_RESEARCH,
 		wxID_LBOX_RES,
@@ -199,6 +203,8 @@ protected:
 	wxStaticText* m_staticText38;
 	wxChoice* chSaves;
 	wxBitmapButton* btnLoadSpellSave;
+	wxStaticText* m_staticText61;
+	wxTextCtrl* txtVer;
 	wxNotebook* pageCtrl;
 	wxPanel* panResearch;
 	wxBoxSizer* szrUnitsC;
@@ -264,7 +270,7 @@ protected:
 	wxPropertyGrid* gridLevelProp;
 	wxButton* btnSyncLevel;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-09-04 19:26:41
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormSaveEdit' on 2026-09-29 19:36:06
 
 public:
 
