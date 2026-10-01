@@ -20,7 +20,7 @@
 #include "forms/form_save_edit.h"
 #include "forms/form_save_backup.h"*/
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-28 13:35:16
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-01 19:37:35
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -53,7 +53,7 @@
 #include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-28 13:35:16
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-01 19:37:35
 
 
 // app entry point class
@@ -209,7 +209,7 @@ private:
 	const std::string str_choice_none=">>> None found <<<";
 	const std::string str_choice_no_select=">>> Empty path <<<";
 	const std::string str_mod_state_ini_none="mod_state.ini";
-	const std::string str_ver_label = "V1.46, build: " __DATE__;
+	const std::string str_ver_label = "V1.47, build: " __DATE__;
 	
 
 	FormEdit *form_edit;
@@ -222,7 +222,7 @@ protected:
 	
 	
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-28 13:35:16
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-01 19:37:35
 	enum
 	{
 		wxID_FORM_MAIN = 6000,
@@ -352,7 +352,7 @@ protected:
 	wxButton* btnRestoreWDmod;
 	wxButton* btnRunMod;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-09-28 13:35:16
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-01 19:37:35
 
 
 public:

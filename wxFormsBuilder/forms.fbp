@@ -31,7 +31,7 @@
     <property name="relative_path">1</property>
     <property name="use_microsoft_bom">0</property>
     <property name="use_native_eol">0</property>
-    <object class="Frame" expanded="false">
+    <object class="Frame" expanded="true">
       <property name="aui_managed">0</property>
       <property name="aui_manager_style">wxAUI_MGR_DEFAULT</property>
       <property name="bg">wxSYS_COLOUR_MENU</property>
@@ -60,7 +60,7 @@
       <property name="window_name"></property>
       <property name="window_style">wxTAB_TRAVERSAL</property>
       <property name="xrc_skip_sizer">1</property>
-      <object class="wxMenuBar" expanded="false">
+      <object class="wxMenuBar" expanded="true">
         <property name="bg"></property>
         <property name="context_help"></property>
         <property name="context_menu">1</property>
@@ -349,7 +349,7 @@
             <property name="bitmap"></property>
             <property name="checked">1</property>
             <property name="enabled">1</property>
-            <property name="help"></property>
+            <property name="help">Check selected game EXE version archive size limits on build/run.</property>
             <property name="id">wxID_MM_MOD_OPT_CHECK_ARCH</property>
             <property name="kind">wxITEM_CHECK</property>
             <property name="label">Check archive limits</property>
@@ -362,7 +362,7 @@
             <property name="bitmap"></property>
             <property name="checked">0</property>
             <property name="enabled">1</property>
-            <property name="help"></property>
+            <property name="help">Tries to remove FS archives content that is not used to fit selected game engine limits.</property>
             <property name="id">wxID_MM_MOD_OPT_PRUNE_ARCH</property>
             <property name="kind">wxITEM_CHECK</property>
             <property name="label">Prune archives</property>
@@ -415,7 +415,7 @@
             <property name="unchecked_bitmap"></property>
           </object>
         </object>
-        <object class="wxMenu" expanded="false">
+        <object class="wxMenu" expanded="true">
           <property name="label">Savegame</property>
           <property name="name">mmSave</property>
           <property name="permission">protected</property>
@@ -573,7 +573,7 @@
             <property name="bitmap"></property>
             <property name="checked">0</property>
             <property name="enabled">1</property>
-            <property name="help"></property>
+            <property name="help">Enable auto checking of save games consistency with COMMON.FS and selected game EXE version.</property>
             <property name="id">wxID_MM_AUTO_CHECK_SAVE</property>
             <property name="kind">wxITEM_CHECK</property>
             <property name="label">Auto check saves consistency</property>
