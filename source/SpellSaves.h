@@ -7,6 +7,7 @@
 #include <memory>
 #include "fs_archive.h"
 #include "spell_font.h"
+#include "SpellLaunch.h"
 
 class SpellSaveResearch{
 public:
@@ -333,12 +334,7 @@ private:
 
 public:
     
-    enum class Version : int {
-        AUTO = 0,
-        ORIG,
-        HONZAQ_V1
-    };
-    Version m_ver;
+    SpellLaunch::SaveFormat m_ver;
     std::string m_ver_string;
     int m_units_count;
     int m_upgrades_count;
@@ -363,7 +359,7 @@ public:
     SpellSaveBigMap();
     int Load(std::filesystem::path path, std::shared_ptr<FSarchive> common_fs);
     int Load(std::filesystem::path path, std::filesystem::path common_fs_path="");
-    int Save(std::filesystem::path path, Version ver=Version::AUTO);
+    int Save(std::filesystem::path path,SpellLaunch::SaveFormat ver=SpellLaunch::SaveFormat::AUTO);
     int SortUnits(bool remove_gaps,bool separate,bool by_types,bool by_names);
     int SwapUnits(int id_a,int id_b);
     int ResetUnitName(int unit_id=-1,bool also_reinforces=false);
@@ -414,6 +410,6 @@ public:
     static int LoadSave(std::filesystem::path dir,Save &save,bool allow_empty=true);
     static int LoadSaves(std::filesystem::path dir, Saves &saves,bool skip_missing=true);
     static bool CheckSaves(std::filesystem::path dir);
-    static int FixSaves(Saves& saves, std::filesystem::path common_fs_path, std::string& report, bool check_only=true);
+    static int FixSaves(Saves& saves, std::filesystem::path common_fs_path,SpellLaunch::GameVersion& ver, std::string& report, bool check_only=true);
 };
 

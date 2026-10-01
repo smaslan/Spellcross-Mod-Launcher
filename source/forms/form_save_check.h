@@ -65,6 +65,7 @@ private:
 	
 	std::filesystem::path m_common_fs;
 	std::filesystem::path m_saves_dir;
+	SpellLaunch::GameVersion m_game_ver;
 	SpellSave::Saves m_saves;
 
 protected:
@@ -103,6 +104,7 @@ public:
 		std::filesystem::path saves_dir;
 		std::vector<std::string> save_names;
 		int result;
+		SpellLaunch::GameVersion game_ver;
 	};
 
 	FormSaveCheck(wxWindow* parent,Params &params,wxWindowID id = wxID_FORM_SAVE_CHECK,const wxString& title = _("Checking save games"),const wxPoint& pos = wxDefaultPosition,const wxSize& size = wxSize(981,665),long style = wxCAPTION|wxCLOSE_BOX|wxDEFAULT_DIALOG_STYLE|wxSTAY_ON_TOP|wxRESIZE_BORDER);

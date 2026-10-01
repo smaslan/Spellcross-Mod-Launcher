@@ -1092,7 +1092,7 @@ void FormMain::OnInstallGame(wxCommandEvent& event)
 		return;
 
 	// prompt patch?
-	wxMessageDialog dial(this,string_format("INSTALLING SPELLCROS\n\nDetected potentially faulty or patchable version of %s.\n\nTry patch it?",spell_exe),"Installing Spellcross game ...",wxYES_NO | wxICON_QUESTION);
+	wxMessageDialog dial(this,string_format("INSTALLING SPELLCROS\n\nDetected potentially patchable version of %s.\n\nTry patch it?",spell_exe),"Installing Spellcross game ...",wxYES_NO | wxICON_QUESTION);
 	if(dial.ShowModal() != wxID_YES)
 		return;
 	OnPatchExe(event);
@@ -1738,6 +1738,7 @@ wxThread::ExitCode ProcTh::Entry()
 			FormSaveCheck::Params par;
 			par.saves_dir = GetSavesPath(was_mod, was_swap);
 			par.common_fs_path = GetCommonFsPath(was_mod, was_swap);
+			par.game_ver = m_config.ver;
 			CheckSaves(par);			
 
 			ConsoleStringCallback("done.\n");

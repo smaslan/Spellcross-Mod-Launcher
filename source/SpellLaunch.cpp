@@ -275,14 +275,14 @@ int SpellLaunch::MakeSpellWin32RunBat(std::filesystem::path spell_dir,std::files
 #include "patch/SpellEnginePatch.h"
 
 // known versions
-const std::vector<SpellLaunch::GameVersion> SpellLaunch::c_ver_list ={
-        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_100, "English (initial release)", 17968204797226898554ULL, 2600, 170, 90, 36},
-        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_101, "English (patch V1.01)", 260851315303727605ULL, 2600, 170, 90, 36},
-        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_CRACK, "English (unknown no-cd patch)", 4795372327937121801ULL, 2600, 170, 90, 36},
-        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_HONZAQ_10, "English (HonzaQ patch V1.0)", 11652744635764266822ULL, 4096, 600, 128, 72},
-        {SpellLaunch::EngineVersion::CZE, SpellLaunch::ExeVersion::CZ_100, "Czech (initial release)", 5049612772850811613ULL, 2600, 170, 90, 36},
-        {SpellLaunch::EngineVersion::CZE, SpellLaunch::ExeVersion::CZ_106, "Czech (patch V1.06)", 18295206956031377920ULL, 2600, 170, 90, 36},
-        {SpellLaunch::EngineVersion::CZE, SpellLaunch::ExeVersion::CZ_107, "Czech (patch V1.07)", 5526712442606542630ULL, 2600, 170, 90, 36}
+const std::vector<SpellLaunch::GameVersion> SpellLaunch::c_ver_list = {
+        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_100, SpellLaunch::SaveFormat::ORIG, "English (initial release)", 17968204797226898554ULL, 2600, 170, 90, 36},
+        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_101, SpellLaunch::SaveFormat::ORIG, "English (patch V1.01)", 260851315303727605ULL, 2600, 170, 90, 36},
+        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_CRACK, SpellLaunch::SaveFormat::ORIG, "English (unknown no-cd patch)", 4795372327937121801ULL, 2600, 170, 90, 36},
+        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_HONZAQ_V10, SpellLaunch::SaveFormat::HONZAQ, "English (HonzaQ patch V1.0)", 11652744635764266822ULL, 4096, 600, 128, 72},
+        {SpellLaunch::EngineVersion::CZE, SpellLaunch::ExeVersion::CZ_100, SpellLaunch::SaveFormat::ORIG, "Czech (initial release)", 5049612772850811613ULL, 2600, 170, 90, 36},
+        {SpellLaunch::EngineVersion::CZE, SpellLaunch::ExeVersion::CZ_106, SpellLaunch::SaveFormat::ORIG, "Czech (patch V1.06)", 18295206956031377920ULL, 2600, 170, 90, 36},
+        {SpellLaunch::EngineVersion::CZE, SpellLaunch::ExeVersion::CZ_107, SpellLaunch::SaveFormat::ORIG, "Czech (patch V1.07)", 5526712442606542630ULL, 2600, 170, 90, 36}
 };
 
 // get version info by its hash
@@ -309,7 +309,7 @@ int SpellLaunch::GetVer(ExeVersion exe_ver,GameVersion& ver)
 // try idnetify game engine version from EXE file
 int SpellLaunch::GameEngineVersion(std::filesystem::path spell_dir, std::string spell_exe, SpellLaunch::GameVersion &ver)
 {
-    ver = {EngineVersion::NONE, ExeVersion::UNKNOWN, "Unknown", 0};
+    ver = {EngineVersion::NONE, ExeVersion::UNKNOWN, SaveFormat::AUTO, "Unknown"};
 
     auto exe_path = spell_dir / spell_exe;
     if(!std::filesystem::exists(exe_path))
@@ -338,6 +338,8 @@ int SpellLaunch::GameEngineVersion(std::filesystem::path spell_dir, std::string 
         ver.version_name = "English (unknown version)";
         ver.fs_count_limit = 2600;
         ver.unit_types_limit = 90;
+        ver.fsu_count_limit = 165;
+        ver.upg_limit = 36;
         return(0);
     }
     key = "SPELLCROSS: Posledn";
@@ -348,6 +350,8 @@ int SpellLaunch::GameEngineVersion(std::filesystem::path spell_dir, std::string 
         ver.version_name = "Czech (unknown version)";
         ver.fs_count_limit = 2600;
         ver.unit_types_limit = 90;
+        ver.fsu_count_limit = 165;
+        ver.upg_limit = 36;
         return(0);
     }
 
@@ -380,7 +384,7 @@ int SpellLaunch::PatchExe(std::filesystem::path spell_dir,std::string spell_exe,
         GameVersion ver;
         GetVer(ExeVersion::EN_CRACK, ver);
         ver_list.push_back(ver);
-        GetVer(ExeVersion::EN_HONZAQ_10,ver);
+        GetVer(ExeVersion::EN_HONZAQ_V10,ver);
         ver_list.push_back(ver);
 
     }
@@ -391,7 +395,7 @@ int SpellLaunch::PatchExe(std::filesystem::path spell_dir,std::string spell_exe,
         GameVersion ver;
         GetVer(ExeVersion::EN_CRACK,ver);
         ver_list.push_back(ver);
-        GetVer(ExeVersion::EN_HONZAQ_10,ver);
+        GetVer(ExeVersion::EN_HONZAQ_V10,ver);
         ver_list.push_back(ver);
     }
     else if(ver.exe_version == ExeVersion::EN_CRACK)
@@ -399,7 +403,7 @@ int SpellLaunch::PatchExe(std::filesystem::path spell_dir,std::string spell_exe,
         // patch/crack version?
 
         GameVersion ver;
-        GetVer(ExeVersion::EN_HONZAQ_10,ver);
+        GetVer(ExeVersion::EN_HONZAQ_V10,ver);
         ver_list.push_back(ver);
     }
     else
@@ -487,7 +491,7 @@ int SpellLaunch::PatchExe(std::filesystem::path spell_dir,std::string spell_exe,
         }
     }
     
-    if(ver.exe_version >= ExeVersion::EN_CRACK && target_ver.exe_version == ExeVersion::EN_HONZAQ_10)
+    if(ver.exe_version >= ExeVersion::EN_CRACK && target_ver.exe_version == ExeVersion::EN_HONZAQ_V10)
     {
         // now apply HonzaQ patch
         std::string err;

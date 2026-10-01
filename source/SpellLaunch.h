@@ -20,34 +20,43 @@ public:
     static int MakeSpellDOSboxRunSetupBat(std::filesystem::path spell_dir,std::filesystem::path dosbox_path);
     static int MakeSpellWin32RunBat(std::filesystem::path spell_dir,std::filesystem::path spellcd_dir,std::string drive,std::string spell_exe);
 
-    enum class EngineVersion {
+    enum class EngineVersion : int {
         NONE,
         CZE,
         ENG
     };
 
-    enum class ExeVersion {
+    enum class ExeVersion : int {
         UNKNOWN,
         EN_100, // V1.00
         EN_101, // patch 1.01
         EN_CRACK, // some path or cracked?
-        EN_HONZAQ_10, // HonzaQ patch V1.0
+        EN_HONZAQ_V10, // HonzaQ patch V1.0
         CZ_100, // 1.00
         CZ_106, // CZ patch 1.06
         CZ_107 // CZ patch 1.07
+    };
+
+    enum class SaveFormat : int {
+        AUTO = 0,
+        ORIG,
+        HONZAQ
     };
 
     class GameVersion{
     public:
         EngineVersion engine_ver;
         ExeVersion exe_version;
-        std::string version_name;
+        SaveFormat save_format;
+        std::string version_name;        
         size_t exe_hash;
         int fs_count_limit;
         int fsu_count_limit;
         int unit_types_limit;
         int upg_limit;
     };
+
+    
 
     static int GetVer(size_t hash,GameVersion& ver);
     static int GetVer(ExeVersion exe_ver,GameVersion& ver);

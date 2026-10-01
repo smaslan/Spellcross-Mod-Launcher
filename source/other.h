@@ -169,7 +169,7 @@ std::vector<std::string> info_get_section(std::vector<std::string>& lines,std::s
 std::vector<std::string> str_split(std::string string,char separator,bool trim_white=false);
 std::vector<std::string> get_text_lines(std::vector<uint8_t> &data,bool trim_white=true,char separator='\n');
 std::vector<std::string> get_text_lines(std::string string,bool trim_white=true,char separator='\n');
-std::string merge_text_lines(std::vector<std::string>& lines,std::string separator="\r\n");
+std::string merge_text_lines(std::vector<std::string>& lines,std::string separator="\r\n",bool quotes=false);
 std::string merge_vector(std::vector<int>& vec,std::string separator);
 std::vector<std::string> regexp_get(std::string str,std::string regkey);
 

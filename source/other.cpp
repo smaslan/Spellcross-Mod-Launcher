@@ -884,12 +884,15 @@ std::vector<std::string> get_text_lines(std::string string, bool trim_white, cha
 }
 
 // merge string lines with separators
-std::string merge_text_lines(std::vector<std::string> &lines,std::string separator)
+std::string merge_text_lines(std::vector<std::string> &lines,std::string separator,bool quotes)
 {
     std::string str;
     for(int k = 0; k < lines.size(); k++)
     {
-        str += lines[k];
+        if(quotes)
+            str += "\"" + lines[k] + "\"";
+        else
+            str += lines[k];
         if(k < lines.size() - 1)
             str += separator;
     }

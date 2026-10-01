@@ -955,9 +955,9 @@ void FormSaveEdit::OnSave(wxCommandEvent& event)
 			return;
 	}
 
-	SpellSaveBigMap::Version ver = SpellSaveBigMap::Version::AUTO;
+	auto ver = SpellLaunch::SaveFormat::AUTO;
 	if(event.GetId() == wxID_MM_SAVE_NEW_FMT || event.GetId() == wxID_MM_SAVE_AS_NEW_FMT)
-		ver = SpellSaveBigMap::Version::HONZAQ_V1;
+		ver = SpellLaunch::SaveFormat::HONZAQ;
 
 	// try save
 	if(m_bigmap.Save(path,ver))
@@ -1000,7 +1000,7 @@ void FormSaveEdit::OnSaveAll(wxCommandEvent& event)
 	if(dlg.ShowModal() != wxID_YES)
 		return;
 
-	SpellSaveBigMap::Version ver = SpellSaveBigMap::Version::HONZAQ_V1;
+	auto ver = SpellLaunch::SaveFormat::HONZAQ;
 	for(auto &path: list)
 	{
 		if(m_bigmap.Load(path,m_common_fs_path))

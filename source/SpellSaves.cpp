@@ -1,4 +1,5 @@
 #include "SpellSaves.h"
+#include "SpellLaunch.h"
 #include "other.h"
 #include "LZ_spell.h"
 #include "fs_archive.h"
@@ -92,7 +93,7 @@ bool SpellSave::CheckSaves(std::filesystem::path dir)
 }
 
 // fix save games to be compatible with provided common.fs
-int SpellSave::FixSaves(Saves& saves,std::filesystem::path common_fs_path,std::string &report,bool check_only)
+int SpellSave::FixSaves(Saves& saves,std::filesystem::path common_fs_path, SpellLaunch::GameVersion &ver, std::string &report,bool check_only)
 {
     report.clear();
 
@@ -123,13 +124,31 @@ int SpellSave::FixSaves(Saves& saves,std::filesystem::path common_fs_path,std::s
         if(bm.Load(save.dir_path,common_fs))
         {
             report += string_format("%s:\n",save_name);
-            report += string_format(" - Failed loading big_map.sav\n");
+            report += string_format(" - Failed loading big_map.sav: %s\n",bm.m_last_error);
             save.is_consistent = false;
             return(1);
-        }             
+        }
+        // old save format
+        auto save_ver = bm.m_ver;
+
+        // save format check
+        std::string rep;
+        if(save_ver != ver.save_format && ver.save_format == SpellLaunch::SaveFormat::HONZAQ)
+        {
+            rep += string_format("BIG_MAP.SAVE format does not match to loaded EXE format (fixable)\n");
+        }
+        else if(save_ver != ver.save_format && ver.save_format == SpellLaunch::SaveFormat::ORIG)
+        {
+            rep += string_format("BIG_MAP.SAVE format does not match to loaded EXE format (not fixable!)\n");
+        }
+        if(do_fix && save_ver != ver.save_format && ver.save_format == SpellLaunch::SaveFormat::HONZAQ)
+        {
+            // try fix version
+            save_ver = SpellLaunch::SaveFormat::HONZAQ;
+            save.is_consistent = false;
+        }
 
         // check units
-        std::string rep;
         bm.FixUnits(rep,!do_fix);
         if(!rep.empty())
         {
@@ -150,7 +169,7 @@ int SpellSave::FixSaves(Saves& saves,std::filesystem::path common_fs_path,std::s
         if(do_fix && save.was_checked && !save.is_consistent)
         {
             // was fixed, save changes
-            if(bm.Save(bm.m_path))
+            if(bm.Save(bm.m_path, save_ver))
             {
                 report += string_format("%s:\n",save_name);
                 report += string_format(" - Failed saving big_map.sav\n");
@@ -514,7 +533,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
     if(raw.size() == 21165)
     {
         // original game engine
-        m_ver = Version::ORIG;
+        m_ver = SpellLaunch::SaveFormat::ORIG;
         m_ver_string = "Original game format";
         m_ver_shift = 0;
         m_units_count = 90;
@@ -523,7 +542,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
     else if(raw.size() == 29089)
     {
         // JonnyQ patch version with extended units and upgrades slots
-        m_ver = Version::HONZAQ_V1;
+        m_ver = SpellLaunch::SaveFormat::HONZAQ;
         m_ver_string = "HonzaQ Patch format";
         m_ver_shift = 7924;
         m_units_count = 128;
@@ -1036,13 +1055,13 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
 }
 
 // save big_map.sav session
-int SpellSaveBigMap::Save(std::filesystem::path path, Version ver)
+int SpellSaveBigMap::Save(std::filesystem::path path,SpellLaunch::SaveFormat ver)
 {    
     m_last_error.clear();
 
-    if(ver == Version::AUTO)
+    if(ver == SpellLaunch::SaveFormat::AUTO)
         ver = m_ver;
-    if(ver == Version::HONZAQ_V1 && m_ver == Version::ORIG)
+    if(ver == SpellLaunch::SaveFormat::HONZAQ && m_ver == SpellLaunch::SaveFormat::ORIG)
     {
         // upconvert
         
@@ -1054,13 +1073,13 @@ int SpellSaveBigMap::Save(std::filesystem::path path, Version ver)
         raw.insert(raw.begin() + research_size,new_upg_size,0);
         
         // setup new params
-        m_ver = Version::HONZAQ_V1;
+        m_ver = SpellLaunch::SaveFormat::HONZAQ;
         m_ver_string = "HonzaQ Patch format";
         m_ver_shift = 7924;
         m_units_count = 128;
         m_upgrades_count = 72;
     }
-    else if(ver == Version::ORIG && m_ver == Version::HONZAQ_V1)
+    else if(ver == SpellLaunch::SaveFormat::ORIG && m_ver == SpellLaunch::SaveFormat::HONZAQ)
     {
         // downconvert
         m_last_error = string_format("Covnersion from %s to original format not supported!",m_ver_string);
@@ -1597,9 +1616,7 @@ int SpellSaveBigMap::SyncUnits(int uid)
 // check all units with common.fs
 int SpellSaveBigMap::FixUnits(std::string& report,bool just_check)
 {
-    m_last_error.clear();
-
-    report.clear();
+    m_last_error.clear();      
     
     if(!m_jednotky_def.get())
     {

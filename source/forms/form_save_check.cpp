@@ -107,6 +107,7 @@ FormSaveCheck::FormSaveCheck(wxWindow* parent,Params& params,wxWindowID id,const
 	// initial check test
 	m_common_fs = params.common_fs_path;
 	m_saves_dir = params.saves_dir;
+	m_game_ver = params.game_ver;
 	params.result = UpdateCheck();
 
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveCheck::OnFixSavesClick,this,wxID_BTN_YES);
@@ -171,7 +172,7 @@ bool FormSaveCheck::UpdateCheck(bool do_fix)
 	lboxSaves->Thaw();
 
 	std::string report;
-	if(SpellSave::FixSaves(m_saves,m_common_fs,report,!do_fix))
+	if(SpellSave::FixSaves(m_saves, m_common_fs, m_game_ver, report,!do_fix))
 	{
 		// something wrong detected								
 		auto lines = get_text_lines(report,false);
