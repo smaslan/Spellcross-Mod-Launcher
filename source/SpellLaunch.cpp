@@ -270,6 +270,42 @@ int SpellLaunch::MakeSpellWin32RunBat(std::filesystem::path spell_dir,std::files
 
 
 
+
+
+#include "patch/SpellEnginePatch.h"
+
+// known versions
+const std::vector<SpellLaunch::GameVersion> SpellLaunch::c_ver_list ={
+        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_100, "English (initial release)", 17968204797226898554ULL, 2600, 170, 90, 36},
+        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_101, "English (patch V1.01)", 260851315303727605ULL, 2600, 170, 90, 36},
+        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_CRACK, "English (unknown no-cd patch)", 4795372327937121801ULL, 2600, 170, 90, 36},
+        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_HONZAQ_10, "English (HonzaQ patch V1.0)", 11652744635764266822ULL, 4096, 600, 128, 72},
+        {SpellLaunch::EngineVersion::CZE, SpellLaunch::ExeVersion::CZ_100, "Czech (initial release)", 5049612772850811613ULL, 2600, 170, 90, 36},
+        {SpellLaunch::EngineVersion::CZE, SpellLaunch::ExeVersion::CZ_106, "Czech (patch V1.06)", 18295206956031377920ULL, 2600, 170, 90, 36},
+        {SpellLaunch::EngineVersion::CZE, SpellLaunch::ExeVersion::CZ_107, "Czech (patch V1.07)", 5526712442606542630ULL, 2600, 170, 90, 36}
+};
+
+// get version info by its hash
+int SpellLaunch::GetVer(size_t hash,GameVersion &ver)
+{
+    auto vid = std::ranges::find_if(c_ver_list, [hash](const GameVersion &item){return(item.exe_hash == hash);});
+    if(vid == c_ver_list.end())
+        return(1);
+    ver = *vid;
+    return(0);
+}
+
+// get version info by its ExeVersion
+int SpellLaunch::GetVer(ExeVersion exe_ver,GameVersion& ver)
+{
+    auto vid = std::ranges::find_if(c_ver_list,[exe_ver](const GameVersion& item) {return(item.exe_version == exe_ver);});
+    if(vid == c_ver_list.end())
+        return(1);
+    ver = *vid;
+    return(0);
+}
+
+
 // try idnetify game engine version from EXE file
 int SpellLaunch::GameEngineVersion(std::filesystem::path spell_dir, std::string spell_exe, SpellLaunch::GameVersion &ver)
 {
@@ -288,22 +324,8 @@ int SpellLaunch::GameEngineVersion(std::filesystem::path spell_dir, std::string 
     std::string str(data.begin(),data.end());
     auto exe_hash = hash(str);
 
-    // try to match known versions
-    const std::vector<GameVersion> ver_list = {
-        {EngineVersion::ENG, ExeVersion::EN_100, "English (initial release)", 17968204797226898554, 2600},
-        {EngineVersion::ENG, ExeVersion::EN_101, "English (patch V1.01)", 260851315303727605, 2600},
-        {EngineVersion::ENG, ExeVersion::EN_CRACK, "English (unknown no-cd patch)", 4795372327937121801, 2600},
-        {EngineVersion::CZE, ExeVersion::CZ_100, "Czech (initial release)", 5049612772850811613, 2600},
-        {EngineVersion::CZE, ExeVersion::CZ_106, "Czech (patch V1.06)", 18295206956031377920, 2600},
-        {EngineVersion::CZE, ExeVersion::CZ_107, "Czech (patch V1.07)", 5526712442606542630, 2600}
-    };    
-    for(auto &item: ver_list)
-        if(item.exe_hash == exe_hash)
-        {
-            ver = item;
-            break;
-        }   
-    
+    // try identify
+    GetVer(exe_hash,ver);
     if(ver.engine_ver != EngineVersion::NONE)
         return(0);
 
@@ -315,6 +337,7 @@ int SpellLaunch::GameEngineVersion(std::filesystem::path spell_dir, std::string 
         ver.engine_ver = EngineVersion::ENG;
         ver.version_name = "English (unknown version)";
         ver.fs_count_limit = 2600;
+        ver.unit_types_limit = 90;
         return(0);
     }
     key = "SPELLCROSS: Posledn";
@@ -324,6 +347,7 @@ int SpellLaunch::GameEngineVersion(std::filesystem::path spell_dir, std::string 
         ver.engine_ver = EngineVersion::CZE;
         ver.version_name = "Czech (unknown version)";
         ver.fs_count_limit = 2600;
+        ver.unit_types_limit = 90;
         return(0);
     }
 
@@ -331,7 +355,7 @@ int SpellLaunch::GameEngineVersion(std::filesystem::path spell_dir, std::string 
 }
 
 // try patch spellcross exe
-int SpellLaunch::PatchExe(std::filesystem::path spell_dir,std::string spell_exe, bool check_only, std::string backup_name)
+int SpellLaunch::PatchExe(std::filesystem::path spell_dir,std::string spell_exe,std::vector<SpellLaunch::GameVersion>& ver_list, bool check_only, std::string backup_name)
 {
     m_last_error = "";
 
@@ -343,35 +367,100 @@ int SpellLaunch::PatchExe(std::filesystem::path spell_dir,std::string spell_exe,
         return(1);
     }
 
-    std::vector<std::pair<uint32_t,uint8_t>> patch;
+    GameVersion target_ver;
+    target_ver.engine_ver = EngineVersion::NONE;
+    if(!check_only && !ver_list.empty())
+        target_ver = ver_list[0];
+
     if(ver.exe_version == ExeVersion::EN_100)
     {
         // patch from EN V1.00
-        patch= {
-            {0x0A53C5, 0x90},
-            {0x0A53C6, 0x90},
-            {0x0D4BE0, 0xEB},
-            {0x0D4BF6, 0x90},
-            {0x0D4BF7, 0x90},
-            {0x0D5073, 0xEB},
-            {0x0D5089, 0x90},
-            {0x0D508A, 0x90},
-            {0x0F21BD, 0xB8},
-            {0x0F21BE, 0x07},
-            {0x0F21BF, 0x00},
-            {0x0F21C0, 0x00},
-            {0x0F21C1, 0x00},
-            {0x0F21C2, 0xC3}        
-        };
+        ver_list.clear();
+        
+        GameVersion ver;
+        GetVer(ExeVersion::EN_CRACK, ver);
+        ver_list.push_back(ver);
+        GetVer(ExeVersion::EN_HONZAQ_10,ver);
+        ver_list.push_back(ver);
+
     }
     else if(ver.exe_version == ExeVersion::EN_101)
     {
         // patch from EN V1.01
-        patch = {
+
+        GameVersion ver;
+        GetVer(ExeVersion::EN_CRACK,ver);
+        ver_list.push_back(ver);
+        GetVer(ExeVersion::EN_HONZAQ_10,ver);
+        ver_list.push_back(ver);
+    }
+    else if(ver.exe_version == ExeVersion::EN_CRACK)
+    {
+        // patch/crack version?
+
+        GameVersion ver;
+        GetVer(ExeVersion::EN_HONZAQ_10,ver);
+        ver_list.push_back(ver);
+    }
+    else
+    {
+        m_last_error = string_format("Patching EXE not supported for detected game version \"%s\".\nPatch is either not available or it is highest version already.",ver.version_name);
+        return(1);
+    }
+    if(check_only)
+        return(0);
+
+    // select target
+    if(target_ver.engine_ver == EngineVersion::NONE && ver_list.empty())
+    {
+        m_last_error = "No target version specified and no available options for this EXE version!";
+        return(1);
+    }
+    if(target_ver.engine_ver == EngineVersion::NONE)
+    {
+        // get last option by default
+        target_ver = ver_list[ver_list.size()-1];
+    }
+
+
+    // load original EXE
+    auto exe_path = spell_dir / spell_exe;
+    if(!std::filesystem::exists(exe_path))
+    {
+        m_last_error = string_format("Patching SPELCROS.EXE failed! Path \"%s\" does not exist.",exe_path);
+        return(1);
+    }
+    std::vector<uint8_t> data;
+    if(loaddata(exe_path,data))
+    {
+        m_last_error = string_format("Patching SPELCROS.EXE failed! Reading \"%s\" failed.",exe_path);
+        return(1);
+    }
+
+    // make backup
+    auto bak_path = spell_dir / backup_name;
+    if(fs_copy(exe_path,bak_path,std::filesystem::copy_options::overwrite_existing))
+    {
+        m_last_error = string_format("Patching SPELCROS.EXE failed! Making backup of \"%s\" to \"%s\" failed.",exe_path,bak_path);
+        return(1);
+    }
+
+
+    // CZ engine not supported
+    if(target_ver.engine_ver == EngineVersion::CZE)
+    {
+        m_last_error = "Patching EXE not supported for this game version!";
+        return(1);
+    }
+         
+    if(ver.exe_version < ExeVersion::EN_CRACK && target_ver.exe_version >= ExeVersion::EN_CRACK)
+    {
+        // first apply no CD patch
+        std::vector<std::pair<uint32_t,uint8_t>> patch = {
             {0x0422D8, 0x74},
             {0x0433F8, 0x74},
             {0x043420, 0x75},
-            {0x043421, 0xBE},        
+            {0x043421, 0xBE},
             {0x0A53C5, 0x90},
             {0x0A53C6, 0x90},
             {0x0D4BE0, 0xEB},
@@ -387,63 +476,27 @@ int SpellLaunch::PatchExe(std::filesystem::path spell_dir,std::string spell_exe,
             {0x0F21C1, 0x00},
             {0x0F21C2, 0xC3}
         };
-    }
-    else if(ver.exe_version == ExeVersion::EN_CRACK)
-    {
-        // patch/crack?
-        m_last_error = "Patching EXE not supported for this game version - this is already patched version!";
-        return(1);
-    }
-    else
-    {
-        m_last_error = "Patching EXE not supported for this game version!";
-        return(1);
-    }
-    if(check_only)
-        return(0);
-
-    // load original
-    auto exe_path = spell_dir / spell_exe;
-    if(!std::filesystem::exists(exe_path))
-    {
-        m_last_error = string_format("Patching SPELCROS.EXE failed! Path \"%s\" does not exist.",exe_path);
-        return(1);
-    }
-    std::vector<uint8_t> data;
-    if(loaddata(exe_path,data))
-    {
-        m_last_error = string_format("Patching SPELCROS.EXE failed! Reading \"%s\" failed.",exe_path);
-        return(1);
-    }
-
-    // check EXE hash
-    std::hash<std::string> hash;
-    std::string str(data.begin(),data.end());
-    auto exe_hash = hash(str);
-    if(exe_hash != ver.exe_hash)
-    {
-        m_last_error = string_format("Patching SPELCROS.EXE failed! Hash of \"%s\" does not match known supported versions.",exe_path);
-        return(1);
-    }
-
-    // make backup
-    auto bak_path = spell_dir / backup_name;
-    if(fs_copy(exe_path,bak_path,std::filesystem::copy_options::overwrite_existing))
-    {
-        m_last_error = string_format("Patching SPELCROS.EXE failed! Making backup of \"%s\" to \"%s\" failed.",exe_path,bak_path);
-        return(1);
-    }
-
-    // patch EXE
-    for(auto &item: patch)
-    {
-        if(item.first >= data.size())
+        for(auto& item: patch)
         {
-            m_last_error = string_format("Patching of \"%s\" failed (write beyond end of file)!",exe_path);
+            if(item.first >= data.size())
+            {
+                m_last_error = string_format("Patching of \"%s\" failed (write beyond end of file)!",exe_path);
+                return(1);
+            }
+            data[item.first] = item.second;
+        }
+    }
+    
+    if(ver.exe_version >= ExeVersion::EN_CRACK && target_ver.exe_version == ExeVersion::EN_HONZAQ_10)
+    {
+        // now apply HonzaQ patch
+        std::string err;
+        if(!ApplySpellcrossEnginePatch(data,&err))
+        {
+            m_last_error = string_format("Patching \"%s\" to %s failed! %s",target_ver.version_name,err);
             return(1);
         }
-        data[item.first] = item.second;
-    }
+    }     
 
     // try save
     if(savedata(exe_path, data))

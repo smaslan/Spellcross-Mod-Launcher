@@ -25,6 +25,12 @@
     <Filter Include="Zdrojové soubory\cparse">
       <UniqueIdentifier>{f547ec7b-4075-46d2-b7ee-98292e994615}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Zdrojové soubory\patch">
+      <UniqueIdentifier>{7f5f1d1c-1387-4281-a4ec-0af3d64f7dc6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Hlavičkové soubory\patch">
+      <UniqueIdentifier>{37dac822-2c58-4475-bfe0-d3f3f17561a7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -123,6 +129,12 @@
     <ClCompile Include="graphics.cpp">
       <Filter>Zdrojové soubory</Filter>
     </ClCompile>
+    <ClCompile Include="forms\form_patch.cpp">
+      <Filter>Zdrojové soubory\forms</Filter>
+    </ClCompile>
+    <ClCompile Include="patch\SpellEnginePatch.cpp">
+      <Filter>Zdrojové soubory\patch</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="main.h">
@@ -217,6 +229,12 @@
     </ClInclude>
     <ClInclude Include="graphics.h">
       <Filter>Hlavičkové soubory</Filter>
+    </ClInclude>
+    <ClInclude Include="forms\form_patch.h">
+      <Filter>Hlavičkové soubory\forms</Filter>
+    </ClInclude>
+    <ClInclude Include="patch\SpellEnginePatch.h">
+      <Filter>Hlavičkové soubory\patch</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

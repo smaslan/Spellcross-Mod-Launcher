@@ -358,6 +358,7 @@ protected:
 public:
 	
 	static const int wxID_PROC_THREAD = 7000;
+	static const wxWindowID wxID_FORM_PATCH = 5992;
 	static const wxWindowID wxID_FORM_TREES_RAND = 5993;
 	static const wxWindowID wxID_FORM_SAVE_CHECK = 5994;
 	static const wxWindowID wxID_FORM_DIALOG = 5995;

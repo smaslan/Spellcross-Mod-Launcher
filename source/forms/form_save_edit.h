@@ -67,6 +67,7 @@ private:
 	void OnCloseClick(wxCommandEvent& event);
 	void OnOpen(wxCommandEvent& event);
 	void OnSave(wxCommandEvent& event);
+	void OnSaveAll(wxCommandEvent& event);
 	void OnResSelect(wxCommandEvent& event);
 	void OnUpgSelect(wxCommandEvent& event);
 	void OnUnitSelect(wxCommandEvent& event);

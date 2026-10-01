@@ -336,7 +336,7 @@ public:
     enum class Version : int {
         AUTO = 0,
         ORIG,
-        JONNYQ_V1
+        HONZAQ_V1
     };
     Version m_ver;
     std::string m_ver_string;

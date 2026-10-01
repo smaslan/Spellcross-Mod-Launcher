@@ -167,6 +167,7 @@
     <ClCompile Include="forms\form_about.cpp" />
     <ClCompile Include="forms\form_dialog.cpp" />
     <ClCompile Include="forms\form_edit.cpp" />
+    <ClCompile Include="forms\form_patch.cpp" />
     <ClCompile Include="forms\form_save_backup.cpp" />
     <ClCompile Include="forms\form_save_check.cpp" />
     <ClCompile Include="forms\form_save_edit.cpp" />
@@ -179,6 +180,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="other.cpp" />
     <ClCompile Include="log.cpp" />
+    <ClCompile Include="patch\SpellEnginePatch.cpp" />
     <ClCompile Include="SpellSaves.cpp" />
     <ClCompile Include="SpellLaunch.cpp" />
     <ClCompile Include="SpellMod.cpp" />
@@ -197,6 +199,7 @@
     <ClInclude Include="forms\form_about.h" />
     <ClInclude Include="forms\form_dialog.h" />
     <ClInclude Include="forms\form_edit.h" />
+    <ClInclude Include="forms\form_patch.h" />
     <ClInclude Include="forms\form_save_backup.h" />
     <ClInclude Include="forms\form_save_check.h" />
     <ClInclude Include="forms\form_save_edit.h" />
@@ -207,6 +210,7 @@
     <ClInclude Include="graphics.h" />
     <ClInclude Include="log.h" />
     <ClInclude Include="map_types.h" />
+    <ClInclude Include="patch\SpellEnginePatch.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="SpellLaunch.h" />
     <ClInclude Include="LZ_spell.h" />

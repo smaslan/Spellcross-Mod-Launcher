@@ -313,7 +313,7 @@ int store_save_str(uint8_t* data,uint8_t* data_end,int len,std::string str)
    if(str.length() > len)
        return(1);
    memset(data,'\0',len);
-   memcpy(data,str.c_str(),str.size());
+   std::memcpy(data,str.c_str(),str.size());
    return(0);
 }
 
@@ -375,6 +375,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path, std::filesystem::path comm
 }
 int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> common_fs)
 {
+    m_last_error.clear();
     m_path.clear();
     raw.clear();
     research.clear();
@@ -406,6 +407,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
         {
             LogFile::Write("failed\n");
             LogFile::SetIndent(-1);
+            m_last_error = string_format("Cannot read stringtable HODNOSTI.*!");
             return(1);
         }
         auto lines = get_text_lines(rank_str);
@@ -431,6 +433,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
         {
             LogFile::Write("failed\n");
             LogFile::SetIndent(-1);
+            m_last_error = string_format("Cannot read stringtable UNITS.*!");
             return(1);
         }
         m_unit_names.clear();
@@ -446,6 +449,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
         {
             LogFile::Write("failed\n");
             LogFile::SetIndent(-1);
+            m_last_error = string_format("Cannot read stringtable C_NAMES.*!");
             return(1);
         }
         m_commander_names.clear();
@@ -461,6 +465,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
         {
             LogFile::Write("failed\n");
             LogFile::SetIndent(-1);
+            m_last_error = string_format("Cannot read JEDNOTKY.DEF!");
             return(1);
         }        
         try{
@@ -468,6 +473,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
         }catch(const std::runtime_error& error) {
             LogFile::Write("failed\n");
             LogFile::SetIndent(-1);
+            m_last_error = string_format("Parsing JEDNOTKY.DEF failes!");
             return(1);
         }        
         LogFile::Write("done\n");
@@ -486,6 +492,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
     {
         LogFile::Write("failed\n");
         LogFile::SetIndent(-1);
+        m_last_error = string_format("Loading \"%s\" failed!",path);
         return(1);
     }
     m_path = path;
@@ -499,6 +506,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
     {
         LogFile::Write("failed\n");
         LogFile::SetIndent(-1);
+        m_last_error = string_format("Decompressing \"%s\" failed!",path);
         return(1);
     }
     LogFile::Write("done\n");
@@ -515,7 +523,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
     else if(raw.size() == 29089)
     {
         // JonnyQ patch version with extended units and upgrades slots
-        m_ver = Version::JONNYQ_V1;
+        m_ver = Version::HONZAQ_V1;
         m_ver_string = "HonzaQ Patch format";
         m_ver_shift = 7924;
         m_units_count = 128;
@@ -524,9 +532,9 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
     else
     {
         // unknown or corrupted
-        m_last_error = string_format("Decompresed big_map.sav has unknown size of %d bytes!",raw.size());
         LogFile::Write("- error: save game file has wrong size %d instead of 21165\n",raw.size());
         LogFile::SetIndent(-1);
+        m_last_error = string_format("Decompresed big_map.sav has unknown size of %d bytes!",raw.size());
         return(1);
     }
     int max_upg_count = 72;
@@ -539,7 +547,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
 
     // research entries count (max 200)
     int res_count = *(uint32_t*)&ptr[0];
-    ptr += 8;
+    ptr += 4;
     if(res_count > 200)
     {
         LogFile::Write("- error: wrong research count %d\n",res_count);
@@ -553,21 +561,21 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
     {
         auto &res = research.emplace_back();
         res.raw.resize(47);
-        memcpy(res.raw.data(),ptr,47);
+        std::memcpy(res.raw.data(),ptr,47);
 
         // read name, convert to unicode
-        res.name = char2wstringCP895(trim_whites(get_save_str(&ptr[15],pend,32),true).c_str());
+        res.name = char2wstringCP895(trim_whites(get_save_str(&ptr[19],pend,28),true).c_str());
         
         // linked data id
-        res.data_id = *(int16_t*)&ptr[7];
+        res.data_id = *(int16_t*)&ptr[11];
 
         // other stuff
-        res.flags = (SpellSaveResearch::Flags)ptr[3];
-        res.group = (SpellSaveResearch::Group)ptr[2];
-        res.cost = *(int16_t*)&ptr[9];
-        res.time = *(int16_t*)&ptr[5];
+        res.flags = (SpellSaveResearch::Flags)ptr[7];
+        res.group = (SpellSaveResearch::Group)ptr[6];
+        res.cost = *(int16_t*)&ptr[13];
+        res.time = *(int16_t*)&ptr[9];
         res.level = ptr[4];        
-        res.state = *(int16_t*)&ptr[0];
+        res.state = *(int16_t*)&ptr[4];
         res.available = 0;
 
         ptr += 47;
@@ -576,12 +584,11 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
 
     // load upgrade entries
     LogFile::Write("- loading upgread items ... ");
-    upgrade.resize(max_upg_count);
-    ptr = &raw[0x24C0];
+    ptr = &raw[0x24C0-4];
+    int upg_count = *(uint32_t*)&ptr[0]; // not sure what it is, looks blank
+    ptr += 4;
     for(int k = 0; k < m_upgrades_count; k++)
-    {                        
-        auto& upg = upgrade[k];
-
+    {                                
         // read name, convert to unicode
         auto name_len = strnlen((const char*)&ptr[0],30);
         if(!name_len)
@@ -592,11 +599,13 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
         {
             LogFile::Write("failed at item %d (wrong name)\n",k);
             LogFile::SetIndent(-1);
+            m_last_error = string_format("Failed parsing upgrade item #%d!",k);
             return(1);        
         }
-                
-        upg.raw.assign(max_upg_size,0);
-        memcpy(upg.raw.data(),ptr,upg_size);
+        
+        auto& upg = upgrade.emplace_back();
+        upg.raw.assign(upg_size,0);
+        std::memcpy(upg.raw.data(),ptr,upg_size);
 
         upg.name = char2wstringCP895(trim_whites(get_save_str(&ptr[0],pend,30),true).c_str());
 
@@ -617,6 +626,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
         {
             LogFile::Write("failed at item %d (unknown UpgradeClass value)\n",k);
             LogFile::SetIndent(-1);
+            m_last_error = string_format("Failed parsing upgrade #%d UpgradeClass class!",k);
             return(1);
         }
 
@@ -632,8 +642,8 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
 
     // unit available flags (this is independent of research flags for whatever reason)
     LogFile::Write("- loading units availability list ... ");
-    int research_size = 8 + 200*47;
-    int upg_size_offset = research_size + m_upgrades_count*(52 + m_units_count);
+    int research_size = 4 + 200*47;
+    int upg_size_offset = research_size + 4 + m_upgrades_count*(52 + m_units_count);
     ptr = &raw[upg_size_offset];
     for(int k = 0; k < m_units_count; k++)
     {
@@ -667,7 +677,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
         unit.upg_weapon = -1;
 
         unit.raw.resize(66);
-        memcpy(unit.raw.data(), ptr, 66);
+        std::memcpy(unit.raw.data(), ptr, 66);
 
         // read name, convert to unicode
         auto name_len = strnlen((const char*)&ptr[0],30);        
@@ -710,7 +720,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
         com.valid = false;
 
         com.raw.resize(44);
-        memcpy(com.raw.data(),ptr,44);
+        std::memcpy(com.raw.data(),ptr,44);
 
         com.rank = ptr[34];
         com.battles = *(int16_t*)&ptr[36];
@@ -782,6 +792,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
         {
             LogFile::Write("failed\n");
             LogFile::SetIndent(-1);
+            m_last_error = string_format("Loading level image %s failed!",bigmap_img_name);
             return(1);
         }
         bigmap.image = lzw->Decode(*bm_lz);
@@ -794,10 +805,11 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
         {
             LogFile::Write("failed\n");
             LogFile::SetIndent(-1);
+            m_last_error = string_format("Loading level palette %s failed!",bigmap_pal_name);
             return(1);
         }
         bigmap.pal.assign(3*256,0);
-        memcpy(bigmap.pal.data() + 128*3,bm_pal->data(),64*3);
+        std::memcpy(bigmap.pal.data() + 128*3,bm_pal->data(),64*3);
         LogFile::Write("done\n");
 
         LogFile::Write("- loading LEVEL_%02d.CLK ... ",bigmap.level);
@@ -807,6 +819,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
         {
             LogFile::Write("failed\n");
             LogFile::SetIndent(-1);
+            m_last_error = string_format("Loading level territory boundaries %s failed!",bigmap_clk_name);
             return(1);
         }
         LogFile::Write("done\n");
@@ -818,6 +831,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
         {
             LogFile::Write("failed\n");
             LogFile::SetIndent(-1);
+            m_last_error = string_format("Decoding level territory boundaries %s failed!",bigmap_clk_name);
             return(1);
         }
         LogFile::Write("done\n");
@@ -951,22 +965,22 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
 
         auto& terr = bigmap.terr.emplace_back();
         terr.raw.resize(56);
-        memcpy(terr.raw.data(),ptr,56);
+        std::memcpy(terr.raw.data(),ptr,56);
 
         terr.valid = used_territories[k];
         terr.flags = ptr[0];
 
         auto name_len = strnlen((const char*)&ptr[1],13);
         terr.mus_name.resize(name_len);
-        memcpy(terr.mus_name.data(),&ptr[1],name_len);
+        std::memcpy(terr.mus_name.data(),&ptr[1],name_len);
 
         name_len = strnlen((const char*)&ptr[14],13);
         terr.def_name.resize(name_len);
-        memcpy(terr.def_name.data(),&ptr[14],name_len);
+        std::memcpy(terr.def_name.data(),&ptr[14],name_len);
 
         name_len = strnlen((const char*)&ptr[27],13);
         terr.dta_name.resize(name_len);
-        memcpy(terr.dta_name.data(),&ptr[27],name_len);
+        std::memcpy(terr.dta_name.data(),&ptr[27],name_len);
 
         terr.remain_money = *(int16_t*)&ptr[0x2C];
         terr.money_per_round = *(int16_t*)&ptr[0x2E];
@@ -1024,9 +1038,11 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
 // save big_map.sav session
 int SpellSaveBigMap::Save(std::filesystem::path path, Version ver)
 {    
+    m_last_error.clear();
+
     if(ver == Version::AUTO)
         ver = m_ver;
-    if(ver == Version::JONNYQ_V1 && m_ver == Version::ORIG)
+    if(ver == Version::HONZAQ_V1 && m_ver == Version::ORIG)
     {
         // upconvert
         
@@ -1038,13 +1054,13 @@ int SpellSaveBigMap::Save(std::filesystem::path path, Version ver)
         raw.insert(raw.begin() + research_size,new_upg_size,0);
         
         // setup new params
-        m_ver = Version::JONNYQ_V1;
+        m_ver = Version::HONZAQ_V1;
         m_ver_string = "HonzaQ Patch format";
         m_ver_shift = 7924;
         m_units_count = 128;
         m_upgrades_count = 72;
     }
-    else if(ver == Version::ORIG && m_ver == Version::JONNYQ_V1)
+    else if(ver == Version::ORIG && m_ver == Version::HONZAQ_V1)
     {
         // downconvert
         m_last_error = string_format("Covnersion from %s to original format not supported!",m_ver_string);
@@ -1060,32 +1076,35 @@ int SpellSaveBigMap::Save(std::filesystem::path path, Version ver)
         
     // items count
     *(uint32_t*)&ptr[0] = research.size();
-    ptr += 8;
+    ptr += 4;
     // clear records
     memset(ptr,0x00,200*47);
     // store items
     for(auto &res: research)
     {
         // start with raw original data
-        memcpy(ptr,res.raw.data(),res.raw.size());
+        std::memcpy(ptr,res.raw.data(),res.raw.size());
 
         // put name
-        memset(&ptr[15],0,32);
-        if(res.name.length() > 31)
+        memset(&ptr[19],0,28);
+        if(res.name.length() > 28)
+        {
+            m_last_error = string_format("Too long name of research item #%d!",&res - research.data());
             return(1);
+        }
         auto name = wstring2stringCP895(res.name);
-        memcpy(&ptr[15],name.c_str(),name.length());
+        std::memcpy(&ptr[19],name.c_str(),name.length());
         
         // linked data id
-        *(int16_t*)&ptr[7] = res.data_id;
+        *(int16_t*)&ptr[11] = res.data_id;
 
         // other stuff
-        ptr[3] = res.flags;
-        ptr[2] = res.group;
-        *(int16_t*)&ptr[9] = res.cost;
-        *(int16_t*)&ptr[5] = res.time;
-        ptr[4] = res.level;
-        *(int16_t*)&ptr[0] = res.state;
+        ptr[7] = res.flags;
+        ptr[6] = res.group;
+        *(int16_t*)&ptr[13] = res.cost;
+        *(int16_t*)&ptr[9] = res.time;
+        ptr[8] = res.level;
+        *(int16_t*)&ptr[4] = res.state;
 
         ptr += 47;
     }
@@ -1093,22 +1112,24 @@ int SpellSaveBigMap::Save(std::filesystem::path path, Version ver)
     // put upgrade entries
     int upg_size = 52 + m_units_count;
     ptr = &raw[0x24C0];
-    for(int k = 0; k < m_upgrades_count; k++)
+    // clear fields
+    memset(ptr,0,upg_size*m_upgrades_count);
+    // put items
+    for(auto &upg: upgrade)
     {
-        if(k > upgrade.size())
-            return(1);
-        auto &upg = upgrade[k];
-
         // start with raw original data
         memset(ptr, 0, upg_size);
-        memcpy(ptr, upg.raw.data(), std::min<int>(upg_size,upg.raw.size()));
+        std::memcpy(ptr, upg.raw.data(), std::min<int>(upg_size,upg.raw.size()));
         
         // put name
         memset(&ptr[0],0,30);
         if(upg.name.length() > 29)
+        {
+            m_last_error = string_format("Too long name of upgrade item #%d!",&upg - upgrade.data());
             return(1);
+        }
         auto name = wstring2stringCP895(upg.name);
-        memcpy(&ptr[0],name.c_str(),name.length());
+        std::memcpy(&ptr[0],name.c_str(),name.length());
 
 
         *(int16_t*)&ptr[30] = upg.attack;
@@ -1132,7 +1153,10 @@ int SpellSaveBigMap::Save(std::filesystem::path path, Version ver)
         for(int m = 0; m < upg.suitable_types.size(); m++)
         {
             if(upg.suitable_types[m] > m_units_count || upg.suitable_types[m] < 0)
+            {
+                m_last_error = string_format("Invalid unit id #%d in upgrade item #%d!",m,&upg - upgrade.data());
                 return(1);
+            }
             ptr[52 + m] = upg.suitable_types[m];
         }
 
@@ -1141,6 +1165,10 @@ int SpellSaveBigMap::Save(std::filesystem::path path, Version ver)
 
     // unit available flags (this is independent of research flags for whatever reason)
     //ptr = &raw[0x38B8];
+    int research_size = 4 + 200*47;
+    int upg_size_offset = research_size + 4 + m_upgrades_count*(52 + m_units_count);
+    ptr = &raw[upg_size_offset];
+    std::memset(ptr,0,2*m_units_count);
     for(int k = 0; k < m_units_count; k++)
     {        
         for(auto& res: research)
@@ -1170,14 +1198,17 @@ int SpellSaveBigMap::Save(std::filesystem::path path, Version ver)
         }
         
         // start with raw original data
-        memcpy(ptr,unit.raw.data(),unit.raw.size());
+        std::memcpy(ptr,unit.raw.data(),unit.raw.size());
 
         // put name
         memset(ptr,0,30);
         if(unit.name.length() > 29)
+        {         
+            m_last_error = string_format("Too long name of unit #%d!",&unit - units.data());
             return(1);
+        }
         auto name = wstring2stringCP895(unit.name);
-        memcpy(ptr,name.c_str(),name.length());
+        std::memcpy(ptr,name.c_str(),name.length());
         
         ptr[38] = unit.flags;                
         ptr[30] = unit.unit_type_id;
@@ -1209,14 +1240,17 @@ int SpellSaveBigMap::Save(std::filesystem::path path, Version ver)
         }
         
         // start with raw original data
-        memcpy(ptr,com.raw.data(),com.raw.size());
+        std::memcpy(ptr,com.raw.data(),com.raw.size());
         
         // put name
         memset(ptr,0,30);
         if(com.name.length() > 29)
+        {
+            m_last_error = string_format("Too long name of commander #%d!",&com - commanders.data());
             return(1);
+        }
         auto name = wstring2stringCP895(com.name);
-        memcpy(ptr,name.c_str(),name.length());
+        std::memcpy(ptr,name.c_str(),name.length());
         
         ptr[34] = com.rank;
         *(int16_t*)&ptr[36] = com.battles;
@@ -1234,27 +1268,36 @@ int SpellSaveBigMap::Save(std::filesystem::path path, Version ver)
         auto& terr = bigmap.terr[k];
 
         // start with raw original data
-        memcpy(ptr,terr.raw.data(),terr.raw.size());
+        std::memcpy(ptr,terr.raw.data(),terr.raw.size());
                 
         ptr[0] = terr.flags;
 
         // put music name
         memset(&ptr[1],0,13);
         if(terr.mus_name.length() > 13)
+        {
+            m_last_error = string_format("Too long music name for territory #%d!",k);
             return(1);
-        memcpy(&ptr[1],terr.mus_name.c_str(),terr.mus_name.length());
+        }
+        std::memcpy(&ptr[1],terr.mus_name.c_str(),terr.mus_name.length());
 
         // put def name
         memset(&ptr[14],0,13);
         if(terr.def_name.length() > 13)
+        {
+            m_last_error = string_format("Too long DEF name for territory #%d!",k);
             return(1);
-        memcpy(&ptr[14],terr.def_name.c_str(),terr.def_name.length());
+        }
+        std::memcpy(&ptr[14],terr.def_name.c_str(),terr.def_name.length());
 
         // put dta name
         memset(&ptr[27],0,13);
         if(terr.dta_name.length() > 13)
+        {
+            m_last_error = string_format("Too long DTA name for territory #%d!",k);
             return(1);
-        memcpy(&ptr[27],terr.dta_name.c_str(),terr.dta_name.length());           
+        }
+        std::memcpy(&ptr[27],terr.dta_name.c_str(),terr.dta_name.length());           
 
         *(int16_t*)&ptr[0x2C] = terr.remain_money;
         *(int16_t*)&ptr[0x2E] = terr.money_per_round;
@@ -1330,6 +1373,7 @@ int SpellSaveBigMap::Save(std::filesystem::path path, Version ver)
     try{
         LZspell lzw(raw.data(),raw.size(),sav);
     }catch(const std::runtime_error& error) {
+        m_last_error = string_format("Compression of big_map.sav failed!");
         return(1);
     }
     
@@ -1339,7 +1383,10 @@ int SpellSaveBigMap::Save(std::filesystem::path path, Version ver)
 
     // try save
     if(savedata(path,sav))
+    {
+        m_last_error = string_format("Saving big_map.sav to \"%s\" failed! Possibly file sharing violation?",path);
         return(1);
+    }
 
     return(0);
 }
@@ -1352,6 +1399,8 @@ bool ComparePairs(std::pair<int,std::wstring>& a,std::pair<int,std::wstring>& b)
 }
 int SpellSaveBigMap::SortUnits(bool remove_gaps,bool separate,bool by_types,bool by_names)
 {
+    m_last_error.clear();
+
     if(remove_gaps)
     {
         // remove empty slots
@@ -1467,6 +1516,8 @@ int SpellSaveBigMap::SortUnits(bool remove_gaps,bool separate,bool by_types,bool
 }
 int SpellSaveBigMap::SwapUnits(int id_a, int id_b)
 {
+    m_last_error.clear();
+
     if(id_a < 0 || id_a >= units.size() || id_b < 0 || id_b >= units.size())
         return(1);
 
@@ -1491,6 +1542,7 @@ int SpellSaveBigMap::SwapUnits(int id_a, int id_b)
 // heal all units
 int SpellSaveBigMap::HealUnits(int uid)
 {
+    m_last_error.clear();
     if(uid >= 0 && uid >= units.size())
         return(1);
     if(uid >= 0)
@@ -1510,8 +1562,13 @@ int SpellSaveBigMap::HealUnits(int uid)
 // sync all units with common.fs
 int SpellSaveBigMap::SyncUnits(int uid)
 {
+    m_last_error.clear();
+
     if(!m_jednotky_def.get())
+    {
+        m_last_error = string_format("JEDNOTKY.DEF not loaded!");
         return(1);
+    }
 
     for(auto &unit: units)
     {
@@ -1521,7 +1578,10 @@ int SpellSaveBigMap::SyncUnits(int uid)
 
         auto urec = m_jednotky_def->GetUnit(unit.unit_type_id);
         if(!urec)
-            return(1);        
+        {
+            m_last_error = string_format("Unit #%d not found in JEDNOTKY.DEF!",unit.unit_type_id);
+            return(1);
+        }
         auto hp = (double)unit.hp/unit.hp_max;
         unit.hp_max = urec->cnt;
         unit.hp = max((int)(hp*unit.hp_max),1);
@@ -1537,6 +1597,8 @@ int SpellSaveBigMap::SyncUnits(int uid)
 // check all units with common.fs
 int SpellSaveBigMap::FixUnits(std::string& report,bool just_check)
 {
+    m_last_error.clear();
+
     report.clear();
     
     if(!m_jednotky_def.get())
@@ -1608,16 +1670,24 @@ int SpellSaveBigMap::FixUnits(std::string& report,bool just_check)
 // fix unit according to JEDNOTKY.DEF
 int SpellSaveBigMap::FixUnit(int uid,bool force_xp_level_update)
 {
+    m_last_error.clear();
+
     if(uid < 0 || uid >= units.size())
         return(1);
     auto &unit = units[uid];
 
     // try get unit type record
     if(!m_jednotky_def.get())
+    {
+        m_last_error = string_format("JEDNOTKY.DEF not loaded!");
         return(1);
+    }
     auto urec = m_jednotky_def->GetUnit(unit.unit_type_id);
     if(!urec)
+    {
+        m_last_error = string_format("Unit #%d not found in JEDNOTKY.DEF!",unit.unit_type_id);
         return(1);
+    }
 
     unit.hp_max = urec->cnt;
     unit.hp = min(unit.hp,unit.hp_max);    
@@ -1633,6 +1703,8 @@ int SpellSaveBigMap::FixUnit(int uid,bool force_xp_level_update)
 // try add unit to list
 int SpellSaveBigMap::AddUnit(int &uid)
 {
+    m_last_error.clear();
+
     SpellSaveUnits* unit = NULL;
     if(uid < 0)
     {
@@ -1666,6 +1738,8 @@ int SpellSaveBigMap::AddUnit(int &uid)
 // try remove unit from list
 int SpellSaveBigMap::RemUnit(int uid)
 {    
+    m_last_error.clear();
+
     if(uid < 0 || uid >= units.size())
         return(1);    
     auto &unit = units[uid];
@@ -1736,20 +1810,31 @@ int SpellSaveBigMap::AddCommander(int &cid)
 // synchronize upgrade items
 int SpellSaveBigMap::SyncUpgrades()
 {
+    m_last_error.clear();
+
     if(!m_common_fs)
+    {
+        m_last_error = string_format("COMMON.FS not loaded!");
         return(1);
+    }
 
     // get def file
     auto defstr = m_common_fs->GetFile("UPGRADES.DEF");
     if(defstr.empty())
+    {
+        m_last_error = string_format("Cannot load UPGRADES.DEF!");
         return(1);
+    }
 
     // get research names
     auto namestr = m_common_fs->GetFile("UPGRADES.CZ");
     if(namestr.empty())
         namestr = m_common_fs->GetFile("UPGRADES.ENG");
     if(namestr.empty())
+    {
+        m_last_error = string_format("Cannot load stringtable UPGRADES.*!");
         return(1);
+    }
     auto names = get_text_lines(namestr,true);
     for(auto& name: names)
         name = trim_whites(name,true);
@@ -1757,7 +1842,7 @@ int SpellSaveBigMap::SyncUpgrades()
     // parse it to local list
     std::vector<SpellSaveUpgrade> common_upg;
     SpellDEF def(defstr);
-    for(int item_id = 0; item_id < 36; item_id++)
+    for(int item_id = 0; item_id < m_upgrades_count; item_id++)
     {
         auto label = string_format("Upgrade(%d)",item_id);
         std::unique_ptr<SpellDefSection> section(def.GetSection(label));
@@ -1769,75 +1854,108 @@ int SpellSaveBigMap::SyncUpgrades()
         for(auto& par: params)
         {
             if(par->parameters.empty())
+            {
+                m_last_error = string_format("No parameters for command \"%s\"!",par->full_command);
                 return(1);
+            }
             if(par->name == "Move")
             {
                 int val;
                 if(str2int(par->parameters[0],val))
+                {
+                    m_last_error = string_format("Failed parsing command \"%s\"!",par->full_command);
                     return(1);
+                }
                 upg.move = val;
             }
             else if(par->name == "Attack")
             {
                 int val;
                 if(str2int(par->parameters[0],val))
+                {
+                    m_last_error = string_format("Failed parsing command \"%s\"!",par->full_command);
                     return(1);
+                }
                 upg.attack = val;
             }
             else if(par->name == "AttackPT")
             {
                 int val;
                 if(str2int(par->parameters[0],val,0))
+                {
+                    m_last_error = string_format("Failed parsing command \"%s\"!",par->full_command);
                     return(1);
+                }
                 upg.attack_pt = val;
             }
             else if(par->name == "Sight")
             {
                 int val;
                 if(str2int(par->parameters[0],val))
+                {
+                    m_last_error = string_format("Failed parsing command \"%s\"!",par->full_command);
                     return(1);
+                }
                 upg.sight = val;
             }
             else if(par->name == "Defence")
             {
                 int val;
                 if(str2int(par->parameters[0],val))
+                {
+                    m_last_error = string_format("Failed parsing command \"%s\"!",par->full_command);
                     return(1);
+                }
                 upg.defence = val;
             }
             else if(par->name == "Range")
             {
                 int val;
                 if(str2int(par->parameters[0],val))
+                {
+                    m_last_error = string_format("Failed parsing command \"%s\"!",par->full_command);
                     return(1);
+                }
                 upg.range = val;
             }
             else if(par->name == "UpgradeTime")
             {
                 int val;
                 if(str2int(par->parameters[0],val,0))
+                {
+                    m_last_error = string_format("Failed parsing command \"%s\"!",par->full_command);
                     return(1);
+                }
                 upg.upg_time = val;
             }
             else if(par->name == "UpgradePrice")
             {
                 int val;
                 if(str2int(par->parameters[0],val,0))
+                {
+                    m_last_error = string_format("Failed parsing command \"%s\"!",par->full_command);
                     return(1);
+                }
                 upg.upg_price = val;
             }
             else if(par->name == "Flags")
             {                
                 if(upg.SetFlags(par->parameters[0]))
+                {
+                    m_last_error = string_format("Failed parsing command \"%s\"!",par->full_command);
                     return(1);
+                }
             }            
             else if(par->name == "SuitableTypes")
             {
                 for(auto& pp: par->parameters)
                 {
                     int val;
-                    if(str2int(pp,val,0,89))
+                    if(str2int(pp,val,0,m_units_count-1))
+                    {
+                        m_last_error = string_format("Failed parsing command \"%s\"!",par->full_command);
                         return(1);
+                    }
                     upg.suitable_types.push_back(val);
                 }
             }
@@ -1849,7 +1967,7 @@ int SpellSaveBigMap::SyncUpgrades()
         upg.name = char2wstringCP895(names[item_id].c_str());
 
         // generate empty raw record
-        upg.raw.assign(142,0);
+        upg.raw.assign(52 + m_units_count,0);
 
         common_upg.push_back(upg);
     }
@@ -1866,7 +1984,7 @@ int SpellSaveBigMap::SyncUpgrades()
             }
     }
 
-    // reling unit upgrades to new upgrade items
+    // relink unit upgrades to new upgrade items
     auto com_units = units;
     for(int k = 0; k < units.size(); k++)
     {
@@ -1899,14 +2017,14 @@ int SpellSaveBigMap::SyncUpgrades()
         }
     }
 
-    // reling research items to new upgrade list
+    // relink research items to new upgrade list
     for(auto &res: research)
     {
         if(res.group != SpellSaveResearch::Group::UPGRADE)
             continue;
-        if(res.data_id < 0 || res.data_id >= upgrade.size())
+        if(res.data_id < 0 || res.data_id >= common_upg.size())
             return(1);
-        auto name = upgrade[res.data_id].name;
+        auto name = common_upg[res.data_id].name;
         for(auto& upg: common_upg)
             if(upg.name == name)
                 res.data_id = &upg - common_upg.data();
@@ -1922,20 +2040,31 @@ int SpellSaveBigMap::SyncUpgrades()
 // synchronize research items
 int SpellSaveBigMap::SyncResearch()
 {
+    m_last_error.clear();
+
     if(!m_common_fs)
+    {
+        m_last_error = string_format("COMMON.FS not loaded!");
         return(1);
+    }
     
     // get def file
-    auto defstr = m_common_fs->GetFile("RESEARCH.DEF");
+    auto defstr = m_common_fs->GetFile("RESEARCH.DEF");    
     if(defstr.empty())
+    {
+        m_last_error = string_format("Cannot load RESEARCH.DEF!");
         return(1);
+    }
 
     // get research names
     auto namestr = m_common_fs->GetFile("RESEARCH.CZ");
     if(namestr.empty())
         namestr = m_common_fs->GetFile("RESEARCH.ENG");
     if(namestr.empty())
+    {
+        m_last_error = string_format("Cannot load stringtable RESEARCH.*!");
         return(1);
+    }
     auto names = get_text_lines(namestr,true);
     for(auto &name: names)
         name = trim_whites(name,true);
@@ -1955,43 +2084,64 @@ int SpellSaveBigMap::SyncResearch()
         for(auto &par: params)
         {
             if(par->parameters.empty())
+            {
+                m_last_error = string_format("No parameters for command \"%s\"!",par->full_command);
                 return(1);
+            }
             if(par->name == "Flags")
             {
                 if(res.SetFlags(par->parameters[0]))
+                {
+                    m_last_error = string_format("Failed parsing command \"%s\"!",par->full_command);
                     return(1);
+                }
             }
             else if(par->name == "Group")
             {
                 if(res.SetGroup(par->parameters[0]))
+                {
+                    m_last_error = string_format("Failed parsing command \"%s\"!",par->full_command);
                     return(1);
+                }
             }
             else if(par->name == "Data")
             {
                 int val;
                 if(str2int(par->parameters[0],val,0))
+                {
+                    m_last_error = string_format("Failed parsing command \"%s\"!",par->full_command);
                     return(1);
+                }
                 res.data_id = val;
             }
             else if(par->name == "Time")
             {
                 int val;
                 if(str2int(par->parameters[0],val,0))
+                {
+                    m_last_error = string_format("Failed parsing command \"%s\"!",par->full_command);
                     return(1);
+                }
                 res.time = val;
             }
             else if(par->name == "Level")
             {
                 int val;
                 if(str2int(par->parameters[0],val,0,10))
+                {
+                    m_last_error = string_format("Failed parsing command \"%s\"!",par->full_command);
                     return(1);
+                }
                 res.level = val;
             }
             else if(par->name == "UpgradePrice")
             {
                 int val;
                 if(str2int(par->parameters[0],val,0))
+                {
+                    m_last_error = string_format("Failed parsing command \"%s\"!",par->full_command);
                     return(1);
+                }
                 res.cost = val;
             }
             else if(par->name == "ORconnections")
@@ -2000,9 +2150,15 @@ int SpellSaveBigMap::SyncResearch()
                 {
                     int val;
                     if(str2int(pp,val,0,199))
+                    {
+                        m_last_error = string_format("Failed parsing command \"%s\"!",par->full_command);
                         return(1);
+                    }
                     if(val == item_id)
+                    {
+                        m_last_error = string_format("Failed parsing command \"%s\"!",par->full_command);
                         return(1);
+                    }
                     res.or_connections.push_back(val);
                 }                
             }            
@@ -2010,7 +2166,10 @@ int SpellSaveBigMap::SyncResearch()
 
         // assign name
         if(item_id >= names.size())
+        {
+            m_last_error = string_format("Research %%d has not record in stringtable!",item_id);
             return(1);
+        }
         res.name = char2wstringCP895(names[item_id].c_str());
 
         // generate empty raw record
@@ -2041,27 +2200,41 @@ int SpellSaveBigMap::SyncResearch()
 // synchronize level setup with current common.fs level DEF file
 int SpellSaveBigMap::SyncLevel()
 {
+    m_last_error.clear();
+
     if(!m_common_fs)
+    {
+        m_last_error = string_format("COMMON.FS not loaded!");
         return(1);
+    }
 
     // try get current level def file
     auto def_name = string_format("LEVEL_%02d.DEF",bigmap.level);
     auto defstr = m_common_fs->GetFile(def_name);
     if(defstr.empty())
+    {
+        m_last_error = string_format("Failed loading %s!",def_name);
         return(1);
+    }
     
     // parse commands
     SpellDEF def(defstr);
     std::unique_ptr<SpellDefSection> section(def.GetSection("LevelInit"));
     if(!section)
+    {
+        m_last_error = string_format("Failed parsing %s!",def_name);
         return(1);
+    }
     for(auto &cmd: section->GetData())
     {
         if(cmd->name == "LevelMusic")
         {
             // level music name
             if(cmd->parameters.size() != 1)
+            {
+                m_last_error = string_format("Failed parsing command \"%s\"!",cmd->full_command);
                 return(1);
+            }
             level.level_music = cmd->parameters[0];
         }
         else if(cmd->name == "AttackUnits")
@@ -2069,7 +2242,10 @@ int SpellSaveBigMap::SyncLevel()
             // normal attack units
             std::vector<int> list;
             if(str2int(cmd->parameters, list, 0, m_unit_names.size() - 1))
+            {
+                m_last_error = string_format("Failed parsing command \"%s\"!",cmd->full_command);
                 return(1);
+            }
             level.attack_units = list;
         }
         else if(cmd->name == "AttackSpecialUnits")
@@ -2077,25 +2253,46 @@ int SpellSaveBigMap::SyncLevel()
             // special attack units
             std::vector<int> list;
             if(str2int(cmd->parameters,list,0,m_unit_names.size() - 1))
+            {
+                m_last_error = string_format("Failed parsing command \"%s\"!",cmd->full_command);
                 return(1);
+            }
             level.attack_spec_units = list;
         }
         else if(cmd->name == "AttackFlags")
         {
             // attack flags
             if(cmd->parameters.size() != 6)
+            {
+                m_last_error = string_format("Failed parsing command \"%s\"!",cmd->full_command);
                 return(1);
+            }
             std::vector<int> list;
             if(str2int(cmd->parameters,list,0))
+            {
+                m_last_error = string_format("Failed parsing command \"%s\"!",cmd->full_command);
                 return(1);
+            }
             if(list[1] > 50)
+            {
+                m_last_error = string_format("Failed parsing command \"%s\"!",cmd->full_command);
                 return(1);
+            }
             if(list[0] > list[1])
+            {
+                m_last_error = string_format("Failed parsing command \"%s\"!",cmd->full_command);
                 return(1);
+            }
             if(list[2] > 12)
+            {
+                m_last_error = string_format("Failed parsing command \"%s\"!",cmd->full_command);
                 return(1);
+            }
             if(list[3] > 12)
+            {
+                m_last_error = string_format("Failed parsing command \"%s\"!",cmd->full_command);
                 return(1);
+            }
             level.attack_flags_non_spec = list[0];
             level.attack_flags_total = list[1];
             level.attack_flags_xp_level = list[2];
@@ -2108,7 +2305,10 @@ int SpellSaveBigMap::SyncLevel()
             // end level
             int val;
             if(str2int(cmd->parameters[0],val,0))
+            {
+                m_last_error = string_format("Failed parsing command \"%s\"!",cmd->full_command);
                 return(1);
+            }
             bigmap.final_terr = val;
         }
     }
@@ -2141,7 +2341,7 @@ bool SpellSaveBigMap::wasUnitEncountered(SpellUnitRec* unit)
 }
 
 
-// decodder of CLK territory files
+// decoder of CLK territory files
 //   note: from https://github.com/luboshorak/spellcross_restoration_tools/blob/main/spellcross-map-edit-main/source/forms/form_level.cpp
 bool DecodeCLK(const std::vector<uint8_t>& clkBytes,int& outW,int& outH,std::vector<uint8_t>& values)
 {

@@ -5,15 +5,7 @@
 #include <functional>
 
 class SpellLaunch
-{
-private:
-    static const std::string box_exec_name;
-    static const std::string box_setup_name;
-    static const std::string run_dosbox_name;
-    static const std::string setup_dosbox_name;
-    static const std::string run_win32_name;
-    static const std::string setup_win32_name;
-
+{   
 public:
 
     static std::string m_last_error;
@@ -39,6 +31,7 @@ public:
         EN_100, // V1.00
         EN_101, // patch 1.01
         EN_CRACK, // some path or cracked?
+        EN_HONZAQ_10, // HonzaQ patch V1.0
         CZ_100, // 1.00
         CZ_106, // CZ patch 1.06
         CZ_107 // CZ patch 1.07
@@ -51,11 +44,24 @@ public:
         std::string version_name;
         size_t exe_hash;
         int fs_count_limit;
+        int fsu_count_limit;
+        int unit_types_limit;
+        int upg_limit;
     };
 
+    static int GetVer(size_t hash,GameVersion& ver);
+    static int GetVer(ExeVersion exe_ver,GameVersion& ver);
     static int GameEngineVersion(std::filesystem::path spell_dir,std::string spell_exe,SpellLaunch::GameVersion& ver);
-    static int PatchExe(std::filesystem::path spell_dir,std::string spell_exe,bool check_only=true,std::string backup_name="SPELORIG.EXE");
+    static int PatchExe(std::filesystem::path spell_dir,std::string spell_exe,std::vector<SpellLaunch::GameVersion> &ver_list, bool check_only=true, std::string backup_name="SPELORIG.EXE");
 
+private:
+    static const std::string box_exec_name;
+    static const std::string box_setup_name;
+    static const std::string run_dosbox_name;
+    static const std::string setup_dosbox_name;
+    static const std::string run_win32_name;
+    static const std::string setup_win32_name;
+    static const std::vector<SpellLaunch::GameVersion> c_ver_list;
 };
 
 

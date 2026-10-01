@@ -48,6 +48,7 @@ processorArchitecture='*' publicKeyToken='6595b64144ccf1df' language='*'\"")*/
 #include "forms/form_trees_rand.h"
 #include "forms/form_dialog.h"
 #include "forms/form_save_check.h"
+#include "forms/form_patch.h"
 
 #include "main.h"
 
@@ -1086,11 +1087,12 @@ void FormMain::OnInstallGame(wxCommandEvent& event)
 	
 	// is it patchable?
 	std::string spell_exe = chSpellExec->GetStringSelection().ToStdString();
-	if(SpellLaunch::PatchExe(install_path,spell_exe))
+	std::vector<SpellLaunch::GameVersion> patch_list;
+	if(SpellLaunch::PatchExe(install_path,spell_exe,patch_list) || patch_list.empty())
 		return;
 
 	// prompt patch?
-	wxMessageDialog dial(this,string_format("INSTALLING SPELLCROS\n\nDetected potentially faulty patchable version of %s.\n\nTry patch it?",spell_exe),"Installing Spellcross game ...",wxYES_NO | wxICON_QUESTION);
+	wxMessageDialog dial(this,string_format("INSTALLING SPELLCROS\n\nDetected potentially faulty or patchable version of %s.\n\nTry patch it?",spell_exe),"Installing Spellcross game ...",wxYES_NO | wxICON_QUESTION);
 	if(dial.ShowModal() != wxID_YES)
 		return;
 	OnPatchExe(event);
@@ -1112,29 +1114,67 @@ void FormMain::OnPatchExe(wxCommandEvent& event)
 		wxMessageBox(string_format("No or invalid EXE file selected!"),"Error",wxICON_ERROR);
 		return;
 	}
+	
+	// get source versions
+	SpellLaunch::GameVersion orig_ver;
+	SpellLaunch::GameEngineVersion(spell_dir, spell_exe, orig_ver);
 
 	// first check if we have compatible EXE
-	if(SpellLaunch::PatchExe(spell_dir, spell_exe))
+	std::vector<SpellLaunch::GameVersion> patch_list;
+	if(SpellLaunch::PatchExe(spell_dir, spell_exe, patch_list))
 	{
 		wxMessageBox(SpellLaunch::m_last_error,"Error",wxICON_ERROR);
 		return;
 	}
 
-	// prompt
+	// list of patch version
+	std::vector<std::string> patch_names;
+	for(auto &ver: patch_list)
+		patch_names.push_back(ver.version_name);
+
 	std::string spell_bak = "SPELORIG.EXE";
-	wxMessageDialog dial(this,string_format("PATCHING SPELCROS.EXE\n\nThis tool will try to patch SPELCROS.EXE to fix CD detection errors and game freeze whenever some auto save game in SAVE/WORKDIR is present. It is based on analysis of correctly working version game version of unknown origin.\nIt will backup original %s to %s.\n\nContinue?",spell_exe,spell_bak),"Patch Spellcross game ...", wxYES_NO | wxICON_QUESTION);
-	if(dial.ShowModal() != wxID_YES)
+	std::string msg = string_format("This tool will try to patch SPELCROS.EXE using one the available patches.\n\nFollowing options available:\n");
+	for(int k = 0; k < patch_list.size(); k++)
+	{
+		auto& ver = patch_list[k];
+		msg += string_format("  #%d: %s\n", k, ver.version_name);
+		msg += string_format("   - Max FS archive files count: %d\n",ver.fs_count_limit);
+		msg += string_format("   - Max FSU archive unit count: ~%d\n",ver.fsu_count_limit);
+		msg += string_format("   - Max unit types: %d\n",ver.unit_types_limit);
+		msg += string_format("   - Max upgrade limit: %d\n",ver.upg_limit);
+		msg += "\n";
+	}
+
+	msg += string_format("It will backup original %s to %s.\n\nContinue?",spell_exe,spell_bak);
+	
+	// show prompt
+	FormPatch form_patch(this,wxID_FORM_PATCH);
+	form_patch.SetOptions(patch_names);
+	form_patch.SetMessage(msg, orig_ver.version_name);	
+	if(!form_patch.ShowModal())
 		return;
 
+	// select patch option
+	auto target_ver_str = form_patch.GetOption();
+	auto vid = std::ranges::find_if(patch_list, [target_ver_str](const SpellLaunch::GameVersion &item){return(item.version_name == target_ver_str);});
+	if(vid == patch_list.end())
+	{
+		wxMessageBox(string_format("Invalid patch option selection \"%s\"!",target_ver_str),"Error",wxICON_ERROR);
+		return;
+	}
+	auto target_ver = *vid;
+	patch_list.clear();
+	patch_list.push_back(target_ver);
+
 	// try patch
-	if(SpellLaunch::PatchExe(spell_dir,spell_exe,false,spell_bak))
+	if(SpellLaunch::PatchExe(spell_dir,spell_exe,patch_list,false,spell_bak))
 	{
 		wxMessageBox(SpellLaunch::m_last_error,"Error",wxICON_ERROR);
 		return;
 	}
 	wxMessageBox("Done successfully!","Patching SPELCROS",wxICON_INFORMATION);
 
-	// reaload
+	// reload
 	CheckExeVersion();
 	ListSpellExecutables(spell_dir,chSpellExec);
 }

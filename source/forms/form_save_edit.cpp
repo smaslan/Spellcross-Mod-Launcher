@@ -715,6 +715,7 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormSaveEdit::OnSave,this,wxID_MM_SAVE_AS);
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormSaveEdit::OnSave,this,wxID_MM_SAVE_NEW_FMT);
 	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormSaveEdit::OnSave,this,wxID_MM_SAVE_AS_NEW_FMT);
+	Bind(wxEVT_COMMAND_MENU_SELECTED,&FormSaveEdit::OnSaveAll,this,wxID_MM_SAVE_ALL_NEW_FMT);
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormSaveEdit::OnOpen,this,wxID_BTN_LOAD_SPELL_SAVE);
 	
 
@@ -877,10 +878,10 @@ void FormSaveEdit::SetSaveDir(std::filesystem::path save_dir)
 		std::wstring name = L"<empty>";
 		if(!save.is_empty)
 		{
-			info = string_format(" (date: %s, path: %s)",save.date.c_str(),wstring2string(save.dir_path).c_str());
+			info = string_format(" (date: %s, path: %s)",save.date,wstring2string(save.dir_path));
 			name = save.name;
 		}		
-		auto str = string_format("%8s: %-20ls%s",save.dir_name.c_str(), name.c_str(),info.c_str());
+		auto str = string_format("%8s: %-20s%s",save.dir_name, name,info);
 		chSaves->Append(str,new SavesData(save.dir_path));
 	}
 	if(chSaves->GetCount())
@@ -921,7 +922,10 @@ void FormSaveEdit::OnOpen(wxCommandEvent& event)
 
 	txtVer->Clear();
 
-	m_bigmap.Load(path, m_common_fs_path);
+	if(m_bigmap.Load(path, m_common_fs_path))
+	{
+		wxMessageBox(string_format("Failed loading Spellcross savegame to \"%s\"!\n%s",path,m_bigmap.m_last_error),"Error",wxICON_ERROR);
+	}
 	UpdateList();
 
 	SetStatusText(path.wstring(),0);
@@ -946,22 +950,79 @@ void FormSaveEdit::OnSave(wxCommandEvent& event)
 	}
 	else
 	{
-		wxMessageDialog dial(this, string_format("Overwrite Spellcross savegame \"%s\"?\nMake sure you have backups as this tool is very experimental!",wstring2string(path).c_str()), "Save Spellcross savegame",wxICON_QUESTION|wxYES_NO|wxYES_DEFAULT);
+		wxMessageDialog dial(this, string_format("Overwrite Spellcross savegame \"%s\"?\nMake sure you have backups as this tool is very experimental!",path), "Save Spellcross savegame",wxICON_QUESTION|wxYES_NO|wxYES_DEFAULT);
 		if(dial.ShowModal() != wxID_YES)
 			return;
 	}
 
 	SpellSaveBigMap::Version ver = SpellSaveBigMap::Version::AUTO;
 	if(event.GetId() == wxID_MM_SAVE_NEW_FMT || event.GetId() == wxID_MM_SAVE_AS_NEW_FMT)
-		ver = SpellSaveBigMap::Version::JONNYQ_V1;
+		ver = SpellSaveBigMap::Version::HONZAQ_V1;
 
 	// try save
 	if(m_bigmap.Save(path,ver))
 	{
-		wxMessageBox(string_format("Failed saving Spellcross savegame to \"%s\"!",path),"Error",wxICON_ERROR);
+		wxMessageBox(string_format("Failed saving Spellcross savegame to \"%s\"!\n%s",path,m_bigmap.m_last_error),"Error",wxICON_ERROR);
 		return;
 	}	
 }
+
+
+// save all in new format
+void FormSaveEdit::OnSaveAll(wxCommandEvent& event)
+{
+	std::vector<std::filesystem::path> list;
+	for(int k = 0; k < chSaves->GetCount(); k++)
+	{
+		auto save = (SavesData*)chSaves->GetClientObject(k);
+		if(!save)
+			continue;
+		if(save->m_path.empty())
+			continue;
+		auto path = save->m_path / "big_map.sav";
+		if(std::filesystem::exists(path))
+			list.push_back(path);
+	}
+	if(list.empty())
+	{
+		wxMessageBox("Nothing to save!","Converting savegame format",wxICON_INFORMATION);
+		return;
+	}
+
+	std::string info = "Following saves will be converted to new format:\n";
+	for(auto &item: list)
+		info += string_format("  %s\n",item);
+	info += "\n";
+	info += "It is experimental function that may corrupt your saves beyond repair! Make backup before!\n\n";
+	info += "Do you want to proceed?";
+
+	wxMessageDialog dlg(this,info,"Converting savegame format",wxICON_QUESTION|wxYES_NO|wxNO_DEFAULT);
+	if(dlg.ShowModal() != wxID_YES)
+		return;
+
+	SpellSaveBigMap::Version ver = SpellSaveBigMap::Version::HONZAQ_V1;
+	for(auto &path: list)
+	{
+		if(m_bigmap.Load(path,m_common_fs_path))
+		{
+			wxMessageBox(string_format("Loading \"%s\" failed!\n%s",path,m_bigmap.m_last_error),"Converting savegame format",wxICON_ERROR);
+			break;
+		}
+		if(m_bigmap.Save(path, ver))
+		{
+			wxMessageBox(string_format("Failed saving Spellcross savegame to \"%s\"!\n%s",path,m_bigmap.m_last_error),"Converting savegame format",wxICON_ERROR);
+			break;
+		}
+		if(m_bigmap.Load(path,m_common_fs_path))
+		{
+			wxMessageBox(string_format("Re-loading converted \"%s\" failed!\n%s",path,m_bigmap.m_last_error),"Converting savegame format",wxICON_ERROR);
+			break;
+		}
+	}
+
+	UpdateList();	
+}
+
 
 // reload lists from current session
 void FormSaveEdit::UpdateList()
