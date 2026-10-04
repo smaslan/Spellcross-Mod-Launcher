@@ -39,21 +39,21 @@ Here is brief list of things it can do:
 
 The tool has integrated game installer so the game does not have to be installed via DOSbox. But more importantly it has integrated Spellcross binary patches for English game engine version. First, there is basic no-CD patch that works, unlike official V1.01 patch. But more importantly there is also unofficial patch from HonzaQ that increases limitations of the game engine, like max files count in game archives, max unit types count, etc. and fixes some bugs. Note the save games are not compatible. The tool can upconvert old saves to new format, but not downconvert to old format, so make backups!   
 
-![Game patcher](help/patch_1.png)
+![Game patcher](help/obr/patch_1.png)
 
 
 ## Randomizing units
 
 Bored of same enemies every time? Use units randomizer. The tool works in conjunction with my experimental [Spellcross Map Editor](https://github.com/smaslan/spellcross-map-edit). It can either randomize map units using rules defined in the editor for each map or it can force randomization by rules set defined in this tool. This way you can e.g. swap Alliance and OS units and see how it goes.
 
-![Save game editor](fig/scr03.png)
+![Units randomizer](fig/scr03.png)
 
 
 ## Randomizing trees
 
 The visual of some maps is kind of boring. Especially the first three "grassy" levels. So I made a randomizer that allows you to create rules with probabilities that will replace trees in the maps every time you start the game.
 
-![Save game editor](fig/scr04.png)
+![Trees randomizer](fig/scr04.png)
 
 
 ## Save game editor
@@ -71,6 +71,7 @@ Well, apart from few [attempts](https://spellcross.kvalitne.cz/mod/spell_mod_bui
 ## Credits
 
 The project uses few very useful external open source libraries:
+- `HonzaQ`: patch to remove many limitations of original Spellcross engine binary.
 - `Spellcross Map Editor`: shared Spellcross handling libraries ([https://github.com/smaslan/spellcross-map-edit](https://github.com/smaslan/spellcross-map-edit))
 - `wxWidgets`: multiplatform graphical used interface ([https://github.com/wxWidgets/wxWidgets/](https://github.com/wxWidgets/wxWidgets/))
 - `simpleini`: cross-platform library handling INI-style conf. files ([https://github.com/brofield/simpleini](https://github.com/brofield/simpleini))
