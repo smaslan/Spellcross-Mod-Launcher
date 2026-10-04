@@ -403,6 +403,7 @@ public:
         bool do_fix;
         bool is_workdir;
         SpellSaveBigMap m_bigmap;
+        std::vector<std::string> map_names;
     };
     typedef std::vector<Save> Saves;
     

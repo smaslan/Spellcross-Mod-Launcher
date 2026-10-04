@@ -3012,7 +3012,14 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     // possible map DTA files
                     std::string key = "*.DTA";
                     if(!wildcmp(key,name))
+                        continue;                                      
+
+                    // skip maps that were visited in listed save game
+                    std::string map_name = name;
+                    map_name = strrep(map_name,".DTA",".MAP");
+                    if(iequals(config.save_map_names,map_name) >= 0)
                         continue;
+                    
                     if(arch->GetFile(name,data))
                     {
                         PrintConsole("failed! Trees randomizer cannot load file \"%s\" in COMMON.FS.\n",name);

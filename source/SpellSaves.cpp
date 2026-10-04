@@ -21,7 +21,8 @@ int SpellSave::LoadSave(std::filesystem::path dir,Save &save, bool allow_empty)
     save.is_empty = true;
     save.date = "";
     save.is_workdir = iequals(save.dir_name,"WORKDIR");
-    
+    save.map_names.clear();
+        
     // try load name
     auto path = dir / "NAME.SAV";
     std::string name;
@@ -44,6 +45,9 @@ int SpellSave::LoadSave(std::filesystem::path dir,Save &save, bool allow_empty)
         auto time = std::filesystem::last_write_time(path);
         save.date = get_time_str(time);
     }
+
+    // try list MAP files (visited map names)
+    fs_list_dir(dir, "*.MAP", true, false, &save.map_names);
 
     return(0);
 }
@@ -593,7 +597,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
         res.group = (SpellSaveResearch::Group)ptr[6];
         res.cost = *(int16_t*)&ptr[13];
         res.time = *(int16_t*)&ptr[9];
-        res.level = ptr[4];        
+        res.level = ptr[8];        
         res.state = *(int16_t*)&ptr[4];
         res.available = 0;
 
@@ -971,7 +975,7 @@ int SpellSaveBigMap::Load(std::filesystem::path path,std::shared_ptr<FSarchive> 
     level.stat_loss_air = *(int32_t*)&raw[m_ver_shift + 0x5131];
     level.stat_loss_com = *(int32_t*)&raw[m_ver_shift + 0x5135];
 
-    level.difficulty = *(int32_t*)&raw[0x52A9];
+    level.difficulty = *(int32_t*)&raw[m_ver_shift + 0x52A9];
 
     LogFile::Write("done\n");
 

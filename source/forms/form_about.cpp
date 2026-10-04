@@ -180,6 +180,7 @@ FormAbout::FormAbout( wxWindow* parent,std::string ver_label,wxWindowID id, cons
 		"Also contains useful tools such as save game editor, save game backup tool and units randomizer.\n"
 		"Project is purely experimenal and is provided without any warranty! For details see attached help or project Git.\n\n"
 		"Credits/used libraries:\n"
+		"HonzaQ: patch to remove many limitations of original Spellcross engine binary\n"
 		"Spellcross Map Editor: shared Spellcross libraries (https://github.com/smaslan/spellcross-map-edit)\n"
 		"wxWidgets: multiplatform graphical used interface (https://github.com/wxWidgets/wxWidgets/)\n"
 		"simpleini: cross-platform library handling INI-style conf. files (https://github.com/brofield/simpleini)\n"

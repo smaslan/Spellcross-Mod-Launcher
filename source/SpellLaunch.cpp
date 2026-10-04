@@ -276,13 +276,13 @@ int SpellLaunch::MakeSpellWin32RunBat(std::filesystem::path spell_dir,std::files
 
 // known versions
 const std::vector<SpellLaunch::GameVersion> SpellLaunch::c_ver_list = {
-        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_100, SpellLaunch::SaveFormat::ORIG, "English (initial release)", 17968204797226898554ULL, 2600, 170, 90, 36},
-        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_101, SpellLaunch::SaveFormat::ORIG, "English (patch V1.01)", 260851315303727605ULL, 2600, 170, 90, 36},
-        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_CRACK, SpellLaunch::SaveFormat::ORIG, "English (unknown no-cd patch)", 4795372327937121801ULL, 2600, 170, 90, 36},
-        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_HONZAQ_V10, SpellLaunch::SaveFormat::HONZAQ, "English (HonzaQ patch V1.0)", 11652744635764266822ULL, 4096, 600, 128, 72},
-        {SpellLaunch::EngineVersion::CZE, SpellLaunch::ExeVersion::CZ_100, SpellLaunch::SaveFormat::ORIG, "Czech (initial release)", 5049612772850811613ULL, 2600, 170, 90, 36},
-        {SpellLaunch::EngineVersion::CZE, SpellLaunch::ExeVersion::CZ_106, SpellLaunch::SaveFormat::ORIG, "Czech (patch V1.06)", 18295206956031377920ULL, 2600, 170, 90, 36},
-        {SpellLaunch::EngineVersion::CZE, SpellLaunch::ExeVersion::CZ_107, SpellLaunch::SaveFormat::ORIG, "Czech (patch V1.07)", 5526712442606542630ULL, 2600, 170, 90, 36}
+        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_100, SpellLaunch::SaveFormat::ORIG, "English (initial release)", 17968204797226898554ULL, 2600, 170, 90, 36, "2600 files/*.FS, ~170 grp/UNITS.FSU, 90 unit types, 36 upgrades"},
+        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_101, SpellLaunch::SaveFormat::ORIG, "English (patch V1.01)", 260851315303727605ULL, 2600, 170, 90, 36, "2600 files/*.FS, ~170 grp/UNITS.FSU, 90 unit types, 36 upgrades"},
+        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_CRACK, SpellLaunch::SaveFormat::ORIG, "English (unknown no-cd patch)", 4795372327937121801ULL, 2600, 170, 90, 36, "2600 files/*.FS, ~170 grp/UNITS.FSU, 90 unit types, 36 upgrades"},
+        {SpellLaunch::EngineVersion::ENG, SpellLaunch::ExeVersion::EN_HONZAQ_V10, SpellLaunch::SaveFormat::HONZAQ, "English (HonzaQ patch V1.0)", 11652744635764266822ULL, 4096, 600, 128, 72, "4096 files/*.FS, ~600 grp/UNITS.FSU, 127 unit types, 72 upgrades, bug fixes"},
+        {SpellLaunch::EngineVersion::CZE, SpellLaunch::ExeVersion::CZ_100, SpellLaunch::SaveFormat::ORIG, "Czech (initial release)", 5049612772850811613ULL, 2600, 170, 90, 36, "2600 files/*.FS, ~170 grp/UNITS.FSU, 90 unit types, 36 upgrades"},
+        {SpellLaunch::EngineVersion::CZE, SpellLaunch::ExeVersion::CZ_106, SpellLaunch::SaveFormat::ORIG, "Czech (patch V1.06)", 18295206956031377920ULL, 2600, 170, 90, 36, "2600 files/*.FS, ~170 grp/UNITS.FSU, 90 unit types, 36 upgrades"},
+        {SpellLaunch::EngineVersion::CZE, SpellLaunch::ExeVersion::CZ_107, SpellLaunch::SaveFormat::ORIG, "Czech (patch V1.07)", 5526712442606542630ULL, 2600, 170, 90, 36, "2600 files/*.FS, ~170 grp/UNITS.FSU, 90 unit types, 36 upgrades"}
 };
 
 // get version info by its hash
@@ -336,6 +336,7 @@ int SpellLaunch::GameEngineVersion(std::filesystem::path spell_dir, std::string 
     {
         ver.engine_ver = EngineVersion::ENG;
         ver.version_name = "English (unknown version)";
+        ver.description = "";
         ver.fs_count_limit = 2600;
         ver.unit_types_limit = 90;
         ver.fsu_count_limit = 165;
@@ -348,6 +349,7 @@ int SpellLaunch::GameEngineVersion(std::filesystem::path spell_dir, std::string 
     {
         ver.engine_ver = EngineVersion::CZE;
         ver.version_name = "Czech (unknown version)";
+        ver.description = "";
         ver.fs_count_limit = 2600;
         ver.unit_types_limit = 90;
         ver.fsu_count_limit = 165;
@@ -489,9 +491,10 @@ int SpellLaunch::PatchExe(std::filesystem::path spell_dir,std::string spell_exe,
             }
             data[item.first] = item.second;
         }
+        ver.exe_version = ExeVersion::EN_CRACK;
     }
     
-    if(ver.exe_version >= ExeVersion::EN_CRACK && target_ver.exe_version == ExeVersion::EN_HONZAQ_V10)
+    if(ver.exe_version >= ExeVersion::EN_CRACK && ver.exe_version < ExeVersion::EN_HONZAQ_V10 && target_ver.exe_version == ExeVersion::EN_HONZAQ_V10)
     {
         // now apply HonzaQ patch
         std::string err;

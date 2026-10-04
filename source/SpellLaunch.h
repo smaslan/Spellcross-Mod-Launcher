@@ -54,6 +54,7 @@ public:
         int fsu_count_limit;
         int unit_types_limit;
         int upg_limit;
+        std::string description;
     };
 
     

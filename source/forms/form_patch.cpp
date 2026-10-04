@@ -72,6 +72,7 @@ FormPatch::FormPatch(wxWindow* parent,wxWindowID id,const wxString& title,const 
 		SetIcon(appIcon);
 
 	
+	Bind(wxEVT_CLOSE_WINDOW,&FormPatch::OnClose,this);
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormPatch::OnCloseClick,this,wxID_BTN_EXIT);
 	Bind(wxEVT_COMMAND_BUTTON_CLICKED,&FormPatch::OnCloseClick,this,wxID_BTN_PATCH);
 	
@@ -91,7 +92,7 @@ FormPatch::~FormPatch()
 // close window
 void FormPatch::OnClose(wxCloseEvent& ev)
 {
-	
+	EndModal(false);
 }
 
 // on close form

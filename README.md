@@ -35,6 +35,13 @@ Here is brief list of things it can do:
 - It has integrated patcher for EN game engine that should work (unlike V1.01 patch).
 
 
+## Installing game and patching
+
+The tool has integrated game installer so the game does not have to be installed via DOSbox. But more importantly it has integrated Spellcross binary patches for English game engine version. First, there is basic no-CD patch that works, unlike official V1.01 patch. But more importantly there is also unofficial patch from HonzaQ that increases limitations of the game engine, like max files count in game archives, max unit types count, etc. and fixes some bugs. Note the save games are not compatible. The tool can upconvert old saves to new format, but not downconvert to old format, so make backups!   
+
+![Game patcher](help/patch_1.png)
+
+
 ## Randomizing units
 
 Bored of same enemies every time? Use units randomizer. The tool works in conjunction with my experimental [Spellcross Map Editor](https://github.com/smaslan/spellcross-map-edit). It can either randomize map units using rules defined in the editor for each map or it can force randomization by rules set defined in this tool. This way you can e.g. swap Alliance and OS units and see how it goes.
@@ -100,6 +107,12 @@ Also, you can star my project here on GitHub if you like to help me out on a way
 - [V1.46, 28th September 2026 (7zip file)](./builds/Spellcross-Mod-Launcher-V1.46.7z)
   - add archive limits check and archive pruning (careful, not fully tested, make backups!).
   - very untested version!
+- [V1.47, 4th October 2026 (7zip file)](./builds/Spellcross-Mod-Launcher-V1.47.7z)
+  - add new game engine patch HonzaQ V1.0 (careful, not fully tested, make backups!).
+  - WARNING: savegames of new patched version are not backwards compatible! The tool can upconvert old saves to new format, but not downconvert to the old format! So make backups!
+  - add new mod `*.DEF` file command to restrict mod for specific EXE patch version(s).
+  - Trees randomizer excludes maps that were already visited in current BIGMAP in autosave (SAVE/WORKDIR). Randomizing those resulted to random tiles displayed everywhere and potential game crash. 
+  
 
 
 ## Usage

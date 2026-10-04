@@ -20,7 +20,7 @@
 #include "forms/form_save_edit.h"
 #include "forms/form_save_backup.h"*/
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-01 19:37:35
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-01 21:46:59
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -53,7 +53,7 @@
 #include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-01 19:37:35
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-01 21:46:59
 
 
 // app entry point class
@@ -119,6 +119,7 @@ public:
 		SpellLaunch::GameVersion ver;
 		bool prune_archives;
 		bool check_limits;
+		std::vector<std::string> save_map_names;
 	};
 
 	SpellMod::Config MakeModConfig();
@@ -190,6 +191,7 @@ private:
 	void ListSpellExecutables(std::filesystem::path spell_dir, wxChoice* choice);
 	SpellLaunch::GameVersion CheckExeVersion();
 	ProcTh::Params GetProcThParams();
+	int GetSaveStuff(ProcTh::Params& mod_config,SpellSave::Save& save,std::string save_name="WORKDIR");
 
 	int LoadOptionsIni(std::vector<SpellModOption>& options);
 	int SaveOptionsIni();
@@ -222,7 +224,7 @@ protected:
 	
 	
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-01 19:37:35
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-01 21:46:59
 	enum
 	{
 		wxID_FORM_MAIN = 6000,
@@ -273,6 +275,7 @@ protected:
 		wxID_BTN_SPELLCD_PATH,
 		wxID_CH_CD_LETTER,
 		wxID_TXT_GAME_ENG_VER,
+		wxID_TXT_PATCH_DESC,
 		wxID_CH_DOSBOX_PATH,
 		wxID_BTN_DB_PATH,
 		wxID_CB_NO_AUTOEXEC,
@@ -320,6 +323,8 @@ protected:
 	wxChoice* chVirtCD;
 	wxStaticText* m_staticText46;
 	wxTextCtrl* txtGameEngVersion;
+	wxStaticText* m_staticText64;
+	wxTextCtrl* txtPatchDesr;
 	wxStaticLine* m_staticline42;
 	wxStaticText* m_staticText118;
 	wxChoice* chDOSboxPath;
@@ -352,7 +357,7 @@ protected:
 	wxButton* btnRestoreWDmod;
 	wxButton* btnRunMod;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-01 19:37:35
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-01 21:46:59
 
 
 public:

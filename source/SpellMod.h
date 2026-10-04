@@ -133,7 +133,7 @@ public:
         SpellTreeRandomizerRules trees_rand_rules;
         std::vector<SpellModOption> options;
         SpellLaunch::GameVersion ver;
-        
+        std::vector<std::string> save_map_names;
     };    
 
     class ModArchivesList
