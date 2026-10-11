@@ -158,7 +158,9 @@ Proměnná "MAKE" je povinná a určuje cílovou složku, kam nástroj generuje 
 <p align="justify">
 "option_label" je unikátní identifikátor proměnné, který je použitelný v dalším kódu. "option_description" je textový popis volby, který se zobrazí na hlavním panelu nástroje. "min_value", "max_value" a "default_value" definují rozsah hodnot volby a jeho výchozí hodnotu. Poslední parametr je volitelný výčet textových hodnot oddělený středníky. Volba "LEVEL" je vyhrazený název a nástroj se pokusí získat její výchozí hodnotu z poslední uložené pozice WORKDIR, takže by jeho hodnota měla automaticky odpovídat aktuální pozici hráče.<br>
 &nbsp;&nbsp; Volitelný příkaz "version()" umožňuje omezit použití modu na verzi herního enginu. Parametr CZE předpokládá originální českou verzi. Parametr ENG předpokládá anglickou nebo jinou jazykovou mutaci.<br> 
-&nbsp;&nbsp; Volitelný příkaz "exeversion()" umožňuje omezit použití modu na konkrétní verzi binárky hry (patch). Parametry příkazu jsou verze jak se zobrazují v hlavním panelu <b>Game engine version</b>. Např. "English (HonzaQ patch V1.0)". Verzí zde může být neomezené množství.<br>
+&nbsp;&nbsp; Volitelný příkaz "exeversion()" umožňuje omezit použití modu na konkrétní verzi binárky hry (patch). Parametry příkazu jsou verze jak se zobrazují v hlavním panelu <b>Game engine version</b>. Např. "English (HonzaQ patch V1.0)".
+ Verzí zde může být neomezené množství.<br>
+&nbsp;&nbsp; Volitelný příkaz "minexeversion()" umožňuje omezit použití modu na minimální verzi binárky hry (patch). Parametr příkazu je verze jak se zobrazuje v hlavním panelu <b>Game engine version</b>. Např. "English (HonzaQ patch V1.0)".<br>
 &nbsp;&nbsp; V "*.def" souboru následují sekce pro každý datový archiv hry, který má být modifikován. Příklad pro archiv "COMMON.FS" je následující:
 </p>
 <pre>
@@ -381,6 +383,14 @@ MissionData {
   </td>
   <td>
    Přidán nový patch pro anglický game engine od HonzaQ, který rozšiřuje některé limitace hry a opravuje bugy. Rozšířen editor uložených pozic o možnost konverze starého formátu na nový kompatibilní s patchem.
+  </td> 
+ <tr>
+ <tr valign="top">
+  <td width="130">
+   <span class="d1">V1.48 - 11.10.2026</span>:
+  </td>
+  <td>
+   Přidán nový patch pro anglický game engine od HonzaQ V1.15, který rozšiřuje některé limitace hry a opravuje bugy. Opraveny problémy se zvukem, opraveny záseky hry během skupinového přesunu jednotek a vypnuta panika jednotek v Hard obtížnost.
   </td> 
  <tr>
 </table>

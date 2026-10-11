@@ -285,7 +285,7 @@ bool iswild(const char* wild)
 }
 
 // compare wildcard string to string
-int wildcmp(std::string &wild,std::string &string)
+int wildcmp(const std::string &wild,const std::string &string)
 {
     return(wildcmp(wild.c_str(),string.c_str()));
 }
@@ -494,7 +494,7 @@ bool iequals(const std::wstring& a,const std::wstring& b)
 }
 
 // compare string to list of strings case insensitive, return matching index or -1
-int iequals(std::vector<std::string> &list, std::string &str)
+int iequals(const std::vector<std::string> &list, const std::string &str)
 {
     auto it = std::ranges::find_if(list,[str](const std::string& a){return(iequals(a,str));});
     if(it == list.end())

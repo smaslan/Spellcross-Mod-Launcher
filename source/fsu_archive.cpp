@@ -233,12 +233,20 @@ bool FSUarchive::Compare(FSUarchive* ref)
 }
 
 // get resource names list
-std::vector<std::string> FSUarchive::GetResourceNanes()
+std::vector<std::string> FSUarchive::GetResourceNames()
 {
 	std::vector<std::string> names_list;
 	for(auto &item: m_list)
 		names_list.push_back(item->name);
 	return(names_list);
+}
+// get resources map
+std::map<int,std::string> FSUarchive::GetResourceMap()
+{
+	std::map<int,std::string> list;
+	for(int k = 0; k < m_list.size(); k++)
+		list.insert({k,m_list[k]->name});
+	return(list);
 }
 
 //---------------------------------------------------------------------------
@@ -465,7 +473,7 @@ int FSUarchive::LoadResource(uint8_t *data, int rid, FSU_resource *res, LZWexpan
 		uint8_t *se = spr.data() + spr.size();
 
 		// alloc decoded image data (maximum possible size)
-		sprite->data.resize(spr.size()*2);		
+		sprite->data.resize(spr.size()*10);		
 		uint8_t *img_data = sprite->data.data();
 		uint8_t *img = img_data;
 
@@ -571,7 +579,7 @@ int FSUarchive::LoadResource(uint8_t *data, int rid, FSU_resource *res, LZWexpan
 		sprite->not_decoded = false;
 	}
 
-	/*if(strcmp(res->name,"SRANG") == 0)
+	/*if(res->name == "OH58D")
 		i++;*/
 	
 	
@@ -740,7 +748,8 @@ int FSU_sprite::SaveSprite(std::filesystem::path path, std::vector<uint8_t> &buf
 		uint8_t* p_last = data;
 		uint16_t *p_x_offset = (uint16_t*)data; data += sizeof(uint16_t);
 		uint8_t* p_full_count = (uint8_t*)data; data += sizeof(uint8_t);
-		uint8_t* p_part_count = (uint8_t*)data; data += sizeof(uint8_t);		
+		uint8_t* p_part_count = (uint8_t*)data; data += sizeof(uint8_t);
+		uint8_t* p_last_empty = data;
 		
 		uint8_t quad[4] = {0,0,0,0};
 		uint8_t mask[4] = {0xFF,0xFF,0xFF,0xFF};
@@ -775,7 +784,8 @@ int FSU_sprite::SaveSprite(std::filesystem::path path, std::vector<uint8_t> &buf
 			if(pid >= 4 || x == x_buf_size - 1)
 			{
 				is_partial |= (pid < 4);
-				bool is_valid = part_count == 0 && full_count == 0;
+				bool is_empty = part_count == 0 && full_count == 0;
+				bool is_valid = is_empty;
 				for(int k = 0; k < pid; k++)
 					is_valid |= (mask[k] == 0);
 				// put pixel data chunk
@@ -792,9 +802,13 @@ int FSU_sprite::SaveSprite(std::filesystem::path path, std::vector<uint8_t> &buf
 				memset(quad,0x00,4);
 				memset(mask,0xFF,4);
 				pid = 0;
+				is_empty = part_count == 0 && full_count == 0;
 				if(is_valid)
 				{
-					p_last = data;
+					if(is_empty)
+						p_last = p_last_empty;
+					else
+						p_last = data;
 					last_part_count = part_count;
 					last_full_count = full_count;
 				}

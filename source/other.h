@@ -103,7 +103,7 @@ std::wstring wstring_format(const std::wstring fmt,...);
 std::string format_bin(uint32_t dword,int digits=32,bool gaps=false);
 bool iequals(const std::string& a,const std::string& b);
 bool iequals(const std::wstring& a,const std::wstring& b);
-int iequals(std::vector<std::string>& list,std::string& str);
+int iequals(const std::vector<std::string>& list,const std::string& str);
 bool match_substr(std::wstring& str,std::wstring& substr,bool case_sensitive=true);
 std::string& strrep(std::string& str,std::string key,std::string rep);
 int savestr(std::wstring path,std::string& str);
@@ -144,7 +144,7 @@ int fs_list_dir(std::filesystem::path dir,std::string wild,bool files,bool folde
 
 bool iswild(std::string wild);
 bool iswild(const char* wild);
-int wildcmp(std::string &wild,std::string &string);
+int wildcmp(const std::string &wild,const std::string &string);
 int wildcmp(const char* wild,const char* string);
 void strcpy_noext(const char* dest,const char* src);
 int hex2num(char hex);

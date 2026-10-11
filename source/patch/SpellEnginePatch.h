@@ -2,20 +2,31 @@
 
 /**
  * =================================================================================================
- * Spellcross Engine Patch V1.0 - C++ Integration Module
+ * Spellcross Engine Patch V1.15 - C++ Integration Module
  * =================================================================================================
  * Compatibility: SPELCROS.EXE (1,632,112 bytes)
- * Architecture: x86 / DOS / DOS32A / LE (Linear Executable)
- * Author: HonzaQ & AI Assistant (2026)
+ * Architecture: x86 / DOS / DOS4GW / LE (Linear Executable)
+ * Author: HonzaQ & AI Assistant (2026-10-10)
  *
- * This module applies the complete engine modifications for:
- *   - Extended unit limits (87 -> 127 units)
- *   - Extended sound definitions (A_SOUNDS: 87 -> 127, Z_SOUNDS: 47 -> 80, H_SOUNDS: 27 -> 50)
- *   - Extended upgrades & workshop (36 -> 72 upgrades, 142 -> 180 byte stride)
- *   - Expanded save/load state buffer (29,089 bytes)
- *   - Expanded UNITS.FSU TOC (220 KB -> 1 MB) and .FS TOC (2,600 -> 4,096 files)
- *   - Expanded sprite/frame cache buffers (64 KB each)
- *   - Dynamic MainMenu version overlay with centering & adaptive background box
+ * This module applies the complete unified engine modifications:
+ *   1. Extended limits V1.0:
+ *      - Extended unit limits (90 -> 127 units)
+ *      - Extended sound definitions (A_SOUNDS: 90 -> 127, Z_SOUNDS: 48 -> 80, H_SOUNDS: 28 -> 50)
+ *      - Extended upgrades & workshop (36 -> 72 upgrades, 142 -> 180 byte stride)
+ *      - Expanded save/load state buffer (29,089 bytes payload, Option B)
+ *      - Expanded UNITS.FSU TOC (220 KB -> 1 MB) and .FS TOC (2,600 -> 4,096 files)
+ *      - Expanded sprite/frame cache buffers (64 KB each)
+ *      - Dynamic MainMenu version overlay with centering & adaptive background box
+ *   2. Selective panic & entrenchment floor (Panika V5):
+ *      - Restored 2x multiplier for prolonged entrenchment (>22 turns)
+ *      - Enforced hard floor clamping to entrenchment limit instead of 0
+ *      - Hard difficulty entrenchment limit set to 20% (0x14)
+ *      - Panic threshold raised to 14 (0x0E) across all 4 engine checks
+ *   3. Group selection and tactical map clicking lock (Vyber skupin V1.14):
+ *      - Code Cave at VA 0x00054D16 checking motion/combat animation states
+ *      - Hook 1 at VA 0x0001A361 silently discarding keys 1-8 during unit movement
+ *      - Hook 2 at VA 0x000210EE silently discarding map clicks during unit movement
+ *      - UI buttons (Next turn, Info, Menu) remain fully responsive
  * =================================================================================================
  */
 
@@ -84,14 +95,16 @@ void Patch_Save_Load_Blocks(std::vector<uint8_t>& exe);
 void Patch_Loop_Bounds(std::vector<uint8_t>& exe);
 void Patch_Archive_TOC_Limits(std::vector<uint8_t>& exe);
 void Patch_MainMenu_Overlay(std::vector<uint8_t>& exe);
+void Patch_Panic_Morale(std::vector<uint8_t>& exe);
+void Patch_Group_Selection_Lock(std::vector<uint8_t>& exe);
 
 /**
- * @brief Checks if the executable has already been patched with Engine Patch V1.0.
+ * @brief Checks if the executable has already been patched with Engine Patch V1.15.
  */
 bool IsSpellcrossEnginePatched(const std::vector<uint8_t>& exe_vector);
 
 /**
- * @brief Applies the complete Spellcross Engine Patch V1.0 to the SPELCROS.EXE vector.
+ * @brief Applies the complete Spellcross Engine Patch V1.15 to the SPELCROS.EXE vector.
  * @param exe_vector Vector containing loaded SPELCROS.EXE bytes.
  * @param error_msg Optional pointer to string receiving error description on failure.
  * @return true on success, false on failure.

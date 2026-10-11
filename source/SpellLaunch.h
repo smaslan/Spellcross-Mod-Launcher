@@ -31,7 +31,8 @@ public:
         EN_100, // V1.00
         EN_101, // patch 1.01
         EN_CRACK, // some path or cracked?
-        EN_HONZAQ_V10, // HonzaQ patch V1.0
+        EN_HONZAQ_V100, // HonzaQ patch V1.00
+        EN_HONZAQ_V115, // HonzaQ patch V1.15
         CZ_100, // 1.00
         CZ_106, // CZ patch 1.06
         CZ_107 // CZ patch 1.07
@@ -61,6 +62,7 @@ public:
 
     static int GetVer(size_t hash,GameVersion& ver);
     static int GetVer(ExeVersion exe_ver,GameVersion& ver);
+    static int GetVer(std::string ver_name,GameVersion& ver);
     static int GameEngineVersion(std::filesystem::path spell_dir,std::string spell_exe,SpellLaunch::GameVersion& ver);
     static int PatchExe(std::filesystem::path spell_dir,std::string spell_exe,std::vector<SpellLaunch::GameVersion> &ver_list, bool check_only=true, std::string backup_name="SPELORIG.EXE");
 
@@ -72,6 +74,8 @@ private:
     static const std::string run_win32_name;
     static const std::string setup_win32_name;
     static const std::vector<SpellLaunch::GameVersion> c_ver_list;
+
+    static int Patch_HonzaQ100_to_base(std::vector<uint8_t>& exe);
 };
 
 

@@ -815,7 +815,7 @@ void FormTreeRand::OnSelectProbSprite(wxPropertyGridEvent& event)
 		return;
 	auto& rule = m_rules_group->rules[rid];
 	
-	auto spr = m_rules_group->terr->GetSprite(prop->GetLabel().ToStdString().c_str());
+	auto spr = m_rules_group->terr->GetSprite(prop->GetLabel().ToStdString());
 	if(!spr)
 		return;
 

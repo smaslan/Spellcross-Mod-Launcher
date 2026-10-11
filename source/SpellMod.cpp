@@ -257,7 +257,7 @@ std::vector<std::string> SpellArchive::GetItemNames()
     if(m_fs)
         return(m_fs->GetFileNames());
     else if(m_fsu)
-        return(m_fsu->GetResourceNanes());
+        return(m_fsu->GetResourceNames());
     std::vector<std::string> list;
     return(list);
 }
@@ -1111,9 +1111,45 @@ int SpellMod::LoadDEF(Config& config)
                 auto vid = iequals(func_params,config.ver.version_name);
                 if(vid < 0)
                 {
-                    PrintConsoleWithLog("failed! Line %d: EXE version \"%s\" not supported by this mod! Only version(s) {%s} supported. "
-                        "Either select different game (EXE) version or try using 'Setup->Apply patch to SPELCROS.EXE'.\n",
+                    PrintConsoleWithLog("failed! Line %d: EXE version \"%s\" not supported by this mod!\n"
+                        "Only version(s) {%s} supported.\n"
+                        "Either select different game (EXE) version or try using 'Setup->Apply patch to SPELCROS.EXE'.\n"
+                        "Also you may have old version of Spellcross Mod Launcher. Maybe try update?\n",
                         cmd.m_line,config.ver.version_name,merge_text_lines(func_params,",",true));
+                    LogFile::SetIndent(-1);
+                    return(1);
+                }
+            }
+            if(func_name == "minexeversion")
+            {
+                // lock mod to minimum version number:
+                //   minexeversion(min_exe_version_name);
+                if(func_params.size() != 1)
+                {
+                    PrintConsoleWithLog("failed! Line %d: wrong params count in command \"%s\".\n",cmd.m_line,cmd.m_raw);
+                    LogFile::SetIndent(-1);
+                    return(1);
+                }
+
+                // identify min version
+                auto min_ver_name = func_params[0];
+                SpellLaunch::GameVersion min_ver;
+                if(SpellLaunch::GetVer(min_ver_name,min_ver))
+                {
+                    PrintConsoleWithLog("failed! Line %d: wrong param value in command \"%s\". Version name \"%s\" not recognized in current version of Spellcross Mod Launcher. "
+                        "It may be typo in mod DEF file or maybe try update Launcher to new version.\n",cmd.m_line,cmd.m_raw,min_ver_name);
+                    LogFile::SetIndent(-1);
+                    return(1);
+                }
+
+                // check version
+                if(config.ver.exe_version < min_ver.exe_version)
+                {
+                    PrintConsoleWithLog("failed! Line %d: EXE version \"%s\" not supported by this mod!\n"
+                        "Only version \"%s\" or higher supported.\n"
+                        "Either select different game (EXE) version or try using 'Setup->Apply patch to SPELCROS.EXE'.\n"
+                        "Also you may have old version of Spellcross Mod Launcher. Maybe try update?\n",
+                        cmd.m_line,config.ver.version_name,min_ver_name);
                     LogFile::SetIndent(-1);
                     return(1);
                 }
@@ -1184,7 +1220,7 @@ int SpellMod::LoadDEF(Config& config)
         }
         else
         {
-            PrintConsoleWithLog("failed! Line %d: uknown command \"%s\".\n",cmd.m_line,cmd.m_raw);
+            PrintConsoleWithLog("failed! Line %d: uknown command \"%s\". Either wrong data in mod DEF file or you may have old version of Spellcross Mod Launcher. Maybe try update?\n",cmd.m_line,cmd.m_raw);
             LogFile::SetIndent(-1);
             return(1);
         }

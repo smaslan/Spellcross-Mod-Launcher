@@ -140,3 +140,59 @@ int setPGsize(wxPropertyGrid* pg,int max_count,int min_count)
 	
 	return(0);
 }
+
+// get currently selected property index
+int GetPGselectionID(wxPropertyGrid* pg)
+{
+	wxPGProperty* selectedProp = pg->GetSelectedProperty();
+	int absoluteIndex = -1; // Defaults to -1 if nothing is selected
+
+	if(selectedProp)
+	{
+		int counter = 0;
+		// Use wxPG_ITERATE_VISIBLE or wxPG_ITERATE_PROPERTIES depending on what you count as an index
+		for(wxPropertyGridIterator it = pg->GetIterator(wxPG_ITERATE_VISIBLE); !it.AtEnd(); ++it)
+		{
+			if(*it == selectedProp)
+			{
+				absoluteIndex = counter;
+				break;
+			}
+			counter++;
+		}
+	}
+	return(absoluteIndex);
+}
+
+// select property by index
+void SetPQselectionByID(wxPropertyGrid* pg, int targetIndex)
+{
+	int currentIndex = 0;
+
+	//pg->RecalculateVirtualHeight();
+	pg->GetParent()->Layout();
+
+
+	// Choose your flag: 
+	// - wxPG_ITERATE_VISIBLE: Counts only uncollapsed rows (as the user sees them)
+	// - wxPG_ITERATE_PROPERTIES: Counts actual data properties, skipping category headers
+	for(wxPropertyGridIterator it = pg->GetIterator(wxPG_ITERATE_VISIBLE); !it.AtEnd(); ++it)
+	{
+		if(currentIndex == targetIndex)
+		{
+			wxPGProperty* prop = *it;
+			if(prop)
+			{
+				pg->GetParent()->CallAfter([pg,prop]() {
+					pg->SelectProperty(prop,true);
+					//pg->SetFocus();
+					});
+				
+				/*pg->SelectProperty(prop,true); // Select the property in the grid
+				pg->EnsureVisible(prop);   // Optional: Scroll to it if it's off-screen*/
+			}
+			return;
+		}
+		currentIndex++;
+	}
+}

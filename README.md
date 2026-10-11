@@ -113,7 +113,13 @@ Also, you can star my project here on GitHub if you like to help me out on a way
   - WARNING: savegames of new patched version are not backwards compatible! The tool can upconvert old saves to new format, but not downconvert to the old format! So make backups!
   - add new mod `*.DEF` file command to restrict mod for specific EXE patch version(s).
   - Trees randomizer excludes maps that were already visited in current BIGMAP in autosave (SAVE/WORKDIR). Randomizing those resulted to random tiles displayed everywhere and potential game crash. 
-  
+- [V1.48, 11th October 2026 (7zip file)](./builds/Spellcross-Mod-Launcher-V1.48.7z)
+  - add new game engine patch HonzaQ V1.15 (careful, not fully tested, make backups!):
+    - Fixed game crash during group movement.
+    - Fixed buggy movement sounds.
+    - No panic mode for Hard difficulty.  
+  - add new mod `*.DEF` file command to restrict mod for minimum EXE patch version(s).
+  - Trees randomizer excludes maps that were already visited in current BIGMAP in autosave (SAVE/WORKDIR). Randomizing those resulted to random tiles displayed everywhere and potential game crash.  
 
 
 ## Usage

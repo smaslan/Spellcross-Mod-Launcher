@@ -120,14 +120,19 @@ public:
 		STRING,
 		WSTRING,
 		ENUM,
+		ENUM_STR,
 		ARRAY
 	};
 
 	DataType m_type;
 	void* m_data;
+	int m_mask;
 
-	wxPGobj(DataType type,void* data) :
-		m_type(type),m_data(data) {};
+	wxPGobj(DataType type,void* data, int mask=0) :
+		m_type(type),
+		m_data(data),
+		m_mask(mask)
+	{};
 
 	bool Update(wxPGProperty *prop)
 	{
@@ -136,7 +141,16 @@ public:
 		else if(m_type == wxPGobj::DataType::UINT)
 			*(unsigned int*)m_data = prop->GetValue().GetLong();
 		else if(m_type == wxPGobj::DataType::BOOL)
-			*(bool*)m_data = prop->GetValue().GetBool();
+		{
+			int value = prop->GetValue().GetBool();
+			if(m_mask)
+			{
+				auto old = *(int*)m_data;
+				int shift = std::countr_zero(static_cast<unsigned int>(m_mask));
+				value = ((value<<shift) & m_mask) | (old & ~m_mask);
+			}
+			*(int*)m_data = value;
+		}
 		else if(m_type == wxPGobj::DataType::REAL)
 			*(double*)m_data = prop->GetValue().GetReal();
 		else if(m_type == wxPGobj::DataType::STRING)
@@ -144,7 +158,24 @@ public:
 		else if(m_type == wxPGobj::DataType::WSTRING)
 			*(std::wstring*)m_data = prop->GetValue().GetString();
 		else if(m_type == wxPGobj::DataType::ENUM)
-			*(int*)m_data = prop->GetValue().GetLong();
+		{
+			int value = prop->GetValue().GetLong();
+			if(m_mask)
+			{
+				auto old = *(int*)m_data;
+				int shift = std::countr_zero(static_cast<unsigned int>(m_mask));
+				value = ((value<<shift) & m_mask) | (old & ~m_mask);
+			}
+			*(int*)m_data = value;
+		}
+		else if(m_type == wxPGobj::DataType::ENUM_STR)
+		{
+			int value = prop->GetValue().GetLong();
+			auto list = prop->GetChoices();
+			for(int k = 0; k < list.GetCount(); k++)
+				if(list.GetValue(k) == value)
+					*(std::string*)m_data = (value < 0)?std::string(""):list.GetLabel(k).ToStdString();
+		}
 		else if(m_type == wxPGobj::DataType::ARRAY)
 		{
 			auto data = (std::vector<int>*)m_data;
@@ -197,11 +228,22 @@ public:
 // PropGrid boolean property using pointer to linked variable
 class wxBoolPropertyExt : public wxBoolProperty
 {
-public:
-	wxBoolPropertyExt(const wxString& label,const wxString& name,bool* value)
-		: wxBoolProperty(label,name,*value)
+private:
+	int MaskValue(int value,int mask)
 	{
-		SetClientObject(new wxPGobj(wxPGobj::DataType::BOOL,value));
+		if(!mask)
+			return(value);
+		int shift = std::countr_zero(static_cast<unsigned int>(mask));
+		mask >>= shift;
+		value = (value>>shift) & mask;
+		return(value);
+	}
+
+public:
+	wxBoolPropertyExt(const wxString& label,const wxString& name,bool* value,int mask=0)
+		: wxBoolProperty(label,name,MaskValue(*value,mask))
+	{
+		SetClientObject(new wxPGobj(wxPGobj::DataType::BOOL,value,mask));
 	}
 };
 
@@ -227,6 +269,7 @@ public:
 			SetMaxLength(max_len);
 		SetClientObject(new wxPGobj(wxPGobj::DataType::STRING,value));
 	};
+
 	wxStringPropertyExt(const wxString& label,const wxString& name,std::wstring* value,int max_len=-1)
 		: wxStringProperty(label,name,*value)
 	{
@@ -239,11 +282,40 @@ public:
 // PropGrid unsigned integer property using pointer to linked variable
 class wxEnumPropertyExt : public wxEnumProperty
 {
-public:
-	wxEnumPropertyExt(const wxString& label,const wxString& name,wxPGChoices &choices, int *value)
-		: wxEnumProperty(label,name,choices,*value)
+private:
+	
+	int MaskValue(int value,int mask)
 	{
-		SetClientObject(new wxPGobj(wxPGobj::DataType::ENUM,value));
+		if(!mask)
+			return(value);
+		int shift = std::countr_zero(static_cast<unsigned int>(mask));
+		mask >>= shift;
+		value = (value>>shift) & mask;
+		return(value);
+	}
+
+	int GetIndex(std::string value, wxPGChoices& choices)
+	{		
+		for(int k = 0; k < choices.GetCount(); k++)
+			if(choices.GetLabel(k) == value)
+				return(choices.GetValue(k));
+		return(-1);
+	}
+
+public:
+	
+	// enum with index value
+	wxEnumPropertyExt(const wxString& label,const wxString& name,wxPGChoices &choices, int *value, int mask=0)
+		: wxEnumProperty(label,name,choices,MaskValue(*value,mask))
+	{
+		SetClientObject(new wxPGobj(wxPGobj::DataType::ENUM,value,mask));
+	}
+	
+	// enum with string value, index -1 is assumes as no selection and will set value of ""
+	wxEnumPropertyExt(const wxString& label,const wxString& name,wxPGChoices& choices,std::string* value)
+		: wxEnumProperty(label,name,choices,GetIndex(*value,choices))
+	{
+		SetClientObject(new wxPGobj(wxPGobj::DataType::ENUM_STR,value));
 	}
 };
 
@@ -279,3 +351,5 @@ wxPGChoices& MapToPGenumChoices(const std::map<int,std::string>& map);
 wxPGChoices& MapToPGenumChoices(const std::map<int,std::wstring>& map);
 int getPGcount(wxPropertyGrid* pg);
 int setPGsize(wxPropertyGrid* pg,int max_count=10,int min_count=1);
+int GetPGselectionID(wxPropertyGrid* pg);
+void SetPQselectionByID(wxPropertyGrid* pg,int targetIndex);

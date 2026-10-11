@@ -15,6 +15,7 @@
 #include "LZ_spell.h"
 //#include "sprites.h"
 #include <vector>
+#include <map>
 #include <fstream>
 #include <string>
 #include <functional>
@@ -139,7 +140,8 @@ class FSUarchive{
 		int SaveAuxData(std::wstring path);
 		int LoadAuxData(std::wstring path);
 		bool Compare(FSUarchive *ref);
-		std::vector<std::string> GetResourceNanes();
+		std::vector<std::string> GetResourceNames();
+		std::map<int,std::string> GetResourceMap();
 
 	private:
 		// graphics resource list

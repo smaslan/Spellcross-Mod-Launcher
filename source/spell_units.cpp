@@ -36,8 +36,98 @@
 // default resource content
 SpellUnitRec::SpellUnitRec()
 {	
+	// name
+	name = L"<empty>";
+
+	// other
+	utype = 0;
+	res2 = 0;
+	res3 = 0;
+
+	// special actions
+	action_id = 0;
+	action_fsu_name = "";
+	action_fsu_frames = 0;
+	action_ap = 0;
+	memset(action_params,0,sizeof(action_params));
+
+	// die action
+	die_action_id = 0;
+	memset(die_action_params,0,sizeof(die_action_params));
+	die_anim_name = "";
+	die_anim_frames = 0;
+
+	// animations/graphics
+	info = "";
+	gra = "";
+	grb = "";
+	icon = "";
+	anim_atack_light_name = "";
+	anim_atack_armor_name = "";
+	anim_atack_air_name = "";
+	anim_atack_light_frames = 0;
+	anim_atack_armor_frames = 0;
+	anim_atack_air_frames = 0;
+	pnm_light_hit_name = "";
+	pnm_armored_hit_name = "";
+	pnm_air_hit_name = "";
+	pnm_light_shot_name = "";
+	pnm_armored_shot_name = "";
+	pnm_air_shot_name = "";
+	projetile_name = "";
+	projectile_visible = 0;
+	vis = 0;
+
+	// sight
+	sdir = 0;
+	sind = 0;
+
+	// count
+	cnt = 0;
+
+	// action points
+	ap = 0;
+ 	aps = 0;
+	apw = 0;
+	apfw = 0;
+
+	// dig
+	dig_turns = 0;
+
+	// rank
+	exp_min = 0;
+	exp_max = 0;
+	std::memset(exp_limits,0,sizeof(exp_limits));
+
+	// sound classes
+	smov = 0;
+	slig = 0;
+	sarm = 0;
+	sair = 0;
+	shit = 0;
+	snd_action_id = 0;
+	ssel = 0;
+
+	fire_range = 0;
+	fire_flags = 0;	
+
+	// attack
+	attack_light = 0;
+	attack_armored = 0;
+	attack_air = 0;
+	attack_objects = 0;
+	defence = 0;
+
+	
+	icon_glyph = NULL;
+	projectile = NULL;
 	gr_base = NULL;
 	gr_aux = NULL;
+	gr_attack_light = NULL;
+	gr_attack_armor = NULL;
+	gr_attack_air = NULL;
+	gr_action = NULL;
+	gr_die = NULL;
 	projectile = NULL;
 	pnm_light_hit = NULL;
 	pnm_armored_hit = NULL;
@@ -46,8 +136,9 @@ SpellUnitRec::SpellUnitRec()
 	pnm_armored_shot = NULL;
 	pnm_air_shot = NULL;
 	action_button_glyph = NULL;
+	bonuses = NULL;
+	
 	info_text = NULL;
-
 	sound_move = NULL;
 	sound_report = NULL;
 	sound_contact = NULL;
@@ -56,13 +147,36 @@ SpellUnitRec::SpellUnitRec()
 	sound_attack_light = NULL;
 	sound_attack_armor = NULL;
 	sound_attack_air = NULL;
-
+	sound_action = NULL;
+	sound_level_up = NULL;
 	
+	type_id = -1;
+}
 
-	type_id = 0;
+// copy
+SpellUnitRec::SpellUnitRec(SpellUnitRec& rec)
+{
+	*this = rec;
+	
+	sound_move = NULL;
+	sound_report = NULL;
+	sound_contact = NULL;
+	sound_hit = NULL;
+	sound_die = NULL;
+	sound_attack_light = NULL;
+	sound_attack_armor = NULL;
+	sound_attack_air = NULL;
+	sound_action = NULL;
+	sound_level_up = NULL;
+	info_text = NULL;
 }
 
 SpellUnitRec::~SpellUnitRec()
+{
+	ClearSounds();
+}
+
+void SpellUnitRec::ClearSounds()
 {
 	if(sound_move)
 		delete sound_move;
@@ -85,6 +199,8 @@ SpellUnitRec::~SpellUnitRec()
 	if(info_text)
 		delete info_text;
 }
+
+
 
 // get string from data with optional removal of trailing '_'
 std::string get_char_str(uint8_t *data,int max_len=0,bool remove_trail=false)
@@ -110,6 +226,43 @@ std::string get_char_str(uint8_t *data,int max_len=0,bool remove_trail=false)
 }
 
 
+// unit types
+std::map<int,std::string> SpellUnitRec::c_str_unit_types = {
+	{0, "Air"},
+	{1, "Light"},
+	{2, "Armored"}	
+};
+
+// unit types
+std::map<int,std::string> SpellUnitRec::c_str_action_types ={
+	{0, "<no action>"},
+	{1, "Deploy radar"},
+	{2, "Show tank turret"},
+	{3, "Hide tank turret"},
+	{4, "Fire teleport"},
+	{4, "Fire teleport"},
+	{5, "Spawn unit"},
+	{6, "Scare attack (lower morale)"},
+	{7, "Aircraft liftoff"},
+	{8, "Aircraft land"},
+	{9, "Paralyze enemy"},
+	{11, "Freeze enemy"},
+	{12, "Dragon fear"},
+	{13, "Autodestruction"},
+	{14, "Breorn scream"},
+	{15, "Kamikaze attack"},
+	{16, "Morph to fortres"},
+	{17, "Morph from fortres"}
+};
+
+// unit types
+std::map<int,std::string> SpellUnitRec::c_str_die_action_types ={
+	{0, "<no action>"},
+	{1, "Morph unit"},
+	{2, "Desctructive explosion"}
+};
+
+
 // decode units def file
 SpellUnits::SpellUnits(std::vector<uint8_t>& data,FSUarchive* fsu,FSarchive* fs_info,SpellGraphics* graphics,SpellGraphics* info_graphics,SpellSounds* sounds,UnitBonuses* bonuses)
 	: SpellUnits(data.data(),data.size(),fsu,fs_info,graphics,info_graphics,sounds,bonuses)
@@ -117,7 +270,7 @@ SpellUnits::SpellUnits(std::vector<uint8_t>& data,FSUarchive* fsu,FSarchive* fs_
 }
 // decode units def file
 SpellUnits::SpellUnits(uint8_t* data,int dlen,FSUarchive* fsu,FSarchive* fs_info,SpellGraphics* graphics,SpellGraphics* info_graphics,SpellSounds* sounds,UnitBonuses* bonuses)
-{
+{		
 	int count;
 	if (dlen % 206 == 0 && dlen % 207 != 0)
 	{
@@ -147,7 +300,7 @@ SpellUnits::SpellUnits(uint8_t* data,int dlen,FSUarchive* fsu,FSarchive* fs_info
 			data += 206;
 		
 		// new unit record
-		auto &unit = units.emplace_back(std::make_unique<SpellUnitRec>());
+		auto &unit = units.emplace_back(std::make_shared<SpellUnitRec>());
 
 		// unit type ID
 		unit->type_id = k;
@@ -240,7 +393,7 @@ SpellUnits::SpellUnits(uint8_t* data,int dlen,FSUarchive* fsu,FSarchive* fs_info
 
 
 		// light attack hit animation (*.pnm animation)
-		unit->pnm_light_hit_name = get_char_str(rec + 0x49,8);
+		unit->pnm_light_shot_name = get_char_str(rec + 0x49,8);
 
 		// light attack unit animation resource (*.fsu resource)
 		unit->anim_atack_light_name = get_char_str(rec + 0x52,5,true);
@@ -249,10 +402,11 @@ SpellUnits::SpellUnits(uint8_t* data,int dlen,FSUarchive* fsu,FSarchive* fs_info
 		unit->anim_atack_light_frames = rdu8(rec + 0x61);
 
 		// light attack shot animation (*.pnm resource)
-		unit->pnm_light_shot_name = get_char_str(rec + 0x58,8);
+		unit->pnm_light_hit_name = get_char_str(rec + 0x58,8);
 
+		
 		// armored attack hit animation (*.pnm animation)
-		unit->pnm_armored_hit_name = get_char_str(rec + 0x62,8);
+		unit->pnm_armored_shot_name = get_char_str(rec + 0x62,8);
 
 		// armored attack unit animation resource (*.fsu resource)
 		unit->anim_atack_armor_name = get_char_str(rec + 0x6B,5,true);
@@ -260,10 +414,11 @@ SpellUnits::SpellUnits(uint8_t* data,int dlen,FSUarchive* fsu,FSarchive* fs_info
 		unit->anim_atack_armor_frames = rdu8(rec + 0x7A);
 
 		// armored attack shot animation (*.pnm resource)
-		unit->pnm_armored_shot_name = get_char_str(rec + 0x71,8);
+		unit->pnm_armored_hit_name = get_char_str(rec + 0x71,8);
+
 
 		// air attack hit animation (*.pnm animation)
-		unit->pnm_air_hit_name = get_char_str(rec + 0x7B,8);
+		unit->pnm_air_shot_name = get_char_str(rec + 0x7B,8);
 
 		// air attack unit animation resource (*.fsu content)
 		unit->anim_atack_air_name = get_char_str(rec + 0x84,5,true);
@@ -271,7 +426,8 @@ SpellUnits::SpellUnits(uint8_t* data,int dlen,FSUarchive* fsu,FSarchive* fs_info
 		unit->anim_atack_air_frames = rdu8(rec + 0x93);
 
 		// air attack shot animation (*.pnm resource)
-		unit->pnm_air_shot_name = get_char_str(rec + 0x8A,8);
+		unit->pnm_air_hit_name = get_char_str(rec + 0x8A,8);
+
 
 		// projectile visibility flags (0x01-light, 0x02-armored, 0x04-air attacks)
 		unit->projectile_visible = rdu8(rec + 0x94);
@@ -668,7 +824,7 @@ int SpellUnits::GenerateDEF(std::vector<uint8_t> &def,Format format)
 
 
 		// light attack hit animation (*.pnm animation)
-		if(put_char_str(ptr + 0x49,end,unit->pnm_light_hit_name,9))
+		if(put_char_str(ptr + 0x49,end,unit->pnm_light_shot_name,9))
 			return(1);
 
 		// light attack unit animation resource (*.fsu resource)
@@ -679,11 +835,12 @@ int SpellUnits::GenerateDEF(std::vector<uint8_t> &def,Format format)
 		ptr[0x61] = (unsigned)unit->anim_atack_light_frames;
 
 		// light attack shot animation (*.pnm resource)
-		if(put_char_str(ptr + 0x58,end,unit->pnm_light_shot_name,9))
+		if(put_char_str(ptr + 0x58,end,unit->pnm_light_hit_name,9))
 			return(1);
 
+
 		// armored attack hit animation (*.pnm animation)
-		if(put_char_str(ptr + 0x62,end,unit->pnm_armored_hit_name,9))
+		if(put_char_str(ptr + 0x62,end,unit->pnm_armored_shot_name,9))
 			return(1);
 
 		// armored attack unit animation resource (*.fsu resource)
@@ -693,11 +850,12 @@ int SpellUnits::GenerateDEF(std::vector<uint8_t> &def,Format format)
 		ptr[0x7A] = (unsigned)unit->anim_atack_armor_frames;
 
 		// armored attack shot animation (*.pnm resource)
-		if(put_char_str(ptr + 0x71,end,unit->pnm_armored_shot_name,9))
+		if(put_char_str(ptr + 0x71,end,unit->pnm_armored_hit_name,9))
 			return(1);
 
+
 		// air attack hit animation (*.pnm animation)
-		if(put_char_str(ptr + 0x7B,end,unit->pnm_air_hit_name,9))
+		if(put_char_str(ptr + 0x7B,end,unit->pnm_air_shot_name,9))
 			return(1);
 
 		// air attack unit animation resource (*.fsu content)
@@ -707,8 +865,9 @@ int SpellUnits::GenerateDEF(std::vector<uint8_t> &def,Format format)
 		ptr[0x93] = (unsigned)unit->anim_atack_air_frames;
 
 		// air attack shot animation (*.pnm resource)
-		if(put_char_str(ptr + 0x8A,end,unit->pnm_air_shot_name,9))
+		if(put_char_str(ptr + 0x8A,end,unit->pnm_air_hit_name,9))
 			return(1);
+
 
 		// projectile visibility flags (0x01-light, 0x02-armored, 0x04-air attacks)
 		ptr[0x94] = (unsigned)unit->projectile_visible;
@@ -1068,9 +1227,82 @@ SpellUnitRec *SpellUnits::GetUnit(int uid)
 }
 
 // get full units list
-std::vector<std::unique_ptr<SpellUnitRec>> &SpellUnits::GetUnits()
+std::vector<std::shared_ptr<SpellUnitRec>> &SpellUnits::GetUnits()
 {
 	return(units);
+}
+
+// get full units list
+std::map<int,std::string> SpellUnits::GetUnitsMap()
+{
+	std::map<int,std::string> list;
+	for(auto &item: units)
+	{
+		auto title = string_format("#%02d: %s",item->type_id, item->name);
+		list.insert({item->type_id, title});
+	}
+	return(list);
+}
+
+// swap two unit records
+int SpellUnits::SwapUnits(int ida,int idb,bool renum)
+{
+	if(ida < 0 || ida >= units.size() || idb < 0 || idb >= units.size())
+		return(1);
+	std::swap(units[ida], units[idb]);
+	if(renum)
+		std::swap(units[ida]->type_id,units[idb]->type_id);
+	return(0);
+}
+
+// copy unit record ida->idb to another (overwrite)
+int SpellUnits::CopyUnit(int ida,int idb,bool renum)
+{
+	if(ida < 0 || ida >= units.size() || idb < 0 || idb >= units.size())
+		return(1);
+
+	auto unit_a = units[ida];
+	auto &unit_b = units[idb];	
+	unit_b = std::make_shared<SpellUnitRec>(*unit_a);
+	if(renum)
+		unit_b->type_id = idb;
+
+	return(0);
+}
+
+// copy unit from another source to position, pos can be beyond end, will expand
+int SpellUnits::CopyUnit(SpellUnitRec* unit,int pos,bool renum)
+{
+	// allocate space if needed
+	while(pos >= units.size())
+	{
+		auto unit = std::make_shared<SpellUnitRec>();
+		unit->type_id = units.size();
+		units.push_back(unit);		
+	}
+
+	auto &target = units[pos];
+	target = std::make_shared<SpellUnitRec>(*unit);
+	if(renum)
+		target->type_id = pos;
+	
+	return(0);
+}
+
+// add unit to list with eventual source unit
+std::shared_ptr<SpellUnitRec> SpellUnits::AddUnit(int ref_unit)
+{
+	std::shared_ptr<SpellUnitRec> unit;
+	if(ref_unit >= 0 && ref_unit < units.size())
+		unit = std::make_shared<SpellUnitRec>(*units[ref_unit]);
+	else
+	{
+		unit = std::make_shared<SpellUnitRec>();
+		unit->name = L"<new unit>";
+	}
+	unit->type_id = units.size();
+	units.push_back(unit);
+	return(unit);
 }
 
 

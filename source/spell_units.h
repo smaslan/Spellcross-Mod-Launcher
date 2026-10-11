@@ -16,6 +16,7 @@
 #include <string>
 #include <tuple>
 #include <map>
+#include <filesystem>
 
 #include "fs_archive.h"
 #include "fsu_archive.h"
@@ -65,6 +66,11 @@ public:
 class SpellUnitRec
 {
 	public:
+
+		static std::map<int,std::string> c_str_unit_types;
+		static std::map<int,std::string> c_str_action_types;
+		static std::map<int,std::string> c_str_die_action_types;
+		
 		// type ID (order id)
 		int type_id;
 		
@@ -158,7 +164,7 @@ class SpellUnitRec
 
 		// other
 		int utype;
-		int res1;
+		//int res1;
 		int res2;
 		int res3;
 
@@ -206,9 +212,11 @@ class SpellUnitRec
 		// bonus levels link
 		UnitBonuses *bonuses;
 		
-
+		SpellUnitRec& operator=(const SpellUnitRec& other) = default;
 		SpellUnitRec();
+		SpellUnitRec(SpellUnitRec &rec);
 		~SpellUnitRec();
+		void ClearSounds();
 		std::tuple<int,int> Render(uint8_t* buffer, uint8_t* buf_end, int buf_x_pos, int buf_y_pos, int buf_x_size,
 			uint8_t* filter,uint8_t* shadow_filter, Sprite *sprt,int man, int azim,int azim_turret, int frame,FSU_resource* fsu_anim=NULL, int flight_alt=100);
 
@@ -275,7 +283,7 @@ class SpellUnitRec
 			EXPLODE = 2
 		};
 
-private:	
+//private:	
 
 	// special actions
 	static constexpr int SPEC_ACT_TOGGLE_RADAR = 1; // 1  - enable/disable radar (par3-radar indirect sight range)
@@ -317,25 +325,34 @@ private:
 
 class SpellUnits
 {
-private:
+private:	
 	int is_eng;
-	std::vector<std::unique_ptr<SpellUnitRec>> units;
+	std::vector<std::shared_ptr<SpellUnitRec>> units;
 
 public:	
+	
+	std::filesystem::path m_path;
+	
 	enum class Format{
 		DEFAULT,
 		ENG,
 		CZE
 	};
 	
+	bool isEng() {return(is_eng);};
+
 	SpellUnits(std::vector<uint8_t> &data,FSUarchive* fsu=NULL,FSarchive* fs_info=NULL,SpellGraphics* graphics=NULL,SpellGraphics* info_graphics=NULL,SpellSounds* sounds=NULL,UnitBonuses* bonuses=NULL);
 	SpellUnits(uint8_t* data, int dlen, FSUarchive *fsu=NULL, FSarchive* fs_info=NULL, SpellGraphics *graphics=NULL,SpellGraphics* info_graphics=NULL,SpellSounds* sounds=NULL,UnitBonuses *bonuses=NULL);
 	~SpellUnits();
 	int GenerateDEF(std::vector<uint8_t>& def,Format format=Format::DEFAULT);
 	int Count();
 	SpellUnitRec* GetUnit(int uid);
-	std::vector<std::unique_ptr<SpellUnitRec>>& GetUnits();
-	//vector<SpellUnitRec*> &GetUnits();
+	std::vector<std::shared_ptr<SpellUnitRec>>& GetUnits();
+	std::map<int,std::string> GetUnitsMap();
+	int SwapUnits(int ida, int idb,bool renum=true);
+	int CopyUnit(int ida,int idb,bool renum=true);
+	int CopyUnit(SpellUnitRec *unit, int pos, bool renum=true);
+	std::shared_ptr<SpellUnitRec> AddUnit(int ref_unit=-1);
 };
 
 

@@ -527,7 +527,9 @@ int SpellPalette::Render(wxBitmap& bmp)
 	int filter_y_limit = surf_y/2;
 
 	// palette
-	uint8_t (*pal)[3] = (uint8_t(*)[3])m_pal.data();
+	auto pal = GetPal();
+	if(m_pal.size() != 256*3)
+		return(1);
 
 	// render 24bit RGB data to raw bmp buffer
 	wxNativePixelData data(bmp);
