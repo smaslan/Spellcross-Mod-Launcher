@@ -42,13 +42,13 @@ public:
         if(flen)
         {
             eol = false;
-            fw.seekg(-1,std::ios_base::_Seekend);
+            fw.seekg(-1,std::ios_base::end);
             char sym;
             fw.read(&sym,1);            
             if(sym == '\r' || sym == '\n')
                 eol = true;
         }
-        fw.seekg(0,std::ios_base::_Seekend);
+        fw.seekg(0,std::ios_base::end);
         if(eol)
         {
             std::string indent(m_indent*m_indent_step,' ');

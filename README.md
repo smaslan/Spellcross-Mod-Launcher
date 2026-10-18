@@ -120,6 +120,11 @@ Also, you can star my project here on GitHub if you like to help me out on a way
     - No panic mode for Hard difficulty.  
   - add new mod `*.DEF` file command to restrict mod for minimum EXE patch version(s).
   - Trees randomizer excludes maps that were already visited in current BIGMAP in autosave (SAVE/WORKDIR). Randomizing those resulted to random tiles displayed everywhere and potential game crash.  
+- [V1.49, 18th October 2026 (7zip file)](./builds/Spellcross-Mod-Launcher-V1.49.7z)
+  - add new game engine patch HonzaQ V1.20 (careful, not fully tested, make backups!):
+    - Proper enemy XP levels when map continues from autosave.
+    - Implemented new flags in JEDNOTKY.DEF.   
+    - Group movement works with two special units (convoys).
 
 
 ## Usage

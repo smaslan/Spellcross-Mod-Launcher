@@ -27,7 +27,7 @@ std::wstring char2wstringCP852(const char* str);
 std::wstring char2wstringCP895(const char* str);
 char wchar2charCP895(wchar_t sym);
 std::string wstring2stringCP895(std::wstring str);
-std::string& toupper(std::string& str);
+std::string toupper(const std::string& str);
 
 /*template <typename T>
 decltype(auto) string_format_convertor(T&& val) {
@@ -106,9 +106,9 @@ bool iequals(const std::wstring& a,const std::wstring& b);
 int iequals(const std::vector<std::string>& list,const std::string& str);
 bool match_substr(std::wstring& str,std::wstring& substr,bool case_sensitive=true);
 std::string& strrep(std::string& str,std::string key,std::string rep);
-int savestr(std::wstring path,std::string& str);
+int savestr(std::filesystem::path path,const std::string& str);
 int loadstr(std::filesystem::path path,std::string& strbuf);
-int savedata(std::wstring path,std::vector<uint8_t>& data);
+int savedata(std::filesystem::path path,const std::vector<uint8_t>& data);
 int loaddata(std::filesystem::path path,std::vector<uint8_t>& data);
 std::string trim_whites(std::string str,bool also_below_32=false);
 std::string get_timestr_iso();

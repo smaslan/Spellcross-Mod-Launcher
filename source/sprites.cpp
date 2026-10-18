@@ -2229,6 +2229,7 @@ int Terrain::Load(FSarchive *terrain_fs, SpellPalette *map_pal,SpellGraphics* gr
 void Terrain::PrepareSortedSprites()
 {
 	m_sprites_sorted = sprites;
+	std::ranges::for_each(m_sprites_sorted, [](Sprite *item){toupper(item->name);});
 	std::ranges::sort(m_sprites_sorted,[](const Sprite* a,const Sprite* b) {return(b->name > a->name);});
 }
 
@@ -2243,8 +2244,8 @@ Sprite* Terrain::GetSprite(const std::string &name)
 	if (_strcmpi(this->sprites[k]->name.c_str(), name) == 0)
 		return(this->sprites[k]);
 }*/
-
-	auto sid = std::ranges::lower_bound(m_sprites_sorted,name,{},&Sprite::name);
+		
+	auto sid = std::ranges::lower_bound(m_sprites_sorted,toupper(name),{},&Sprite::name);
 	if(sid == m_sprites_sorted.end())
 		return(NULL);
 	return(*sid);
@@ -2255,7 +2256,7 @@ int Terrain::GetSpriteID(const std::string &name)
 	if(m_sprites_sorted.empty() || m_sprites_sorted.size() != sprites.size())
 		PrepareSortedSprites();
 
-	auto sid = std::ranges::lower_bound(m_sprites_sorted,name,{},&Sprite::name);
+	auto sid = std::ranges::lower_bound(m_sprites_sorted,toupper(name),{},&Sprite::name);
 	if(sid == m_sprites_sorted.end())
 		return(-1);
 	return((*sid)->GetIndex());

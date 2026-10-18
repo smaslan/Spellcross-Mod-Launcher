@@ -200,6 +200,103 @@ void SpellUnitRec::ClearSounds()
 		delete info_text;
 }
 
+// get name of special action parameter par_id = 1 to 3
+std::string SpellUnitRec::GetSpecActionParName(int par_id)
+{
+	if(par_id < 1 || par_id > 3)
+		return("");
+
+	std::string name;
+	if(par_id == 1 && (
+		action_id == SPEC_ACT_LOWER_MORALE ||
+		action_id == SPEC_ACT_PARALYZE ||
+		action_id == SPEC_ACT_DEADLY_SIGHT ||
+		action_id == SPEC_ACT_FREEZE ||
+		action_id == SPEC_ACT_DRAGON_FEAR ||
+		action_id == SPEC_ACT_AUTODESTRUCT ||
+		action_id == SPEC_ACT_BREORN_SCREAM ||
+		action_id == SPEC_ACT_AUTODESTRUCT))
+		name = "Radius";
+	else if(par_id == 2 && (
+		action_id == SPEC_ACT_LOWER_MORALE ||
+		action_id == SPEC_ACT_PARALYZE ||
+		action_id == SPEC_ACT_DEADLY_SIGHT ||
+		action_id == SPEC_ACT_FREEZE ||
+		action_id == SPEC_ACT_DRAGON_FEAR ||
+		action_id == SPEC_ACT_AUTODESTRUCT ||
+		action_id == SPEC_ACT_BREORN_SCREAM ||
+		action_id == SPEC_ACT_AUTODESTRUCT))
+		name = "Intenzity";
+	else if(par_id == 3 && (
+		action_id == SPEC_ACT_LOWER_MORALE ||
+		action_id == SPEC_ACT_PARALYZE ||
+		action_id == SPEC_ACT_DEADLY_SIGHT ||
+		action_id == SPEC_ACT_FREEZE ||
+		action_id == SPEC_ACT_DRAGON_FEAR ||
+		action_id == SPEC_ACT_AUTODESTRUCT ||
+		action_id == SPEC_ACT_BREORN_SCREAM ||
+		action_id == SPEC_ACT_AUTODESTRUCT))
+		name = "Target defence coef.";
+	else if(par_id == 3 && (
+		action_id == SPEC_ACT_SHOW_TURRET ||
+		action_id == SPEC_ACT_HIDE_TURRET ||
+		action_id == SPEC_ACT_AIRCRAFT_UP ||
+		action_id == SPEC_ACT_AIRCRAFT_DOWN ||
+		action_id == SPEC_ACT_TRANSFORM_TO_FORTRES ||
+		action_id == SPEC_ACT_TRANSFORM_FROM_FORTRES))
+		name = "Morph to unit ID";
+	else if(par_id == 3 && (
+		action_id == SPEC_ACT_CREATE_UNIT))
+		name = "New unit ID";
+	else if(par_id == 3 && (
+		action_id == SPEC_ACT_TOGGLE_RADAR))
+		name = "Radar sight";
+	return(name);
+}
+
+// is special action parameter 1 to 3 unit ID?
+bool SpellUnitRec::isSpecActionUnitID(int par_id)
+{
+	if(par_id != 3)
+		return(false);
+	if(par_id == 3 && (
+		action_id == SPEC_ACT_SHOW_TURRET ||
+		action_id == SPEC_ACT_HIDE_TURRET ||
+		action_id == SPEC_ACT_AIRCRAFT_UP ||
+		action_id == SPEC_ACT_AIRCRAFT_DOWN ||
+		action_id == SPEC_ACT_TRANSFORM_TO_FORTRES ||
+		action_id == SPEC_ACT_TRANSFORM_FROM_FORTRES ||
+		action_id == SPEC_ACT_CREATE_UNIT))
+		return(true);
+	return(false);
+}
+
+// get name of die action parameter par_id = 1 to 3
+std::string SpellUnitRec::GetDieActionParName(int par_id)
+{
+	if(par_id < 1 || par_id > 3)
+		return("");
+
+	std::string name;
+	if(par_id == 3 && die_action_id == DIE_ACTION::MORPH)
+		name = "Morph to unit ID";
+	else if(par_id == 3 && die_action_id == DIE_ACTION::EXPLODE)
+		name = "Target defence coef.";
+	else if(par_id == 2 && die_action_id == DIE_ACTION::EXPLODE)
+		name = "Intenzity";
+	else if(par_id == 1 && die_action_id == DIE_ACTION::EXPLODE)
+		name = "Radius";
+	
+	return(name);
+}
+
+// is die action parameter 1 to 3 unit ID?
+bool SpellUnitRec::isDieActionUnitID(int par_id)
+{
+	if(par_id == 3 && die_action_id == DIE_ACTION::MORPH)		
+		return(true);
+	return(false);
+}
 
 
 // get string from data with optional removal of trailing '_'
@@ -526,25 +623,25 @@ SpellUnits::SpellUnits(uint8_t* data,int dlen,FSUarchive* fsu,FSarchive* fs_info
 		{
 			unit->gr_base = fsu->GetResource(unit->gra);
 			if(!unit->gr_base)
-				throw std::runtime_error(string_format("Main FSU graphic resource \"%s\" not found for unit \"%s\"!",unit->gra.c_str(),unit->name.c_str()));
+				throw std::runtime_error(string_format("Main FSU graphic resource \"%s\" not found for unit \"%s\"!",unit->gra,unit->name));
 			unit->gr_aux = fsu->GetResource(unit->grb);
 			if(!unit->grb.empty() && !unit->gr_aux)
-				throw std::runtime_error(string_format("Aux FSU graphic resource \"%s\" not found for unit \"%s\"!",unit->grb.c_str(),unit->name.c_str()));
+				throw std::runtime_error(string_format("Aux FSU graphic resource \"%s\" not found for unit \"%s\"!",unit->grb,unit->name));
 			unit->gr_attack_light = fsu->GetResource(unit->anim_atack_light_name);
 			if(!unit->anim_atack_light_name.empty() && !unit->gr_attack_light)
-				throw std::runtime_error(string_format("Light attack FSU graphic resource \"%s\" not found for unit \"%s\"!",unit->anim_atack_light_name.c_str(),unit->name.c_str()));
+				throw std::runtime_error(string_format("Light attack FSU graphic resource \"%s\" not found for unit \"%s\"!",unit->anim_atack_light_name,unit->name));
 			unit->gr_attack_armor = fsu->GetResource(unit->anim_atack_armor_name);
 			if(!unit->anim_atack_armor_name.empty() && !unit->gr_attack_armor)
-				throw std::runtime_error(string_format("Armored attack FSU graphic resource \"%s\" not found for unit \"%s\"!",unit->anim_atack_armor_name.c_str(),unit->name.c_str()));
+				throw std::runtime_error(string_format("Armored attack FSU graphic resource \"%s\" not found for unit \"%s\"!",unit->anim_atack_armor_name,unit->name));
 			unit->gr_attack_air = fsu->GetResource(unit->anim_atack_air_name);
 			if(!unit->anim_atack_air_name.empty() && !unit->gr_attack_air)
-				throw std::runtime_error(string_format("Air attack FSU graphic resource \"%s\" not found for unit \"%s\"!",unit->anim_atack_air_name.c_str(),unit->name.c_str()));
+				throw std::runtime_error(string_format("Air attack FSU graphic resource \"%s\" not found for unit \"%s\"!",unit->anim_atack_air_name,unit->name));
 			unit->gr_action = fsu->GetResource(unit->action_fsu_name);
 			if(!unit->action_fsu_name.empty() && !unit->gr_action)
-				throw std::runtime_error(string_format("Special action FSU graphic resource \"%s\" not found for unit \"%s\"!",unit->action_fsu_name.c_str(),unit->name.c_str()));
+				throw std::runtime_error(string_format("Special action FSU graphic resource \"%s\" not found for unit \"%s\"!",unit->action_fsu_name,unit->name));
 			unit->gr_die = fsu->GetResource(unit->die_anim_name);
 			if(!unit->die_anim_name.empty() && !unit->gr_die)
-				throw std::runtime_error(string_format("Die action FSU graphic resource \"%s\" not found for unit \"%s\"!",unit->die_anim_name.c_str(),unit->name.c_str()));
+				throw std::runtime_error(string_format("Die action FSU graphic resource \"%s\" not found for unit \"%s\"!",unit->die_anim_name,unit->name));
 		}
 
 		// load unit info text
@@ -595,32 +692,32 @@ SpellUnits::SpellUnits(uint8_t* data,int dlen,FSUarchive* fsu,FSarchive* fs_info
 			// find unit icon
 			unit->icon_glyph = graphics->GetResource(unit->icon);
 			if(!unit->icon.empty() && !unit->icon_glyph)
-				throw runtime_error(string_format("Icon file \"%s\" not found for unit \"%s\"!",unit->icon.c_str(), unit->name.c_str()));
+				throw runtime_error(string_format("Icon file \"%s\" not found for unit \"%s\"!",unit->icon, unit->name));
 
 			// find unit projectile
 			unit->projectile = graphics->GetProjectile(unit->projetile_name);
 			if(!unit->projetile_name.empty() && !unit->projectile)
-				throw runtime_error(string_format("Projectile glyph graphic resoruce \"%s\" not found for unit \"%s\"!",unit->projetile_name.c_str(),unit->name.c_str()));
+				throw runtime_error(string_format("Projectile glyph graphic resoruce \"%s\" not found for unit \"%s\"!",unit->projetile_name,unit->name));
 
 			// find shot/hit PNMs
 			unit->pnm_air_hit = graphics->GetPNM(unit->pnm_air_hit_name);
 			if(!unit->pnm_air_hit_name.empty() && !unit->pnm_air_hit)
-				throw runtime_error(string_format("Air unit hit PNM resoruce \"%s\" not found for unit \"%s\"!",unit->pnm_air_hit_name.c_str(),unit->name.c_str()));
+				throw runtime_error(string_format("Air unit hit PNM resoruce \"%s\" not found for unit \"%s\"!",unit->pnm_air_hit_name,unit->name));
 			unit->pnm_air_shot = graphics->GetPNM(unit->pnm_air_shot_name);
 			if(!unit->pnm_air_shot_name.empty() && !unit->pnm_air_shot)
-				throw runtime_error(string_format("Air unit shot PNM resoruce \"%s\" not found for unit \"%s\"!",unit->pnm_air_shot_name.c_str(),unit->name.c_str()));
+				throw runtime_error(string_format("Air unit shot PNM resoruce \"%s\" not found for unit \"%s\"!",unit->pnm_air_shot_name,unit->name));
 			unit->pnm_light_hit = graphics->GetPNM(unit->pnm_light_hit_name);
 			if(!unit->pnm_light_hit_name.empty() && !unit->pnm_light_hit)
-				throw runtime_error(string_format("Light unit hit PNM resoruce \"%s\" not found for unit \"%s\"!",unit->pnm_light_hit_name.c_str(),unit->name.c_str()));
+				throw runtime_error(string_format("Light unit hit PNM resoruce \"%s\" not found for unit \"%s\"!",unit->pnm_light_hit_name,unit->name));
 			unit->pnm_light_shot = graphics->GetPNM(unit->pnm_light_shot_name);
 			if(!unit->pnm_light_shot_name.empty() && !unit->pnm_light_shot)
-				throw runtime_error(string_format("Light unit shot PNM resoruce \"%s\" not found for unit \"%s\"!",unit->pnm_light_shot_name.c_str(),unit->name.c_str()));
+				throw runtime_error(string_format("Light unit shot PNM resoruce \"%s\" not found for unit \"%s\"!",unit->pnm_light_shot_name,unit->name));
 			unit->pnm_armored_hit = graphics->GetPNM(unit->pnm_armored_hit_name);
 			if(!unit->pnm_armored_hit_name.empty() && !unit->pnm_armored_hit)
-				throw runtime_error(string_format("Armored unit hit PNM resoruce \"%s\" not found for unit \"%s\"!",unit->pnm_armored_hit_name.c_str(),unit->name.c_str()));
+				throw runtime_error(string_format("Armored unit hit PNM resoruce \"%s\" not found for unit \"%s\"!",unit->pnm_armored_hit_name,unit->name));
 			unit->pnm_armored_shot = graphics->GetPNM(unit->pnm_armored_shot_name);
 			if(!unit->pnm_armored_shot_name.empty() && !unit->pnm_armored_shot)
-				throw runtime_error(string_format("Armored unit shot PNM resoruce \"%s\" not found for unit \"%s\"!",unit->pnm_armored_shot_name.c_str(),unit->name.c_str()));
+				throw runtime_error(string_format("Armored unit shot PNM resoruce \"%s\" not found for unit \"%s\"!",unit->pnm_armored_shot_name,unit->name));
 
 			// assign special action button glyph
 			if(unit->isActionTurretUp())
@@ -649,31 +746,31 @@ SpellUnits::SpellUnits(uint8_t* data,int dlen,FSUarchive* fsu,FSarchive* fs_info
 		{
 			unit->sound_move = sounds->GetMoveClass(unit->smov);
 			if(!unit->sound_move)
-				throw runtime_error(string_format("Move sound resource #%d not found for unit \"%s\"!",unit->smov,unit->name.c_str()));
+				throw runtime_error(string_format("Move sound resource #%d not found for unit \"%s\"!",unit->smov,unit->name));
 			unit->sound_report = sounds->GetReportClass(unit->ssel);
 			if(!unit->sound_report)
-				throw runtime_error(string_format("Report sound resource #%d not found for unit \"%s\"!",unit->sound_report,unit->name.c_str()));
+				throw runtime_error(string_format("Report sound resource #%d not found for unit \"%s\"!",unit->sound_report,unit->name));
 			unit->sound_contact = sounds->GetContactClass(unit->ssel);
 			if(!unit->sound_contact)
-				throw runtime_error(string_format("Contact sound resource #%d not found for unit \"%s\"!",unit->ssel,unit->name.c_str()));
+				throw runtime_error(string_format("Contact sound resource #%d not found for unit \"%s\"!",unit->ssel,unit->name));
 			unit->sound_hit = sounds->GetHitClass(unit->shit);
 			if(!unit->sound_hit)
-				throw runtime_error(string_format("Hit sound resource #%d not found for unit \"%s\"!",unit->shit,unit->name.c_str()));
+				throw runtime_error(string_format("Hit sound resource #%d not found for unit \"%s\"!",unit->shit,unit->name));
 			unit->sound_die = sounds->GetDieClass(unit->shit);
 			if(!unit->sound_die)
-				throw runtime_error(string_format("Death sound resource #%d not found for unit \"%s\"!",unit->shit,unit->name.c_str()));
+				throw runtime_error(string_format("Death sound resource #%d not found for unit \"%s\"!",unit->shit,unit->name));
 			unit->sound_attack_light = sounds->GetAttackClass(unit->slig);
 			if(!unit->sound_attack_light)
-				throw runtime_error(string_format("Light attack sound resource #%d not found for unit \"%s\"!",unit->slig,unit->name.c_str()));
+				throw runtime_error(string_format("Light attack sound resource #%d not found for unit \"%s\"!",unit->slig,unit->name));
 			unit->sound_attack_armor = sounds->GetAttackClass(unit->sarm);
 			if(!unit->sound_attack_armor)
-				throw runtime_error(string_format("Armored attack sound resource #%d not found for unit \"%s\"!",unit->sarm,unit->name.c_str()));
+				throw runtime_error(string_format("Armored attack sound resource #%d not found for unit \"%s\"!",unit->sarm,unit->name));
 			unit->sound_attack_air = sounds->GetAttackClass(unit->sair);			
 			if(!unit->sound_attack_air)
-				throw runtime_error(string_format("Air attack sound resource #%d not found for unit \"%s\"!",unit->sair,unit->name.c_str()));
+				throw runtime_error(string_format("Air attack sound resource #%d not found for unit \"%s\"!",unit->sair,unit->name));
 			unit->sound_action = sounds->GetSpecialClass(unit->snd_action_id);
 			if(!unit->sound_action)
-				throw runtime_error(string_format("Special action sound resource #%d not found for unit \"%s\"!",unit->snd_action_id,unit->name.c_str()));
+				throw runtime_error(string_format("Special action sound resource #%d not found for unit \"%s\"!",unit->snd_action_id,unit->name));
 			unit->sound_level_up = sounds->aux_samples.unit_level_up;
 		}
 
@@ -692,6 +789,7 @@ SpellUnits::~SpellUnits()
 		delete unit;*/
 	units.clear();
 }
+
 
 // put string to record
 int put_char_str(uint8_t *data, uint8_t* end, std::string str, int field_size, char trail='\0')

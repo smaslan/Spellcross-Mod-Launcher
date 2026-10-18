@@ -2,11 +2,11 @@
 
 /**
  * =================================================================================================
- * Spellcross Engine Patch V1.15 - C++ Integration Module
+ * Spellcross Engine Patch V1.20 - C++ Integration Module
  * =================================================================================================
  * Compatibility: SPELCROS.EXE (1,632,112 bytes)
  * Architecture: x86 / DOS / DOS4GW / LE (Linear Executable)
- * Author: HonzaQ & AI Assistant (2026-10-10)
+ * Author: HonzaQ & AI Assistant (2026-10-17)
  *
  * This module applies the complete unified engine modifications:
  *   1. Extended limits V1.0:
@@ -27,6 +27,22 @@
  *      - Hook 1 at VA 0x0001A361 silently discarding keys 1-8 during unit movement
  *      - Hook 2 at VA 0x000210EE silently discarding map clicks during unit movement
  *      - UI buttons (Next turn, Info, Menu) remain fully responsive
+ *   4. Convoy / Slot 49 selection & grouping unlock (Konvoj):
+ *      - Fixes off-by-one check (cmp [ebp-0x1b0], 50 -> 51) at VA 0x00021348, 0x00021379,
+ *        0x000213A3, and 0x000213D4 so player slot 49 (map ID 50, 2nd convoy) can be
+ *        selected and assigned to groups
+ *   5. Defense bypass bit flags in JEDNOTKY.DEF byte 0x48 (Protitankovy orkove):
+ *      - Replaces hardcoded Anti-tank Orcs (unit_type_id == 0x28) check at VA 0x0007C748
+ *        with data-driven bit flags in JEDNOTKY.DEF offset 0x48:
+ *        * Bit 0 (0x01): Healed by fire (original flag, preserved at VA 0x00076D61)
+ *        * Bit 1 (0x02): Ignore armor/tank defense (100% hit chance vs target flag 0x20)
+ *        * Bit 2 (0x04): Ignore air defense (100% hit chance vs target flag 0x04)
+ *        * Bit 3 (0x08): Ignore infantry/light defense (100% hit chance vs target flag 0x10)
+ *   6. Scripted units spawn level fix after Save/Load & "Continue" (Spam lv bug):
+ *      - Fixup-free Spawn Hook at VA 0x0002B9DF (file offset 0x0005A5DF, 7 bytes)
+ *      - 132-byte PIC code cave at VA 0x000E62A0 (file offset 0x00114EA0)
+ *      - Dynamically recalculates average player army level, applies game difficulty (-1/0/+2),
+ *        clamps to 0..12, writes to DAT_0066fd50 and raises spawned unit level [ebp-0x18] if lower.
  * =================================================================================================
  */
 
@@ -97,14 +113,17 @@ void Patch_Archive_TOC_Limits(std::vector<uint8_t>& exe);
 void Patch_MainMenu_Overlay(std::vector<uint8_t>& exe);
 void Patch_Panic_Morale(std::vector<uint8_t>& exe);
 void Patch_Group_Selection_Lock(std::vector<uint8_t>& exe);
+void Patch_Convoy_Slot49(std::vector<uint8_t>& exe);
+void Patch_Defense_Bypass_Flags(std::vector<uint8_t>& exe);
+void Patch_Spawn_Level_Fix(std::vector<uint8_t>& exe);
 
 /**
- * @brief Checks if the executable has already been patched with Engine Patch V1.15.
+ * @brief Checks if the executable has already been patched with Engine Patch V1.20.
  */
 bool IsSpellcrossEnginePatched(const std::vector<uint8_t>& exe_vector);
 
 /**
- * @brief Applies the complete Spellcross Engine Patch V1.15 to the SPELCROS.EXE vector.
+ * @brief Applies the complete Spellcross Engine Patch V1.20 to the SPELCROS.EXE vector.
  * @param exe_vector Vector containing loaded SPELCROS.EXE bytes.
  * @param error_msg Optional pointer to string receiving error description on failure.
  * @return true on success, false on failure.

@@ -164,6 +164,15 @@ int GetPGselectionID(wxPropertyGrid* pg)
 	return(absoluteIndex);
 }
 
+// get property by name ignoring categories
+wxPGProperty *GetPGselectionID(wxPropertyGrid* pg,const std::string &name)
+{
+	for(wxPropertyGridIterator it = pg->GetIterator(wxPG_ITERATE_VISIBLE); !it.AtEnd(); ++it)
+		if((*it)->GetName() == name)
+			return(*it);
+	return(NULL);
+}
+
 // select property by index
 void SetPQselectionByID(wxPropertyGrid* pg, int targetIndex)
 {

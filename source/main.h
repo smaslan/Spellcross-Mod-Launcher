@@ -211,7 +211,7 @@ private:
 	const std::string str_choice_none=">>> None found <<<";
 	const std::string str_choice_no_select=">>> Empty path <<<";
 	const std::string str_mod_state_ini_none="mod_state.ini";
-	const std::string str_ver_label = "V1.48, build: " __DATE__;
+	const std::string str_ver_label = "V1.49, build: " __DATE__;
 	
 
 	FormEdit *form_edit;

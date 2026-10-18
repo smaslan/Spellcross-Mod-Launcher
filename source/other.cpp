@@ -211,11 +211,11 @@ std::string wstring2stringCP895(std::wstring str)
 }
 
 // string to upper case
-std::string &toupper(std::string& str)
+std::string toupper(const std::string &str)
 {
-    for(auto &sym: str)
-        sym = toupper(sym);
-    return(str);
+    auto res = str;
+    std::ranges::transform(str,res.begin(),[](unsigned char c){return(std::toupper(c));});
+    return(res);
 }
 
 // inplace replacement of key occurences to rep
@@ -984,7 +984,7 @@ void srand_init()
 
 
 // save string to a file (save as binary - no alteration of line breaks)
-int savestr(std::wstring path, std::string &str)
+int savestr(std::filesystem::path path, const std::string &str)
 {
     std::ofstream fw(path,std::ios::out | std::ios::binary | std::ios::trunc);
     if(!fw.is_open())
@@ -995,7 +995,7 @@ int savestr(std::wstring path, std::string &str)
 }
 
 // save string to a file (save as binary - no alteration of line breaks)
-int savedata(std::wstring path,std::vector<uint8_t>& data)
+int savedata(std::filesystem::path path,const std::vector<uint8_t>& data)
 {
     std::ofstream fw(path,std::ios::out | std::ios::binary | std::ios::trunc);
     if(!fw.is_open())

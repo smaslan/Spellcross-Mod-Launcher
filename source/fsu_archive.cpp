@@ -1254,8 +1254,8 @@ void FSU_sprite::Render(uint8_t* buffer, uint8_t* buf_end, int buf_x_pos, int bu
 			// initial pixel in destination buffer
 			uint8_t* scan = &dest[offset*zoom];
 			// check safe range
-			if (scan + count*zoom > buf_end)
-				break;
+			if(scan + count*zoom > buf_end)
+				return;
 			// render line
 			if(filter)
 			{

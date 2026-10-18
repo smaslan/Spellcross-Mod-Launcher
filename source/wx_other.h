@@ -353,3 +353,4 @@ int getPGcount(wxPropertyGrid* pg);
 int setPGsize(wxPropertyGrid* pg,int max_count=10,int min_count=1);
 int GetPGselectionID(wxPropertyGrid* pg);
 void SetPQselectionByID(wxPropertyGrid* pg,int targetIndex);
+wxPGProperty* GetPGselectionID(wxPropertyGrid* pg,const std::string &name);

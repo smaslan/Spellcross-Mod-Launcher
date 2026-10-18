@@ -12,7 +12,8 @@
 #include <vector>
 #include <string>
 #define _USE_MATH_DEFINES
-#include <cmath>
+//#include <cmath>
+#include <numbers>
 #include <algorithm>
 #include <filesystem>
 #include <type_traits>
@@ -140,7 +141,7 @@ public:
 	static void GimpChromaHue(float chroma,float hue,TRGB* rgb,int count=1)
 	{
 		chroma = std::clamp(chroma,-1.0f,1.0f) + 1.0f;
-		hue = std::clamp(hue,-1.0f,1.0f)*M_PI;
+		hue = std::clamp(hue,-1.0f,1.0f)*std::numbers::pi;
 		
 		// Reference White D65
 		constexpr float Xn = 0.950489f;
@@ -177,10 +178,10 @@ public:
 				h += hue;
 
 				// normalize hue
-				if(h > M_PI)
-					h -= 2.0f * M_PI;
-				else if(h < -M_PI)
-					h += 2.0f * M_PI;
+				if(h > std::numbers::pi)
+					h -= 2.0f * std::numbers::pi;
+				else if(h < -std::numbers::pi)
+					h += 2.0f * std::numbers::pi;
 
 				// vack to CIELAB
 				a = C * std::cos(h);
@@ -232,10 +233,10 @@ public:
 				h += hue;
 
 				// normalize hue
-				if(h > M_PI)
-					h -= 2.0f * M_PI;
-				else if(h < -M_PI)
-					h += 2.0f * M_PI;
+				if(h > std::numbers::pi)
+					h -= 2.0f * std::numbers::pi;
+				else if(h < -std::numbers::pi)
+					h += 2.0f * std::numbers::pi;
 
 				// vack to CIELAB
 				a = C * std::cos(h);
