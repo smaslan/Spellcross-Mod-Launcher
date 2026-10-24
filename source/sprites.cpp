@@ -1138,7 +1138,7 @@ int AnimPNM::Encode(std::filesystem::path path,std::vector<std::unique_ptr<Spell
 
 	// skip data offsets table
 	auto fpos_frame_pointers = fw.tellp();
-	fw.seekp(frame_count*sizeof(int32_t), ios::_Seekcur);
+	fw.seekp(frame_count*sizeof(int32_t), ios::cur);
 
 	// for each frame
 	for(auto &frame: frames)
@@ -1153,7 +1153,7 @@ int AnimPNM::Encode(std::filesystem::path path,std::vector<std::unique_ptr<Spell
 
 		// skip header
 		auto fpos_frame_head = fw.tellp();
-		fw.seekp(3*sizeof(int16_t) + sizeof(uint8_t),std::ios::_Seekcur);
+		fw.seekp(3*sizeof(int16_t) + sizeof(uint8_t),std::ios::cur);
 		
 		// pixel data
 		auto &pixels = frame->pixels;
@@ -1214,7 +1214,7 @@ int AnimPNM::Encode(std::filesystem::path path,std::vector<std::unique_ptr<Spell
 
 						// skip chunk size
 						fpos_pix_count = fw.tellp();
-						fw.seekp(sizeof(uint8_t),ios::_Seekcur);
+						fw.seekp(sizeof(uint8_t),ios::cur);
 
 						len = 0;
 						gap = false;

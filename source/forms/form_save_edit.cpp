@@ -1035,7 +1035,7 @@ void FormSaveEdit::UpdateList()
 	auto sel_id = listRes->GetSelection();
 	listRes->Clear();
 	for(auto& res: m_bigmap.research)
-		listRes->Append(string_format("#%02d: ",&res - m_bigmap.research.data()) + res.name);
+		listRes->Append(string_format("#%02d: %s",&res - m_bigmap.research.data(), res.name));
 	if(sel_id >=0 && sel_id < listRes->GetCount())
 		listRes->Select(sel_id);
 	listRes->Thaw();
@@ -1044,7 +1044,7 @@ void FormSaveEdit::UpdateList()
 	sel_id = listUpg->GetSelection();
 	listUpg->Clear();
 	for(auto& upg: m_bigmap.upgrade)
-		listUpg->Append(string_format("#%02d: ",&upg - m_bigmap.upgrade.data()) + upg.name);
+		listUpg->Append(string_format("#%02d: %s",&upg - m_bigmap.upgrade.data(), upg.name));
 	if(sel_id >=0 && sel_id < listUpg->GetCount())
 		listUpg->Select(sel_id);
 	listUpg->Thaw();
@@ -1076,7 +1076,7 @@ void FormSaveEdit::UpdateList()
 	sel_id = listComanders->GetSelection();
 	listComanders->Clear();
 	for(auto& com: m_bigmap.commanders)
-		listComanders->Append(string_format("#%02d: ",&com - m_bigmap.commanders.data()) + com.full_name());
+		listComanders->Append(string_format("#%02d: %s",&com - m_bigmap.commanders.data(), com.full_name()));
 	if(sel_id >=0 && sel_id < listComanders->GetCount())
 	{
 		listComanders->Select(sel_id);
@@ -1093,7 +1093,7 @@ void FormSaveEdit::UpdateList()
 		if(terr.valid)
 		{
 			auto terr_id = &terr - m_bigmap.bigmap.terr.data();
-			listTerritory->Append(string_format("Map %d: %s",terr_id,terr.dta_name.c_str()));
+			listTerritory->Append(string_format("Map %d: %s",terr_id,terr.dta_name));
 			terr_enum.insert({terr_id+1, terr.dta_name});
 		}
 		else
@@ -1429,7 +1429,7 @@ wxString FormSaveEdit::OnGetHierUnitItem(long item_id)
 	if(item_id >= m_bigmap.units.size())
 		return("");
 	auto& unit = m_bigmap.units[item_id];
-	auto unit_name = string_format("#%02d: ",item_id) + unit.name;
+	auto unit_name = string_format("#%02d: %s",item_id, unit.name);
 	return(unit_name);
 }
 wxListItemAttr* FormSaveEdit::OnGetHierUnitItemAttr(long item_id)
@@ -1466,7 +1466,7 @@ wxString FormSaveEdit::OnGetHierCommanderItem(long item_id)
 	if(item_id >= m_bigmap.commanders.size())
 		return("");
 	auto& com = m_bigmap.commanders[item_id];
-	auto unit_name = string_format("#%02d: ",item_id) + com.full_name();
+	auto unit_name = string_format("#%02d: %s",item_id, com.full_name());
 	return(unit_name);
 }
 wxListItemAttr* FormSaveEdit::OnGetHierCommanderItemAttr(long item_id)
@@ -1762,7 +1762,7 @@ void FormSaveEdit::FillHierarchy()
 			if(unit.hierarch_pos != k + hier_ofs)
 				continue;
 			auto unit_id = &unit - m_bigmap.units.data();
-			auto unit_name = string_format("#%02d: ",unit_id) + unit.name;
+			auto unit_name = string_format("#%02d: %s",unit_id, unit.name);
 			choice->SetLabel(unit_name);
 		}
 	}
@@ -1784,7 +1784,7 @@ void FormSaveEdit::FillHierarchy()
 			int com_unit_id = -1;
 			for(auto& com: m_bigmap.commanders)
 			{				
-				auto com_name = string_format("#%02d: ",&com - m_bigmap.commanders.data()) + com.full_name();
+				auto com_name = string_format("#%02d: %s",&com - m_bigmap.commanders.data(), com.full_name());
 				if(com.is_placed() && com.command_pos() == k + com_ofs && com.command_level() == lev)
 				{
 					choice_com->SetLabel(com_name);
@@ -1801,7 +1801,7 @@ void FormSaveEdit::FillHierarchy()
 				if(unit.hierarch_pos < hier_ofs + k*lev_unit_count || unit.hierarch_pos >= hier_ofs + (k + 1)*lev_unit_count)
 					continue;
 				int unit_id = &unit - m_bigmap.units.data();
-				auto unit_name = string_format("#%02d: ",unit_id) + unit.name;
+				auto unit_name = string_format("#%02d: %s",unit_id, unit.name);
 				if(unit_id == com_unit_id)
 					choice_unit->SetLabel(unit_name);
 			}
@@ -1907,7 +1907,7 @@ wxString FormSaveEdit::OnGetUnitItem(long item_id)
 	if(item_id >= m_bigmap.units.size())
 		return("");
 	auto& unit = m_bigmap.units[item_id];
-	auto unit_name = string_format("#%02d: ",item_id) + unit.name;
+	auto unit_name = string_format("#%02d: %s",item_id, unit.name);
 	return(unit_name);
 }
 

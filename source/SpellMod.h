@@ -73,6 +73,7 @@ public:
     std::string CountStr();
     std::vector<std::string> GetItemNames();
     int GetFile(std::string name,std::vector<uint8_t>& data);
+    int GetFile(std::string name,std::string& data);
     bool ExistFile(std::string name);
     int RemoveFile(std::string& name,bool ignore_error=false);
     int AddFile(SpellArchive &src, std::string name, bool allow_replace, std::string new_name="");

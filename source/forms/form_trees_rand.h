@@ -77,6 +77,7 @@ private:
 	void OnTreePupup(wxCommandEvent& event);
 	void OnProbabPupupOpen(wxMouseEvent& event);
 	void OnProbabPupup(wxCommandEvent& event);
+	void OnConfigChange(wxPropertyGridEvent& event);
 
 	wxString OnGetRuleGroupItem(long item_id);
 

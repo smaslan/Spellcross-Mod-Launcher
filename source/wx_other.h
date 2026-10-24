@@ -229,21 +229,26 @@ public:
 class wxBoolPropertyExt : public wxBoolProperty
 {
 private:
-	int MaskValue(int value,int mask)
+	bool MaskValue(int value,int mask)
 	{
 		if(!mask)
 			return(value);
 		int shift = std::countr_zero(static_cast<unsigned int>(mask));
 		mask >>= shift;
 		value = (value>>shift) & mask;
-		return(value);
+		return(!!value);
 	}
 
 public:
-	wxBoolPropertyExt(const wxString& label,const wxString& name,bool* value,int mask=0)
+	wxBoolPropertyExt(const wxString& label,const wxString& name,int* value,int mask=0)
 		: wxBoolProperty(label,name,MaskValue(*value,mask))
 	{
 		SetClientObject(new wxPGobj(wxPGobj::DataType::BOOL,value,mask));
+	}
+	wxBoolPropertyExt(const wxString& label, const wxString& name, bool* value)
+		: wxBoolProperty(label, name, *value)
+	{
+		SetClientObject(new wxPGobj(wxPGobj::DataType::BOOL, value));
 	}
 };
 

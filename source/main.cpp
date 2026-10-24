@@ -766,7 +766,9 @@ FormMain::FormMain(wxWindow* parent,CSimpleIniA* ini,wxWindowID id,const wxStrin
 		m_randomizer.LoadIni(c_rand_path);
 
 	// try load trees randomzier presets
-	m_tree_randomizer.LoadINIpresets(m_ini,"PATH","tree_randomizer_preset");
+	m_tree_randomizer.LoadINIpresets(m_ini,"PATH","tree_randomizer_preset");	
+	m_tree_randomizer.m_exclude_autosave = m_ini->GetBoolValue("SETUP","tree_randomizer_exclude_autosave",true);
+	m_tree_randomizer.m_exclude_all_saves = m_ini->GetBoolValue("SETUP","tree_randomizer_exclude_allsaves",true);
 
     FillChoicePaths(chSpellPath, m_ini, "PATH", "spellcross_dir");
     FillChoicePaths(chSpellCdPath,m_ini,"PATH","spellcross_cd_dir");
@@ -943,6 +945,8 @@ void FormMain::OnClose(wxCloseEvent& ev)
 
 	// trees randomizer preset(s)
 	m_tree_randomizer.SaveINIpresets(m_ini,"PATH","tree_randomizer_preset");
+	m_ini->SetBoolValue("SETUP","tree_randomizer_exclude_autosave",m_tree_randomizer.m_exclude_autosave,"; exclude visited maps in autosave");
+	m_ini->SetBoolValue("SETUP","tree_randomizer_exclude_allsaves",m_tree_randomizer.m_exclude_all_saves,"; exclude visited maps in all saves");
 		
 	SaveChoicePaths(chSpellPath,m_ini,"PATH","spellcross_dir","; Spellcross installation path");
 	SaveChoicePaths(chSpellCdPath,m_ini,"PATH","spellcross_cd_dir","; Spellcross CD copy path (if applicable)");
@@ -2100,12 +2104,16 @@ void FormMain::OnBuildMod(wxCommandEvent& event)
 	// store mod options state
 	SaveOptionsIni();
 
-	// try load autosave
-	SpellSave::Save save;
-	if(!config.force_build && !GetSaveStuff(config,save))
-	{
-		config.save_map_names = save.map_names;
-	}
+	// try load visited maps from save(s)
+	std::vector<std::string> save_list;
+	if(m_tree_randomizer.m_exclude_autosave)
+		save_list = {"WORKDIR"};
+	if(m_tree_randomizer.m_exclude_all_saves)
+		save_list = {};
+	std::vector<std::string> map_names;
+	if((m_tree_randomizer.m_exclude_autosave || m_tree_randomizer.m_exclude_all_saves) 
+		&& !GetSavesVisitedMaps(config, save_list, map_names))
+		config.save_map_names = map_names;
 	
 	// what to do?
 	ProcTh::ActionsList actions;
@@ -2199,12 +2207,16 @@ void FormMain::OnRunGame(wxCommandEvent& event)
 	if(config.spell_dir.empty())
 		return;
 
-	// try load autosave
-	SpellSave::Save save;
-	if(!GetSaveStuff(config,save))
-	{
-		config.save_map_names = save.map_names;
-	}
+	// try load visited maps from save(s)
+	std::vector<std::string> save_list;
+	if(m_tree_randomizer.m_exclude_autosave)
+		save_list = {"WORKDIR"};
+	if(m_tree_randomizer.m_exclude_all_saves)
+		save_list = {};
+	std::vector<std::string> map_names;
+	if((m_tree_randomizer.m_exclude_autosave || m_tree_randomizer.m_exclude_all_saves) 
+		&& !GetSavesVisitedMaps(config, save_list, map_names))
+		config.save_map_names = map_names;
 
 	// do mod before run?
 	ProcTh::ActionsList actions;	
@@ -2429,6 +2441,44 @@ int FormMain::GetSaveStuff(ProcTh::Params &mod_config,SpellSave::Save &save,std:
 	return(0);
 }
 
+// load save in using current config paths
+int FormMain::GetSavesVisitedMaps(ProcTh::Params &mod_config,std::vector<std::string> &save_names, std::vector<std::string> &map_names)
+{
+	map_names.clear();
+
+	// make desired save dir path
+	std::filesystem::path save_dir = mod_config.spell_dir / "save";
+	if(mod_config.move_saves)
+		save_dir = mod_config.mod_path.parent_path() / "save";
+	if(!std::filesystem::exists(save_dir))
+		return(1);
+
+	if(save_names.empty())
+	{
+		// by default list all saves
+		save_names.push_back("WORKDIR");
+		for(int k = 0; k <= 8; k++)
+			save_names.push_back(string_format("SAVE%04d",k));		
+	}
+
+	// for each save
+	for(auto &name: save_names)
+	{
+		SpellSave::Save save;
+		auto path = save_dir / name;
+		if(std::filesystem::exists(path) && SpellSave::LoadSave(path,save))
+			return(1);
+		map_names.insert(map_names.end(), save.map_names.begin(), save.map_names.end());
+	}
+
+	// make uniques
+    std::set<std::string> s(map_names.begin(), map_names.end());
+    std::vector<std::string> unique_vec(s.begin(), s.end());
+	map_names.assign(s.begin(), s.end());
+	
+	return(0);
+}
+
 
 
 // load file to editor
@@ -2566,7 +2616,7 @@ SpellLaunch::GameVersion FormMain::CheckExeVersion()
 // check listed paths (remove duplicates, non-existent, move selected to top)
 void FormMain::ChoiceCheckPaths(wxChoice *choice)
 {
-    auto path = choice->GetStringSelection().ToStdWstring();
+    auto path = choice->GetStringSelection().ToStdString();
     if(path == str_choice_browse || path == str_choice_no_select)
         choice->Select(-1);
 

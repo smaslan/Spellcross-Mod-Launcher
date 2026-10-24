@@ -192,6 +192,7 @@ private:
 	SpellLaunch::GameVersion CheckExeVersion();
 	ProcTh::Params GetProcThParams();
 	int GetSaveStuff(ProcTh::Params& mod_config,SpellSave::Save& save,std::string save_name="WORKDIR");
+	int GetSavesVisitedMaps(ProcTh::Params &mod_config,std::vector<std::string> &save_names, std::vector<std::string> &map_names);
 
 	int LoadOptionsIni(std::vector<SpellModOption>& options);
 	int SaveOptionsIni();
@@ -211,7 +212,7 @@ private:
 	const std::string str_choice_none=">>> None found <<<";
 	const std::string str_choice_no_select=">>> Empty path <<<";
 	const std::string str_mod_state_ini_none="mod_state.ini";
-	const std::string str_ver_label = "V1.49, build: " __DATE__;
+	const std::string str_ver_label = "V1.50, build: " __DATE__;
 	
 
 	FormEdit *form_edit;

@@ -195,6 +195,7 @@ FormTreeRand::FormTreeRand(wxWindow* parent,wxWindowID id,const wxString& title,
 	Bind(wxEVT_COMMAND_CHECKLISTBOX_TOGGLED,&FormTreeRand::OnRandTreeClick,this,wxID_LBOX_TREES);	
 	Bind(wxEVT_PG_SELECTED,&FormTreeRand::OnSelectProbSprite,this,wxID_PG_PROB);
 	Bind(wxEVT_PG_CHANGED,&FormTreeRand::OnProbChange,this,wxID_PG_PROB);
+	Bind(wxEVT_PG_CHANGED,&FormTreeRand::OnConfigChange,this,wxID_PG_CONFIG);
 	lboxSourceTrees->Bind(wxEVT_RIGHT_DOWN,&FormTreeRand::OnTreePupupOpen,this);
 	lboxTrees->Bind(wxEVT_RIGHT_DOWN,&FormTreeRand::OnTreePupupOpen,this);
 	
@@ -307,9 +308,34 @@ int FormTreeRand::SetTerrains(std::vector<std::shared_ptr<FSarchive>> terrains,S
 	
 	wxCommandEvent evt;
 	OnSelectTerrain(evt);
+	
+	// global config
+	pgConfig->Freeze();
+	pgConfig->Clear();
+	pgConfig->Append(new wxBoolPropertyExt("Exclude visited maps in autosave (WORKDIR)", wxT(""), &rules->m_exclude_autosave));
+	pgConfig->Append(new wxBoolPropertyExt("Exclude visited maps in all saves", wxT(""), &rules->m_exclude_all_saves));
+	pgConfig->Thaw();
+	pgConfig->FitColumns();
+	setPGsize(pgConfig,4,4);
 
 	return(0);
 }
+
+// edit probability properties
+void FormTreeRand::OnConfigChange(wxPropertyGridEvent& event)
+{
+	auto pgrid = (wxPropertyGrid*)event.GetEventObject();
+	if(!pgrid)
+		return;
+
+	auto prop = event.GetProperty();
+	auto obj = (wxPGobj*)prop->GetClientObject();
+	if(obj)
+	{
+		obj->Update(prop);		
+	}
+}
+
 
 
 // set terrain (editor mode - restricted to map terrain)

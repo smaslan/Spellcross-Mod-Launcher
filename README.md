@@ -125,6 +125,8 @@ Also, you can star my project here on GitHub if you like to help me out on a way
     - Proper enemy XP levels when map continues from autosave.
     - Implemented new flags in JEDNOTKY.DEF.   
     - Group movement works with two special units (convoys).
+- [V1.50, 24th October 2026 (7zip file)](./builds/Spellcross-Mod-Launcher-V1.50.7z)
+  - Trees randomizer now won't randomize already visited maps, so the bug with random sprites being displayed should be solved. See randomizer config panel for setup.
 
 
 ## Usage

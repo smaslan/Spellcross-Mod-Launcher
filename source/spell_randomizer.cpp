@@ -805,6 +805,13 @@ int UnitRandomizerSetup::SaveIni(std::filesystem::path path,SpellUnits* units)
 // Trees randomizer stuff
 //-----------------------------------------------------------------------------
 
+SpellTreeRandomizerRules::SpellTreeRandomizerRules()
+{
+	m_exclude_all_saves = false;
+	m_exclude_autosave = true;
+	terrains.clear();
+}
+
 // add randomizer terrain rules set
 SpellTreeRandomizerTerrain* SpellTreeRandomizerRules::AddTerrain(SpellTreeRandomizerTerrain *terrain)
 {

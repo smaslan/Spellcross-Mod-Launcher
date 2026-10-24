@@ -218,18 +218,19 @@ std::string toupper(const std::string &str)
     return(res);
 }
 
-// inplace replacement of key occurences to rep
-std::string& strrep(std::string& str,std::string key,std::string rep)
-{
+// replacement of key occurences to rep
+std::string strrep(const std::string& str,std::string key,std::string rep)
+{    
+	auto result = str;
     size_t index = 0;
     while(true) {
-        index = str.find(key,index);
+        index = result.find(key,index);
         if(index == std::string::npos)
             break;
-        str.replace(index,key.size(),rep);
+        result.replace(index,key.size(),rep);
         index += rep.size();
     }
-    return(str);
+    return(result);
 }
 
 // string to integer with string validity check
@@ -623,6 +624,23 @@ int info_get_int(std::vector<std::string>& lines,std::string key,int default_val
     return(std::atoi(str.c_str()));
 }
 
+// fetch info file key integer value
+uint64_t info_get_uint64(std::string &info,std::string key,uint64_t default_value)
+{
+    auto str = info_get_string(info,key,"");
+    if(str.empty())
+        return(default_value);
+    return(std::stoull(str));
+}
+// fetch info file key integer value
+uint64_t info_get_uint64(std::vector<std::string>& lines,std::string key,uint64_t default_value)
+{        
+    auto str = info_get_string(lines,key,"");
+    if(str.empty())
+        return(default_value);
+    return(std::stoull(str));
+}
+
 // fetch info file key real value
 double info_get_real(std::string& info,std::string key,double default_value)
 {
@@ -661,6 +679,16 @@ std::string info_make_int(std::string key,int value,std::string comment)
     if(!comment.empty())
         info += string_format("\n");
     info += string_format("%s:: %d\n",key,value);
+    return(info);
+}
+
+// make info uint64 variable
+std::string info_make_uint64(std::string key,uint64_t value,std::string comment)
+{
+    std::string info = comment;
+    if(!comment.empty())
+        info += string_format("\n");
+    info += string_format("%s:: %llu\n",key,value);
     return(info);
 }
 

@@ -282,6 +282,15 @@ int SpellArchive::GetFile(std::string name,std::vector<uint8_t>& data)
     m_last_error = string_format("Get file \"%s\" from spell archive failed! No archive loaded yet.",name.c_str());
     return(1);
 }
+// try get file from archive
+int SpellArchive::GetFile(std::string name,std::string& data)
+{
+    std::vector<uint8_t> bin;
+    if(GetFile(name,bin))
+        return(1);    
+    data = std::string(bin.begin(), bin.end());
+    return(0);
+}
 
 // try get file from archive
 bool SpellArchive::ExistFile(std::string name)
@@ -2830,6 +2839,66 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
             }
         } // for each command
 
+        
+        if(is_common)
+        {
+            // get last archive
+            SpellArchive ref_arch;
+            if(!ref_arch.Load(arch_path))
+            {                
+                // for each possible map DTA:
+                for(auto& name: ref_arch.GetItemNames())
+                {
+                    // get old DTA map metadata
+                    std::string key = "*.DTI";
+                    if(!wildcmp(key,name))
+                        continue;
+                    std::string infotxt;
+                    if(ref_arch.GetFile(name,infotxt))
+                    {
+                        PrintConsole("failed! Failed reading DTA metadata file \"%s\" in last COMMON.FS build.\n",name);
+                        return(1);
+                    }
+                    auto info = get_text_lines(infotxt);
+                    auto dta_name = info_get_string(info,"map_dta_name");
+                    auto dta_hash = info_get_uint64(info,"hash");
+                    if(dta_name.empty())
+                        continue;
+
+                    // try get new DTA file
+					std::vector<uint8_t> dta;
+                    if(arch->GetFile(dta_name,dta))
+                        continue;
+
+                    // new DTA map hash
+                    std::hash<std::string> hash;
+                    std::string str(dta.begin(),dta.end());
+                    auto old_hash = hash(str);
+
+                    // new DTA not matching old one, so keep new one, discard metadata
+                    if(old_hash != dta_hash)
+                        continue;
+
+					// keep old DTA metadata
+                    if(arch->AddFile(infotxt,name,true))
+                    {
+						PrintConsole("failed! Failed writing map DTA metadata file \"%s\" to COMMON.FS.\n", name);
+						return(1);
+                    }
+
+					// keep old DTA map file
+                    if(ref_arch.GetFile(dta_name,dta))
+                        continue;
+					if(arch->AddFile(dta, dta_name, true))
+                    {
+                        PrintConsole("failed! Failed writing map DTA file \"%s\" to COMMON.FS.\n", name);
+						return(1);
+                    }
+                }                
+            }           
+        }
+
+          
         // randomizers and/or swappers?
         if(is_common && (
                 config.randomize != RandomizerMode::OFF ||
@@ -3055,12 +3124,18 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     map_name = strrep(map_name,".DTA",".MAP");
                     if(iequals(config.save_map_names,map_name) >= 0)
                         continue;
-                    
+
+                    // get source DTA map
                     if(arch->GetFile(name,data))
                     {
                         PrintConsole("failed! Trees randomizer cannot load file \"%s\" in COMMON.FS.\n",name);
                         return(1);
                     }
+
+                    // get DTA map hash
+                    std::hash<std::string> hash;
+                    std::string str(data.begin(),data.end());
+                    auto dta_hash = hash(str);                    			                                    
                     
                     // try randomize map
                     if(trees_rand.RandomizeMapDTA(data,name))
@@ -3075,6 +3150,23 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                         PrintConsole("failed! Trees randomizer failed modifying \"%s\": %s\n",name,arch->GetLastError());
                         return(1);
                     }
+
+					// check if there is already metadata for this map
+                    auto info_name = strrep(name, ".DTA", ".DTI");
+                    std::string info;
+                    if(!arch->GetFile(info_name,info))
+                    {
+                        // metadata exist - keep it as is
+                        continue;
+                    }
+                    // nope, make new DTA metadata so we know that this map was modified and we can skip it in future randomization					
+                    info += info_make_string("map_dta_name", name);
+                    info += info_make_uint64("hash", dta_hash);
+					if(arch->AddFile(info, info_name, true))
+					{
+						PrintConsole("failed! Trees randomizer failed writing modified map metadata \"%s\": %s\n", info_name, arch->GetLastError());
+						return(1);
+					}                     
                     
                 } // for each common.fs file
 
@@ -3141,9 +3233,9 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
     } // for each archive   
 
      
-     // --- saving archives
-     for(auto& arch_name: archive_names)
-     {
+    // --- saving archives
+    for(auto& arch_name: archive_names)
+    {
         auto arch = GetArchiveByName(arch_name);
         if(!arch)
             continue;

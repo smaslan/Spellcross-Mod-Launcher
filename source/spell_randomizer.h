@@ -177,7 +177,10 @@ class SpellTreeRandomizerRules {
 public:
     std::vector<SpellTreeRandomizerTerrain> terrains;
     std::filesystem::path m_tree_classes_dir;
+    bool m_exclude_autosave;
+    bool m_exclude_all_saves;
     
+    SpellTreeRandomizerRules();
     void Clear();
     SpellTreeRandomizerTerrain* AddTerrain(SpellTreeRandomizerTerrain *terrain);
     SpellTreeRandomizerTerrain* AddTerrain(std::string terrain_name);
