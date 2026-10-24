@@ -288,7 +288,7 @@ MissionData {
 </td></tr></table><br>
 
 <p align="justify">
-&nbsp;&nbsp; Lokální pravidla jsou rozdělena podle třídy jednotek na lehké, těžké a letecké v menu <b>Source untis class</b>. Pro každou třídu je třeba vybrat jednotky, které budou randomizovány v menu <b>Source (applicable) units</b>. Dále je třeba vybrat typy jednotek, na které se bude randomizovat v menu <b>Target units</b>. Zde lze zapnout filtr podle posledního uložené pozice ve SAVE/WORKDIR (tato možnost nemusí vždy správně fungovat, takže ji lze vypnout). Následně pro každou z jednotek lze nastavit pravděpodobnost náhodného výběru v menu <b>Probabilities</b>.
+&nbsp;&nbsp; Lokální pravidla jsou rozdělena podle třídy jednotek na lehké, těžké a letecké v menu <b>Source units class</b>. Pro každou třídu je třeba vybrat jednotky, které budou randomizovány v menu <b>Source (applicable) units</b>. Dále je třeba vybrat typy jednotek, na které se bude randomizovat v menu <b>Target units</b>. Zde lze zapnout filtr podle posledního uložené pozice ve SAVE/WORKDIR (tato možnost nemusí vždy správně fungovat, takže ji lze vypnout). Následně pro každou z jednotek lze nastavit pravděpodobnost náhodného výběru v menu <b>Probabilities</b>.
 &nbsp;&nbsp; Pro všechny třídy jednotek společně je třeba nastavit pravidla randomizace v menu <b>Randomizer global config</b>. Zde se především nastavuje kde se mají pravidla aplikovat. Vytvořené pravidla lze uložit a načítat přes menu <b>File-&gt;Save preset</b> a <b>File-&gt;Load preset</b>.   
 </p>
 
@@ -296,18 +296,14 @@ MissionData {
 <br>
 <a name="treerandomizer"></a>
 <div class="n2">9 - Randomizér stromů</div><p align="justify">
-&nbsp;&nbsp; Vzhled hry je poněkud okoukaný, takže jsem doplnil randomizér stromů. Jeho nastavení lze vyvolat v menu <b>Mod-&gt;Config Trees Randomizer</b>. Zde lze vytvořit pravidla obdobně jako pro randomizaci jednotek. Tj. lze vytvořit sadu pravidel, kde je vždy vybrán seznam zdrojových stromů a následně seznam náhodných stromů, kterými mají být zdrojové nahrazeny. Lze také zadat pravděpodobnost výskytu. Vytvořené pravidla lze uložit a na načítat. Po vytvoření pravidel je třeba randomizaci zapnout na hlavním panelu <b>Randomize trees</b>.  
+&nbsp;&nbsp; Vzhled hry je poněkud okoukaný, takže jsem doplnil randomizér stromů. Jeho nastavení lze vyvolat v menu <b>Mod-&gt;Config Trees Randomizer</b>. Zde lze vytvořit pravidla obdobně jako pro randomizaci jednotek. Tj. lze vytvořit sadu pravidel, kde je vždy vybrán seznam zdrojových stromů a následně seznam náhodných stromů, kterými mají být zdrojové nahrazeny. Lze také zadat pravděpodobnost výskytu. Vytvořené pravidla lze uložit a na načítat. Po vytvoření pravidel je třeba randomizaci zapnout na hlavním panelu <b>Randomize trees</b>.
+V panelu je také možné nastavit, které mapy mají být vyloučeny z randomizace. Toto nastavení je nutné, protože pokud se změní jakékoliv data v DTA souboru již navštívené mapy, tak pak nesedí DTA sprity na stavový soubor mapy "*.MAP" v uložených pozicích a zobrazí se náhodné sprity! Defaultně se vylučují mapy v autosave (WORKDIR), ale je možné zapnout vyloučení navštívených map ze všech uložených pozic (jistota).    
 </p>
 
 <table align="center"><tr><td>
 <img src="obr/trees_randomizer_1.png" alt="Trees randomizer rules" title="Trees randomizer rules">
 </td></tr></table><br>
 
-
-<p align="justify">
-&nbsp;&nbsp; Lokální pravidla jsou rozdělena podle třídy jednotek na lehké, těžké a letecké v menu <b>Source untis class</b>. Pro každou třídu je třeba vybrat jednotky, které budou randomizovány v menu <b>Source (applicable) units</b>. Dále je třeba vybrat typy jednotek, na které se bude randomizovat v menu <b>Target units</b>. Zde lze zapnout filtr podle posledního uložené pozice ve SAVE/WORKDIR (tato možnost nemusí vždy správně fungovat, takže ji lze vypnout). Následně pro každou z jednotek lze nastavit pravděpodobnost náhodného výběru v menu <b>Probabilities</b>.
-&nbsp;&nbsp; Pro všechny třídy jednotek společně je třeba nastavit pravidla randomizace v menu <b>Randomizer global config</b>. Zde se především nastavuje kde se mají pravidla aplikovat. Vytvořené pravidla lze uložit a načítat přes menu <b>File-&gt;Save preset</b> a <b>File-&gt;Load preset</b>.   
-</p>
 
 
 <br>
@@ -399,6 +395,14 @@ MissionData {
   </td>
   <td>
    Přidán nový patch pro anglický game engine od HonzaQ V1.20. Přidává pár flagů do JEDNOTKY.DEF, opravuje skupinový pohyb jednotek pro více SpecialUnits (konvoje) a opravuje špatné XP nepřátel při pokračování hry z auto savu.
+  </td> 
+ <tr>
+ <tr valign="top">
+  <td width="130">
+   <span class="d1">V1.50 - 24.10.2026</span>:
+  </td>
+  <td>
+   Opraven randomizér stromů, aby nerandomizoval již navštívené mapy.
   </td> 
  <tr>
 </table>

@@ -307,7 +307,8 @@ MissionData {
 <br>
 <a name="treerandomizer"></a>
 <div class="n2">9 - Trees randomzier</div><p align="justify">
-&nbsp;&nbsp; Visual of Spellcross is bit boring, so I decided to include trees randomizing feature. It works similarly to the units randomizer. Setup is launched using menu <b>Mod-&gt;Config Trees Randomizer</b>. There it is possible to define rules such as replace list of source trees by random trees list with predefined probabilities. Created presets can be saved and loaded. The randomizer function can be activated in main panel by <b>Randomize trees</b> option.  
+&nbsp;&nbsp; Visual of Spellcross is bit boring, so I decided to include trees randomizing feature. It works similarly to the units randomizer. Setup is launched using menu <b>Mod-&gt;Config Trees Randomizer</b>. There it is possible to define rules such as replace list of source trees by random trees list with predefined probabilities. Created presets can be saved and loaded. The randomizer function can be activated in main panel by <b>Randomize trees</b> option. 
+Panel also contain global options. You can exclude already visited maps from randomization. This is needed because when map DTA file is modified, it will no longer be compatible with save game's visited map state files "*.MAP". This results in random sprites being displayed. So, by default launcher excludes visited maps from autosave (WORKDIR) but you can enable exclusion of visited maps from all save games (safe option).  
 </p>
 
 <table align="center"><tr><td>
@@ -404,6 +405,14 @@ MissionData {
   </td>
   <td>
    Added new game patch from HonzaQ V1.20. New flags in JEDNOTKY.DEF, fixed group movement for multiple SpecialUnits (convoys), fixed enemy XP levels when continue map from auto save.
+  </td>
+ <tr>
+  <tr valign="top">
+  <td width="200">
+   <span class="d1">V1.50 - October 24th, 2026</span>:
+  </td>
+  <td>
+   Fixed trees randomizer so it won't randomize already visited maps.
   </td>
  <tr>
 
