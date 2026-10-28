@@ -176,6 +176,7 @@ SpellDefSection *SpellDEF::GetSection(std::string section)
 		// parse basic command
 		SpellDefCmd* cmd = new SpellDefCmd(tokens[0],tokens[1],"");
 		sec_data->Add(cmd);
+		cmd->valid = true;
 
 		if(tokens.size() < 4 || tokens[3].empty())
 			continue;
@@ -188,6 +189,7 @@ SpellDefSection *SpellDEF::GetSection(std::string section)
 		if(!tokens[1].empty())
 			cmd->sub_params  = get_text_lines(tokens[1],true,',');							
 		cmd->sub_full_command = cmd->sub_name + "(" + tokens[1] + ")";
+		cmd->sub_valid = true;
 	}			
 
 	return(sec_data);

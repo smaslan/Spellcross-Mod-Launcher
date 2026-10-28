@@ -999,6 +999,17 @@ std::string get_local_time_str()
     return(buffer.str());
 }
 
+// get local data ad YYYYMMDD
+std::string get_date_str_yyyymmdd()
+{
+    auto time = std::chrono::system_clock::now();
+    std::time_t tt = std::chrono::system_clock::to_time_t(std::chrono::time_point_cast<std::chrono::system_clock::duration>(time));
+    std::tm* gmt = std::localtime(&tt);
+    std::stringstream buffer;
+    buffer << std::put_time(gmt,"%Y%m%d");
+    return(buffer.str());
+}
+
 // initialize random number generator by time
 void srand_init()
 {

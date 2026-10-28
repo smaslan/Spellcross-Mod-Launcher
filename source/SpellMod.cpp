@@ -817,10 +817,10 @@ SpellModPath* SpellMod::AddPath(std::string name,std::filesystem::path path,std:
 // clear local variable
 void SpellMod::ClearVars()
 {
-    m_vars.clear();
-    
+    m_vars.clear();    
 
     // add default variables
+    AddVar("YYYYMMDD",get_date_str_yyyymmdd(),true);
     AddVar("DATE",get_local_time_str(),true);
     AddVar("VER",(m_ver.engine_ver == SpellLaunch::EngineVersion::ENG)?"\"ENG\"":"\"CZE\"",true);
 }

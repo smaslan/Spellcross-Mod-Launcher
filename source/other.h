@@ -113,6 +113,7 @@ int loaddata(std::filesystem::path path,std::vector<uint8_t>& data);
 std::string trim_whites(std::string str,bool also_below_32=false);
 std::string get_timestr_iso();
 std::string get_local_time_str();
+std::string get_date_str_yyyymmdd();
 void srand_init();
 int str2int(std::string str,int& value,int min=-INT_MIN,int max=INT_MAX,int base=10);
 int str2int(std::vector<std::string>& str,std::vector<int>& value,int min=-INT_MIN,int max=INT_MAX,int base=10);
