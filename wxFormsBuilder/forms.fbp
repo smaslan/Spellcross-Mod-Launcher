@@ -164,7 +164,7 @@
             <property name="unchecked_bitmap"></property>
           </object>
         </object>
-        <object class="wxMenu" expanded="false">
+        <object class="wxMenu" expanded="true">
           <property name="label">Setup</property>
           <property name="name">mmSetup</property>
           <property name="permission">protected</property>
@@ -181,6 +181,10 @@
             <property name="shortcut"></property>
             <property name="unchecked_bitmap"></property>
           </object>
+          <object class="separator" expanded="true">
+            <property name="name">m_separator171</property>
+            <property name="permission">none</property>
+          </object>
           <object class="wxMenuItem" expanded="false">
             <property name="bitmap"></property>
             <property name="checked">0</property>
@@ -190,6 +194,19 @@
             <property name="kind">wxITEM_NORMAL</property>
             <property name="label">Apply patch to SPELCROS.EXE</property>
             <property name="name">mmPatch</property>
+            <property name="permission">none</property>
+            <property name="shortcut"></property>
+            <property name="unchecked_bitmap"></property>
+          </object>
+          <object class="wxMenuItem" expanded="true">
+            <property name="bitmap"></property>
+            <property name="checked">0</property>
+            <property name="enabled">1</property>
+            <property name="help"></property>
+            <property name="id">wxID_MM_PATCH_INFO</property>
+            <property name="kind">wxITEM_NORMAL</property>
+            <property name="label">Patch read me</property>
+            <property name="name">mmPatchInfo</property>
             <property name="permission">none</property>
             <property name="shortcut"></property>
             <property name="unchecked_bitmap"></property>

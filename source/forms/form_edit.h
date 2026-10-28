@@ -83,7 +83,7 @@ public:
 
 	FormEdit(wxWindow* parent,wxWindowID id = wxID_ANY,const wxString& title = _("Text editor"),const wxPoint& pos = wxDefaultPosition,const wxSize& size = wxSize(608,418),long style = wxDEFAULT_FRAME_STYLE|wxSTAY_ON_TOP|wxTAB_TRAVERSAL);
 	~FormEdit();
-	void SetPath(std::filesystem::path path);
+	void SetPath(std::filesystem::path path, bool is_utf8=false);
 
 };
 

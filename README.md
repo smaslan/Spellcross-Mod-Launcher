@@ -127,6 +127,10 @@ Also, you can star my project here on GitHub if you like to help me out on a way
     - Group movement works with two special units (convoys).
 - [V1.50, 24th October 2026 (7zip file)](./builds/Spellcross-Mod-Launcher-V1.50.7z)
   - Trees randomizer now won't randomize already visited maps, so the bug with random sprites being displayed should be solved. See randomizer config panel for setup.
+- [V1.51, 28th October 2026 (7zip file)](./builds/Spellcross-Mod-Launcher-V1.51.7z)
+  - add new game engine patch HonzaQ V1.20 (careful, not fully tested, make backups!):
+    - Fixed low morale AP loss on unit move.
+    - Add new event types (timed events, mission time limits, ...).   
 
 
 ## Usage

@@ -1,0 +1,47 @@
+Patch Note — Spellcross Engine Patcher V1.25
+
+**Verze:** V1.25  
+**Datum:** 27. října 2026
+
+
+V1.25 opravy a rozšíření
+
+- oprava chyby pohybu jednotek s minimalní morálkou
+- Přidán časový limit mise
+- Přidán úkol přežít N kol
+- Časované události podle kola
+- Odložené triggery, událost se nespustí ihned, ale odloží se přesně o N kol
+- Dynamický tooltip na tlačítku Konec kola:
+	- U misí s časovým limitem nebo úkolem přežití zobrazuje aktuální kolo i celkový limit: „Konec kola (5/25)“
+	- U misí bez časového limitu zobrazuje aktuální číslo kola: „Konec kola (5)“
+
+
+
+V1.20 opravy a rozšíření
+
+- oprava chyby kdy se již naskriptované jednotky po Save/Load a návratu přes „Pokračovat“ nespawnují se základním minimálním levelem 0, ale s plnohodnotným škálovaným levelem i odpovídajícími XP
+- oprava chyby, kdy nešlo vybrat a zařadit do skupiny druhou konvojovou jednotku
+- nahrazení natvrdo zakódovaného 100% zásahu u Anti-tankových Orků do JEDNOTKY.DEF
+- do JEDNOTKY.DEF přidány nové vlasnosti:
+	- Ignoruje obranu tanku / obrnenych jednotek – útoky této jednotky mají 100% šanci na zásah proti obrněným cílům
+	- Ignoruje obranu letectva / vzdusnych jednotek – útoky této jednotky mají 100% šanci na zásah proti vzdušným cílům
+	- Ignoruje obranu pechoty / lehkych jednotek – útoky této jednotky mají 100% šanci na zásah proti lehkým/pěším cílům
+  
+
+V1.15 opravy a balanc
+
+- oprava spatně fungujcích zvuků z M_SOUNDS.DEF
+- zvednutí minimální hranice morálky u těžké obtížnosti na 20%
+- vypnutí paniky při dlouhém stání v zákopu
+- oprava chyby kde šlo během přesunu jedné skupiny vybrat další a tím zpusobit rozbití hry
+
+
+V1.00 rozšíření limitů enginu
+
+- maximalni pocet definic jednotek rozsiren z 90 na 127
+- zvukove tabulky rozsireny: A_SOUNDS na 127, Z_SOUNDS na 80, H_SOUNDS na 50
+- vyrovnavaci pamet pro obsah grafiky jednotek UNITS.FSU zvetsena z 220 KB na 1 000 000 B (~1 MB, prostor pro 600+ novych jednotek)
+- vyrovnavaci pameti snimku (Frame cache 1 a 2) zvetseny ze 4 KB na 64 KB (ochrana pred pretecenim bufferu)
+- tabulka souboru vsech .FS archivu (DEVAST.FS, PUST.FS, T11.FS, INFO.FS) rozsirena z 2 600 na 4 096 souboru
+- kapacita vylepšení ve výzkumné dílně zdvojnásobena z 36 na 72 položek
+- rozšíření ukládací a načítací rutiny pro fyzický formát savů

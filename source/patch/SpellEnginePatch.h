@@ -2,13 +2,13 @@
 
 /**
  * =================================================================================================
- * Spellcross Engine Patch V1.20 - C++ Integration Module
+ * Spellcross Engine Patch V1.25 - C++ Integration Module
  * =================================================================================================
  * Compatibility: SPELCROS.EXE (1,632,112 bytes)
  * Architecture: x86 / DOS / DOS4GW / LE (Linear Executable)
- * Author: HonzaQ & AI Assistant (2026-10-17)
+ * Author: HonzaQ & AI Assistant (2026-10-27)
  *
- * This module applies the complete unified engine modifications:
+ * This module applies the complete unified engine modifications (Modules 1 to 7):
  *   1. Extended limits V1.0:
  *      - Extended unit limits (90 -> 127 units)
  *      - Extended sound definitions (A_SOUNDS: 90 -> 127, Z_SOUNDS: 48 -> 80, H_SOUNDS: 28 -> 50)
@@ -17,11 +17,11 @@
  *      - Expanded UNITS.FSU TOC (220 KB -> 1 MB) and .FS TOC (2,600 -> 4,096 files)
  *      - Expanded sprite/frame cache buffers (64 KB each)
  *      - Dynamic MainMenu version overlay with centering & adaptive background box
- *   2. Selective panic & entrenchment floor (Panika V5):
+ *   2. Selective panic & entrenchment floor (Panika V6):
  *      - Restored 2x multiplier for prolonged entrenchment (>22 turns)
  *      - Enforced hard floor clamping to entrenchment limit instead of 0
  *      - Hard difficulty entrenchment limit set to 20% (0x14)
- *      - Panic threshold raised to 14 (0x0E) across all 4 engine checks
+ *      - Panic threshold raised to 14 (0x0E) across all 5 engine checks (fixes AP drain bug on movement at morale 20)
  *   3. Group selection and tactical map clicking lock (Vyber skupin V1.14):
  *      - Code Cave at VA 0x00054D16 checking motion/combat animation states
  *      - Hook 1 at VA 0x0001A361 silently discarding keys 1-8 during unit movement
@@ -43,6 +43,16 @@
  *      - 132-byte PIC code cave at VA 0x000E62A0 (file offset 0x00114EA0)
  *      - Dynamically recalculates average player army level, applies game difficulty (-1/0/+2),
  *        clamps to 0..12, writes to DAT_0066fd50 and raises spawned unit level [ebp-0x18] if lower.
+ *   7. Tactical Turn Counter & Event System (Modul 7):
+ *      - 1,835-byte 100% Position-Independent Code (PIC) cave at VA 0x000E6340 (file offset 0x00114F40)
+ *      - 10 fixup-free hooks in tactical engine (parsing, victory evaluation, triggers, tooltip)
+ *      - TimeLimit = N in [MissionData] enforces mission turn limit (defeat if turns exceeded)
+ *      - AddMissionObjective(SurviveTurns, N, "Desc") (Type 7 victory condition)
+ *      - AddMissionObjective(TimeLimit, N, "Desc") (Type 8 objective condition)
+ *      - AddSpecialEvent(Turn, turn, id, chance) (Type 4 turn-arrival event trigger)
+ *      - AddSpecialEvent(SeePlace, tile, id, 100+N) (delayed event trigger by N turns)
+ *      - Interactive End Turn button tooltip: "Konec kola (5/25)" or "Konec kola (5)"
+ *      - Global BSS variable DAT_time_limit at VA 0x00855000 (Obj3 + 0x5ea314)
  * =================================================================================================
  */
 
@@ -116,14 +126,15 @@ void Patch_Group_Selection_Lock(std::vector<uint8_t>& exe);
 void Patch_Convoy_Slot49(std::vector<uint8_t>& exe);
 void Patch_Defense_Bypass_Flags(std::vector<uint8_t>& exe);
 void Patch_Spawn_Level_Fix(std::vector<uint8_t>& exe);
+void Patch_Tactical_Turn_Timer(std::vector<uint8_t>& exe);
 
 /**
- * @brief Checks if the executable has already been patched with Engine Patch V1.20.
+ * @brief Checks if the executable has already been patched with Engine Patch V1.25.
  */
 bool IsSpellcrossEnginePatched(const std::vector<uint8_t>& exe_vector);
 
 /**
- * @brief Applies the complete Spellcross Engine Patch V1.20 to the SPELCROS.EXE vector.
+ * @brief Applies the complete Spellcross Engine Patch V1.25 to the SPELCROS.EXE vector.
  * @param exe_vector Vector containing loaded SPELCROS.EXE bytes.
  * @param error_msg Optional pointer to string receiving error description on failure.
  * @return true on success, false on failure.

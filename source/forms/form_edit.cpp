@@ -129,14 +129,19 @@ FormEdit::~FormEdit()
 }
 
 // set initial file path
-void FormEdit::SetPath(std::filesystem::path path)
+void FormEdit::SetPath(std::filesystem::path path, bool is_utf8)
 {
 	m_path = path;
 	if(!m_path.empty())
 	{
 		std::string buf;
 		loadstr(m_path,buf);
-		text->SetValue(buf);
+
+		if(is_utf8)
+			text->SetValue(wxString::FromUTF8(buf));
+		else
+			text->SetValue(buf);
+
 		m_modified = false;
 		sbar->SetStatusText("",1);
 		sbar->SetStatusText(m_path.wstring(),0);

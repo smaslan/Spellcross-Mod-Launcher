@@ -20,7 +20,7 @@
 #include "forms/form_save_edit.h"
 #include "forms/form_save_backup.h"*/
 
-// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-01 21:46:59
+// <wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-28 09:01:06
 #include <wx/artprov.h>
 #include <wx/xrc/xmlres.h>
 #include <wx/intl.h>
@@ -53,7 +53,7 @@
 #include <wx/panel.h>
 #include <wx/notebook.h>
 
-// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-01 21:46:59
+// </wxFormsBuilder-include> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-28 09:01:06
 
 
 // app entry point class
@@ -172,6 +172,7 @@ private:
 	void OnChangeExe(wxCommandEvent& event);
 	void OnInstallGame(wxCommandEvent& event);
 	void OnPatchExe(wxCommandEvent& event);
+	void OnPatchInfo(wxCommandEvent& event);
 	void OnUnitRandomizeConfig(wxCommandEvent& event);
 	void OnTreesRandomizeConfig(wxCommandEvent& event);
 
@@ -182,7 +183,7 @@ private:
 	void ConsoleBuffer(std::string str);
 	void ClearModOptions();
 	void FillModOptions();
-	void EditFile(std::filesystem::path path);
+	void EditFile(std::filesystem::path path, bool is_utf8=false);
 	void SetControlsState(bool busy);
 	void FillChoicePaths(wxChoice* choice,CSimpleIniA* ini,std::string section,std::string key);
 	void SaveChoicePaths(wxChoice* choice,CSimpleIniA* ini,std::string section,std::string key,std::string comment="");
@@ -212,7 +213,7 @@ private:
 	const std::string str_choice_none=">>> None found <<<";
 	const std::string str_choice_no_select=">>> Empty path <<<";
 	const std::string str_mod_state_ini_none="mod_state.ini";
-	const std::string str_ver_label = "V1.50, build: " __DATE__;
+	const std::string str_ver_label = "V1.51, build: " __DATE__;
 	
 
 	FormEdit *form_edit;
@@ -225,7 +226,7 @@ protected:
 	
 	
 
-	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-01 21:46:59
+	// <wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-28 09:01:06
 	enum
 	{
 		wxID_FORM_MAIN = 6000,
@@ -237,6 +238,7 @@ protected:
 		wxID_MM_EXIT,
 		wxID_MM_INSTALL,
 		wxID_MM_PATCH,
+		wxID_MM_PATCH_INFO,
 		wxID_MM_EDIT_SPELLCFG,
 		wxID_MM_EDIT_DOSBOX_CFG,
 		wxID_MM_RUN_SETUPBAT,
@@ -358,7 +360,7 @@ protected:
 	wxButton* btnRestoreWDmod;
 	wxButton* btnRunMod;
 
-	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-01 21:46:59
+	// </wxFormsBuilder> - Section auto-inserted from 'forms.h' class 'FormMain' on 2026-10-28 09:01:06
 
 
 public:

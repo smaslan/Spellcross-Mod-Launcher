@@ -34,6 +34,7 @@ public:
         EN_HONZAQ_V100, // HonzaQ patch V1.00
         EN_HONZAQ_V115, // HonzaQ patch V1.15
         EN_HONZAQ_V120, // HonzaQ patch V1.20
+        EN_HONZAQ_V125, // HonzaQ patch V1.25
         CZ_100, // 1.00
         CZ_106, // CZ patch 1.06
         CZ_107 // CZ patch 1.07
@@ -78,6 +79,7 @@ private:
 
     static int Patch_HonzaQ100_to_base(std::vector<uint8_t>& exe);
     static int Patch_HonzaQ115_to_base(std::vector<uint8_t>& exe);
+    static int Patch_HonzaQ120_to_base(std::vector<uint8_t>& exe);
 };
 
 
