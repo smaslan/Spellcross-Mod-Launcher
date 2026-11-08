@@ -1033,13 +1033,24 @@ int savestr(std::filesystem::path path, const std::string &str)
     return(0);
 }
 
-// save string to a file (save as binary - no alteration of line breaks)
+// save data to a file
 int savedata(std::filesystem::path path,const std::vector<uint8_t>& data)
 {
     std::ofstream fw(path,std::ios::out | std::ios::binary | std::ios::trunc);
     if(!fw.is_open())
         return(1);
     fw.write((const char*)data.data(),data.size());
+    fw.close();
+    return(0);
+}
+
+// save data to a file
+int savedata(std::filesystem::path path,const std::vector<uint32_t>& data)
+{
+    std::ofstream fw(path,std::ios::out | std::ios::binary | std::ios::trunc);
+    if(!fw.is_open())
+        return(1);
+    fw.write((const char*)data.data(),data.size()*sizeof(uint32_t));
     fw.close();
     return(0);
 }

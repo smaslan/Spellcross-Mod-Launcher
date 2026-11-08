@@ -1365,8 +1365,8 @@ void FormMain::OnSaveEdit(wxCommandEvent& event)
 		return;
 	form_save_edit = new FormSaveEdit(this,wxID_FORM_SAVE_EDIT);
 	if(!form_save_edit)
-		return;	
-	
+		return;		
+
 	auto spell_dir = GetPathChoiceLastPath(chSpellPath);
 	if(event.GetId() == wxID_MM_SAVE_EDIT_ORIG)
 	{
@@ -1393,6 +1393,8 @@ void FormMain::OnSaveEdit(wxCommandEvent& event)
 			wxMessageBox("Spellcross mod path not selected! Cannot run save edit for modded version without mod path.","Error",wxICON_ERROR);
 			return;
 		}
+		
+		form_save_edit->SetModPath(std::filesystem::path(mod_path).parent_path());
 		
 		SpellMod::Config mod_config;
 		mod_config.allow_cd_mod = cbAllowCDmod->GetValue();

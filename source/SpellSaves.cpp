@@ -2370,6 +2370,17 @@ int SpellSaveBigMap::SyncLevel()
     return(0);
 }
 
+// generate SSD file for given level
+int SpellSaveBigMap::ExportSSD(std::filesystem::path ssd_path)
+{
+    std::vector<uint32_t> ssd(32,0);
+    for(int k = 0; k < std::min<int>(bigmap.terr.size(),31); k++)
+        if(bigmap.terr[k].valid)
+            ssd[k + 1] = bigmap.terr[k].ssd_flags;
+    return(savedata(ssd_path, ssd));
+}
+
+
 // check if unit was already encountered based on research states
 bool SpellSaveBigMap::wasUnitEncountered(SpellUnitRec* unit)
 {

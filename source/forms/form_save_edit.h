@@ -96,6 +96,8 @@ private:
 	void OnUnitsPupup(wxCommandEvent& event);
 	void OnCommanderPupupOpen(wxMouseEvent& event);
 	void OnCommanderPupup(wxCommandEvent& event);
+	void OnTerrPupupOpen(wxMouseEvent& event);
+	void OnTerrPupup(wxCommandEvent& event);
 
 	wxString OnGetUnitItem(long item_id);
 	void OnUnitBeginDrag(wxListEvent& event);
@@ -112,6 +114,7 @@ private:
 	wxListItemAttr* OnGetHierCommanderItemAttr(long item_id);
 	void FillHierarchy();
 
+	std::filesystem::path m_mod_dir;
 	std::filesystem::path m_common_fs_path;
 	std::filesystem::path m_save_dir;
 	bool m_is_mod;
@@ -135,7 +138,8 @@ private:
 		UNIT_REM,
 		UNIT_REINFORCE,
 		COMM_ADD,
-		COMM_REM
+		COMM_REM,
+		SSD_EXPORT
 	};
 
 protected:
@@ -279,6 +283,7 @@ public:
 	FormSaveEdit(wxWindow* parent,wxWindowID id = wxID_FORM_SAVE_EDIT,const wxString& title = _("Spellcross Save Game Editor"),const wxPoint& pos = wxDefaultPosition,const wxSize& size = wxSize(1200,750),long style = wxDEFAULT_FRAME_STYLE|wxTAB_TRAVERSAL);
 	~FormSaveEdit();
 
+	void SetModPath(std::filesystem::path mod_dir);
 	void SetCommonPath(std::filesystem::path common_fs_path,bool is_mod);
 	void SetSaveDir(std::filesystem::path save_dir);
 

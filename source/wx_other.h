@@ -121,7 +121,8 @@ public:
 		WSTRING,
 		ENUM,
 		ENUM_STR,
-		ARRAY
+		ARRAY,
+		BITARRAY
 	};
 
 	DataType m_type;
@@ -188,6 +189,20 @@ public:
 				if(sel_id == ch.end())
 					continue;
 				data->push_back(sel_id - ch.begin());
+			}				
+		}
+		else if(m_type == wxPGobj::DataType::BITARRAY)
+		{
+			auto data = (uint32_t*)m_data;
+			*data = 0;
+			auto selections = prop->GetValue().GetArrayString();
+			auto ch = prop->GetChoices().GetLabels();
+			for(auto &sel: selections)
+			{
+				auto sel_id = std::find(ch.begin(), ch.end(), sel);
+				if(sel_id == ch.end())
+					continue;
+				*data |= 1 << (sel_id - ch.begin() + m_mask);
 			}				
 		}
 		else
@@ -336,13 +351,29 @@ private:
 			list.push_back(ch_list[id]);
 		return(list);
 	};
+	wxArrayString GenSelections(wxPGChoices& choices, uint32_t *values,int shift = 0)
+	{		
+		auto ch_list = choices.GetLabels();
+		wxArrayString list;
+		for(int k = 0; k < choices.GetCount(); k++)
+			if(*values & (1 << (k + shift)))
+				list.push_back(ch_list[k]);
+		return(list);
+	};
 public:
 	wxMultiChoicePropertyExt(const wxString& label,const wxString& name,wxPGChoices& choices,std::vector<int> *value)
 		: wxMultiChoiceProperty(label,name,choices,GenSelections(choices,value))
 	{
 		SetClientObject(new wxPGobj(wxPGobj::DataType::ARRAY,value));
 	};
+	wxMultiChoicePropertyExt(const wxString& label,const wxString& name,wxPGChoices& choices,uint32_t *value,int shift = 0)
+		: wxMultiChoiceProperty(label,name,choices,GenSelections(choices,value,shift))
+	{
+		SetClientObject(new wxPGobj(wxPGobj::DataType::BITARRAY,value,shift));
+	};
 };
+
+
 
 
 

@@ -109,6 +109,7 @@ std::string strrep(const std::string& str,std::string key,std::string rep);
 int savestr(std::filesystem::path path,const std::string& str);
 int loadstr(std::filesystem::path path,std::string& strbuf);
 int savedata(std::filesystem::path path,const std::vector<uint8_t>& data);
+int savedata(std::filesystem::path path,const std::vector<uint32_t>& data);
 int loaddata(std::filesystem::path path,std::vector<uint8_t>& data);
 std::string trim_whites(std::string str,bool also_below_32=false);
 std::string get_timestr_iso();

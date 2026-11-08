@@ -377,6 +377,8 @@ public:
     int SyncResearch();
     int SyncLevel();
 
+    int ExportSSD(std::filesystem::path ssd_path);
+
     bool wasUnitEncountered(SpellUnitRec *unit);
 
     std::map<int,std::wstring> GetUpgradeList(SpellSaveUpgrade::UpgradeClass type);

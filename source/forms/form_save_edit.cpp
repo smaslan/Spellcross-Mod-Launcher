@@ -745,6 +745,9 @@ FormSaveEdit::FormSaveEdit( wxWindow* parent, wxWindowID id, const wxString& tit
 	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnGenericPropChange,this,wxID_GRID_UPG);
 	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnGenericPropChange,this,wxID_GRID_EVENT);
 
+	Bind(wxEVT_PG_CHANGED,&FormSaveEdit::OnGenericPropChange,this,wxID_GRID_EVENT);
+
+	gridTerritoriesProp->Bind(wxEVT_RIGHT_DOWN,&FormSaveEdit::OnTerrPupupOpen,this);
 	
 	
 	listUnits->SetGetItemTextCb(std::bind(&FormSaveEdit::OnGetUnitItem,this,std::placeholders::_1));
@@ -850,6 +853,11 @@ void FormSaveEdit::OnCloseClick(wxCommandEvent& event)
 	Close();
 }
 
+// set path to common.fs
+void FormSaveEdit::SetModPath(std::filesystem::path mod_dir)
+{
+	m_mod_dir = mod_dir;
+}
 
 // set path to common.fs
 void FormSaveEdit::SetCommonPath(std::filesystem::path common_fs_path, bool is_mod)
@@ -2127,10 +2135,17 @@ void FormSaveEdit::OnTerritorySelect(wxCommandEvent& event)
 	gridTerritoriesProp->Append(new wxIntPropertyExt(wxT("Money/round"),wxT(""),&terr.money_per_round));
 	gridTerritoriesProp->Append(new wxIntPropertyExt(wxT("Remaining time"),wxT(""),&terr.remain_time));
 	gridTerritoriesProp->Append(new wxIntPropertyExt(wxT("FrequencyOfRandomAttacks(?,)"),wxT(""),&terr.freq_random_attacks_b));
-	gridTerritoriesProp->Append(new wxIntPropertyExt(wxT("FrequencyOfRandomAttacks(,?)"),wxT(""),&terr.freq_random_attacks_a));
-	gridTerritoriesProp->Append(new wxStringProperty(wxT("Neighbor flags (SSD)"),wxT(""),format_bin(terr.ssd_flags,32,true)));
+	gridTerritoriesProp->Append(new wxIntPropertyExt(wxT("FrequencyOfRandomAttacks(,?)"),wxT(""),&terr.freq_random_attacks_a));		
+	
+	std::map<int,std::string> terr_names;
+	for(auto &terr: m_bigmap.bigmap.terr)		
+		terr_names[&terr - m_bigmap.bigmap.terr.data()] = (terr.valid)?terr.dta_name:"";
+	gridTerritoriesProp->Append(new wxMultiChoicePropertyExt(wxT("Neighbor flags (SSD)"),wxT("ssd"),MapToPGenumChoices(terr_names),&terr.ssd_flags,1));
+
 	gridTerritoriesProp->Append(new wxStringProperty(wxT("Flags"),wxT(""),string_format("%02X",terr.flags)));
 	gridTerritoriesProp->Append(new wxEnumProperty(wxT("State"),wxT("state"),MapToPGenumChoices(SpellSaveTerritories::c_states),terr.flags));	
+	
+
 
 	gridTerritoriesProp->Thaw();
 	gridTerritoriesProp->FitColumns();
@@ -2178,6 +2193,56 @@ void FormSaveEdit::OnTerrPropChange(wxPropertyGridEvent& event)
 
 	OnTerritorySelect(event);
 }
+
+
+
+
+// show popup menu on terrain
+void FormSaveEdit::OnTerrPupupOpen(wxMouseEvent& event)
+{
+	wxMenu menu;
+	
+	auto prop = gridTerritoriesProp->GetSelection();
+	if(!prop)
+		return;
+	if(prop->GetName().compare("ssd") == 0)
+		menu.Append((int)PopupActions::SSD_EXPORT,"Export BigMap SSD file");
+	
+	menu.Connect(wxEVT_COMMAND_MENU_SELECTED,wxCommandEventHandler(FormSaveEdit::OnTerrPupup),NULL,this);
+	PopupMenu(&menu);
+}
+void FormSaveEdit::OnTerrPupup(wxCommandEvent& event)
+{
+	auto menu_id = (PopupActions)event.GetId();
+	auto menu = (wxMenu*)event.GetEventObject();
+	if(!menu)
+		return;
+	//auto sel_id = *(int*)menu->GetClientData();
+
+	if(menu_id == PopupActions::SSD_EXPORT)
+	{
+		// export big map SSD file
+
+		auto mod_dir = m_mod_dir;
+		if(mod_dir.empty())
+			mod_dir = m_common_fs_path.parent_path();
+
+		auto name = string_format("LEVEL_%02d.SSD",m_bigmap.bigmap.level);
+		auto dir = mod_dir;
+		wxFileDialog saveFileDialog(this,"Select BigMap SSD file path",dir.wstring(),name,"Spellcross SSD file (*.SSD)|*.SSD",
+			wxFD_SAVE|wxFD_OVERWRITE_PROMPT);
+		if(saveFileDialog.ShowModal() == wxID_CANCEL)
+			return;
+		auto ssd_path = std::filesystem::path(saveFileDialog.GetPath().ToStdWstring());
+		m_mod_dir = ssd_path.parent_path();
+
+		m_bigmap.ExportSSD(ssd_path);
+	}	
+}
+
+
+
+
 
 // render preview
 void FormSaveEdit::OnPaintBigmapCanvas(wxPaintEvent& event)
@@ -2230,18 +2295,22 @@ void FormSaveEdit::OnPaintBigmapCanvas(wxPaintEvent& event)
 		col = pow((double)col/255.0, 1.0/2.5)*255.0;
 	uint8_t(*pal_high)[3] = (uint8_t(*)[3])pal_high_buf.data();
 
-
-	/*std::vector<uint8_t> timers(x_size*y_size,0);
-	for(auto tid = 0; tid < m_bigmap.bigmap.terr_count; tid++)
+	// make neighbor pallette
+	auto pal_neighbor_buf = m_bigmap.bigmap.pal;
+	for(int k = 0; k < pal_neighbor_buf.size()/3; k++)
 	{
-		if(m_bigmap.bigmap.terr[tid].remain_time >= 0)
-		{
-			m_bigmap.
-		}
-	}*/
+		pal_neighbor_buf[k*3 + 0] = pow((double)pal_neighbor_buf[k*3 + 0]/255.0, 1.0/2.5)*255.0;
+		pal_neighbor_buf[k*3 + 1] = pow((double)pal_neighbor_buf[k*3 + 1]/255.0, 1.0/2.5)*255.0;
+	}
+	uint8_t(*pal_neighbor)[3] = (uint8_t(*)[3])pal_neighbor_buf.data();
 
 	int mouse_hover_id = m_territory_mouse + 0;
-			
+
+	// get territory SSD flags
+	uint32_t ssd = 0;
+	if(terr_id > 0 && terr_id <= m_bigmap.bigmap.terr_count)
+		ssd = m_bigmap.bigmap.terr[terr_id - 1].ssd_flags;
+
 	// render 32bit RGBA data to raw bmp buffer
 	uint8_t* buf = &m_bigmap.bigmap.image[0];
 	uint8_t* terr = &m_bigmap.bigmap.terr_mask[0];
@@ -2258,12 +2327,18 @@ void FormSaveEdit::OnPaintBigmapCanvas(wxPaintEvent& event)
 			// visible area
 			if(is_visible)
 			{				
-				
+				bool is_ssd = *terr && ((ssd >> (*terr - 0)) & 1);
 				if(*terr && (*terr == terr_id || *terr == mouse_hover_id))
 				{
 					*scan++ = pal_high[*buf][2];
 					*scan++ = pal_high[*buf][1];
 					*scan++ = pal_high[*buf][0];
+				}
+				else if(is_ssd)
+				{
+					*scan++ = pal_neighbor[*buf][2];
+					*scan++ = pal_neighbor[*buf][1];
+					*scan++ = pal_neighbor[*buf][0];
 				}
 				else
 				{
