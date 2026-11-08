@@ -3124,7 +3124,7 @@ int SpellMod::BuildMod(Config& config, bool allow_restore)
                     map_name = strrep(map_name,".DTA",".MAP");
                     if(iequals(config.save_map_names,map_name) >= 0)
                         continue;
-
+                    
                     // get source DTA map
                     if(arch->GetFile(name,data))
                     {

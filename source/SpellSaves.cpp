@@ -49,6 +49,34 @@ int SpellSave::LoadSave(std::filesystem::path dir,Save &save, bool allow_empty)
     // try list MAP files (visited map names)
     fs_list_dir(dir, "*.MAP", true, false, &save.map_names);
 
+    // check in current mission save
+	auto mission_path = dir / "MISSION.CNT";
+    if(std::filesystem::exists(mission_path))
+    {
+		std::vector<uint8_t> data;
+		if(loaddata(mission_path, data))
+            return(1);
+        std::unique_ptr<LZWexpand> lzw = std::make_unique<LZWexpand>(100000);
+        auto mis = lzw->Decode(data);
+        if(mis.empty())
+            return(1);  
+
+        // get DEF name
+        std::string def_name;
+		auto ptr = mis.data() + 2;
+		if(data_read_str(def_name, ptr, mis.data() + mis.size(), 12))
+            return(1);
+
+        // try make DTA name
+		auto tok = regexp_get(def_name, "([Mm]\\d\\d_\\d\\d)");
+        if(tok.empty())
+            return(0);
+        auto dta_name = toupper(tok[0]) + ".MAP";
+
+        // add to list
+		save.map_names.push_back(dta_name);
+    }
+
     return(0);
 }
 
