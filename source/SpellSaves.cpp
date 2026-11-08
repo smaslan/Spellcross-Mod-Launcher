@@ -67,14 +67,19 @@ int SpellSave::LoadSave(std::filesystem::path dir,Save &save, bool allow_empty)
 		if(data_read_str(def_name, ptr, mis.data() + mis.size(), 12))
             return(1);
 
-        // try make DTA name
+        // try make DTA name if normal mission?
 		auto tok = regexp_get(def_name, "([Mm]\\d\\d_\\d\\d)");
         if(tok.empty())
+        {
+            // counter attack mission?
+            tok = regexp_get(def_name, "R(\\d\\d)(\\d\\d)");
+            if(!tok.empty())
+				tok[0] = "M" + tok[0] + "_" + tok[1];
+        }
+        if(tok.empty())
             return(0);
-        auto dta_name = toupper(tok[0]) + ".MAP";
-
-        // add to list
-		save.map_names.push_back(dta_name);
+   		auto dta_name = toupper(tok[0]) + ".MAP";
+        save.map_names.push_back(dta_name);
     }
 
     return(0);
